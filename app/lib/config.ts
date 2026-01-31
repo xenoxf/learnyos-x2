@@ -2,22 +2,19 @@
 
 export const API_CONFIG = {
   // Base URL
-  BASE_URL: process.env.VITE_BACKEND_URL || 'http://localhost:3000/api',
-  
-  // Optional API Key
-  API_KEY: process.env.VITE_API_KEY || '',
+  BASE_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api',
   
   // Google OAuth
-  GOOGLE_CLIENT_ID: process.env.VITE_GOOGLE_CLIENT_ID || '',
-  GOOGLE_OAUTH_URI: 'https://accounts.google.com/gsi/client',
+  GOOGLE_CLIENT_ID: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || '',
+  GOOGLE_REDIRECT_URI: process.env.NEXT_PUBLIC_GOOGLE_REDIRECT_URI || `${typeof window !== 'undefined' ? window.location.origin : ''}/auth/callback`,
   
   // Timeouts
-  REQUEST_TIMEOUT: 30000, // 30 segundos
+  REQUEST_TIMEOUT: 30000,
   
   // Storage Keys
   STORAGE_KEYS: {
-    AUTH_TOKEN: 'auth_token',
-    AUTH_USER: 'auth_user',
+    AUTH_TOKEN: 'token',
+    AUTH_USER: 'user',
   },
   
   // Endpoints
@@ -25,23 +22,22 @@ export const API_CONFIG = {
     // Auth
     LOGIN: '/auth/login',
     REGISTER: '/auth/register',
-    VERIFY_TOKEN: '/auth/verify-token',
+    GOOGLE_URL: '/auth/google/url',
+    GOOGLE_CALLBACK: '/auth/google/callback',
+    LOGOUT: '/auth/logout',
+    ME: '/auth/me',
     
     // Exams
     EXAMS: '/exams',
-    EXAMS_GENERATE_TOPIC: '/exams/generate/topic',
-    EXAMS_GENERATE_REFERENCE: '/exams/generate/reference',
+    EXAMS_GENERATE: '/exams/generate/topic_or_referencia',
     
     // Flashcards
-    CARDS: '/flash-cards/cards',
-    FLASHCARDS: '/flash-cards/flashcards',
-    FLASHCARDS_GENERATE_TOPIC: '/flash-cards/generate/topic',
-    FLASHCARDS_GENERATE_REFERENCE: '/flash-cards/generate/reference',
+    FLASHCARDS: '/flash-cards',
+    FLASHCARDS_GENERATE: '/flash-cards/generate/topic_or_reference',
     
     // Notes
     NOTES: '/notes',
-    NOTES_GENERATE_TOPIC: '/notes/generate/topic',
-    NOTES_GENERATE_REFERENCE: '/notes/generate/reference',
+    NOTES_GENERATE: '/notes/generate/topic_or_reference',
     
     // Messages
     CHATS: '/messages/chats',

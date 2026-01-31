@@ -43,8 +43,8 @@ export interface GoogleUser extends User {
 
 export interface ExamOption {
   id: number;
-  questionId: number;
-  option: string;
+  questionId?: number;
+  text: string;
   isCorrect: boolean;
 }
 
@@ -52,6 +52,7 @@ export interface ExamQuestion {
   id: number;
   examId: number;
   question: string;
+  explanation?: string;
   options: ExamOption[];
   correctAnswer: string;
   createdAt: Date;
@@ -61,6 +62,7 @@ export interface Exam {
   id: number;
   title: string;
   description: string;
+  difficulty?: 'easy' | 'medium' | 'hard';
   totalQuestions: number;
   questions?: ExamQuestion[];
   score?: number;

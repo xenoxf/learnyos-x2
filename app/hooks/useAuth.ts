@@ -2,41 +2,65 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { apiService } from '@/services/apiService';
-import type { User, AuthResponse, LoginInput, RegisterInput } from '@/types';
-import { ApiError } from '@/lib/apiErrors';
+
+export interface User {
+  id: number;
+  email: string;
+  name: string;
+  picture?: string;
+  provider?: string;
+}
 
 export interface UseAuthReturn {
   user: User | null;
   loading: boolean;
   error: string | null;
-  login: (input: LoginInput) => Promise<void>;
-  register: (input: RegisterInput) => Promise<void>;
+  login: (email: string, password: string) => Promise<void>;
+  register: (name: string, email: string, password: string) => Promise<void>;
   logout: () => void;
   isAuthenticated: boolean;
-  getProfile: () => Promise<User>;
-  updateProfile: (data: Partial<User>) => Promise<void>;
+  updateProfile: (name: string) => Promise<void>;
   deleteAccount: () => Promise<void>;
-  loginWithGoogle: (idToken: string) => Promise<void>;
   clearError: () => void;
 }
 
 export function useAuth(): UseAuthReturn {
-  const [user, setUser] = useState<User | null>(apiService.getUser());
-  const [loading, setLoading] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Cargar usuario al montar
+  useEffect(() => {
+    const loadUser = () => {
+      try {
+        if (apiService.isAuthenticated()) {
+          const userData = apiService.getUser();
+          if (userData) {
+            setUser(userData as User);
+          }
+        }
+      } catch (err: any) {
+        console.error('Error loading user:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadUser();
+  }, []);
 
   const clearError = useCallback(() => {
     setError(null);
   }, []);
 
-  const login = useCallback(async (input: LoginInput) => {
+  const login = useCallback(async (email: string, password: string) => {
     setLoading(true);
     setError(null);
     try {
-      const response = await apiService.login(input);
-      setUser(response.user);
+      const response = await apiService.login({ email, password });
+      setUser(response.user as User);
     } catch (err: any) {
-      const message = err instanceof ApiError ? err.message : err?.message || 'Error en login';
+      const message = err?.message || 'Error en login';
       setError(message);
       throw err;
     } finally {
@@ -44,14 +68,14 @@ export function useAuth(): UseAuthReturn {
     }
   }, []);
 
-  const register = useCallback(async (input: RegisterInput) => {
+  const register = useCallback(async (name: string, email: string, password: string) => {
     setLoading(true);
     setError(null);
     try {
-      const response = await apiService.register(input);
-      setUser(response.user);
+      const response = await apiService.register({ name, email, password });
+      setUser(response.user as User);
     } catch (err: any) {
-      const message = err instanceof ApiError ? err.message : err?.message || 'Error en registro';
+      const message = err?.message || 'Error en registro';
       setError(message);
       throw err;
     } finally {
@@ -65,30 +89,14 @@ export function useAuth(): UseAuthReturn {
     setError(null);
   }, []);
 
-  const getProfile = useCallback(async () => {
+  const updateProfile = useCallback(async (name: string) => {
     setLoading(true);
     setError(null);
     try {
-      const profile = await apiService.getProfile();
-      setUser(profile);
-      return profile;
+      const updatedUser = await apiService.updateUser({ name });
+      setUser(updatedUser as User);
     } catch (err: any) {
-      const message = err instanceof ApiError ? err.message : err?.message || 'Error al obtener perfil';
-      setError(message);
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  const updateProfile = useCallback(async (data: Partial<User>) => {
-    setLoading(true);
-    setError(null);
-    try {
-      const updated = await apiService.updateProfile(data);
-      setUser(updated);
-    } catch (err: any) {
-      const message = err instanceof ApiError ? err.message : err?.message || 'Error al actualizar perfil';
+      const message = err?.message || 'Error al actualizar perfil';
       setError(message);
       throw err;
     } finally {
@@ -100,36 +108,15 @@ export function useAuth(): UseAuthReturn {
     setLoading(true);
     setError(null);
     try {
-      await apiService.deleteAccount();
-      logout();
+      await apiService.deleteUser();
+      setUser(null);
+      apiService.logout();
     } catch (err: any) {
-      const message = err instanceof ApiError ? err.message : err?.message || 'Error al eliminar cuenta';
+      const message = err?.message || 'Error al eliminar cuenta';
       setError(message);
       throw err;
     } finally {
       setLoading(false);
-    }
-  }, [logout]);
-
-  const loginWithGoogle = useCallback(async (idToken: string) => {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await apiService.loginWithGoogle(idToken);
-      setUser(response.user);
-    } catch (err: any) {
-      const message = err instanceof ApiError ? err.message : err?.message || 'Error en Google login';
-      setError(message);
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    const storedUser = apiService.getUser();
-    if (storedUser) {
-      setUser(storedUser);
     }
   }, []);
 
@@ -140,11 +127,9 @@ export function useAuth(): UseAuthReturn {
     login,
     register,
     logout,
-    isAuthenticated: apiService.isAuthenticated(),
-    getProfile,
+    isAuthenticated: !!user && apiService.isAuthenticated(),
     updateProfile,
     deleteAccount,
-    loginWithGoogle,
     clearError,
   };
 }

@@ -1,7 +1,14 @@
-"use client"
+"use client";
 
-import { LandingPage } from '@/components/LandingPage';
+import React from "react";
+import { LandingPage } from "@/components/LandingPage";
+import { HeaderThemeSelector } from "@/components/HeaderThemeSelector";
 
-export default function HomePage() {
-  return <LandingPage />;
+export default function Home() {
+  return (
+    <>
+      {/* Header */}
+      <LandingPage />
+    </>
+  );
 }

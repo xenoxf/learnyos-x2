@@ -1,0 +1,447 @@
+/* Sidebar and Protected Layout Styles */
+/* SOLO VARIABLES GLOBALES - SIN :root */
+
+.sidebarContainer {
+  left: 0;
+  top: 0;
+  width: 280px;
+  height: 100vh;
+  background: hsl(var(--background));
+  border-right: 1px solid hsl(var(--border));
+  overflow-y: auto;
+  overflow-x: hidden;
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: translateX(0);
+}
+
+.sidebarContainer.closed {
+  width: 80px;
+}
+
+.sidebarContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 1rem 0;
+}
+
+.sidebarHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-lg) var(--spacing-md);
+  border-bottom: 1px solid hsl(var(--border));
+  gap: var(--spacing-sm);
+}
+
+.sidebarLogo {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex: 1;
+}
+
+.sidebarLogoIcon {
+  width: 2rem;
+  height: 2rem;
+  background: hsl(var(--primary));
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: hsl(var(--primary-foreground));
+  font-weight: bold;
+  font-size: 1rem;
+}
+
+.sidebarLogoText {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: hsl(var(--foreground));
+  white-space: nowrap;
+}
+
+.sidebarCloseButton {
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  color: hsl(var(--muted-foreground));
+  cursor: pointer;
+  transition: var(--transition-base);
+  border-radius: 0.5rem;
+}
+
+.sidebarCloseButton:hover {
+  background: hsla(var(--primary), 0.1);
+  color: hsl(var(--primary));
+}
+
+.sidebarNav {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0 0.5rem;
+  overflow-y: auto;
+}
+
+.navSection {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.navSectionTitle {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: hsl(var(--muted-foreground));
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.75rem 1rem 0.5rem;
+}
+
+.navItem {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border: none;
+  background: transparent;
+  color: hsl(var(--muted-foreground));
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  border-radius: 0.5rem;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+.navItem:hover {
+  background: hsla(var(--primary), 0.1);
+  color: hsl(var(--foreground));
+}
+
+.navItem.active {
+  background: hsla(var(--primary), 0.2);
+  border-left: 3px solid hsl(var(--primary));
+  color: hsl(var(--primary));
+  font-weight: 600;
+}
+
+.navItemIcon {
+  width: 1.25rem;
+  height: 1.25rem;
+  flex-shrink: 0;
+}
+
+.navItemLabel {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: opacity 0.3s ease;
+}
+
+.sidebarContainer.closed .navItemLabel {
+  opacity: 0;
+  width: 0;
+  overflow: hidden;
+}
+
+.sidebarFooter {
+  border-top: 1px solid hsl(var(--border));
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.userProfile {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  background: hsla(var(--primary), 0.1);
+  cursor: pointer;
+  transition: var(--transition-base);
+}
+
+.userProfile:hover {
+  background: hsla(var(--primary), 0.2);
+}
+
+.userAvatar {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background: hsl(var(--primary));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: hsl(var(--primary-foreground));
+  font-weight: bold;
+  flex-shrink: 0;
+  font-size: 0.875rem;
+}
+
+.userInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.userName {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: hsl(var(--foreground));
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.userEmail {
+  font-size: 0.75rem;
+  color: hsl(var(--muted-foreground));
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sidebarActions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+}
+
+.actionButton {
+  padding: 0.5rem 0.75rem;
+  background: hsla(var(--primary), 0.1);
+  border: 1px solid hsl(var(--border));
+  border-radius: 0.5rem;
+  color: hsl(var(--muted-foreground));
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: var(--transition-base);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+}
+
+.actionButton:hover {
+  background: hsla(var(--primary), 0.2);
+  color: hsl(var(--primary));
+}
+
+.mainContent {
+  margin-left: 14rem;
+  transition: var(--transition-slow);
+  min-height: 100vh;
+}
+
+.mainContent.expanded {
+  margin-left: 0;
+}
+
+.topBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.5rem;
+  background: hsl(var(--background));
+  border-bottom: 1px solid hsl(var(--border));
+  gap: 1rem;
+}
+
+.topBarLeft {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.menuButton {
+  width: 2.5rem;
+  height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 1px solid hsl(var(--border));
+  border-radius: 0.5rem;
+  color: hsl(var(--muted-foreground));
+  cursor: pointer;
+  transition: var(--transition-base);
+}
+
+.menuButton:hover {
+  border-color: hsl(var(--primary));
+  color: hsl(var(--primary));
+}
+
+.pageBreadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: hsl(var(--muted-foreground));
+}
+
+.breadcrumbItem {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: hsl(var(--muted-foreground));
+}
+
+.breadcrumbItem.active {
+  color: hsl(var(--primary));
+  font-weight: 600;
+}
+
+.topBarRight {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.topBarButton {
+  width: 2.5rem;
+  height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 1px solid hsl(var(--border));
+  border-radius: 0.5rem;
+  color: hsl(var(--muted-foreground));
+  cursor: pointer;
+  transition: var(--transition-base);
+  position: relative;
+}
+
+.topBarButton:hover {
+  border-color: hsl(var(--primary));
+  color: hsl(var(--primary));
+}
+
+.notificationBadge {
+  position: absolute;
+  top: -0.5rem;
+  right: -0.5rem;
+  width: 1.25rem;
+  height: 1.25rem;
+  background: hsl(var(--destructive));
+  border: 2px solid hsl(var(--background));
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: hsl(var(--primary-foreground));
+  font-size: 0.75rem;
+  font-weight: bold;
+}
+
+.content {
+  padding: var(--spacing-lg);
+}
+
+.scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: hsl(var(--border)) transparent;
+}
+
+.scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar::-webkit-scrollbar-thumb {
+  background: hsl(var(--border));
+  border-radius: 3px;
+}
+
+.scrollbar::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground));
+}
+
+/* Media Queries */
+
+@media (min-width: 768px) {
+  .sidebarContainer {
+    width: 16rem;
+    transform: translateX(0);
+  }
+
+  .sidebarContainer.closed {
+    transform: translateX(0);
+  }
+
+  .sidebarCloseButton {
+    display: none;
+  }
+
+  .mainContent {
+    margin-left: 16rem;
+  }
+
+  .mainContent.expanded {
+    margin-left: 16rem;
+  }
+
+  .sidebarLogoText {
+    font-size: 1rem;
+  }
+
+  .navItem {
+    font-size: 0.875rem;
+  }
+
+  .topBar {
+    padding: 1.25rem 2rem;
+  }
+
+  .content {
+    padding: var(--spacing-xl);
+  }
+}
+
+@media (min-width: 1024px) {
+  .topBar {
+    padding: 1.5rem 2.5rem;
+  }
+
+  .content {
+    padding: 2.5rem;
+  }
+}
+
+@media (max-width: 767px) {
+  .sidebarLogoText {
+    display: none;
+  }
+
+  .navItemLabel {
+    display: none;
+  }
+
+  .navItem {
+    justify-content: center;
+    padding: 0.75rem;
+  }
+
+  .navSectionTitle {
+    display: none;
+  }
+}

@@ -1,62 +1,31 @@
 "use client"
 
-// filepath: /home/juniorxf/proyectos/learnyos/src/hooks/useNotes.ts
-
-import { useEffect, useState, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { apiService } from '@/services/apiService';
-import type { Note, GenerateNoteInput } from '@/types';
 
-export interface UseNotesReturn {
-  notes: Note[];
-  loading: boolean;
-  error: string | null;
-  getNotes: () => Promise<Note[]>;
-  getNoteById: (id: number) => Promise<Note>;
-  generateNote: (input: GenerateNoteInput) => Promise<Note>;
-  deleteNote: (id: number) => Promise<void>;
-  refreshNotes: () => Promise<void>;
-}
-
-export function useNotes(): UseNotesReturn {
-  const [notes, setNotes] = useState<Note[]>([]);
+export function useNotes() {
+  const [notes, setNotes] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const getNotes = useCallback(async () => {
-    setLoading(true);
-    setError(null);
+  const loadNotes = useCallback(async () => {
     try {
-      const result = await apiService.getNotes();
-      setNotes(result);
-      return result;
+      setLoading(true);
+      const data = await apiService.getNotes();
+      setNotes(data || []);
     } catch (err: any) {
       setError(err.message);
-      throw err;
     } finally {
       setLoading(false);
     }
   }, []);
 
-  const getNoteById = useCallback(async (id: number) => {
-    setLoading(true);
-    setError(null);
+  const generateNote = useCallback(async (data: { topic?: string; referenceText?: string; quantity?: number; level?: string }) => {
     try {
-      return await apiService.getNoteById(id);
-    } catch (err: any) {
-      setError(err.message);
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  const generateNote = useCallback(async (input: GenerateNoteInput) => {
-    setLoading(true);
-    setError(null);
-    try {
-      const newNote = await apiService.generateNote(input);
-      setNotes([...notes, newNote]);
-      return newNote;
+      setLoading(true);
+      const note = await apiService.createNote(data);
+      setNotes([...notes, note]);
+      return note;
     } catch (err: any) {
       setError(err.message);
       throw err;
@@ -65,36 +34,19 @@ export function useNotes(): UseNotesReturn {
     }
   }, [notes]);
 
-  const deleteNote = useCallback(async (id: number) => {
-    setLoading(true);
-    setError(null);
+  const deleteNote = useCallback(async (noteId: number) => {
     try {
-      await apiService.deleteNote(id);
-      setNotes(notes.filter((n) => n.id !== id));
+      await apiService.deleteNote(noteId);
+      setNotes(notes.filter(n => n.id !== noteId));
     } catch (err: any) {
       setError(err.message);
       throw err;
-    } finally {
-      setLoading(false);
     }
   }, [notes]);
-
-  const refreshNotes = useCallback(async () => {
-    await getNotes();
-  }, [getNotes]);
 
   useEffect(() => {
-    getNotes();
-  }, []);
+    loadNotes();
+  }, [loadNotes]);
 
-  return {
-    notes,
-    loading,
-    error,
-    getNotes,
-    getNoteById,
-    generateNote,
-    deleteNote,
-    refreshNotes,
-  };
+  return { notes, loading, error, generateNote, deleteNote, loadNotes };
 }

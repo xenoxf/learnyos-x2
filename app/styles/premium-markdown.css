@@ -1,0 +1,226 @@
+/* filepath: /home/juniorxf/proyectos/learnyos-x2/app/styles/premium-markdown.css */
+
+.premium-markdown {
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 1.5rem;
+  background-color: hsl(var(--card));
+  border-radius: var(--radius);
+  border: 1px solid hsl(var(--border));
+  box-shadow: var(--shadow-md);
+}
+
+/* Acciones */
+.markdown-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid hsl(var(--border));
+}
+
+.action-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background-color: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  border: none;
+  border-radius: calc(var(--radius) - 2px);
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.875rem;
+  transition: all var(--transition-base);
+}
+
+.action-btn:hover {
+  background-color: hsl(var(--primary) / 0.9);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
+
+.action-btn:active {
+  transform: translateY(0);
+}
+
+/* Contenido Markdown */
+.markdown-content {
+  overflow-x: auto;
+}
+
+.markdown-rendered {
+  line-height: 1.8;
+  color: hsl(var(--foreground));
+}
+
+/* Headers */
+.md-h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  color: hsl(var(--primary));
+  border-bottom: 2px solid hsl(var(--primary) / 0.3);
+  padding-bottom: 0.5rem;
+}
+
+.md-h2 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+  color: hsl(var(--primary));
+}
+
+.md-h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+  color: hsl(var(--primary));
+}
+
+/* Párrafos */
+.md-paragraph {
+  margin-bottom: 1rem;
+  text-align: justify;
+  color: hsl(var(--foreground));
+}
+
+/* Blockquote */
+.md-blockquote {
+  border-left: 4px solid hsl(var(--primary));
+  padding: 1rem;
+  margin: 1.5rem 0;
+  background-color: hsl(var(--muted) / 0.5);
+  border-radius: calc(var(--radius) - 2px);
+  font-style: italic;
+  color: hsl(var(--muted-foreground));
+}
+
+/* Listas */
+.md-list {
+  margin: 1rem 0;
+  padding-left: 2rem;
+  list-style-type: none;
+}
+
+.md-list li {
+  margin-bottom: 0.5rem;
+  padding-left: 1.5rem;
+  position: relative;
+  color: hsl(var(--foreground));
+}
+
+.md-list li:before {
+  content: '✨';
+  position: absolute;
+  left: 0;
+  font-size: 1rem;
+}
+
+/* Código */
+.md-code {
+  background-color: hsl(var(--muted));
+  border: 1px solid hsl(var(--border));
+  border-radius: calc(var(--radius) - 2px);
+  padding: 1rem;
+  overflow-x: auto;
+  margin: 1rem 0;
+  font-family: 'Monaco', 'Courier New', monospace;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.md-code code {
+  color: hsl(var(--foreground));
+}
+
+/* Tabla */
+.md-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5rem 0;
+  border: 1px solid hsl(var(--border));
+  border-radius: calc(var(--radius) - 2px);
+  overflow: hidden;
+}
+
+.md-table thead {
+  background-color: hsl(var(--primary) / 0.1);
+  border-bottom: 2px solid hsl(var(--primary));
+}
+
+.md-table th {
+  padding: 1rem;
+  text-align: left;
+  font-weight: 600;
+  color: hsl(var(--primary));
+  border-right: 1px solid hsl(var(--border));
+}
+
+.md-table th:last-child {
+  border-right: none;
+}
+
+.md-table td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid hsl(var(--border));
+  border-right: 1px solid hsl(var(--border));
+  color: hsl(var(--foreground));
+}
+
+.md-table td:last-child {
+  border-right: none;
+}
+
+.md-table tr:hover {
+  background-color: hsl(var(--muted) / 0.3);
+}
+
+/* Separadores */
+hr {
+  border: none;
+  height: 2px;
+  background: linear-gradient(
+    to right,
+    hsl(var(--border) / 0),
+    hsl(var(--border)),
+    hsl(var(--border) / 0)
+  );
+  margin: 2rem 0;
+}
+
+/* Responsivo */
+@media (max-width: 768px) {
+  .premium-markdown {
+    padding: 1rem;
+  }
+
+  .md-h1 {
+    font-size: 1.5rem;
+  }
+
+  .md-h2 {
+    font-size: 1.25rem;
+  }
+
+  .md-table {
+    font-size: 0.875rem;
+  }
+
+  .md-table td,
+  .md-table th {
+    padding: 0.5rem;
+  }
+
+  .markdown-actions {
+    flex-direction: column;
+  }
+
+  .action-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}

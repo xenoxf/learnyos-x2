@@ -1,282 +1,221 @@
-"use client"
+"use client";
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { useToast } from '@/hooks/use-toast';
 import { apiService } from '@/services/apiService';
-import { MarkdownRenderer } from '@/components/MarkdownRenderer';
-import { Loader2, Send, Plus, MessageSquare, Trash2, Sparkles, Menu, PanelLeftClose, PanelLeft, Bot, User } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import type { Message, Chat } from '@/types';
+import { useToast } from '@/hooks/use-toast';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card } from '@/components/ui/card';
+import { Send, Trash2, Copy, Check, Loader } from 'lucide-react';
+import styles from '@/styles/chat.module.css';
 
-const ChatPage = () => {
-  const [chats, setChats] = useState<Chat[]>([]);
-  const [currentChat, setCurrentChat] = useState<Chat | null>(null);
-  const [inputValue, setInputValue] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [isLoadingChats, setIsLoadingChats] = useState(true);
-  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
-  const [desktopSidebarOpen, setDesktopSidebarOpen] = useState(true);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+interface Message {
+  id: number | string;
+  content: string;
+  sender: 'user' | 'bot';
+  timestamp?: Date;
+}
+
+export default function ChatPage() {
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [input, setInput] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [isFetching, setIsFetching] = useState(true);
+  const [copiedId, setCopiedId] = useState<string | number | null>(null);
   const { toast } = useToast();
-
-  const loadChats = async () => {
-    setIsLoadingChats(true);
-    try {
-      const data = await apiService.getChats();
-      setChats(data || []);
-      if (data?.length > 0) {
-        setCurrentChat(data[0]);
-      }
-    } catch (error: any) {
-      console.error('Error loading chats:', error);
-    } finally {
-      setIsLoadingChats(false);
-    }
-  };
-
-  const handleNewChat = async () => {
-    try {
-      const newChat = await apiService.createChat({
-        title: `Chat ${new Date().toLocaleDateString()}`
-      });
-      setChats(prev => [newChat, ...prev]);
-      setCurrentChat(newChat);
-      setMobileSidebarOpen(false);
-    } catch (error: any) {
-      toast({
-        title: 'Error',
-        description: error.message || 'Error al crear chat',
-        variant: 'destructive'
-      });
-    }
-  };
-
-  const handleDeleteChat = async (chatId: number, e: React.MouseEvent) => {
-    e.stopPropagation();
-    try {
-      await apiService.deleteChat(chatId);
-      setChats(prev => prev.filter(c => c.id !== chatId));
-      if (currentChat?.id === chatId) {
-        setCurrentChat(chats.length > 1 ? chats.find(c => c.id !== chatId) || null : null);
-      }
-      toast({ title: 'Chat eliminado' });
-    } catch (error: any) {
-      toast({ title: 'Error', description: error.message, variant: 'destructive' });
-    }
-  };
-
-  const handleSendMessage = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!inputValue.trim()) return;
-    const userMessage = inputValue;
-    setInputValue('');
-    setIsLoading(true);
-    try {
-      let chatToUse = currentChat;
-      if (!chatToUse) {
-        chatToUse = await apiService.createChat({ title: `Chat ${new Date().toLocaleDateString()}` });
-        setChats(prev => [chatToUse!, ...prev]);
-        setCurrentChat(chatToUse);
-      }
-      const response = await apiService.sendMessage({ prompt: userMessage, chatId: chatToUse.id });
-      const updatedChat = { ...chatToUse, messages: response.messages || chatToUse.messages || [] };
-      setCurrentChat(updatedChat);
-      setChats(prev => prev.map(c => c.id === updatedChat.id ? updatedChat : c));
-      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    } catch (error: any) {
-      toast({ title: 'Error', description: error.message || 'Error al enviar mensaje', variant: 'destructive' });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const selectChat = (chat: Chat) => {
-    setCurrentChat(chat);
-    setMobileSidebarOpen(false);
-  };
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    loadChats();
+    loadMessages();
   }, []);
 
-  const SidebarContent = () => (
-    <div className="h-full flex flex-col">
-      <div className="p-4 border-b border-border">
-        <Button onClick={handleNewChat} className="w-full gap-2 bg-cyan-600 hover:bg-cyan-700" size="sm">
-          <Plus className="w-4 h-4" />
-          Nueva conversación
-        </Button>
-      </div>
-      <ScrollArea className="flex-1">
-        <div className="p-2 space-y-1">
-          {chats.length === 0 ? (
-            <p className="text-sm text-muted-foreground text-center py-8">No hay conversaciones</p>
-          ) : (
-            chats.map(chat => (
-              <div
-                key={chat.id}
-                onClick={() => selectChat(chat)}
-                className={cn(
-                  "flex items-center gap-3 px-3 py-3 rounded-lg cursor-pointer group transition-all",
-                  currentChat?.id === chat.id
-                    ? 'bg-cyan-500/10 border border-cyan-500/30'
-                    : 'hover:bg-muted/60'
-                )}
-              >
-                <MessageSquare className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-                <span className="truncate flex-1 text-sm text-foreground">{chat.title}</span>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-7 w-7 opacity-0 group-hover:opacity-100 flex-shrink-0"
-                  onClick={e => handleDeleteChat(chat.id, e)}
-                >
-                  <Trash2 className="w-3.5 h-3.5 text-destructive" />
-                </Button>
-              </div>
-            ))
-          )}
-        </div>
-      </ScrollArea>
-    </div>
-  );
+  useEffect(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [messages]);
+
+  const loadMessages = async () => {
+    try {
+      setIsFetching(true);
+      const data = await apiService.getUserChats();
+      const formattedMessages = Array.isArray(data)
+        ? data.map((msg: any, idx: number) => ({
+            id: msg.id || idx,
+            content: msg.content || msg.message || '',
+            sender: (msg.sender === 'user' ? 'user' : 'bot') as 'user' | 'bot',
+            timestamp: msg.timestamp,
+          }))
+        : [];
+      setMessages(formattedMessages);
+    } catch (error: any) {
+      console.error('Error loading messages:', error);
+      toast({
+        title: 'Error',
+        description: 'No pudimos cargar tus mensajes',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsFetching(false);
+    }
+  };
+
+  const handleSendMessage = async () => {
+    if (!input.trim()) return;
+
+    const userMessage: Message = {
+      id: Date.now(),
+      content: input,
+      sender: 'user',
+      timestamp: new Date(),
+    };
+
+    setMessages((prev) => [...prev, userMessage]);
+    setInput('');
+
+    try {
+      setLoading(true);
+      const response = await apiService.sendMessage(input);
+
+      const botMessage: Message = {
+        id: response?.id || Date.now() + 1,
+        content: response?.content || response?.message || 'Respuesta vacía',
+        sender: 'bot',
+        timestamp: new Date(),
+      };
+
+      setMessages((prev) => [...prev, botMessage]);
+      toast({
+        title: 'Éxito',
+        description: 'Mensaje enviado y respondido',
+      });
+    } catch (error: any) {
+      setMessages((prev) => prev.filter((msg) => msg.id !== userMessage.id));
+      toast({
+        title: 'Error',
+        description: error.message || 'Error al enviar el mensaje',
+        variant: 'destructive',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCopyMessage = (content: string, id: string | number) => {
+    navigator.clipboard.writeText(content);
+    setCopiedId(id);
+    setTimeout(() => setCopiedId(null), 2000);
+  };
+
+  const handleClearChat = () => {
+    setMessages([]);
+    toast({
+      title: 'Chat borrado',
+      description: 'Todos los mensajes han sido eliminados',
+    });
+  };
 
   return (
-    <div className="h-screen flex bg-background">
-      {/* Mobile Sidebar */}
-      <Sheet open={mobileSidebarOpen} onOpenChange={setMobileSidebarOpen}>
-        <SheetContent side="left" className="w-80 p-0 md:hidden">
-          <SidebarContent />
-        </SheetContent>
-      </Sheet>
+    <div className={styles.container}>
+      <header className={styles.header}>
+        <div className={styles.headerContent}>
+          <div>
+            <h1 className={styles.title}>💬 Junior IA</h1>
+            <p className="text-sm text-muted-foreground">Tu asistente de aprendizaje personal</p>
+          </div>
+          {messages.length > 0 && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleClearChat}
+              className="text-muted-foreground hover:text-destructive"
+            >
+              <Trash2 className="w-4 h-4" />
+            </Button>
+          )}
+        </div>
+      </header>
 
-      {/* Desktop Sidebar */}
-      <div className={cn(
-        "hidden md:flex h-full border-r border-border bg-muted/30 flex-col transition-all duration-300",
-        desktopSidebarOpen ? "w-72 lg:w-80" : "w-0 overflow-hidden"
-      )}>
-        <SidebarContent />
+      <div ref={messagesContainerRef} className={styles.messagesContainer}>
+        {isFetching ? (
+          <div className="flex flex-col items-center justify-center h-full gap-3">
+            <Loader className="w-8 h-8 animate-spin text-primary" />
+            <p className="text-muted-foreground">Cargando conversación...</p>
+          </div>
+        ) : messages.length === 0 ? (
+          <div className="flex flex-col items-center justify-center h-full gap-3 text-center px-4">
+            <div className="text-4xl mb-2">👋</div>
+            <h3 className="font-semibold">Inicia una conversación</h3>
+            <p className="text-sm text-muted-foreground">
+              Hazme cualquier pregunta sobre tus estudios
+            </p>
+          </div>
+        ) : (
+          messages.map((message) => (
+            <div
+              key={message.id}
+              className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'} mb-4`}
+            >
+              <Card
+                className={`max-w-xs lg:max-w-md px-4 py-3 ${
+                  message.sender === 'user'
+                    ? 'bg-primary text-primary-foreground rounded-2xl rounded-tr-none'
+                    : 'bg-muted text-foreground rounded-2xl rounded-tl-none'
+                }`}
+              >
+                <p className="text-sm whitespace-pre-wrap break-words">{message.content}</p>
+                {message.sender === 'bot' && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleCopyMessage(message.content, message.id)}
+                    className="mt-2 -mx-2 h-auto p-1 text-xs"
+                  >
+                    {copiedId === message.id ? (
+                      <>
+                        <Check className="w-3 h-3 mr-1" />
+                        Copiado
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="w-3 h-3 mr-1" />
+                        Copiar
+                      </>
+                    )}
+                  </Button>
+                )}
+              </Card>
+            </div>
+          ))
+        )}
+        <div ref={messagesEndRef} />
       </div>
 
-      {/* Main Chat Area */}
-      <div className="flex-1 flex flex-col min-w-0">
-        {/* Header */}
-        <div className="h-14 border-b border-border flex items-center px-4 gap-3 flex-shrink-0">
+      <div className="p-4 border-t border-border bg-background">
+        <div className="flex gap-2">
+          <Input
+            type="text"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyPress={(e) => e.key === 'Enter' && !loading && handleSendMessage()}
+            placeholder="Escribe tu pregunta..."
+            disabled={loading}
+            className="flex-1"
+          />
           <Button
-            variant="ghost"
+            onClick={handleSendMessage}
+            disabled={loading || !input.trim()}
             size="icon"
-            className="md:hidden"
-            onClick={() => setMobileSidebarOpen(true)}
           >
-            <Menu className="w-5 h-5" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="hidden md:flex"
-            onClick={() => setDesktopSidebarOpen(!desktopSidebarOpen)}
-          >
-            {desktopSidebarOpen ? <PanelLeftClose className="w-5 h-5" /> : <PanelLeft className="w-5 h-5" />}
-          </Button>
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-cyan-500/10 flex items-center justify-center">
-              <Bot className="w-4 h-4 text-cyan-600" />
-            </div>
-            <span className="font-medium text-foreground truncate">
-              {currentChat?.title || 'Junior IA'}
-            </span>
-          </div>
-        </div>
-
-        {/* Messages */}
-        <ScrollArea className="flex-1">
-          <div className="py-6">
-            {currentChat?.messages && currentChat.messages.length > 0 ? (
-              <div className="space-y-6 max-w-4xl mx-auto px-4">
-                {currentChat.messages.map((msg: Message, idx: number) => (
-                  <div key={idx} className="space-y-6">
-                    {/* User Message */}
-                    <div className="flex gap-4">
-                      <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center flex-shrink-0">
-                        <User className="w-4 h-4 text-muted-foreground" />
-                      </div>
-                      <div className="flex-1 pt-1">
-                        <p className="text-foreground whitespace-pre-wrap">{msg.prompt}</p>
-                      </div>
-                    </div>
-                    
-                    {/* AI Response */}
-                    <div className="flex gap-4">
-                      <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center flex-shrink-0">
-                        <Sparkles className="w-4 h-4 text-white" />
-                      </div>
-                      <div className="flex-1 pt-1 min-w-0">
-                        <div className="prose prose-neutral dark:prose-invert max-w-none">
-                          <MarkdownRenderer content={msg.response} />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-                <div ref={messagesEndRef} />
-              </div>
+            {loading ? (
+              <Loader className="w-4 h-4 animate-spin" />
             ) : (
-              <div className="h-full min-h-[50vh] flex flex-col items-center justify-center px-4">
-                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center mb-6">
-                  <Sparkles className="w-8 h-8 text-white" />
-                </div>
-                <h2 className="text-2xl font-semibold text-foreground mb-2 text-center">¿En qué puedo ayudarte?</h2>
-                <p className="text-muted-foreground mb-8 text-center">Pregúntame sobre cualquier tema de estudio</p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full max-w-lg">
-                  {[
-                    { label: 'Explícame un concepto', prompt: 'Explícame el concepto de' },
-                    { label: 'Ayúdame a estudiar', prompt: 'Ayúdame a estudiar para' },
-                    { label: 'Resuelve un problema', prompt: 'Ayúdame a resolver:' },
-                    { label: 'Resume un tema', prompt: 'Hazme un resumen sobre' }
-                  ].map((action, idx) => (
-                    <button
-                      key={idx}
-                      onClick={() => setInputValue(action.prompt + ' ')}
-                      className="p-4 text-left rounded-xl border border-border bg-muted/30 hover:bg-muted/60 transition-all text-sm text-foreground"
-                    >
-                      {action.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
+              <Send className="w-4 h-4" />
             )}
-          </div>
-        </ScrollArea>
-
-        {/* Input */}
-        <div className="border-t border-border p-4 flex-shrink-0">
-          <form onSubmit={handleSendMessage} className="max-w-4xl mx-auto">
-            <div className="relative flex items-center bg-muted/50 rounded-xl border border-border focus-within:border-cyan-500/50 transition-all">
-              <Input
-                value={inputValue}
-                onChange={e => setInputValue(e.target.value)}
-                placeholder="Escribe tu mensaje..."
-                disabled={isLoading}
-                className="flex-1 h-12 border-0 bg-transparent focus-visible:ring-0 text-base px-4"
-              />
-              <Button
-                type="submit"
-                disabled={isLoading || !inputValue.trim()}
-                size="icon"
-                className="h-9 w-9 mr-1.5 rounded-lg bg-cyan-600 hover:bg-cyan-700"
-              >
-                {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-              </Button>
-            </div>
-          </form>
+          </Button>
         </div>
       </div>
     </div>
   );
-};
-
-export default ChatPage;
+}

@@ -1,0 +1,163 @@
+.header {
+  border-bottom: 1px solid var(--border, #e5e7eb);
+  background-color: rgba(var(--background-rgb));
+  backdrop-filter: blur(10px);
+  z-index: 50;
+}
+
+@media (min-width: 1024px) {
+  .header {
+    top: 0;
+  }
+}
+
+.headerContent {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0.75rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.headerBrand {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.brandIcon {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  background: linear-gradient(135deg, #3b82f6, #6366f1);
+}
+
+@media (min-width: 640px) {
+  .brandIcon {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+}
+
+.brandIconText {
+  color: white;
+  font-weight: bold;
+  font-size: 1.125rem;
+}
+
+@media (min-width: 640px) {
+  .brandIconText {
+    font-size: 1.25rem;
+  }
+}
+
+.brandInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.brandName {
+  font-size: 1.25rem;
+  font-weight: bold;
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6, #ec4899);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+@media (min-width: 640px) {
+  .brandName {
+    font-size: 1.5rem;
+  }
+}
+
+.brandSubtitle {
+  font-size: 0.625rem;
+  color: var(--muted-foreground);
+  display: none;
+}
+
+@media (min-width: 640px) {
+  .brandSubtitle {
+    display: block;
+  }
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+@media (min-width: 640px) {
+  .headerActions {
+    gap: 1rem;
+  }
+}
+
+.headerSignIn {
+  display: none;
+  font-size: 0.875rem;
+  color: var(--foreground, #000000);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.headerSignIn:hover {
+  color: var(--primary, #3b82f6);
+}
+
+@media (min-width: 640px) {
+  .headerSignIn {
+    display: inline-flex;
+  }
+}
+
+.headerButton {
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  color: white;
+  text-decoration: none;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s ease;
+  font-size: 0.875rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.headerButton:hover {
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15);
+}
+
+@media (min-width: 640px) {
+  .headerButton {
+    padding: 0.875rem 1.25rem;
+  }
+}
+
+.headerButtonSmallText {
+  display: inline;
+}
+
+@media (min-width: 640px) {
+  .headerButtonSmallText {
+    display: none;
+  }
+}
+
+.headerButtonLargeText {
+  display: none;
+}
+
+@media (min-width: 640px) {
+  .headerButtonLargeText {
+    display: inline;
+  }
+}

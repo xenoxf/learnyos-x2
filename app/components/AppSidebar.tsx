@@ -1,80 +1,46 @@
-"use client";
+"use client"
 import React, { useState } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
-import { Button } from '@/components/ui/button';
-import { 
-  LayoutDashboard, 
-  MessageSquare, 
-  Brain, 
-  CreditCard, 
-  NotebookPen, 
-  Languages, 
+import {
+  LayoutDashboard,
+  MessageSquare,
+  Brain,
+  CreditCard,
+  NotebookPen,
+  Languages,
   LogOut,
   Settings,
-  ChevronLeft,
-  ChevronRight
+  X,
+  Cpu,
+  ChevronLeft
 } from 'lucide-react';
 import { apiService } from '@/services/apiService';
 import { useToast } from '@/hooks/use-toast';
-import SettingsModal from '@/components/SettingsModal';
-import { cn } from '@/lib/utils';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { SettingsModal } from '@/components/SettingsModal';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+
 
 const menuItems = [
-  {
-    title: "Dashboard",
-    url: "/dashboard",
-    icon: LayoutDashboard,
-    gradient: "from-cyan-500 to-blue-500"
-  },
-  {
-    title: "Junior IA",
-    url: "/chat",
-    icon: MessageSquare,
-    gradient: "from-purple-500 to-violet-500"
-  },
-  {
-    title: "Quiz",
-    url: "/quiz",
-    icon: Brain,
-    gradient: "from-emerald-500 to-teal-500"
-  },
-  {
-    title: "Flashcards",
-    url: "/flashcards",
-    icon: CreditCard,
-    gradient: "from-orange-500 to-red-500"
-  },
-  {
-    title: "Notas",
-    url: "/notes",
-    icon: NotebookPen,
-    gradient: "from-pink-500 to-rose-500"
-  },
-  {
-    title: "Traductor",
-    url: "/translator",
-    icon: Languages,
-    gradient: "from-indigo-500 to-purple-500"
-  },
+  { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
+  { title: "Junior IA", url: "/chat", icon: MessageSquare },
+  { title: "Quiz", url: "/quiz", icon: Brain },
+  { title: "Flashcards", url: "/flashcards", icon: CreditCard },
+  { title: "Notas", url: "/notes", icon: NotebookPen },
+  { title: "Traductor", url: "/translator", icon: Languages },
+  { title: "AI Implementation", url: "/ai-implementation", icon: Cpu },
 ];
 
 interface AppSidebarProps {
   collapsed?: boolean;
   onToggle?: () => void;
-  onRouter?: () => void;
+  onNavigate?: () => void;
 }
 
-export function AppSidebar({ collapsed = false, onToggle, onRouter }: AppSidebarProps) {
-  const router = useRouter();
-  const pathName = usePathname();
+export function AppSidebar({ collapsed = false, onToggle, onNavigate }: AppSidebarProps) {
+  const navigate = useRouter();
   const { toast } = useToast();
   const [showSettings, setShowSettings] = useState(false);
+  const [sidebarClosed, setSidebarClosed] = useState(collapsed);
 
   const handleLogout = () => {
     apiService.logout();
@@ -82,168 +48,313 @@ export function AppSidebar({ collapsed = false, onToggle, onRouter }: AppSidebar
       title: "Sesión cerrada",
       description: "Has cerrado sesión exitosamente",
     });
-    router.push('/auth');
+    navigate.push('/auth');
   };
 
   const handleNavigation = (url: string) => {
-    router.push(url);
-    onRouter?.();
+    setSidebarClosed(true);
+    navigate.push(url);
+    onNavigate?.();
   };
 
-  const NavButton = ({ item, isActive }: { item: typeof menuItems[0], isActive: boolean }) => {
-    const content = (
-      <button
-        onClick={() => handleNavigation(item.url)}
-        className={cn(
-          "w-full flex items-center gap-3 px-2.5 py-2 rounded-xl transition-all duration-300 text-sm font-medium group",
-          isActive 
-            ? "bg-gradient-to-r text-white shadow-lg" 
-            : "text-sidebar-foreground hover:bg-sidebar-accent/50",
-          isActive && item.gradient,
-          collapsed && "justify-center px-2"
-        )}
-      >
-        <div className={cn(
-          "p-1.5 rounded-lg transition-all duration-300",
-          isActive 
-            ? "bg-white/20" 
-            : `bg-gradient-to-br ${item.gradient} bg-opacity-10`,
-          !isActive && "group-hover:scale-110"
-        )}>
-          <item.icon className={cn(
-            "w-4 h-4 flex-shrink-0",
-            isActive ? "text-white" : "text-white"
-          )} />
-        </div>
-        {!collapsed && <span>{item.title}</span>}
-      </button>
-    );
-
-    if (collapsed) {
-      return (
-        <Tooltip>
-          <TooltipTrigger asChild>
-            {content}
-          </TooltipTrigger>
-          <TooltipContent side="right" className="bg-popover border-border">
-            {item.title}
-          </TooltipContent>
-        </Tooltip>
-      );
-    }
-
-    return content;
+  const toggleSidebar = () => {
+    setSidebarClosed(!sidebarClosed);
+    onToggle?.();
   };
+
+  const user = typeof window !== 'undefined' ? (
+    localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')!) : null
+  ) : null;
+
+  // Detectar tema oscuro
+  const isDark = typeof window !== 'undefined' && 
+    (document.documentElement.classList.contains('dark') || 
+     window.matchMedia('(prefers-color-scheme: dark)').matches);
+
+  const bgColor = isDark ? '#1f2937' : '#ffffff';
+  const borderColor = isDark ? '#374151' : '#e5e7eb';
+  const textColor = isDark ? '#f3f4f6' : '#1f2937';
+  const secondaryText = isDark ? '#d1d5db' : '#4b5563';
+  const hoverBg = isDark ? '#374151' : '#f3f4f6';
+  const activeBg = isDark ? '#3b82f6' : '#dbeafe';
+  const activeText = isDark ? '#60a5fa' : '#1e40af';
 
   return (
-    <TooltipProvider delayDuration={0}>
-      <aside 
-        className={cn(
-          "h-full flex flex-col transition-all duration-300",
-          "bg-sidebar/80 backdrop-blur-xl border-r border-sidebar-border/50",
-          collapsed ? "w-14" : "w-52"
-        )}
+    <aside 
+      className="h-full flex flex-col transition-all duration-300 ease-out"
+      style={{
+        backgroundColor: bgColor,
+        borderRight: `1px solid ${borderColor}`,
+        width: sidebarClosed ? '80px' : '280px',
+        overflow: 'hidden'
+      }}
+    >
+      {/* Header */}
+      <div 
+        style={{ 
+          padding: '20px', 
+          borderBottom: `1px solid ${borderColor}`,
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'center',
+          backgroundColor: bgColor
+        }}
       >
-        {/* Header */}
-        <div 
-          className={cn(
-            "p-4 border-b border-sidebar-border/50 cursor-pointer hover:bg-sidebar-accent/30 transition-all duration-300 flex items-center",
-            collapsed ? "justify-center" : "justify-between"
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', overflow: 'hidden' }}>
+          <div 
+            style={{ 
+              width: '40px', 
+              height: '40px', 
+              background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
+              borderRadius: '10px', 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center', 
+              color: 'white', 
+              fontWeight: 'bold', 
+              flexShrink: 0,
+              fontSize: '18px',
+              boxShadow: isDark ? '0 4px 12px rgba(59, 130, 246, 0.3)' : '0 2px 8px rgba(59, 130, 246, 0.2)'
+            }}
+          >
+            L
+          </div>
+          {!sidebarClosed && (
+            <span style={{ 
+              fontWeight: 'bold', 
+              whiteSpace: 'nowrap',
+              color: textColor,
+              fontSize: '16px'
+            }}>
+              LearnYos
+            </span>
           )}
-          onClick={onToggle}
-        >
-          <div className={cn("flex items-center", collapsed ? "justify-center" : "gap-3")}>
-            <div className="w-9 h-9 bg-gradient-to-br from-cyan-500 via-purple-500 to-pink-500 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg animate-pulse-soft">
-              <span className="text-white font-bold text-sm">L</span>
+        </div>
+        {!sidebarClosed && (
+          <button
+            onClick={toggleSidebar}
+            style={{ 
+              background: 'none', 
+              border: 'none', 
+              cursor: 'pointer', 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center',
+              color: secondaryText,
+              padding: '4px',
+              borderRadius: '4px',
+              transition: 'all 0.2s ease'
+            }}
+            className="hover:bg-opacity-50"
+            aria-label="Contraer sidebar"
+          >
+            <ChevronLeft size={20} />
+          </button>
+        )}
+      </div>
+
+      {/* Navigation */}
+      <nav style={{ flex: 1, padding: '12px', overflow: 'auto' }}>
+        <div>
+          {!sidebarClosed && (
+            <div 
+              style={{ 
+                fontSize: '11px', 
+                fontWeight: 'bold', 
+                color: secondaryText,
+                padding: '12px 8px 8px',
+                marginBottom: '8px',
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px'
+              }}
+            >
+              HERRAMIENTAS
             </div>
-            {!collapsed && (
-              <span className="font-bold text-lg bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500 bg-clip-text text-transparent">
-                LearnyOS
-              </span>
-            )}
+          )}
+          {menuItems.map((item) => {
+            const Icon = item.icon;
+            return (
+              <Link
+                key={item.url}
+                href={item.url}
+                onClick={() => handleNavigation(item.url)}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: sidebarClosed ? 'center' : 'flex-start',
+                  gap: '12px',
+                  padding: sidebarClosed ? '12px' : '11px 12px',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                  backgroundColor: 'transparent',
+                  color: secondaryText,
+                  textDecoration: 'none',
+                  marginBottom: '6px',
+                  fontSize: '14px'
+                }}
+                className="hover:bg-opacity-70 group"
+                title={item.title}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = hoverBg;
+                  e.currentTarget.style.color = activeText;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                  e.currentTarget.style.color = secondaryText;
+                }}
+              >
+                <Icon size={20} style={{ flexShrink: 0 }} />
+                {!sidebarClosed && (
+                  <span style={{ 
+                    whiteSpace: 'nowrap', 
+                    transition: 'opacity 0.2s ease'
+                  }}>
+                    {item.title}
+                  </span>
+                )}
+              </Link>
+            );
+          })}
+        </div>
+      </nav>
+
+      {/* Footer - User Info & Actions */}
+      <div 
+        style={{ 
+          borderTop: `1px solid ${borderColor}`, 
+          padding: '15px', 
+          backgroundColor: bgColor
+        }}
+      >
+        <div 
+          style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: '12px', 
+            marginBottom: '15px', 
+            overflow: 'hidden',
+            justifyContent: sidebarClosed ? 'center' : 'flex-start'
+          }}
+        >
+          <div 
+            style={{ 
+              width: '36px', 
+              height: '36px', 
+              background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
+              borderRadius: '50%', 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center', 
+              color: 'white', 
+              fontWeight: 'bold', 
+              flexShrink: 0,
+              fontSize: '14px'
+            }}
+          >
+            {user?.name?.[0]?.toUpperCase() || 'U'}
           </div>
-          {!collapsed && (
-            <ChevronLeft className="w-4 h-4 text-sidebar-foreground/50 hover:text-sidebar-foreground transition-colors" />
+          {!sidebarClosed && (
+            <div style={{ overflow: 'hidden', minWidth: 0 }}>
+              <div 
+                style={{ 
+                  fontWeight: '600', 
+                  fontSize: '13px',
+                  color: textColor,
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis'
+                }}
+              >
+                {user?.name || 'Usuario'}
+              </div>
+              <div 
+                style={{ 
+                  fontSize: '11px', 
+                  color: secondaryText,
+                  overflow: 'hidden', 
+                  textOverflow: 'ellipsis', 
+                  whiteSpace: 'nowrap'
+                }}
+              >
+                {user?.email || 'email@example.com'}
+              </div>
+            </div>
           )}
         </div>
-        
-        {/* Navigation */}
-        <nav className="flex-1 p-3 overflow-y-auto">
-          <div className="space-y-1.5">
-            {menuItems.map((item, index) => {
-              const isActive = pathName === item.url;
-              return (
-                <div 
-                  key={item.title}
-                  className="animate-fade-in-up"
-                  style={{ animationDelay: `${index * 0.05}s` }}
-                >
-                  <NavButton item={item} isActive={isActive} />
-                </div>
-              );
-            })}
-          </div>
-        </nav>
-        
-        {/* Footer */}
-        <div className={cn(
-          "p-3 border-t border-sidebar-border/50 space-y-1.5",
-          collapsed && "p-2"
-        )}>
-          {collapsed ? (
-            <>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button 
-                    variant="ghost" 
-                    className="w-full justify-center px-2 text-sidebar-foreground hover:bg-sidebar-accent/50 rounded-xl"
-                    onClick={() => setShowSettings(true)}
-                  >
-                    <Settings className="w-5 h-5" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent side="right">Configuración</TooltipContent>
-              </Tooltip>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button 
-                    variant="ghost" 
-                    className="w-full justify-center px-2 text-destructive hover:text-destructive hover:bg-destructive/10 rounded-xl"
-                    onClick={handleLogout}
-                  >
-                    <LogOut className="w-5 h-5" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent side="right">Cerrar sesión</TooltipContent>
-              </Tooltip>
-            </>
-          ) : (
-            <>
-              <Button 
-                variant="ghost" 
-                className="w-full justify-start text-sidebar-foreground hover:bg-sidebar-accent/50 rounded-xl"
-                onClick={() => setShowSettings(true)}
-              >
-                <Settings className="w-5 h-5 mr-2" />
-                <span>Configuración</span>
-              </Button>
-              <Button 
-                variant="ghost" 
-                className="w-full justify-start text-destructive hover:text-destructive hover:bg-destructive/10 rounded-xl"
-                onClick={handleLogout}
-              >
-                <LogOut className="w-5 h-5 mr-2" />
-                <span>Cerrar sesión</span>
-              </Button>
-            </>
-          )}
+
+        <div style={{ display: 'flex', gap: '8px', flexWrap: 'nowrap' }}>
+          <button
+            onClick={() => setShowSettings(true)}
+            style={{ 
+              flex: 1, 
+              padding: '8px', 
+              borderRadius: '6px', 
+              border: `1px solid ${borderColor}`, 
+              backgroundColor: hoverBg,
+              cursor: 'pointer', 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center', 
+              gap: '6px', 
+              fontSize: '12px',
+              color: secondaryText,
+              fontWeight: '500',
+              transition: 'all 0.2s ease'
+            }}
+            title="Configuración"
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = activeBg;
+              e.currentTarget.style.color = activeText;
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = hoverBg;
+              e.currentTarget.style.color = secondaryText;
+            }}
+          >
+            <Settings size={14} />
+            {!sidebarClosed && <span>Config</span>}
+          </button>
+          <button
+            onClick={handleLogout}
+            style={{ 
+              flex: 1, 
+              padding: '8px', 
+              borderRadius: '6px', 
+              border: `1px solid ${borderColor}`, 
+              backgroundColor: hoverBg,
+              cursor: 'pointer', 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center', 
+              gap: '6px', 
+              fontSize: '12px',
+              color: secondaryText,
+              fontWeight: '500',
+              transition: 'all 0.2s ease'
+            }}
+            title="Cerrar sesión"
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = '#fee2e2';
+              e.currentTarget.style.color = isDark ? '#fca5a5' : '#dc2626';
+              e.currentTarget.style.borderColor = isDark ? '#7f1d1d' : '#fecaca';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = hoverBg;
+              e.currentTarget.style.color = secondaryText;
+              e.currentTarget.style.borderColor = borderColor;
+            }}
+          >
+            <LogOut size={14} />
+            {!sidebarClosed && <span>Salir</span>}
+          </button>
         </div>
-        
-        <SettingsModal 
-          open={showSettings}
-          onOpenChange={setShowSettings}
-        />
-      </aside>
-    </TooltipProvider>
+      </div>
+
+      <SettingsModal
+        isOpen={showSettings}
+        onClose={() => setShowSettings(false)}
+      />
+    </aside>
   );
 }

@@ -1,16 +1,25 @@
 "use client"
 
-import { useState, useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { apiService } from '@/services/apiService';
 import { StorageManager } from '@/lib/storage';
 import { useToast } from '@/hooks/use-toast';
 import type { User, AuthResponse } from '@/types';
+
+declare global {
+  interface Window {
+    google: any;
+  }
+}
 
 export const useGoogleAuth = () => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
+  const router = useRouter();
+  const searchParams = useSearchParams();
 
   const loginWithGoogle = useCallback(
     async (idToken: string) => {
@@ -78,6 +87,63 @@ export const useGoogleAuth = () => {
     });
   }, [toast]);
 
+  const initializeGoogleSignIn = useCallback(() => {
+    if (typeof window === 'undefined') return;
+
+    const script = document.createElement('script');
+    script.src = 'https://accounts.google.com/gsi/client';
+    script.async = true;
+    script.defer = true;
+
+    script.onload = () => {
+      if (window.google && window.google.accounts) {
+        // Google Sign-In está listo
+        console.log('Google Sign-In initialized');
+      }
+    };
+
+    document.head.appendChild(script);
+
+    return () => {
+      const existingScript = document.querySelector(
+        'script[src="https://accounts.google.com/gsi/client"]'
+      );
+      if (existingScript) {
+        existingScript.remove();
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    return initializeGoogleSignIn();
+  }, [initializeGoogleSignIn]);
+
+  useEffect(() => {
+    const code = searchParams.get('code');
+    if (code) {
+      handleGoogleCallback(code);
+    }
+  }, [searchParams]);
+
+  const handleGoogleCallback = useCallback(
+    async (code: string) => {
+      try {
+        setIsLoading(true);
+        const response = await apiService.googleLogin(code);
+        apiService.setToken(response.access_token);
+        if (response.user) {
+          localStorage.setItem('user', JSON.stringify(response.user));
+        }
+        router.push('/dashboard');
+      } catch (err: any) {
+        setError(err.message || 'Error al autenticar con Google');
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [router]
+  );
+
   return {
     user,
     isLoading,
@@ -85,5 +151,6 @@ export const useGoogleAuth = () => {
     loginWithGoogle,
     logout,
     isAuthenticated: !!user && StorageManager.isAuthenticated(),
+    router,
   };
 };
