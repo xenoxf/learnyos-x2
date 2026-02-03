@@ -1,16 +1,20 @@
-import React from 'react';
-import { LandingThemeSelector } from './LandingThemeSelector';
-import styles from '@/styles/header.module.css'
-import Link from 'next/link';
-import { ThemeSelector } from './ThemeSelector';
-import { ThemeToggle } from './ThemeToggle';
-import { useAuth } from '@/hooks/useAuth';
-import { useRouter } from 'next/navigation';
+import React from "react";
+import { LandingThemeSelector } from "./LandingThemeSelector";
+import styles from "@/styles/header.module.css";
+import Link from "next/link";
+import { ThemeSelector } from "./ThemeSelector";
+import { ThemeToggle } from "./ThemeToggle";
+import { useAuth } from "@/hooks/useAuth";
+import { useRouter } from "next/navigation";
+import { Button } from "./ui/button";
 
 export default function Header() {
-  const user = typeof window !== 'undefined' ? (
-    localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')!) : null
-  ) : null;
+  const user =
+    typeof window !== "undefined"
+      ? localStorage.getItem("user")
+        ? JSON.parse(localStorage.getItem("user")!)
+        : null
+      : null;
 
   return (
     <>
@@ -29,16 +33,17 @@ export default function Header() {
           <div className={styles.headerActions}>
             {/*<LandingThemeSelector />*/}
             <ThemeToggle />
-            <Link href="/auth" className={styles.headerSignIn}>
+            {/*<Link href="/auth" className={styles.headerSignIn}>
               Iniciar Sesión
-            </Link>
+            </Link>*/}
             <Link className={styles.headerButton} href="/auth">
               <span className={styles.headerButtonSmallText}>Comenzar</span>
-              <span className={styles.headerButtonLargeText}>Comenzar Gratis</span>
+              <Button className={styles.headerButtonLargeText}>
+                Comenzar Gratis
+              </Button>
             </Link>
           </div>
         </div>
-
       </header>
     </>
   );

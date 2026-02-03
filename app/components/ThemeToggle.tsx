@@ -34,8 +34,8 @@ export const ThemeToggle: React.FC = () => {
         return styles.previewForest;
       case "sunset":
         return styles.previewSunset;
-      case "original":
-        return styles.previewOriginal;
+      case "sakura":
+        return styles.previewSakura;
       default:
         return styles.previewLight;
     }
@@ -46,9 +46,7 @@ export const ThemeToggle: React.FC = () => {
       <DropdownMenuTrigger asChild>
         <Button variant="outline" size="sm" className={styles.themeToggle}>
           {/* Preview */}
-          <div
-            className={`${styles.preview} ${getThemePreview(theme)}`}
-          />
+          <div className={`${styles.preview} ${getThemePreview(theme)}`} />
 
           {/* Label */}
           <span className={`hidden sm:inline ${styles.label}`}>
@@ -77,13 +75,8 @@ export const ThemeToggle: React.FC = () => {
         </Button>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent
-        align="end"
-        className={styles.dropdown}
-      >
-        <div className={styles.dropdownHeader}>
-          Seleccionar tema
-        </div>
+      <DropdownMenuContent align="end" className={styles.dropdown}>
+        <div className={styles.dropdownHeader}>Seleccionar tema</div>
 
         <div className={styles.dropdownList}>
           {themes.map((themeOption) => {
@@ -92,26 +85,20 @@ export const ThemeToggle: React.FC = () => {
             return (
               <DropdownMenuItem
                 key={themeOption.name}
-                onClick={() =>
-                  setTheme(themeOption.name as Theme)
-                }
+                onClick={() => setTheme(themeOption.name as Theme)}
                 className={`${styles.dropdownItem} ${
                   active ? styles.activeItem : ""
                 }`}
               >
                 <div
                   className={`${styles.previewSmall} ${getThemePreview(
-                    themeOption.name
+                    themeOption.name,
                   )}`}
                 />
 
-                <span className={styles.itemLabel}>
-                  {themeOption.label}
-                </span>
+                <span className={styles.itemLabel}>{themeOption.label}</span>
 
-                {active && (
-                  <span className={styles.check}>✓</span>
-                )}
+                {active && <span className={styles.check}>✓</span>}
               </DropdownMenuItem>
             );
           })}

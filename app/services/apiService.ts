@@ -23,8 +23,9 @@ class ApiService {
   private token: string | null = null;
 
   constructor() {
-    this.baseUrl = String(process.env.NEXT_PUBLIC_API_URL);
+    //this.baseUrl = String(process.env.NEXT_PUBLIC_BACKEND_UR);
     this.loadToken();
+    this.baseUrl = 'https://klerk.onrender.com';
   }
 
   private loadToken() {
@@ -64,12 +65,6 @@ class ApiService {
       });
 
       if (!response.ok) {
-        if (response.status === 401) {
-          this.logout();
-          if (typeof window !== 'undefined') {
-            window.location.href = '/auth';
-          }
-        }
         const errorData = await response.json().catch(() => ({}));
         throw new Error(errorData.message || `API Error: ${response.status}`);
       }
@@ -143,11 +138,8 @@ class ApiService {
   async updateUser(data: { name?: string }): Promise<User> {
     const response = await this.request('/users/name', {
       method: 'PUT',
-      body: JSON.stringify(data.name),
+      body: JSON.stringify(data),
     });
-    if (response && typeof window !== 'undefined') {
-      localStorage.setItem('user', JSON.stringify(response));
-    }
     return response;
   }
 

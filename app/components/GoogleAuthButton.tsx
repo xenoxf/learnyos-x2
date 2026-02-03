@@ -36,7 +36,7 @@ export function GoogleAuthButton({ onSuccess, onError }: GoogleAuthButtonProps) 
     try {
       if (response.code) {
         // Enviar código al backend (SIN /api/)
-        const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:2300";
+        const backendUrl = String(process.env.NEXT_PUBLIC_BACKEND_URL);
         const result = await fetch(`${backendUrl}/auth/google/callback`, {
           method: "GET",
           headers: { "Content-Type": "application/json" },

@@ -1,4 +1,3 @@
-
 .container {
   min-height: 100vh;
   background-color: hsl(var(--background));
@@ -27,58 +26,46 @@
 .heroBackground {
   position: absolute;
   inset: 0;
-  background: linear-gradient(
-    135deg,
-    rgba(59, 130, 246, 0.05) 0%,
-    rgba(168, 85, 247, 0.03) 50%,
-    rgba(236, 72, 153, 0.05) 100%
-  );
+  background: linear-gradient(135deg,
+      rgba(59, 130, 246, 0.05) 0%,
+      rgba(168, 85, 247, 0.03) 50%,
+      rgba(236, 72, 153, 0.05) 100%);
 }
 
 .dark .heroBackground,
 .theme-original .heroBackground {
-  background: linear-gradient(
-    135deg,
-    rgba(30, 58, 138, 0.1) 0%,
-    rgba(75, 0, 130, 0.05) 50%,
-    rgba(109, 40, 80, 0.1) 100%
-  );
+  background: linear-gradient(135deg,
+      rgba(30, 58, 138, 0.1) 0%,
+      rgba(75, 0, 130, 0.05) 50%,
+      rgba(109, 40, 80, 0.1) 100%);
 }
 
 .theme-ocean .heroBackground {
-  background: linear-gradient(
-    135deg,
-    rgba(59, 130, 246, 0.08) 0%,
-    rgba(7, 193, 227, 0.05) 50%,
-    rgba(59, 130, 246, 0.08) 100%
-  );
+  background: linear-gradient(135deg,
+      rgba(59, 130, 246, 0.08) 0%,
+      rgba(7, 193, 227, 0.05) 50%,
+      rgba(59, 130, 246, 0.08) 100%);
 }
 
 .theme-coffee .heroBackground {
-  background: linear-gradient(
-    135deg,
-    rgba(251, 146, 60, 0.08) 0%,
-    rgba(180, 83, 9, 0.05) 50%,
-    rgba(251, 146, 60, 0.08) 100%
-  );
+  background: linear-gradient(135deg,
+      rgba(251, 146, 60, 0.08) 0%,
+      rgba(180, 83, 9, 0.05) 50%,
+      rgba(251, 146, 60, 0.08) 100%);
 }
 
 .theme-forest .heroBackground {
-  background: linear-gradient(
-    135deg,
-    rgba(34, 197, 94, 0.08) 0%,
-    rgba(21, 128, 61, 0.05) 50%,
-    rgba(34, 197, 94, 0.08) 100%
-  );
+  background: linear-gradient(135deg,
+      rgba(34, 197, 94, 0.08) 0%,
+      rgba(21, 128, 61, 0.05) 50%,
+      rgba(34, 197, 94, 0.08) 100%);
 }
 
 .theme-sunset .heroBackground {
-  background: linear-gradient(
-    135deg,
-    rgba(168, 85, 247, 0.08) 0%,
-    rgba(236, 72, 153, 0.05) 50%,
-    rgba(168, 85, 247, 0.08) 100%
-  );
+  background: linear-gradient(135deg,
+      rgba(168, 85, 247, 0.08) 0%,
+      rgba(236, 72, 153, 0.05) 50%,
+      rgba(168, 85, 247, 0.08) 100%);
 }
 
 .heroContent {
@@ -211,7 +198,9 @@
 }
 
 .theme-original .heroTitleGradient {
-  background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--secondary)));
+  background: linear-gradient(135deg,
+      hsl(var(--primary)),
+      hsl(var(--secondary)));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -239,7 +228,9 @@
 }
 
 .theme-sunset .heroTitleGradient {
-  background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)));
+  background: linear-gradient(135deg,
+      hsl(var(--primary)),
+      hsl(var(--accent)));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -287,7 +278,6 @@
   background: linear-gradient(135deg, #3b82f6, #8b5cf6);
   color: white;
   text-decoration: none;
-  padding: var(--spacing-lg) var(--spacing-xl);
   border-radius: var(--radius);
   box-shadow: var(--shadow-lg);
   font-size: 1rem;
@@ -295,7 +285,6 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 100%;
   transition: all var(--transition-base);
   border: 1px solid transparent;
 }
@@ -312,11 +301,15 @@
 }
 
 .dark .heroCTAButton {
-  background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)));
+  background: linear-gradient(135deg,
+      hsl(var(--primary)),
+      hsl(var(--accent)));
 }
 
 .theme-original .heroCTAButton {
-  background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--secondary)));
+  background: linear-gradient(135deg,
+      hsl(var(--primary)),
+      hsl(var(--secondary)));
   color: hsl(var(--primary-foreground));
 }
 
@@ -336,7 +329,9 @@
 }
 
 .theme-sunset .heroCTAButton {
-  background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)));
+  background: linear-gradient(135deg,
+      hsl(var(--primary)),
+      hsl(var(--accent)));
   color: hsl(var(--primary-foreground));
 }
 
@@ -379,14 +374,18 @@
 }
 
 .dark .heroStatNumber {
-  background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)));
+  background: linear-gradient(135deg,
+      hsl(var(--primary)),
+      hsl(var(--accent)));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
 .theme-original .heroStatNumber {
-  background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--secondary)));
+  background: linear-gradient(135deg,
+      hsl(var(--primary)),
+      hsl(var(--secondary)));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -414,7 +413,9 @@
 }
 
 .theme-sunset .heroStatNumber {
-  background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)));
+  background: linear-gradient(135deg,
+      hsl(var(--primary)),
+      hsl(var(--accent)));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -499,7 +500,9 @@
 }
 
 .theme-original .heroImageBar1 {
-  background: linear-gradient(90deg, hsl(var(--primary)), hsl(var(--secondary)));
+  background: linear-gradient(90deg,
+      hsl(var(--primary)),
+      hsl(var(--secondary)));
 }
 
 .heroImageBar2 {
@@ -534,15 +537,21 @@
   align-items: center;
   justify-content: center;
   font-size: 1.5rem;
-  background: linear-gradient(135deg, hsl(var(--muted)), hsl(var(--accent) / 0.2));
+  background: linear-gradient(135deg,
+      hsl(var(--muted)),
+      hsl(var(--accent) / 0.2));
 }
 
 .heroImageGridItem1 {
-  background: linear-gradient(135deg, hsl(var(--primary) / 0.2), hsl(var(--secondary) / 0.2));
+  background: linear-gradient(135deg,
+      hsl(var(--primary) / 0.2),
+      hsl(var(--secondary) / 0.2));
 }
 
 .heroImageGridItem2 {
-  background: linear-gradient(135deg, hsl(var(--accent) / 0.2), hsl(var(--primary) / 0.2));
+  background: linear-gradient(135deg,
+      hsl(var(--accent) / 0.2),
+      hsl(var(--primary) / 0.2));
 }
 
 /* ============================================
@@ -732,11 +741,15 @@
 }
 
 .theme-original .gradientPurple {
-  background: linear-gradient(135deg, hsl(var(--secondary)), hsl(var(--accent)));
+  background: linear-gradient(135deg,
+      hsl(var(--secondary)),
+      hsl(var(--accent)));
 }
 
 .theme-sunset .gradientPurple {
-  background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)));
+  background: linear-gradient(135deg,
+      hsl(var(--primary)),
+      hsl(var(--accent)));
 }
 
 .gradientOrange {
@@ -807,7 +820,9 @@
 }
 
 .theme-original .footerBrandIcon {
-  background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--secondary)));
+  background: linear-gradient(135deg,
+      hsl(var(--primary)),
+      hsl(var(--secondary)));
 }
 
 .theme-ocean .footerBrandIcon {
@@ -823,7 +838,9 @@
 }
 
 .theme-sunset .footerBrandIcon {
-  background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)));
+  background: linear-gradient(135deg,
+      hsl(var(--primary)),
+      hsl(var(--accent)));
 }
 
 .footerBrandIconText {
@@ -842,14 +859,18 @@
 }
 
 .dark .footerBrandName {
-  background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)));
+  background: linear-gradient(135deg,
+      hsl(var(--primary)),
+      hsl(var(--accent)));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
 .theme-original .footerBrandName {
-  background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--secondary)));
+  background: linear-gradient(135deg,
+      hsl(var(--primary)),
+      hsl(var(--secondary)));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -877,7 +898,9 @@
 }
 
 .theme-sunset .footerBrandName {
-  background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)));
+  background: linear-gradient(135deg,
+      hsl(var(--primary)),
+      hsl(var(--accent)));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -897,9 +920,10 @@
 .heroSection,
 .featuresSection,
 .footer {
-  transition: background-color var(--transition-base),
-              color var(--transition-base),
-              border-color var(--transition-base);
+  transition:
+    background-color var(--transition-base),
+    color var(--transition-base),
+    border-color var(--transition-base);
 }
 
 /* Asegurar que los gradientes de texto funcionen en todos los navegadores */
@@ -909,4 +933,168 @@
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+}
+
+.header {
+  border-bottom: 1px solid var(--border, #e5e7eb);
+  background-color: rgba(var(--background-rgb));
+  backdrop-filter: blur(10px);
+  z-index: 50;
+}
+
+@media (min-width: 1024px) {
+  .header {
+    top: 0;
+  }
+}
+
+.headerContent {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0.75rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.headerBrand {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.brandIcon {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  background: linear-gradient(135deg, #3b82f6, #6366f1);
+}
+
+@media (min-width: 640px) {
+  .brandIcon {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+}
+
+.brandIconText {
+  color: white;
+  font-weight: bold;
+  font-size: 1.125rem;
+}
+
+@media (min-width: 640px) {
+  .brandIconText {
+    font-size: 1.25rem;
+  }
+}
+
+.brandInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.brandName {
+  font-size: 1.25rem;
+  font-weight: bold;
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6, #ec4899);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+@media (min-width: 640px) {
+  .brandName {
+    font-size: 1.5rem;
+  }
+}
+
+.brandSubtitle {
+  font-size: 0.625rem;
+  color: var(--muted-foreground);
+  display: none;
+}
+
+@media (min-width: 640px) {
+  .brandSubtitle {
+    display: block;
+  }
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+@media (min-width: 640px) {
+  .headerActions {
+    gap: 1rem;
+  }
+}
+
+.headerSignIn {
+  display: none;
+  font-size: 0.875rem;
+  color: var(--foreground, #000000);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.headerSignIn:hover {
+  color: var(--primary, #3b82f6);
+}
+
+@media (min-width: 640px) {
+  .headerSignIn {
+    display: inline-flex;
+  }
+}
+
+.headerButton {
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  color: white;
+  text-decoration: none;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s ease;
+  font-size: 0.875rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.headerButton:hover {
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15);
+}
+
+@media (min-width: 640px) {
+  .headerButton {
+    padding: 0.875rem 1.25rem;
+  }
+}
+
+.headerButtonSmallText {
+  display: inline;
+}
+
+@media (min-width: 640px) {
+  .headerButtonSmallText {
+    display: none;
+  }
+}
+
+.headerButtonLargeText {
+  display: none;
+}
+
+@media (min-width: 640px) {
+  .headerButtonLargeText {
+    display: inline;
+  }
 }

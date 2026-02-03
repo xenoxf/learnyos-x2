@@ -127,36 +127,36 @@ export default function NotesPage() {
       </section>
 
       {/* Create Form */}
-      <Card className="p-6 space-y-4 mb-8">
-        <div>
-          <label className="block text-sm font-medium mb-2">Título</label>
+      <Card className={styles.createCard}>
+        <div className={styles.formGroup}>
+          <label className={styles.label}>Título</label>
           <Input
             type="text"
             placeholder="Nombre de la nota..."
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            className="w-full"
+            className={styles.input}
             disabled={creating}
           />
         </div>
-        <div>
-          <label className="block text-sm font-medium mb-2">Categoría (opcional)</label>
+        <div className={styles.formGroup}>
+          <label className={styles.label}>Categoría (opcional)</label>
           <Input
             type="text"
             placeholder="ej: Matemáticas, Historia..."
             value={category}
             onChange={(e) => setCategory(e.target.value)}
-            className="w-full"
+            className={styles.input}
             disabled={creating}
           />
         </div>
-        <div>
-          <label className="block text-sm font-medium mb-2">Contenido</label>
+        <div className={styles.formGroup}>
+          <label className={styles.label}>Contenido</label>
           <Textarea
             placeholder="Escribe el contenido de tu nota..."
             value={content}
             onChange={(e) => setContent(e.target.value)}
-            className="w-full"
+            className={styles.textarea}
             rows={5}
             disabled={creating}
           />
@@ -164,16 +164,16 @@ export default function NotesPage() {
         <Button
           onClick={handleSaveNote}
           disabled={creating || !title.trim() || !content.trim()}
-          className="w-full"
+          className={styles.createButton}
         >
           {creating ? (
             <>
-              <Loader className="w-4 h-4 mr-2 animate-spin" />
+              <Loader className={styles.loaderIcon} />
               Creando...
             </>
           ) : (
             <>
-              <Plus className="w-4 h-4 mr-2" />
+              <Plus className={styles.plusIcon} />
               Crear Nota
             </>
           )}
@@ -182,15 +182,15 @@ export default function NotesPage() {
 
       {/* Search */}
       {notes.length > 0 && (
-        <div className="mb-6">
-          <div className="relative">
-            <Search className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
+        <div className={styles.searchContainer}>
+          <div className={styles.searchWrapper}>
+            <Search className={styles.searchIcon} />
             <Input
               type="text"
               placeholder="Buscar notas..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 w-full"
+              className={styles.searchInput}
             />
           </div>
         </div>
@@ -198,25 +198,25 @@ export default function NotesPage() {
 
       {/* Notes List */}
       {loading ? (
-        <div className="flex items-center justify-center py-12">
-          <Loader className="w-8 h-8 animate-spin text-primary mr-2" />
-          <p className="text-muted-foreground">Cargando notas...</p>
+        <div className={styles.loadingState}>
+          <Loader className={styles.loadingIcon} />
+          <p className={styles.loadingText}>Cargando notas...</p>
         </div>
       ) : filteredNotes.length === 0 ? (
-        <Card className="p-12 text-center">
-          <p className="text-muted-foreground mb-4">
+        <Card className={styles.emptyCard}>
+          <p className={styles.emptyText}>
             {notes.length === 0 ? "No tienes notas aún" : "No se encontraron notas"}
           </p>
         </Card>
       ) : (
         <div className={styles.grid}>
           {filteredNotes.map((note) => (
-            <Card key={note.id} className="p-6 hover:shadow-lg transition-shadow">
-              <div className="flex items-start justify-between mb-3">
-                <div className="flex-1">
-                  <h3 className="font-semibold text-lg line-clamp-2">{note.title}</h3>
+            <Card key={note.id} className={styles.noteCard}>
+              <div className={styles.noteHeader}>
+                <div className={styles.noteContent}>
+                  <h3 className={styles.noteTitle}>{note.title}</h3>
                   {note.category && (
-                    <div className="mt-2 inline-block px-2 py-1 bg-secondary text-secondary-foreground rounded text-xs">
+                    <div className={styles.noteBadge}>
                       {note.category}
                     </div>
                   )}
@@ -226,19 +226,19 @@ export default function NotesPage() {
                   size="icon"
                   onClick={() => handleDelete(note.id)}
                   disabled={deleting === note.id}
-                  className="text-destructive hover:text-destructive"
+                  className={styles.deleteButton}
                 >
                   {deleting === note.id ? (
-                    <Loader className="w-4 h-4 animate-spin" />
+                    <Loader className={styles.deleteLoader} />
                   ) : (
-                    <Trash2 className="w-4 h-4" />
+                    <Trash2 className={styles.deleteIcon} />
                   )}
                 </Button>
               </div>
-              <p className="text-sm text-muted-foreground line-clamp-3">
+              <p className={styles.noteBody}>
                 {note.content}
               </p>
-              <p className="text-xs text-muted-foreground mt-3 pt-3 border-t">
+              <p className={styles.noteFooter}>
                 {note.content.length} caracteres
               </p>
             </Card>

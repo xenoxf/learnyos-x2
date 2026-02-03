@@ -4,10 +4,12 @@ import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { GoogleAuthButton } from "@/components/GoogleAuthButton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { AlertCircle, Loader2, Mail, Lock, User, SplitIcon } from "lucide-react";
+import { AlertCircle, Loader2, Mail, Lock, User, SplitIcon, Eye, EyeOff } from "lucide-react";
 import { apiService } from "@/services/apiService";
 import type { LoginInput, RegisterInput } from "@/types";
 import { toast } from "@/hooks/use-toast";
+import styles from "@/styles/auth.module.css";
+import Link from "next/link";
 
 export default function AuthPage() {
   const router = useRouter();
@@ -17,6 +19,7 @@ export default function AuthPage() {
   const [isLogin, setIsLogin] = useState(true);
   const [loading, setLoading] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -67,7 +70,7 @@ export default function AuthPage() {
       console.error("Login error:", error);
       setFormError(
         error?.message ||
-          "Error al iniciar sesión. Por favor, verifica tus credenciales.",
+        "Error al iniciar sesión. Por favor, verifica tus credenciales.",
       );
     } finally {
       setLoading(false);
@@ -132,26 +135,28 @@ export default function AuthPage() {
   };
 
   return (
-    <div className="auth-page">
-      <button className="btn-volver">
+    <div className={styles.authPage}>
+      <Link className={styles.authBtnVolver} href="/" >
         <SplitIcon color="white" />
-      </button>
+      </Link>
 
-      <div className="auth">
-        <div className="container-title">
-          <h1 className="text-foreground">LearnYos</h1>
+      <div className={styles.auth}>
+        <div className={styles.containerTitle}>
+          <h1 className={styles.logo}>LearnYos</h1>
         </div>
 
-        <Card>
+        <Card className={styles.authWindow}>
           <CardHeader>
-            <CardTitle>{isLogin ? "Bienvenido de nuevo" : "Crea tu cuenta"}</CardTitle>
+            <CardTitle className={styles.cardTitle}>
+              {isLogin ? "Bienvenido de nuevo" : "Crea tu cuenta"}
+            </CardTitle>
           </CardHeader>
 
-          <CardContent>
+          <CardContent className={styles.cardContent}>
             {(error || formError) && (
-              <div>
-                <AlertCircle />
-                <span>
+              <div className={styles.errorAlert}>
+                <AlertCircle className={styles.errorIcon} />
+                <span className={styles.errorText}>
                   {formError ||
                     (error === "google_failed" &&
                       "Error al autenticarse con Google. Por favor, intenta de nuevo.") ||
@@ -162,24 +167,24 @@ export default function AuthPage() {
               </div>
             )}
 
+            {/*
+            Google Button
+            
             <GoogleAuthButton
-              onSuccess={handleGoogleSuccess}
-              onError={handleGoogleError}
-            />
+            *}
 
-            <div>
-              <div />
-              <div>
-                <span>O continúa con email</span>
-              </div>
-            </div>
+            {/*<div className={styles.divider}>
+              <div className={styles.dividerLine} />
+              <span className={styles.dividerText}>O continúa con email</span>
+              <div className={styles.dividerLine} />
+            </div>*/}
 
-            <form className="auth-form" onSubmit={isLogin ? handleLogin : handleRegister}>
+            <form className={styles.authForm} onSubmit={isLogin ? handleLogin : handleRegister}>
               {!isLogin && (
-                <div>
-                  <label>NickName</label>
-                  <div>
-                    <User />
+                <div className={styles.authContainerInput}>
+                  <label className={styles.authLabel}>NickName</label>
+                  <div className={styles.authInput}>
+                    <User className={styles.authIcon} />
                     <input
                       id="name"
                       type="text"
@@ -188,17 +193,17 @@ export default function AuthPage() {
                       placeholder="Tu nombre"
                       disabled={loading}
                       required={!isLogin}
+                      className={styles.inputField}
                     />
                   </div>
                 </div>
               )}
 
-              <div>
-                <label>Correo Electrónico</label>
-                <div>
-                  <Mail />
+              <div className={styles.authContainerInput}>
+                <label className={styles.authLabel}>Correo Electrónico</label>
+                <div className={styles.authInput}>
+                  <Mail className={styles.authIcon} />
                   <input
-                  className="auth-input"
                     id="email"
                     type="email"
                     placeholder="tu@ejemplo.com"
@@ -206,32 +211,45 @@ export default function AuthPage() {
                     onChange={(e) => setEmail(e.target.value)}
                     disabled={loading}
                     required
+                    className={styles.inputField}
                   />
                 </div>
               </div>
 
-              <div>
-                <label>Contraseña</label>
-                <div>
-                  <Lock />
+              <div className={styles.authContainerInput}>
+                <label className={styles.authLabel}>Contraseña</label>
+                <div className={styles.authInput}>
+                  <Lock className={styles.authIcon} />
                   <input
-                  className="auth-input"
                     id="password"
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     placeholder="••••••••"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     disabled={loading}
                     required
                     minLength={6}
+                    className={styles.inputField}
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className={styles.eyeButton}
+                    disabled={loading}
+                  >
+                    {showPassword ? (
+                      <EyeOff className={styles.eyeIcon} />
+                    ) : (
+                      <Eye className={styles.eyeIcon} />
+                    )}
+                  </button>
                 </div>
               </div>
 
-              <button type="submit" disabled={loading}>
+              <button type="submit" disabled={loading} className={styles.authBtn}>
                 {loading ? (
                   <>
-                    <Loader2 />
+                    <Loader2 className={styles.loaderIcon} />
                     <span>{isLogin ? "Iniciando sesión..." : "Creando cuenta..."}</span>
                   </>
                 ) : (
@@ -240,7 +258,7 @@ export default function AuthPage() {
               </button>
             </form>
 
-            <div>
+            <div className={styles.toggleAuth}>
               {isLogin ? "¿No tienes una cuenta? " : "¿Ya tienes una cuenta? "}
               <button
                 type="button"
@@ -250,7 +268,9 @@ export default function AuthPage() {
                   setEmail("");
                   setPassword("");
                   setName("");
+                  setShowPassword(false);
                 }}
+                className={styles.toggleAuthButton}
               >
                 {isLogin ? "Regístrate" : "Inicia sesión"}
               </button>
@@ -258,7 +278,7 @@ export default function AuthPage() {
           </CardContent>
         </Card>
 
-        <div>
+        <div className={styles.footer}>
           <p>Al continuar, aceptas nuestros términos y política de privacidad</p>
         </div>
       </div>

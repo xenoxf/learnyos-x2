@@ -1,8 +1,15 @@
-"use client"
+"use client";
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState } from "react";
 
-export type Theme = 'light' | 'dark' | 'original' | 'ocean' | 'coffee' | 'forest' | 'sunset';
+export type Theme =
+  | "light"
+  | "dark"
+  | "sakura"
+  | "ocean"
+  | "coffee"
+  | "forest"
+  | "sunset";
 
 interface ThemeContextValue {
   theme: Theme;
@@ -12,14 +19,16 @@ interface ThemeContextValue {
 
 const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
 
-export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [theme, setTheme] = useState<Theme>('light');
+export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
+  const [theme, setTheme] = useState<Theme>("light");
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
     try {
-      const stored = localStorage.getItem('learnyos-theme') as Theme;
+      const stored = localStorage.getItem("learnyos-theme") as Theme;
       if (stored) {
         setTheme(stored);
       }
@@ -30,38 +39,42 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   useEffect(() => {
     if (!mounted) return;
-    
+
     try {
-      localStorage.setItem('learnyos-theme', theme);
+      localStorage.setItem("learnyos-theme", theme);
     } catch (e) {
       // ignore
     }
-    
+
     const root = document.documentElement;
     root.classList.remove(
-      'light', 'dark',
-      'theme-original', 'theme-ocean', 'theme-coffee',
-      'theme-forest', 'theme-sunset'
+      "light",
+      "dark",
+      "theme-sakura",
+      "theme-ocean",
+      "theme-coffee",
+      "theme-forest",
+      "theme-sunset",
     );
-    
+
     switch (theme) {
-      case 'dark':
-        root.classList.add('dark');
+      case "dark":
+        root.classList.add("dark");
         break;
-      case 'original':
-        root.classList.add('theme-original');
+      case "sakura":
+        root.classList.add("theme-sakura");
         break;
-      case 'ocean':
-        root.classList.add('theme-ocean');
+      case "ocean":
+        root.classList.add("theme-ocean");
         break;
-      case 'coffee':
-        root.classList.add('theme-coffee');
+      case "coffee":
+        root.classList.add("theme-coffee");
         break;
-      case 'forest':
-        root.classList.add('theme-forest');
+      case "forest":
+        root.classList.add("theme-forest");
         break;
-      case 'sunset':
-        root.classList.add('theme-sunset');
+      case "sunset":
+        root.classList.add("theme-sunset");
         break;
       default:
         // Light theme - no class needed
@@ -69,7 +82,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
   }, [theme, mounted]);
 
-  const toggleTheme = () => setTheme((t) => (t === 'light' ? 'dark' : 'light'));
+  const toggleTheme = () => setTheme((t) => (t === "light" ? "dark" : "light"));
 
   return (
     <ThemeContext.Provider value={{ theme, setTheme, toggleTheme }}>
@@ -83,7 +96,7 @@ export const useTheme = (): ThemeContextValue => {
   if (ctx) return ctx;
 
   return {
-    theme: 'light',
+    theme: "light",
     setTheme: () => {},
     toggleTheme: () => {},
   };
