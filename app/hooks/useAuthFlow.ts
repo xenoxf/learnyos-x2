@@ -11,7 +11,7 @@ export const useAuthFlow = () => {
   const login = useCallback(async (data: LoginInput) => {
     try {
       const result = await apiService.login(data);
-      router.push('/protected/dashboard');
+      router.push('/(protected)/dashboard');
       return result;
     } catch (error) {
       throw error;
@@ -21,7 +21,7 @@ export const useAuthFlow = () => {
   const register = useCallback(async (data: RegisterInput) => {
     try {
       const result = await apiService.register(data);
-      router.push('/protected/dashboard');
+      router.push('/(protected)/dashboard');
       return result;
     } catch (error) {
       throw error;
@@ -30,18 +30,8 @@ export const useAuthFlow = () => {
 
   const googleAuth = useCallback(async (code: string) => {
     try {
-      const result = await apiService.googleCallback(code);
-      router.push('/protected/dashboard');
-      return result;
-    } catch (error) {
-      throw error;
-    }
-  }, [router]);
-
-  const googleAuthWithToken = useCallback(async (idToken: string) => {
-    try {
-      const result = await apiService.googleAuthWithIdToken(idToken);
-      router.push('/protected/dashboard');
+      const result = await apiService.googleAuthWithCode(code);
+      router.push('/(protected)/dashboard');
       return result;
     } catch (error) {
       throw error;
@@ -57,7 +47,6 @@ export const useAuthFlow = () => {
     login,
     register,
     googleAuth,
-    googleAuthWithToken,
     logout,
     isAuthenticated: apiService.isAuthenticated(),
     user: apiService.getUser(),

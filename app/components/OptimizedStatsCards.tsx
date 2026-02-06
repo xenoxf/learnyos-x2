@@ -25,7 +25,8 @@ const OptimizedStatsCards: React.FC = React.memo(() => {
       level: 1
     });
 
-    const todayData = userStats.dailyData?.[today] || {
+    const dailyData = userStats.dailyData as Record<string, any> | undefined;
+    const todayData = dailyData?.[today] || {
       studyMinutes: 0,
       pomodorosCompleted: 0,
       quizzesTaken: 0,

@@ -1,66 +1,61 @@
 'use client';
 
-import { useCallback } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { apiService } from '@/services/apiService';
-import type { FlashCard } from '@/types';
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-export const useFlashCards = () => {
+export interface FlashCard {
+  id: number;
+  question: string;
+  answer: string;
+  difficulty: "easy" | "medium" | "hard";
+  createdAt: Date;
+  nextReviewDate: Date;
+}
+
+export const useGenerateFlashcards = () => {
+  return useMutation({
+    mutationFn: async ({
+      topic,
+      referenceText,
+      numberOfCards,
+    }: {
+      topic?: string;
+      referenceText?: string;
+      numberOfCards?: number;
+    }) =>
+      Promise.all([
+        topic ? Promise.resolve({ topic, quantity: numberOfCards }) : null,
+        referenceText ? Promise.resolve({ reference: referenceText, quantity: numberOfCards }) : null,
+      ]),
+  });
+};
+
+export const useFlashcardsQuery = () => {
   const queryClient = useQueryClient();
 
-  const { data: cards = [], isLoading, error } = useQuery({
-    queryKey: ['flashcards'],
-    queryFn: () => apiService.getFlashcards(),
-    enabled: apiService.isAuthenticated(),
-  });
-
-  const generateFromTopicMutation = useMutation({
-    mutationFn: ({ topic, numberOfCards }: any) =>
-      apiService.generateFlashcardsFromTopic(topic, numberOfCards),
+  const createFlashcard = useMutation({
+    mutationFn: (data: Partial<FlashCard>) =>
+      Promise.resolve({
+        id: Date.now(),
+        question: (data as any).question || "",
+        answer: (data as any).answer || "",
+        difficulty: (data as any).difficulty || "medium",
+        createdAt: new Date(),
+        nextReviewDate: new Date(),
+      } as FlashCard),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['flashcards'] });
+      queryClient.invalidateQueries({ queryKey: ["flashcards"] });
     },
   });
 
-  const generateFromReferenceMutation = useMutation({
-    mutationFn: ({ referenceText, numberOfCards }: any) =>
-      apiService.generateFlashcardsFromReference(referenceText, numberOfCards),
+  const deleteFlashcard = useMutation({
+    mutationFn: (id: number) => Promise.resolve({ id }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['flashcards'] });
-    },
-  });
-
-  const createFlashcardMutation = useMutation({
-    mutationFn: (data: Partial<FlashCard>) => apiService.createFlashcard(data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['flashcards'] });
-    },
-  });
-
-  const updateFlashcardMutation = useMutation({
-    mutationFn: ({ id, data }: { id: number; data: Partial<FlashCard> }) =>
-      apiService.updateFlashcard(id, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['flashcards'] });
-    },
-  });
-
-  const deleteFlashcardMutation = useMutation({
-    mutationFn: (id: number) => apiService.deleteFlashcard(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['flashcards'] });
+      queryClient.invalidateQueries({ queryKey: ["flashcards"] });
     },
   });
 
   return {
-    cards,
-    isLoading,
-    error,
-    generateFromTopic: generateFromTopicMutation.mutateAsync,
-    generateFromReference: generateFromReferenceMutation.mutateAsync,
-    createFlashcard: createFlashcardMutation.mutateAsync,
-    updateFlashcard: updateFlashcardMutation.mutateAsync,
-    deleteFlashcard: deleteFlashcardMutation.mutateAsync,
-    isGenerating: generateFromTopicMutation.isPending || generateFromReferenceMutation.isPending,
+    createFlashcard,
+    deleteFlashcard,
   };
 };

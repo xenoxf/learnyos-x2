@@ -36,14 +36,14 @@ export const PomodoroTimer: React.FC = () => {
     return {
       ...recovered,
       settings: {
-        workTime: 25,
-        shortBreak: 5,
-        longBreak: 15,
-        cyclesBeforeLongBreak: 4,
-        autoStart: false,
-        notifications: true,
-        soundEnabled: true,
-        ...recovered.settings
+        ...recovered.settings,
+        workTime: recovered.settings?.workTime ?? 25,
+        shortBreak: recovered.settings?.shortBreak ?? 5,
+        longBreak: recovered.settings?.longBreak ?? 15,
+        cyclesBeforeLongBreak: recovered.settings?.cyclesBeforeLongBreak ?? 4,
+        autoStart: recovered.settings?.autoStart ?? false,
+        notifications: recovered.settings?.notifications ?? true,
+        soundEnabled: recovered.settings?.soundEnabled ?? true,
       }
     };
   });

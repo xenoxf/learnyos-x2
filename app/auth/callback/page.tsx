@@ -1,81 +1,54 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import React, { Suspense, useEffect, useState } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import { apiService } from "@/services/apiService";
-import { useToast } from "@/hooks/use-toast";
 
-export default function CallbackPage() {
+function CallbackContent() {
+  const params = useSearchParams();
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const { toast } = useToast();
-  const [loading, setLoading] = useState(true);
+  const [message, setMessage] = useState("Procesando autenticación...");
 
   useEffect(() => {
-    const handleCallback = async () => {
+    const code = params.get("code");
+    const error = params.get("error");
+
+    if (error) {
+      setMessage(`Error: ${error}`);
+      return;
+    }
+
+    if (!code) {
+      setMessage("Código de autenticación no encontrado");
+      return;
+    }
+
+    const handleAuth = async () => {
       try {
-        const code = searchParams.get("code");
-        const error = searchParams.get("error");
-
-        if (error) {
-          toast({
-            title: "Error de autenticación",
-            description: error,
-            variant: "destructive",
-          });
-          router.push("/auth");
-          return;
-        }
-
-        if (!code) {
-          toast({
-            title: "Error",
-            description: "No se recibió código de autenticación",
-            variant: "destructive",
-          });
-          router.push("/auth");
-          return;
-        }
-
-        // Enviar código al backend
-        const response = await apiService.googleAuthWithCode(code);
-
-        toast({
-          title: "Éxito",
-          description: "Autenticación completada",
-        });
-
-        router.push("/dashboard");
-      } catch (error: any) {
-        console.error("Error en callback:", error);
-        toast({
-          title: "Error",
-          description: error.message || "Error al procesar la autenticación",
-          variant: "destructive",
-        });
-        router.push("/auth");
-      } finally {
-        setLoading(false);
+        await apiService.googleAuthWithCode(code);
+        router.push("/");
+      } catch (e) {
+        setMessage("Error durante el proceso de autenticación");
       }
     };
 
-    handleCallback();
-  }, [searchParams, router, toast]);
+    handleAuth();
+  }, [params, router]);
 
   return (
-    <div
-      style={{
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        height: "100vh",
-      }}
-    >
-      {loading ? (
-        <div>Procesando autenticación...</div>
-      ) : (
-        <div>Redirigiendo...</div>
-      )}
+    <div className="p-4 max-w-xl mx-auto">
+      <h1 className="text-2xl font-semibold mb-2">
+        Callback de Autenticación
+      </h1>
+      <p className="text-sm text-muted-foreground">{message}</p>
     </div>
+  );
+}
+
+export default function AuthCallbackPage() {
+  return (
+    <Suspense fallback={<div className="p-4">Cargando...</div>}>
+      <CallbackContent />
+    </Suspense>
   );
 }

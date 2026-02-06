@@ -48,7 +48,7 @@ export function GoogleAuthButton({ onSuccess, onError }: GoogleAuthButtonProps) 
           localStorage.setItem("user", JSON.stringify(result.user));
 
           onSuccess?.(result.user);
-          router.push("/dashboard");
+          router.push("/(protected)/dashboard");
           router.refresh();
         }
       }

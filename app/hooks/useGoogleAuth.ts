@@ -129,12 +129,12 @@ export const useGoogleAuth = () => {
     async (code: string) => {
       try {
         setIsLoading(true);
-        const response = await apiService.googleLogin(code);
-        apiService.setToken(response.access_token);
+        const response = await apiService.googleAuthWithCode(code);
+        apiService.setToken(response.token);
         if (response.user) {
           localStorage.setItem('user', JSON.stringify(response.user));
         }
-        router.push('/dashboard');
+        router.push('/(protected)/dashboard');
       } catch (err: any) {
         setError(err.message || 'Error al autenticar con Google');
       } finally {

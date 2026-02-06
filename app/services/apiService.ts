@@ -1,5 +1,7 @@
 'use client';
 
+import { BACKEND_URL, BACKEND_API_KEY } from '@/lib/env';
+
 interface AuthResponse {
   token: string;
   user: {
@@ -21,6 +23,7 @@ interface User {
 class ApiService {
   private baseUrl: string;
   private token: string | null = null;
+  private apiKey: string | null = null;
 
   constructor() {
     //this.baseUrl = String(process.env.NEXT_PUBLIC_BACKEND_UR);
@@ -34,7 +37,7 @@ class ApiService {
     }
   }
 
-  private setToken(token: string) {
+  setToken(token: string) {
     this.token = token;
     if (typeof window !== 'undefined') {
       localStorage.setItem('token', token);
@@ -47,6 +50,9 @@ class ApiService {
     };
     if (this.token) {
       headers['Authorization'] = `Bearer ${this.token}`;
+    }
+    if (this.apiKey) {
+      headers['X-API-Key'] = this.apiKey;
     }
     return headers;
   }

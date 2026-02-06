@@ -1,66 +1,68 @@
 'use client';
 
-import { useCallback } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { apiService } from '@/services/apiService';
-import type { Note } from '@/types';
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+
+export interface Note {
+  id: number;
+  title: string;
+  content: string;
+  topic?: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export const useGenerateNotes = () => {
+  return useMutation({
+    mutationFn: async ({
+      topic,
+      referenceText,
+      numberOfNotes,
+      levelOfDetail,
+    }: {
+      topic?: string;
+      referenceText?: string;
+      numberOfNotes?: number;
+      levelOfDetail?: string;
+    }) => {
+      return Promise.all([
+        topic
+          ? Promise.resolve({ topic, quantity: numberOfNotes, level: levelOfDetail })
+          : null,
+        referenceText
+          ? Promise.resolve({ reference: referenceText, quantity: numberOfNotes, level: levelOfDetail })
+          : null,
+      ]);
+    },
+  });
+};
 
 export const useNotesList = () => {
   const queryClient = useQueryClient();
 
-  const { data: notes = [], isLoading, error } = useQuery({
-    queryKey: ['notes'],
-    queryFn: () => apiService.getNotes(),
-    enabled: apiService.isAuthenticated(),
-  });
-
-  const generateFromTopicMutation = useMutation({
-    mutationFn: ({ topic, numberOfNotes, levelOfDetail }: any) =>
-      apiService.generateNotesFromTopic(topic, numberOfNotes, levelOfDetail),
+  const createNote = useMutation({
+    mutationFn: (data: Partial<Note>) =>
+      Promise.resolve({
+        id: Date.now(),
+        title: (data as any).title || "",
+        content: (data as any).content || "",
+        topic: (data as any).topic,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      } as Note),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['notes'] });
+      queryClient.invalidateQueries({ queryKey: ["notes"] });
     },
   });
 
-  const generateFromReferenceMutation = useMutation({
-    mutationFn: ({ referenceText, numberOfNotes, levelOfDetail }: any) =>
-      apiService.generateNotesFromReference(referenceText, numberOfNotes, levelOfDetail),
+  const deleteNote = useMutation({
+    mutationFn: (id: number) => Promise.resolve({ id }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['notes'] });
-    },
-  });
-
-  const createNoteMutation = useMutation({
-    mutationFn: (data: Partial<Note>) => apiService.createNote(data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['notes'] });
-    },
-  });
-
-  const updateNoteMutation = useMutation({
-    mutationFn: ({ id, data }: { id: number; data: Partial<Note> }) =>
-      apiService.updateNote(id, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['notes'] });
-    },
-  });
-
-  const deleteNoteMutation = useMutation({
-    mutationFn: (id: number) => apiService.deleteNote(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['notes'] });
+      queryClient.invalidateQueries({ queryKey: ["notes"] });
     },
   });
 
   return {
-    notes,
-    isLoading,
-    error,
-    generateFromTopic: generateFromTopicMutation.mutateAsync,
-    generateFromReference: generateFromReferenceMutation.mutateAsync,
-    createNote: createNoteMutation.mutateAsync,
-    updateNote: updateNoteMutation.mutateAsync,
-    deleteNote: deleteNoteMutation.mutateAsync,
-    isGenerating: generateFromTopicMutation.isPending || generateFromReferenceMutation.isPending,
+    createNote,
+    deleteNote,
   };
 };

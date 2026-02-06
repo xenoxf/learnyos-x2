@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { Suspense, useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { GoogleAuthButton } from "@/components/GoogleAuthButton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,7 +11,7 @@ import { toast } from "@/hooks/use-toast";
 import styles from "@/styles/auth.module.css";
 import Link from "next/link";
 
-export default function AuthPage() {
+function AuthContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const error = searchParams.get("error");
@@ -61,7 +61,7 @@ export default function AuthPage() {
       const response = await apiService.login(loginData);
 
       if (response && response.token && response.user) {
-        router.push("/dashboard");
+        router.push("/(protected)/dashboard");
         router.refresh();
       } else {
         setFormError("Error al iniciar sesión. Por favor, intenta de nuevo.");
@@ -110,7 +110,7 @@ export default function AuthPage() {
       const response = await apiService.register(registerData);
 
       if (response && response.token && response.user) {
-        router.push("/dashboard");
+        router.push("/(protected)/dashboard");
         router.refresh();
       } else {
         setFormError("Error al registrarse. Por favor, intenta de nuevo.");
@@ -126,7 +126,7 @@ export default function AuthPage() {
   };
 
   const handleGoogleSuccess = (user: any) => {
-    router.push("/dashboard");
+    router.push("/(protected)/dashboard");
     router.refresh();
   };
 
@@ -283,5 +283,13 @@ export default function AuthPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function AuthPage() {
+  return (
+    <Suspense fallback={<div className="p-4">Cargando...</div>}>
+      <AuthContent />
+    </Suspense>
   );
 }

@@ -15,7 +15,11 @@ export function useGenerateExam() {
   const generateExam = useCallback(async (input: GenerateExamInput) => {
     try {
       setLoading(true);
-      const exam = await apiService.generateExam(input.subject, input.quantity, input.difficulty);
+      const exam = await apiService.generateExam({
+        topic: input.subject,
+        quantity: input.quantity,
+        level: input.difficulty,
+      });
       return exam;
     } catch (err: any) {
       setError(err.message);
