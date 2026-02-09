@@ -94,7 +94,7 @@ export class MarkdownFormatter {
       markdown += `## 🃏 Tarjetas\n\n`;
 
       flashcards.forEach((flashcard, index) => {
-        const difficultyEmoji = this.getDifficultyEmoji(flashcard.difficulty);
+        const difficultyEmoji = this.getDifficultyEmoji(flashcard.difficulty || 'medium');
 
         markdown += `### Tarjeta ${index + 1}\n`;
         markdown += `${difficultyEmoji} **Dificultad:** ${flashcard.difficulty}\n\n`;
@@ -128,7 +128,7 @@ export class MarkdownFormatter {
   static formatNote(note: Note): string {
     let markdown = `# 📝 ${note.title || 'Nota'}\n\n`;
 
-    markdown += `**Fecha de creación:** ${new Date(note.createdAt).toLocaleDateString()}\n\n`;
+    markdown += `**Fecha de creación:** ${new Date(note.createdAt || new Date()).toLocaleDateString()}\n\n`;
 
     if (note.color) {
       markdown += `**Color:** ${note.color}\n\n`;

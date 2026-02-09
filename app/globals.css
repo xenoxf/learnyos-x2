@@ -1858,8 +1858,39 @@ html {
 ::selection {
     background-color: hsl(var(--primary) / 0.3);
     color: hsl(var(--primary-foreground));
+} /* Scrollbar styling global - va en globals.css */
+::-webkit-scrollbar {
+    width: 8px;
 }
 
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: hsl(var(--border));
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--muted-foreground));
+}
+
+/* Focus styles globales */
+:focus-visible {
+    outline: 2px solid hsl(var(--primary));
+    outline-offset: 2px;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        transition: none !important;
+        animation: none !important;
+    }
+}
 /* Responsive improvements */
 @media (max-width: 640px) {
     .sm\:hidden {

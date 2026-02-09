@@ -1,16 +1,20 @@
 /**
  * Tipos globales para la aplicación LearnYos
+ * Sincronizados con Backend Klerk (NestJS)
  */
 
-// ==================== AUTH ====================
+// ==================== USER ====================
 
 export interface User {
-  id: number;
+  id?: number;
   email: string;
   name: string;
+  picture?: string;
   avatar?: string;
-  createdAt: string;
-  updatedAt: string;
+  provider?: 'local' | 'google';
+  googleId?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface AuthResponse {
@@ -30,38 +34,28 @@ export interface RegisterInput {
   name: string;
 }
 
-export interface GoogleAuthInput {
-  idToken: string;
-}
-
-export interface GoogleUser extends User {
-  googleId?: string;
-  picture?: string;
-}
-
 // ==================== EXAM ====================
 
 export interface ExamOption {
-  id: number;
-  questionId?: number;
+  id?: number;
   text: string;
-  isCorrect: boolean;
+  isCorrect?: boolean;
+  correct_answer?: boolean;
 }
 
 export interface ExamQuestion {
-  id: number;
-  examId: number;
+  id?: number;
   question: string;
   explanation?: string;
-  options: ExamOption[];
-  correctAnswer: string;
-  createdAt: Date;
+  options: ExamOption[] | string[];
+  correctAnswer?: string;
+  correct_answer?: string;
 }
 
 export interface Exam {
   id: number;
   title: string;
-  description: string;
+  description?: string;
   difficulty?: 'easy' | 'medium' | 'hard';
   totalQuestions: number;
   questions?: ExamQuestion[];
@@ -71,58 +65,20 @@ export interface Exam {
   updatedAt: string;
 }
 
-// ==================== GENERATE INPUTS ====================
-
-export interface GenerateExamInput {
-  topic?: string;
-  referenceText?: string;
-  reference?: string;
-  difficulty?: 'easy' | 'medium' | 'hard';
-  numberOfQuestions?: number;
-  language?: string;
-}
-
-export interface GenerateFlashcardsInput {
-  topic?: string;
-  referenceText?: string;
-  reference?: string;
-  numberOfCards?: number;
-  language?: string;
-}
-
-export interface GenerateNoteInput {
-  topic?: string;
-  referenceText?: string;
-  reference?: string;
-  language?: string;
-}
-
-// ==================== RESPONSE TYPES ====================
-
-export interface GenerateExamResponse {
-  exam: Exam;
-  questions: ExamQuestion[];
-}
-
-export interface GenerateFlashcardsResponse {
-  card: Card;
-  flashcards: FlashCard[];
-}
-
 // ==================== FLASHCARD ====================
 
 export interface FlashCard {
   id: number;
   question: string;
   answer: string;
-  difficulty: 'easy' | 'medium' | 'hard';
+  difficulty?: 'easy' | 'medium' | 'hard';
   hint?: string;
-  tags: string[];
+  tags?: string[];
   reviewDate?: string;
-  cardId: number;
+  cardId?: number;
   userId?: number;
-  createdAt: string;
-  updatedAt: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface Card {
@@ -130,62 +86,55 @@ export interface Card {
   title: string;
   description?: string;
   totalCards: number;
-  reviewedCards: number;
+  reviewedCards?: number;
   lastReviewDate?: string;
   flashcards?: FlashCard[];
   userId?: number;
-  createdAt: string;
-  updatedAt: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 // ==================== NOTE ====================
 
 export interface NoteContent {
-  id: number;
-  noteId: number;
+  id?: number;
+  noteId?: number;
   text: string;
-  createdAt: Date;
-}
-
-export interface Perfil {
-  id: number;
-  userId: number;
-  bio?: string;
-  avatar?: string;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt?: string;
 }
 
 export interface Note {
   id: number;
   title: string;
-  content: string;
+  content?: string;
   color?: string;
-  tags: string[];
+  tags?: string[];
+  levelOfDetail?: 'breve' | 'medio' | 'alto';
   userId?: number;
-  createdAt: string;
-  updatedAt: string;
+  createdAt?: string;
+  updatedAt?: string;
+  noteContents?: NoteContent[];
 }
 
-// ==================== MESSAGE ====================
+// ==================== CHAT & MESSAGE ====================
 
 export interface Message {
   id: number;
   prompt: string;
   response: string;
-  chatId: number;
-  userId: number;
+  chatId?: number;
+  userId?: number;
   createdAt: string;
-  updatedAt?: string;
 }
 
 export interface Chat {
   id: number;
   title?: string;
-  messages: Message[];
+  messages?: Message[];
+  messageCount?: number;
   userId?: number;
   createdAt: string;
-  updatedAt: string;
+  updatedAt?: string;
 }
 
 export interface SendMessageInput {
@@ -193,22 +142,45 @@ export interface SendMessageInput {
   chatId?: number;
 }
 
-export interface SendMessageResponse {
-  messages: Message[];
-  aiResponse: string;
+// ==================== GENERATION INPUTS ====================
+
+export interface GenerateExamInput {
+  topic?: string;
+  reference?: string;
+  referenceText?: string;
+  difficulty?: 'easy' | 'medium' | 'hard';
+  numberOfQuestions?: number;
+  quantity?: number;
 }
 
-// ==================== API ERROR ====================
-
-export interface ApiError {
-  message: string;
-  status?: number;
-  code?: string;
+export interface GenerateFlashcardsInput {
+  topic?: string;
+  referenceText?: string;
+  reference?: string;
+  numberOfCards?: number;
+  quantity?: number;
+  level?: 'easy' | 'medium' | 'hard';
 }
 
-// ==================== COMMON ====================
+export interface GenerateNoteInput {
+  topic?: string;
+  referenceText?: string;
+  reference?: string;
+  quantity?: number;
+  level?: 'breve' | 'medio' | 'alto';
+}
+
+// ==================== COMMON TYPES ====================
 
 export type Difficulty = 'easy' | 'medium' | 'hard';
+export type NoteLevel = 'breve' | 'medio' | 'alto';
+
+export interface ApiResponse<T> {
+  data?: T;
+  message?: string;
+  status?: number;
+  success?: boolean;
+}
 
 export interface PaginatedResponse<T> {
   data: T[];
@@ -217,8 +189,22 @@ export interface PaginatedResponse<T> {
   limit: number;
 }
 
-export interface ApiResponse<T> {
-  success: boolean;
-  data: T;
-  message?: string;
+// ==================== SETTINGS AND CONFIGURATION ====================
+
+export interface SettingsFormData {
+  notifications: boolean;
+  theme: 'light' | 'dark' | 'auto';
+  language: string;
+  dailyGoal: number;
+  emailUpdates: boolean;
+}
+
+export interface PomodoroConfig {
+  workDuration: number;
+  breakDuration: number;
+  sessionsBeforeLongBreak: number;
+  longBreakDuration: number;
+  autoStartBreak: boolean;
+  soundEnabled: boolean;
+  notificationsEnabled: boolean;
 }

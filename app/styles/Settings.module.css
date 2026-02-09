@@ -1,0 +1,8 @@
+.modalFondo {
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+    background-color: transparent;
+    backdrop-filter: blur(9px);
+}

@@ -1,5 +1,5 @@
-import { Providers } from "./providers"
-import "./globals.css"
+import { Providers } from "./providers";
+import "./globals.css";
 
 export const metadata = {
   title: "LearnYos - Educación Inteligente",
@@ -19,14 +19,14 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{
             __html: `
               try {
-                const theme = localStorage.getItem('theme') || 'theme-original';
+                const theme = localStorage.getItem('theme') || 'theme-sakura';
                 document.documentElement.classList.add(theme);
               } catch (e) {}
             `,
           }}
         />
       </head>
-      <body className="body transition-colors duration-300">
+      <body className="body">
         <Providers>{children}</Providers>
       </body>
     </html>

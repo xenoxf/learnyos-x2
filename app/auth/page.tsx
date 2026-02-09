@@ -4,7 +4,16 @@ import React, { Suspense, useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { GoogleAuthButton } from "@/components/GoogleAuthButton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { AlertCircle, Loader2, Mail, Lock, User, SplitIcon, Eye, EyeOff } from "lucide-react";
+import {
+  AlertCircle,
+  Loader2,
+  Mail,
+  Lock,
+  User,
+  SplitIcon,
+  Eye,
+  EyeOff,
+} from "lucide-react";
 import { apiService } from "@/services/apiService";
 import type { LoginInput, RegisterInput } from "@/types";
 import { toast } from "@/hooks/use-toast";
@@ -32,6 +41,10 @@ function AuthContent() {
         description: formError,
         duration: 4000,
       });
+    }
+
+    if (apiService.isAuthenticated()) {
+      router.push("/study");
     }
   }, [formError]);
 
@@ -61,7 +74,7 @@ function AuthContent() {
       const response = await apiService.login(loginData);
 
       if (response && response.token && response.user) {
-        router.push("/(protected)/dashboard");
+        router.push("/study");
         router.refresh();
       } else {
         setFormError("Error al iniciar sesión. Por favor, intenta de nuevo.");
@@ -70,7 +83,7 @@ function AuthContent() {
       console.error("Login error:", error);
       setFormError(
         error?.message ||
-        "Error al iniciar sesión. Por favor, verifica tus credenciales.",
+          "Error al iniciar sesión. Por favor, verifica tus credenciales.",
       );
     } finally {
       setLoading(false);
@@ -110,7 +123,7 @@ function AuthContent() {
       const response = await apiService.register(registerData);
 
       if (response && response.token && response.user) {
-        router.push("/(protected)/dashboard");
+        router.push("/study");
         router.refresh();
       } else {
         setFormError("Error al registrarse. Por favor, intenta de nuevo.");
@@ -126,7 +139,7 @@ function AuthContent() {
   };
 
   const handleGoogleSuccess = (user: any) => {
-    router.push("/(protected)/dashboard");
+    router.push("/study");
     router.refresh();
   };
 
@@ -136,7 +149,7 @@ function AuthContent() {
 
   return (
     <div className={styles.authPage}>
-      <Link className={styles.authBtnVolver} href="/" >
+      <Link className={styles.authBtnVolver} href="/">
         <SplitIcon color="white" />
       </Link>
 
@@ -169,7 +182,7 @@ function AuthContent() {
 
             {/*
             Google Button
-            
+
             <GoogleAuthButton
             *}
 
@@ -179,7 +192,10 @@ function AuthContent() {
               <div className={styles.dividerLine} />
             </div>*/}
 
-            <form className={styles.authForm} onSubmit={isLogin ? handleLogin : handleRegister}>
+            <form
+              className={styles.authForm}
+              onSubmit={isLogin ? handleLogin : handleRegister}
+            >
               {!isLogin && (
                 <div className={styles.authContainerInput}>
                   <label className={styles.authLabel}>NickName</label>
@@ -246,11 +262,17 @@ function AuthContent() {
                 </div>
               </div>
 
-              <button type="submit" disabled={loading} className={styles.authBtn}>
+              <button
+                type="submit"
+                disabled={loading}
+                className={styles.authBtn}
+              >
                 {loading ? (
                   <>
                     <Loader2 className={styles.loaderIcon} />
-                    <span>{isLogin ? "Iniciando sesión..." : "Creando cuenta..."}</span>
+                    <span>
+                      {isLogin ? "Iniciando sesión..." : "Creando cuenta..."}
+                    </span>
                   </>
                 ) : (
                   <span>{isLogin ? "Iniciar Sesión" : "Crear Cuenta"}</span>
@@ -279,7 +301,9 @@ function AuthContent() {
         </Card>
 
         <div className={styles.footer}>
-          <p>Al continuar, aceptas nuestros términos y política de privacidad</p>
+          <p>
+            Al continuar, aceptas nuestros términos y política de privacidad
+          </p>
         </div>
       </div>
     </div>

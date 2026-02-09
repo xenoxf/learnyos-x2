@@ -1,671 +1,123 @@
-/* Notes Page Styles - Semantic HTML with CSS Modules */
-/* SOLO VARIABLES GLOBALES - SIN :root */
+/* Notes Page Styles - Modern Interactive Version */
 
-/* Main Container */
+/* Container */
 .container {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: var(--spacing-lg);
-  padding: var(--spacing-lg);
-  background: hsl(var(--background));
-  border-radius: var(--radius);
-  overflow: hidden;
+  width: 100%;
+  margin: 0 auto;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
 }
 
 /* Header */
 .header {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.75rem;
+}
+
+.headerContent {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
 
 .title {
-  font-size: 1.875rem;
-  font-weight: 900;
+  font-size: 2rem;
+  font-weight: 800;
   color: hsl(var(--foreground));
   margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.titleIcon {
+  color: hsl(var(--primary));
 }
 
 .subtitle {
-  font-size: 0.875rem;
+  font-size: 1rem;
   color: hsl(var(--muted-foreground));
   margin: 0;
+  line-height: 1.5;
 }
 
-/* Loading State */
-.loading {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-  gap: 1rem;
-  padding: 4rem 2rem;
-}
-
-.spinner {
-  width: 3rem;
-  height: 3rem;
-  border: 3px solid hsla(var(--primary), 0.2);
-  border-top-color: hsl(var(--primary));
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-.loadingText {
-  color: hsl(var(--primary));
-  font-weight: 600;
-}
-
-/* Error State */
-.errorCard {
-  background: hsl(var(--card));
-  border: 1px solid hsl(var(--destructive));
-  border-radius: var(--radius);
+/* Generator Card */
+.generatorCard {
+  background: linear-gradient(135deg,
+      hsl(var(--card)),
+      hsl(var(--card) / 0.8));
+  border: 1px solid hsl(var(--border) / 0.5);
+  border-radius: 1rem;
   padding: 2rem;
-  text-align: center;
+  backdrop-filter: blur(10px);
+  box-shadow: var(--shadow-lg);
 }
 
-.errorText {
-  color: hsl(var(--destructive));
-  margin: 0 0 1.5rem 0;
-  font-size: 1rem;
-}
-
-.retryButton {
-  padding: 0.75rem 1.5rem;
-  background: hsl(var(--destructive));
-  border: none;
-  border-radius: var(--radius);
-  color: hsl(var(--primary-foreground));
-  font-weight: 600;
-  cursor: pointer;
-  transition: var(--transition-base);
-  font-size: 0.875rem;
-}
-
-.retryButton:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 16px hsla(var(--destructive), 0.3);
-}
-
-/* Controls Section */
-.controlsSection {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 1rem;
-  align-items: center;
-}
-
-.searchContainer {
-  position: relative;
-  display: grid;
-  grid-template-columns: auto 1fr;
-  align-items: center;
-}
-
-.searchIcon {
-  position: absolute;
-  left: 1rem;
-  font-size: 1rem;
-  pointer-events: none;
-}
-
-.searchInput {
-  padding: 0.75rem 1rem 0.75rem 2.75rem;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid hsl(var(--border));
-  border-radius: var(--radius);
-  color: hsl(var(--foreground));
-  font-size: 0.875rem;
-  transition: var(--transition-base);
-}
-
-.searchInput::placeholder {
-  color: hsl(var(--muted-foreground));
-}
-
-.searchInput:focus {
-  outline: none;
-  border-color: hsl(var(--primary));
-  box-shadow: 0 0 0 3px hsla(var(--primary), 0.1);
-}
-
-.newNoteButton {
-  padding: 0.75rem 1.5rem;
-  background: hsl(var(--primary));
-  border: none;
-  color: hsl(var(--primary-foreground));
-  border-radius: var(--radius);
-  font-weight: 600;
-  text-decoration: none;
-  cursor: pointer;
-  transition: var(--transition-base);
-  font-size: 0.875rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  white-space: nowrap;
-}
-
-.newNoteButton:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 16px hsla(var(--primary), 0.3);
-}
-
-/* Notes Grid */
-.notesGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 1.5rem;
-}
-
-.noteCard {
-  background: hsl(var(--card));
-  border: 1px solid hsl(var(--border));
-  border-radius: var(--radius);
-  overflow: hidden;
-  box-shadow: var(--shadow-md);
-  transition: var(--transition-base);
-  display: grid;
-  grid-template-rows: auto auto 1fr auto auto;
-  cursor: pointer;
-}
-
-.noteCard:hover {
-  border-color: hsl(var(--primary));
-  transform: translateY(-4px);
-  box-shadow: 0 8px 24px hsla(var(--primary), 0.2);
-}
-
-.noteColorBar {
-  height: 0.25rem;
-  background: hsl(var(--primary));
-  width: 100%;
-}
-
-.noteHeader {
-  padding: 1rem var(--spacing-lg) 0 var(--spacing-lg);
-}
-
-.noteTitle {
-  font-size: 1rem;
-  font-weight: bold;
-  color: hsl(var(--foreground));
-  margin: 0;
-  line-height: 1.4;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
-  -webkit-box-orient: vertical;
-}
-
-.notePreview {
-  padding: 0.75rem var(--spacing-lg);
-  color: hsl(var(--muted-foreground));
-  font-size: 0.875rem;
-  margin: 0;
-  line-height: 1.5;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
-  -webkit-box-orient: vertical;
-}
-
-.noteFooter {
-  padding: 0.75rem var(--spacing-lg);
-  border-top: 1px solid hsl(var(--border));
-}
-
-.noteInfo {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.75rem;
-  flex-wrap: wrap;
-}
-
-.noteTag {
-  padding: 0.25rem 0.5rem;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 9999px;
-  color: hsl(var(--foreground));
-  font-weight: 600;
-  flex-shrink: 0;
-}
-
-.noteDate {
-  color: hsl(var(--muted-foreground));
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-}
-
-.noteActions {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.5rem;
-  padding: 0 var(--spacing-lg) var(--spacing-lg) var(--spacing-lg);
-}
-
-.editButton,
-.deleteButton {
-  padding: 0.5rem;
-  border: none;
-  border-radius: var(--radius);
-  font-weight: 600;
-  cursor: pointer;
-  transition: var(--transition-base);
-  font-size: 0.75rem;
-  text-decoration: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-}
-
-.editButton {
-  background: hsl(var(--primary));
-  color: hsl(var(--primary-foreground));
-}
-
-.editButton:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px hsla(var(--primary), 0.3);
-}
-
-.deleteButton {
-  background: hsla(var(--destructive), 0.1);
-  border: 1px solid hsla(var(--destructive), 0.3);
-  color: hsl(var(--destructive));
-}
-
-.deleteButton:hover {
-  background: hsla(var(--destructive), 0.2);
-  border-color: hsl(var(--destructive));
-  transform: translateY(-2px);
-}
-
-/* Empty State */
-.emptyState {
-  background: hsl(var(--card));
-  border: 1px solid hsl(var(--border));
-  border-radius: var(--radius);
-  padding: 3rem 2rem;
-  display: grid;
-  gap: 1rem;
-  text-align: center;
-  box-shadow: var(--shadow-md);
-}
-
-.emptyIcon {
-  font-size: 3rem;
-  opacity: 0.5;
-}
-
-.emptyTitle {
-  font-size: 1.25rem;
-  font-weight: bold;
-  color: hsl(var(--foreground));
-  margin: 0;
-}
-
-.emptyText {
-  font-size: 0.875rem;
-  color: hsl(var(--muted-foreground));
-  margin: 0;
-}
-
-.createButton {
-  padding: 0.75rem 1.5rem;
-  background: hsl(var(--primary));
-  border: none;
-  color: hsl(var(--primary-foreground));
-  border-radius: var(--radius);
-  font-weight: 600;
-  text-decoration: none;
-  cursor: pointer;
-  transition: var(--transition-base);
-  font-size: 0.875rem;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-}
-
-.createButton:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 16px hsla(var(--primary), 0.3);
-}
-
-/* Responsive Design */
-
-@media (min-width: 640px) {
-  .container {
-    gap: var(--spacing-xl);
-  }
-
-  .title {
-    font-size: 2.25rem;
-  }
-
-  .subtitle {
-    font-size: 1rem;
-  }
-
-  .controlsSection {
-    grid-template-columns: 1fr auto;
-    gap: 1rem;
-  }
-
-  .notesGrid {
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  }
-
-  .searchInput {
-    font-size: 0.9375rem;
-  }
-
-  .newNoteButton {
-    font-size: 0.9375rem;
-    padding: 0.75rem 1.75rem;
-  }
-}
-
-@media (min-width: 768px) {
-  .container {
-    gap: 2.5rem;
-    padding: var(--spacing-xl);
-  }
-
-  .title {
-    font-size: 2.5rem;
-  }
-
-  .notesGrid {
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  }
-
-  .noteTitle {
-    font-size: 1.0625rem;
-  }
-
-  .notePreview {
-    font-size: 0.875rem;
-  }
-
-  .emptyState {
-    padding: 4rem 3rem;
-  }
-
-  .emptyIcon {
-    font-size: 4rem;
-  }
-
-  .emptyTitle {
-    font-size: 1.5rem;
-  }
-}
-
-@media (min-width: 1024px) {
-  .container {
-    gap: 3rem;
-    padding: 2.5rem;
-  }
-
-  .title {
-    font-size: 2.75rem;
-  }
-
-  .notesGrid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-/* Accessibility */
-.editButton:focus-visible,
-.deleteButton:focus-visible,
-.newNoteButton:focus-visible,
-.searchInput:focus-visible {
-  outline: 2px solid hsl(var(--primary));
-  outline-offset: 2px;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .noteCard,
-  .editButton,
-  .deleteButton,
-  .newNoteButton {
-    animation: none !important;
-    transition: none !important;
-  }
-}
-
-.noteTitle {
-  font-size: 1.125rem;
-  font-weight: bold;
-  color: white;
-  flex: 1;
-  word-break: break-word;
-  line-height: 1.4;
-}
-
-.noteActions {
-  display: flex;
-  gap: 0.25rem;
-  flex-shrink: 0;
-}
-
-.actionButton {
-  width: 2rem;
-  height: 2rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgb(71, 85, 105);
-  border: none;
-  border-radius: 0.5rem;
-  color: rgb(226, 232, 240);
-  cursor: pointer;
-  transition: all 0.3s ease;
-  font-size: 0.875rem;
-}
-
-.actionButton:hover {
-  background: rgb(168, 85, 247);
-  color: white;
-}
-
-.noteContent {
-  font-size: 0.875rem;
-  color: rgb(148, 163, 184);
-  line-height: 1.5;
-  margin-bottom: 0.75rem;
-  word-break: break-word;
-  max-height: 4rem;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.noteFooter {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 0.75rem;
-  color: rgb(107, 114, 128);
-  padding-top: 0.75rem;
-  border-top: 1px solid rgb(71, 85, 105);
-}
-
-.noteTags {
-  display: flex;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-  margin-bottom: 0.75rem;
-}
-
-.tag {
-  display: inline-block;
-  padding: 0.25rem 0.5rem;
-  background: rgba(168, 85, 247, 0.2);
-  color: rgb(168, 85, 247);
-  border-radius: 9999px;
-  font-size: 0.75rem;
-  font-weight: 600;
-}
-
-.emptyState {
-  text-align: center;
-  padding: 3rem;
-  color: rgb(148, 163, 184);
-}
-
-.emptyStateIcon {
-  font-size: 3rem;
-  margin-bottom: 1rem;
-  opacity: 0.5;
-}
-
-.emptyStateText {
-  font-size: 1rem;
-  margin-bottom: 1rem;
-}
-
-.emptyStateButton {
-  display: inline-block;
-  padding: 0.75rem 1.5rem;
-  background: linear-gradient(135deg, rgb(168, 85, 247) 0%, rgb(236, 72, 153) 100%);
-  border: none;
-  color: white;
-  border-radius: var(--notes-border-radius);
-  font-weight: bold;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.emptyStateButton:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(168, 85, 247, 0.3);
-}
-
-.loading {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 3rem;
-  color: rgb(6, 182, 212);
-}
-
-.error {
-  padding: 1rem;
-  background: rgb(127, 29, 29);
-  border: 1px solid rgb(220, 38, 38);
-  border-radius: var(--notes-border-radius);
-  color: rgb(254, 226, 226);
-}
-
-/* Media Queries */
-
-@media (min-width: 640px) {
-  .title {
-    font-size: 1.875rem;
-  }
-
-  .titleIcon {
-    width: 2rem;
-    height: 2rem;
-  }
-
-  .subtitle {
-    font-size: 1rem;
-  }
-
-  .notesGrid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1.5rem;
-  }
-
-  .noteCard {
-    padding: 1.5rem;
-  }
-
-  .noteTitle {
-    font-size: 1.25rem;
-  }
-
-  .noteContent {
-    font-size: 0.875rem;
-  }
-
-  .searchInput {
-    min-width: 300px;
-    font-size: 1rem;
-  }
-
-  .topBar {
-    gap: 1rem;
-  }
-}
-
-@media (min-width: 768px) {
-  .container {
-    gap: 2rem;
-  }
-
-  .title {
-    font-size: 2.25rem;
-  }
-
-  .titleIcon {
-    width: 2.5rem;
-    height: 2.5rem;
-  }
-
-  .subtitle {
-    font-size: 1.125rem;
-  }
-
-  .notesGrid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .noteCard {
-    padding: 1.5rem;
-  }
-
-  .noteTitle {
-    font-size: 1.25rem;
-  }
-}
-
-@media (min-width: 1024px) {
-  .notesGrid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-/* Additional Styles for New Form Elements */
-
-.createCard {
-  background: hsl(var(--card));
-  border: 1px solid hsl(var(--border));
-  border-radius: var(--radius);
-  padding: 1.5rem;
-  margin-bottom: 2rem;
+.generatorHeader {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.generatorTitle {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.generatorTitle h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: hsl(var(--foreground));
+  margin: 0;
+}
+
+.generatorIcon {
+  color: hsl(var(--primary));
+}
+
+.generatorSubtitle {
+  font-size: 0.875rem;
+  color: hsl(var(--muted-foreground));
+  margin: 0;
+}
+
+/* Mode Selector */
+.modeSelector {
+  margin-bottom: 2rem;
+}
+
+.modeButtons {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.modeButton {
+  flex: 1;
+  min-width: 140px;
+  padding: 0.875rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  justify-content: center;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.modeIcon {
+  width: 1rem;
+  height: 1rem;
+}
+
+/* Generator Form */
+.generatorForm {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
 }
 
 .formGroup {
@@ -678,112 +130,283 @@
   font-size: 0.875rem;
   font-weight: 600;
   color: hsl(var(--foreground));
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
-.input {
-  padding: 0.75rem 1rem;
-  background: hsl(var(--input));
-  border: 1px solid hsl(var(--border));
-  border-radius: var(--radius);
-  color: hsl(var(--foreground));
-  font-size: 0.875rem;
-  width: 100%;
-  transition: all var(--transition-base);
-}
-
-.input:focus {
-  outline: none;
-  border-color: hsl(var(--primary));
-  box-shadow: 0 0 0 3px hsla(var(--primary), 0.1);
-}
-
-.input::placeholder {
-  color: hsl(var(--muted-foreground));
-}
-
-.input:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
+.input,
 .textarea {
   padding: 0.75rem 1rem;
-  background: hsl(var(--input));
+  background: hsl(var(--background));
   border: 1px solid hsl(var(--border));
-  border-radius: var(--radius);
-  color: hsl(var(--foreground));
+  border-radius: 0.5rem;
   font-size: 0.875rem;
-  width: 100%;
-  font-family: inherit;
-  transition: all var(--transition-base);
-  resize: vertical;
+  color: hsl(var(--foreground));
+  transition: all 0.2s ease;
 }
 
+.input:focus,
 .textarea:focus {
   outline: none;
   border-color: hsl(var(--primary));
   box-shadow: 0 0 0 3px hsla(var(--primary), 0.1);
 }
 
-.textarea::placeholder {
-  color: hsl(var(--muted-foreground));
-}
-
+.input:disabled,
 .textarea:disabled {
-  opacity: 0.6;
+  opacity: 0.5;
   cursor: not-allowed;
 }
 
-.createButton {
+.textarea {
+  min-height: 120px;
+  resize: vertical;
+  font-family: inherit;
+  line-height: 1.5;
+}
+
+/* File Upload */
+.fileUploadArea {
   width: 100%;
-  padding: 0.75rem 1rem;
-  background: hsl(var(--primary));
-  border: none;
-  border-radius: var(--radius);
-  color: hsl(var(--primary-foreground));
-  font-weight: 600;
+}
+
+.fileInput {
+  display: none;
+}
+
+.fileUploadLabel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 2rem;
+  background: hsl(var(--background));
+  border: 2px dashed hsl(var(--border));
+  border-radius: 0.75rem;
   cursor: pointer;
-  transition: all var(--transition-base);
+  transition: all 0.2s ease;
+  text-align: center;
+  color: hsl(var(--muted-foreground));
+}
+
+.fileUploadLabel:hover {
+  border-color: hsl(var(--primary));
+  background: hsla(var(--primary), 0.02);
+}
+
+.uploadIcon {
+  width: 3rem;
+  height: 3rem;
+  margin-bottom: 1rem;
+  color: hsl(var(--muted-foreground));
+}
+
+.fileUploadHint {
+  font-size: 0.75rem;
+  margin-top: 0.5rem;
+  opacity: 0.7;
+}
+
+.fileList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.fileItem {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background: hsl(var(--background));
+  border: 1px solid hsl(var(--border));
+  border-radius: 0.5rem;
+}
+
+.fileIcon {
+  width: 1.25rem;
+  height: 1.25rem;
+  color: hsl(var(--primary));
+  flex-shrink: 0;
+}
+
+.fileInfo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  min-width: 0;
+}
+
+.fileName {
+  font-size: 0.875rem;
+  color: hsl(var(--foreground));
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fileSize {
+  font-size: 0.75rem;
+  color: hsl(var(--muted-foreground));
+}
+
+.removeFileButton {
+  color: hsl(var(--destructive));
+  flex-shrink: 0;
+}
+
+.removeFileButton:hover {
+  background: hsla(var(--destructive), 0.1);
+}
+
+/* Advanced Configuration */
+.advancedConfig {
+  padding: 1.5rem;
+  background: hsla(var(--primary), 0.05);
+  border-radius: 0.75rem;
+  border: 1px solid hsla(var(--primary), 0.1);
+}
+
+.advancedTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  color: hsl(var(--foreground));
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 0 1rem 0;
+}
+
+.configGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+}
+
+.quantitySelector,
+.levelSelector {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.quantityButton,
+.levelButton {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+}
+
+.levelButton {
+  position: relative;
+}
+
+.levelButton:hover::after {
+  content: attr(title);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0.5rem;
+  background: hsl(var(--foreground));
+  color: hsl(var(--background));
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  white-space: nowrap;
+  z-index: 10;
+  margin-bottom: 0.5rem;
+  pointer-events: none;
+  opacity: 0;
+  animation: fadeIn 0.2s ease forwards;
+}
+
+@keyframes fadeIn {
+  to {
+    opacity: 1;
+  }
+}
+
+/* Action Buttons */
+.actionButtons {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.generateButton,
+.manualButton {
+  flex: 1;
+  padding: 0.875rem 1.5rem;
+  font-weight: 600;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
+  transition: all 0.3s ease;
 }
 
-.createButton:hover:not(:disabled) {
+.generateButton {
+  background: linear-gradient(135deg,
+      hsl(var(--primary)),
+      hsl(var(--accent)));
+  color: hsl(var(--primary-foreground));
+  border: none;
+}
+
+.generateButton:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px hsla(var(--primary), 0.3);
+  box-shadow: 0 8px 25px hsla(var(--primary), 0.3);
 }
 
-.createButton:disabled {
+.generateButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.manualButton {
+  background: transparent;
+  border-color: hsl(var(--border));
+}
+
+.manualButton:hover:not(:disabled) {
+  border-color: hsl(var(--primary));
+  transform: translateY(-2px);
+}
+
+.manualButton:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
 
 .loaderIcon {
-  width: 1rem;
-  height: 1rem;
   animation: spin 1s linear infinite;
-  margin-right: 0.5rem;
-}
-
-.plusIcon {
-  width: 1rem;
-  height: 1rem;
-  margin-right: 0.5rem;
 }
 
 @keyframes spin {
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }
 }
 
+.sparkleIcon,
+.plusIcon {
+  width: 1rem;
+  height: 1rem;
+}
+
+/* Search */
 .searchContainer {
-  margin-bottom: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
 }
 
 .searchWrapper {
@@ -799,18 +422,17 @@
   height: 1rem;
   color: hsl(var(--muted-foreground));
   pointer-events: none;
-  z-index: 1;
 }
 
 .searchInput {
-  padding: 0.75rem 1rem 0.75rem 2.75rem;
-  background: hsl(var(--input));
-  border: 1px solid hsl(var(--border));
-  border-radius: var(--radius);
-  color: hsl(var(--foreground));
-  font-size: 0.875rem;
   width: 100%;
-  transition: all var(--transition-base);
+  padding: 0.875rem 1rem 0.875rem 2.75rem;
+  background: hsl(var(--background));
+  border: 1px solid hsl(var(--border));
+  border-radius: 0.75rem;
+  font-size: 0.875rem;
+  color: hsl(var(--foreground));
+  transition: all 0.2s ease;
 }
 
 .searchInput:focus {
@@ -819,16 +441,32 @@
   box-shadow: 0 0 0 3px hsla(var(--primary), 0.1);
 }
 
-.searchInput::placeholder {
+.clearSearchButton {
+  position: absolute;
+  right: 0.5rem;
   color: hsl(var(--muted-foreground));
 }
 
+.clearSearchButton:hover {
+  color: hsl(var(--foreground));
+}
+
+.searchStats {
+  font-size: 0.875rem;
+  color: hsl(var(--muted-foreground));
+}
+
+.statsText {
+  font-weight: 500;
+}
+
+/* Loading State */
 .loadingState {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 3rem;
-  flex-direction: column;
+  padding: 4rem 2rem;
   gap: 1rem;
 }
 
@@ -840,25 +478,69 @@
 }
 
 .loadingText {
-  color: hsl(var(--muted-foreground));
   font-size: 0.875rem;
+  color: hsl(var(--muted-foreground));
+  font-weight: 500;
 }
 
-.emptyCard {
+/* Empty State */
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  text-align: center;
   background: hsl(var(--card));
   border: 1px solid hsl(var(--border));
-  border-radius: var(--radius);
-  padding: 3rem;
-  text-align: center;
+  border-radius: 1rem;
+  gap: 1rem;
 }
 
-.emptyText {
+.emptyIcon {
   color: hsl(var(--muted-foreground));
-  font-size: 0.875rem;
+  opacity: 0.5;
+}
+
+.emptyTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: hsl(var(--foreground));
   margin: 0;
 }
 
-.grid {
+.emptyText {
+  font-size: 0.875rem;
+  color: hsl(var(--muted-foreground));
+  margin: 0;
+  max-width: 400px;
+  line-height: 1.5;
+}
+
+.emptyActionButton {
+  margin-top: 1rem;
+  padding: 0.75rem 1.5rem;
+  background: linear-gradient(135deg,
+      hsl(var(--primary)),
+      hsl(var(--accent)));
+  color: hsl(var(--primary-foreground));
+  border: none;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.emptyActionButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px hsla(var(--primary), 0.3);
+}
+
+/* Notes Grid */
+.notesGrid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 1.5rem;
@@ -867,36 +549,39 @@
 .noteCard {
   background: hsl(var(--card));
   border: 1px solid hsl(var(--border));
-  border-radius: var(--radius);
+  border-radius: 0.75rem;
   padding: 1.5rem;
-  transition: all var(--transition-base);
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  transition: all 0.3s ease;
+  cursor: pointer;
 }
 
 .noteCard:hover {
-  box-shadow: 0 8px 24px hsla(var(--shadow), 0.15);
-  transform: translateY(-2px);
+  transform: translateY(-4px);
+  border-color: hsl(var(--primary));
+  box-shadow: 0 12px 32px hsla(var(--primary), 0.1);
 }
 
 .noteHeader {
   display: flex;
-  align-items: flex-start;
   justify-content: space-between;
+  align-items: flex-start;
   gap: 1rem;
-  margin-bottom: 0.5rem;
 }
 
 .noteContent {
   flex: 1;
+  min-width: 0;
 }
 
 .noteTitle {
-  font-size: 1.125rem;
+  font-size: 1rem;
   font-weight: 600;
   color: hsl(var(--foreground));
-  margin: 0;
+  margin: 0 0 0.5rem 0;
+  line-height: 1.4;
   overflow: hidden;
   text-overflow: ellipsis;
   display: -webkit-box;
@@ -905,25 +590,36 @@
   -webkit-box-orient: vertical;
 }
 
-.noteBadge {
-  display: inline-block;
-  margin-top: 0.5rem;
-  padding: 0.25rem 0.75rem;
-  background: hsl(var(--secondary));
-  color: hsl(var(--secondary-foreground));
-  border-radius: calc(var(--radius) - 2px);
-  font-size: 0.75rem;
+.noteTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+
+.noteTag {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  background: hsla(var(--primary), 0.1);
+  color: hsl(var(--primary));
+  border-radius: 9999px;
+  font-size: 0.6875rem;
   font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.noteTag:hover {
+  background: hsla(var(--primary), 0.2);
 }
 
 .deleteButton {
   color: hsl(var(--destructive));
-  transition: all var(--transition-base);
   flex-shrink: 0;
 }
 
 .deleteButton:hover {
-  color: hsl(var(--destructive) / 0.8);
+  background: hsla(var(--destructive), 0.1);
 }
 
 .deleteIcon {
@@ -938,22 +634,160 @@
 }
 
 .noteBody {
-  color: hsl(var(--muted-foreground));
+  flex: 1;
+}
+
+.notePreview {
   font-size: 0.875rem;
+  color: hsl(var(--muted-foreground));
   margin: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  line-height: 1.5;
   display: -webkit-box;
   -webkit-line-clamp: 3;
-  line-clamp: 3;
   -webkit-box-orient: vertical;
-  line-height: 1.5;
+  overflow: hidden;
 }
 
 .noteFooter {
-  color: hsl(var(--muted-foreground));
-  font-size: 0.75rem;
-  margin: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   padding-top: 0.75rem;
   border-top: 1px solid hsl(var(--border));
+  font-size: 0.75rem;
+  color: hsl(var(--muted-foreground));
+}
+
+.noteDate {
+  font-weight: 500;
+}
+
+.noteStats {
+  font-weight: 500;
+}
+
+/* Pagination */
+.paginationInfo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem 0;
+  margin-top: 1rem;
+  border-top: 1px solid hsl(var(--border));
+}
+
+.paginationText {
+  font-size: 0.875rem;
+  color: hsl(var(--muted-foreground));
+  margin: 0;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+    gap: 1.5rem;
+  }
+
+  .title {
+    font-size: 1.75rem;
+  }
+
+  .generatorCard {
+    padding: 1.5rem;
+  }
+
+  .modeButtons {
+    flex-direction: column;
+  }
+
+  .modeButton {
+    width: 100%;
+  }
+
+  .configGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .actionButtons {
+    flex-direction: column;
+  }
+
+  .notesGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .advancedConfig {
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 0.75rem;
+  }
+
+  .title {
+    font-size: 1.5rem;
+  }
+
+  .generatorCard {
+    padding: 1rem;
+  }
+
+  .fileUploadLabel {
+    padding: 2rem 1rem;
+  }
+
+  .noteCard {
+    padding: 1rem;
+  }
+}
+
+/* Dark Mode Enhancements */
+@media (prefers-color-scheme: dark) {
+  .generatorCard {
+    background: hsl(var(--card) / 0.7);
+  }
+
+  .fileUploadLabel {
+    background: hsl(var(--background) / 0.5);
+  }
+
+  .advancedConfig {
+    background: hsla(var(--primary), 0.05);
+  }
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+
+  .noteCard,
+  .generateButton,
+  .manualButton,
+  .modeButton,
+  .quantityButton,
+  .levelButton {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+/* Focus visible styles - ENVOLVER EN CLASES LOCALES */
+.modeButton:focus-visible,
+.quantityButton:focus-visible,
+.levelButton:focus-visible,
+.generateButton:focus-visible,
+.manualButton:focus-visible,
+.searchInput:focus-visible,
+.input:focus-visible,
+.textarea:focus-visible,
+.fileUploadLabel:focus-visible,
+.clearSearchButton:focus-visible,
+.removeFileButton:focus-visible,
+.deleteButton:focus-visible,
+.emptyActionButton:focus-visible,
+.noteCard:focus-visible {
+  outline: 2px solid hsl(var(--primary));
+  outline-offset: 2px;
 }

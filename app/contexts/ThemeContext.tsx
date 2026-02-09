@@ -1,6 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState } from "react";
+import type { User } from "@/types";
 
 export type Theme =
   | "light"

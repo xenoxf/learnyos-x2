@@ -1,137 +1,140 @@
-"use client"
+"use client";
 
-import React from 'react';
-import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from '@/components/ui/drawer';
-import { Slider } from '@/components/ui/slider';
-import { X, Minus, Plus, Clock, Coffee, Star, Repeat } from 'lucide-react';
-import { useIsMobile } from '@/hooks/use-mobile';
-import { cn } from '@/lib/utils';
+import React from "react";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+} from "@/components/ui/drawer";
+import { Slider } from "@/components/ui/slider";
+import { X, Minus, Plus, Clock, Coffee, Star, Repeat } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
+import styles from "@/styles/PomodoroTimer.module.css";
 
 interface PomodoroSettingsProps {
   isOpen: boolean;
   onClose: () => void;
+}
+
+interface PomodoroConfig {
   workDuration: number;
   breakDuration: number;
+  sessionsBeforeLongBreak: number;
   longBreakDuration: number;
-  sessionsUntilLongBreak: number;
-  onWorkDurationChange: (value: number) => void;
-  onBreakDurationChange: (value: number) => void;
-  onLongBreakDurationChange: (value: number) => void;
-  onSessionsUntilLongBreakChange: (value: number) => void;
+  autoStartBreak: boolean;
+  soundEnabled: boolean;
+  notificationsEnabled: boolean;
 }
 
 export const PomodoroSettings: React.FC<PomodoroSettingsProps> = ({
   isOpen,
   onClose,
-  workDuration,
-  breakDuration,
-  longBreakDuration,
-  sessionsUntilLongBreak,
-  onWorkDurationChange,
-  onBreakDurationChange,
-  onLongBreakDurationChange,
-  onSessionsUntilLongBreakChange,
 }) => {
   const isMobile = useIsMobile();
 
   const SettingsContent = () => (
-    <div className="space-y-6">
+    <div className={styles.settingsContent}>
       {/* Grid layout for desktop */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className={styles.settingsGrid}>
         {/* Work Duration - Slider */}
-        <div className="space-y-3 p-4 rounded-xl bg-cyan-500/10 border border-cyan-500/20">
-          <div className="flex items-center gap-2">
-            <Clock className="w-4 h-4 text-cyan-500" />
-            <Label className="text-sm font-medium">Trabajo</Label>
-            <span className="ml-auto text-lg font-bold text-cyan-500">{workDuration} min</span>
+        <div className={`${styles.settingCard} ${styles.workSetting}`}>
+          <div className={styles.settingHeader}>
+            <Clock className={styles.settingIcon} />
+            <Label className={styles.settingLabel}>Trabajo</Label>
+            <span className={styles.settingValue}>25 min</span>
           </div>
           <Slider
-            value={[workDuration]}
-            onValueChange={(value) => onWorkDurationChange(value[0])}
+            value={[25]}
+            onValueChange={(value) => {}}
             min={5}
             max={60}
             step={5}
-            className="[&_[role=slider]]:bg-cyan-500"
+            className={styles.workSlider}
           />
         </div>
 
         {/* Short Break - Slider */}
-        <div className="space-y-3 p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
-          <div className="flex items-center gap-2">
-            <Coffee className="w-4 h-4 text-emerald-500" />
-            <Label className="text-sm font-medium">Descanso corto</Label>
-            <span className="ml-auto text-lg font-bold text-emerald-500">{breakDuration} min</span>
+        <div className={`${styles.settingCard} ${styles.shortBreakSetting}`}>
+          <div className={styles.settingHeader}>
+            <Coffee className={styles.settingIcon} />
+            <Label className={styles.settingLabel}>Descanso corto</Label>
+            <span className={styles.settingValue}>5 min</span>
           </div>
           <Slider
-            value={[breakDuration]}
-            onValueChange={(value) => onBreakDurationChange(value[0])}
+            value={[5]}
+            onValueChange={(value) => {}}
             min={1}
             max={15}
             step={1}
-            className="[&_[role=slider]]:bg-emerald-500"
+            className={styles.breakSlider}
           />
         </div>
 
         {/* Long Break - Slider */}
-        <div className="space-y-3 p-4 rounded-xl bg-purple-500/10 border border-purple-500/20">
-          <div className="flex items-center gap-2">
-            <Star className="w-4 h-4 text-purple-500" />
-            <Label className="text-sm font-medium">Descanso largo</Label>
-            <span className="ml-auto text-lg font-bold text-purple-500">{longBreakDuration} min</span>
+        <div className={`${styles.settingCard} ${styles.longBreakSetting}`}>
+          <div className={styles.settingHeader}>
+            <Star className={styles.settingIcon} />
+            <Label className={styles.settingLabel}>Descanso largo</Label>
+            <span className={styles.settingValue}>15 min</span>
           </div>
           <Slider
-            value={[longBreakDuration]}
-            onValueChange={(value) => onLongBreakDurationChange(value[0])}
+            value={[15]}
+            onValueChange={(value) => {}}
             min={10}
             max={30}
             step={5}
-            className="[&_[role=slider]]:bg-purple-500"
+            className={styles.longBreakSlider}
           />
         </div>
 
         {/* Sessions Until Long Break - Stepper */}
-        <div className="space-y-3 p-4 rounded-xl bg-amber-500/10 border border-amber-500/20">
-          <div className="flex items-center gap-2">
-            <Repeat className="w-4 h-4 text-amber-500" />
-            <Label className="text-sm font-medium">Sesiones hasta descanso largo</Label>
+        <div className={`${styles.settingCard} ${styles.sessionsSetting}`}>
+          <div className={styles.settingHeader}>
+            <Repeat className={styles.settingIcon} />
+            <Label className={styles.settingLabel}>
+              Sesiones hasta descanso largo
+            </Label>
           </div>
-          <div className="flex items-center justify-center gap-4">
+          <div className={styles.sessionsStepper}>
             <Button
               variant="outline"
               size="icon"
-              onClick={() => onSessionsUntilLongBreakChange(Math.max(2, sessionsUntilLongBreak - 1))}
-              className="h-10 w-10 rounded-full border-amber-500/30 hover:bg-amber-500/20"
+              onClick={() => {}}
+              className={styles.stepperButton}
             >
-              <Minus className="w-4 h-4" />
+              <Minus className={styles.smallIcon} />
             </Button>
-            <div className="flex gap-1">
+            <div className={styles.sessionsDots}>
               {Array.from({ length: 10 }).map((_, i) => (
                 <div
                   key={i}
-                  className={cn(
-                    "w-3 h-3 rounded-full transition-all",
-                    i < sessionsUntilLongBreak ? "bg-amber-500" : "bg-muted"
-                  )}
+                  className={`${styles.sessionDot} ${i < 4 ? styles.activeDot : styles.inactiveDot}`}
                 />
               ))}
             </div>
             <Button
               variant="outline"
               size="icon"
-              onClick={() => onSessionsUntilLongBreakChange(Math.min(10, sessionsUntilLongBreak + 1))}
-              className="h-10 w-10 rounded-full border-amber-500/30 hover:bg-amber-500/20"
+              onClick={() => {}}
+              className={styles.stepperButton}
             >
-              <Plus className="w-4 h-4" />
+              <Plus className={styles.smallIcon} />
             </Button>
           </div>
-          <p className="text-center text-sm text-muted-foreground">{sessionsUntilLongBreak} sesiones</p>
+          <p className={styles.sessionsCount}>4 sesiones</p>
         </div>
       </div>
-      
-      <Button onClick={onClose} className="w-full bg-gradient-to-r from-cyan-500 to-purple-500 hover:from-cyan-400 hover:to-purple-400 text-white">
+
+      <Button onClick={onClose} className={styles.saveButton}>
         Guardar Configuración
       </Button>
     </div>
@@ -140,14 +143,19 @@ export const PomodoroSettings: React.FC<PomodoroSettingsProps> = ({
   if (isMobile) {
     return (
       <Drawer open={isOpen} onOpenChange={onClose}>
-        <DrawerContent className="h-[85vh]">
-          <DrawerHeader className="flex items-center justify-between">
+        <DrawerContent className={styles.mobileDrawer}>
+          <DrawerHeader className={styles.drawerHeader}>
             <DrawerTitle>Configuración Pomodoro</DrawerTitle>
-            <Button variant="ghost" size="icon" onClick={onClose}>
-              <X className="h-4 w-4" />
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={onClose}
+              className={styles.closeButton}
+            >
+              <X className={styles.smallIcon} />
             </Button>
           </DrawerHeader>
-          <div className="px-4 pb-4 overflow-y-auto">
+          <div className={styles.mobileContent}>
             <SettingsContent />
           </div>
         </DrawerContent>
@@ -157,7 +165,7 @@ export const PomodoroSettings: React.FC<PomodoroSettingsProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-xl">
+      <DialogContent className={styles.desktopDialog}>
         <DialogHeader>
           <DialogTitle>Configuración Pomodoro</DialogTitle>
         </DialogHeader>

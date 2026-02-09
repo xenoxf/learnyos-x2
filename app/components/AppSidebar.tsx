@@ -1,5 +1,5 @@
-"use client"
-import React, { useState } from 'react';
+/*"use client";
+import React, { useState, useEffect } from "react";
 import {
   LayoutDashboard,
   MessageSquare,
@@ -9,25 +9,22 @@ import {
   Languages,
   LogOut,
   Settings,
-  X,
-  Cpu,
-  ChevronLeft
-} from 'lucide-react';
-import { apiService } from '@/services/apiService';
-import { useToast } from '@/hooks/use-toast';
-import { SettingsModal } from '@/components/SettingsModal';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-
+  ChevronLeft,
+} from "lucide-react";
+import { apiService } from "@/services/apiService";
+import { useToast } from "@/hooks/use-toast";
+import { SettingsModal } from "@/components/SettingsModal";
+import { useRouter, usePathname } from "next/navigation";
+import Link from "next/link";
+import styles from "../styles/sidebar.module.css";
 
 const menuItems = [
-  { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
-  { title: "Junior IA", url: "/chat", icon: MessageSquare },
-  { title: "Quiz", url: "/quiz", icon: Brain },
-  { title: "Flashcards", url: "/flashcards", icon: CreditCard },
-  { title: "Notas", url: "/notes", icon: NotebookPen },
-  { title: "Traductor", url: "/translator", icon: Languages },
-  { title: "AI Implementation", url: "/ai-implementation", icon: Cpu },
+  { title: "Dashboard", url: "/study", icon: LayoutDashboard },
+  { title: "Junior IA", url: "/study/chat", icon: MessageSquare },
+  { title: "Quiz", url: "/study/quiz", icon: Brain },
+  { title: "Flashcards", url: "/study/flashcards", icon: CreditCard },
+  { title: "Notas", url: "/study/notes", icon: NotebookPen },
+  { title: "Traductor", url: "/study/translator", icon: Languages },
 ];
 
 interface AppSidebarProps {
@@ -36,23 +33,72 @@ interface AppSidebarProps {
   onNavigate?: () => void;
 }
 
-export function AppSidebar({ collapsed = false, onToggle, onNavigate }: AppSidebarProps) {
+interface User {
+  id?: number;
+  name?: string;
+  email?: string;
+  picture?: string;
+}
+
+export function AppSidebar({
+  collapsed = false,
+  onToggle,
+  onNavigate,
+}: AppSidebarProps) {
   const navigate = useRouter();
+  const pathname = usePathname();
   const { toast } = useToast();
   const [showSettings, setShowSettings] = useState(false);
   const [sidebarClosed, setSidebarClosed] = useState(collapsed);
+  const [user, setUser] = useState<User | null>(null);
+  const [isDark, setIsDark] = useState(false);
+
+  useEffect(() => {
+    // Cargar usuario del localStorage
+    if (typeof window === "undefined") return;
+
+    const userData = localStorage.getItem("user");
+    if (userData) {
+      try {
+        setUser(JSON.parse(userData));
+      } catch (e) {
+        console.error("Error parsing user data:", e);
+      }
+    }
+
+    // Detectar tema oscuro
+    const checkDarkMode = () => {
+      const hasDarkClass = document.documentElement.classList.contains("dark");
+      const prefersLight = window.matchMedia(
+        "(prefers-color-scheme: light)",
+      ).matches;
+      setIsDark(hasDarkClass && !prefersLight);
+    };
+
+    checkDarkMode();
+
+    // Observer para cambios de tema
+    const observer = new MutationObserver(() => checkDarkMode());
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["class"],
+    });
+
+    return () => observer.disconnect();
+  }, []);
 
   const handleLogout = () => {
     apiService.logout();
+    localStorage.removeItem("user");
+    localStorage.removeItem("token");
     toast({
       title: "Sesión cerrada",
       description: "Has cerrado sesión exitosamente",
     });
-    navigate.push('/auth');
+    navigate.push("/auth");
   };
 
   const handleNavigation = (url: string) => {
-    setSidebarClosed(true);
     navigate.push(url);
     onNavigate?.();
   };
@@ -62,156 +108,58 @@ export function AppSidebar({ collapsed = false, onToggle, onNavigate }: AppSideb
     onToggle?.();
   };
 
-  const user = typeof window !== 'undefined' ? (
-    localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')!) : null
-  ) : null;
-
-  // Detectar tema oscuro
-  const isDark = typeof window !== 'undefined' && 
-    (document.documentElement.classList.contains('dark') || 
-     window.matchMedia('(prefers-color-scheme: dark)').matches);
-
-  const bgColor = isDark ? '#1f2937' : '#ffffff';
-  const borderColor = isDark ? '#374151' : '#e5e7eb';
-  const textColor = isDark ? '#f3f4f6' : '#1f2937';
-  const secondaryText = isDark ? '#d1d5db' : '#4b5563';
-  const hoverBg = isDark ? '#374151' : '#f3f4f6';
-  const activeBg = isDark ? '#3b82f6' : '#dbeafe';
-  const activeText = isDark ? '#60a5fa' : '#1e40af';
+  const isActiveRoute = (url: string): boolean => {
+    return pathname === url || pathname?.startsWith(url + "/");
+  };
 
   return (
-    <aside 
-      className="h-full flex flex-col transition-all duration-300 ease-out"
-      style={{
-        backgroundColor: bgColor,
-        borderRight: `1px solid ${borderColor}`,
-        width: sidebarClosed ? '80px' : '280px',
-        overflow: 'hidden'
-      }}
+    <aside
+      className={`
+        ${styles.sidebar}
+        ${sidebarClosed ? styles.sidebarCollapsed : styles.sidebarExpanded}
+      `}
     >
-      {/* Header */}
-      <div 
-        style={{ 
-          padding: '20px', 
-          borderBottom: `1px solid ${borderColor}`,
-          display: 'flex', 
-          justifyContent: 'space-between', 
-          alignItems: 'center',
-          backgroundColor: bgColor
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', overflow: 'hidden' }}>
-          <div 
-            style={{ 
-              width: '40px', 
-              height: '40px', 
-              background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
-              borderRadius: '10px', 
-              display: 'flex', 
-              alignItems: 'center', 
-              justifyContent: 'center', 
-              color: 'white', 
-              fontWeight: 'bold', 
-              flexShrink: 0,
-              fontSize: '18px',
-              boxShadow: isDark ? '0 4px 12px rgba(59, 130, 246, 0.3)' : '0 2px 8px rgba(59, 130, 246, 0.2)'
-            }}
-          >
-            L
-          </div>
-          {!sidebarClosed && (
-            <span style={{ 
-              fontWeight: 'bold', 
-              whiteSpace: 'nowrap',
-              color: textColor,
-              fontSize: '16px'
-            }}>
-              LearnYos
-            </span>
-          )}
+      {/* Header
+      <div className={styles.header} onClick={toggleSidebar}>
+        <div className={styles.headerContent}>
+          <div className={styles.logo}>L</div>
+          {!sidebarClosed && <span className={styles.logoText}>LearnYos</span>}
         </div>
         {!sidebarClosed && (
           <button
-            onClick={toggleSidebar}
-            style={{ 
-              background: 'none', 
-              border: 'none', 
-              cursor: 'pointer', 
-              display: 'flex', 
-              alignItems: 'center', 
-              justifyContent: 'center',
-              color: secondaryText,
-              padding: '4px',
-              borderRadius: '4px',
-              transition: 'all 0.2s ease'
-            }}
-            className="hover:bg-opacity-50"
+            className={styles.closeButton}
             aria-label="Contraer sidebar"
+            type="button"
           >
             <ChevronLeft size={20} />
           </button>
         )}
       </div>
 
-      {/* Navigation */}
-      <nav style={{ flex: 1, padding: '12px', overflow: 'auto' }}>
-        <div>
+      {/* Navigation
+      <nav className={styles.nav}>
+        <div className={styles.navList}>
           {!sidebarClosed && (
-            <div 
-              style={{ 
-                fontSize: '11px', 
-                fontWeight: 'bold', 
-                color: secondaryText,
-                padding: '12px 8px 8px',
-                marginBottom: '8px',
-                textTransform: 'uppercase',
-                letterSpacing: '0.5px'
-              }}
-            >
-              HERRAMIENTAS
-            </div>
+            <div className={styles.navLabel}>HERRAMIENTAS</div>
           )}
           {menuItems.map((item) => {
             const Icon = item.icon;
+            const isActive = isActiveRoute(item.url);
             return (
               <Link
                 key={item.url}
                 href={item.url}
                 onClick={() => handleNavigation(item.url)}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: sidebarClosed ? 'center' : 'flex-start',
-                  gap: '12px',
-                  padding: sidebarClosed ? '12px' : '11px 12px',
-                  borderRadius: '8px',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease',
-                  backgroundColor: 'transparent',
-                  color: secondaryText,
-                  textDecoration: 'none',
-                  marginBottom: '6px',
-                  fontSize: '14px'
-                }}
-                className="hover:bg-opacity-70 group"
+                className={`
+                  ${styles.navItem}
+                  ${isActive ? styles.navItemActive : styles.navItemInactive}
+                  ${sidebarClosed ? styles.navItemCollapsed : styles.navItemExpanded}
+                `}
                 title={item.title}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = hoverBg;
-                  e.currentTarget.style.color = activeText;
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = 'transparent';
-                  e.currentTarget.style.color = secondaryText;
-                }}
               >
-                <Icon size={20} style={{ flexShrink: 0 }} />
+                <Icon size={20} className={styles.navItemIcon} />
                 {!sidebarClosed && (
-                  <span style={{ 
-                    whiteSpace: 'nowrap', 
-                    transition: 'opacity 0.2s ease'
-                  }}>
-                    {item.title}
-                  </span>
+                  <span className={styles.navItemText}>{item.title}</span>
                 )}
               </Link>
             );
@@ -219,134 +167,40 @@ export function AppSidebar({ collapsed = false, onToggle, onNavigate }: AppSideb
         </div>
       </nav>
 
-      {/* Footer - User Info & Actions */}
-      <div 
-        style={{ 
-          borderTop: `1px solid ${borderColor}`, 
-          padding: '15px', 
-          backgroundColor: bgColor
-        }}
-      >
-        <div 
-          style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            gap: '12px', 
-            marginBottom: '15px', 
-            overflow: 'hidden',
-            justifyContent: sidebarClosed ? 'center' : 'flex-start'
-          }}
+      {/* Footer - User Info & Actions
+      <div className={styles.footer}>
+        <div
+          className={`
+            ${styles.userInfo}
+            ${sidebarClosed ? styles.userInfoCollapsed : styles.userInfoExpanded}
+          `}
         >
-          <div 
-            style={{ 
-              width: '36px', 
-              height: '36px', 
-              background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
-              borderRadius: '50%', 
-              display: 'flex', 
-              alignItems: 'center', 
-              justifyContent: 'center', 
-              color: 'white', 
-              fontWeight: 'bold', 
-              flexShrink: 0,
-              fontSize: '14px'
-            }}
-          >
-            {user?.name?.[0]?.toUpperCase() || 'U'}
+          <div className={styles.userAvatar}>
+            {user?.name?.[0]?.toUpperCase() || "U"}
           </div>
           {!sidebarClosed && (
-            <div style={{ overflow: 'hidden', minWidth: 0 }}>
-              <div 
-                style={{ 
-                  fontWeight: '600', 
-                  fontSize: '13px',
-                  color: textColor,
-                  whiteSpace: 'nowrap',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis'
-                }}
-              >
-                {user?.name || 'Usuario'}
-              </div>
-              <div 
-                style={{ 
-                  fontSize: '11px', 
-                  color: secondaryText,
-                  overflow: 'hidden', 
-                  textOverflow: 'ellipsis', 
-                  whiteSpace: 'nowrap'
-                }}
-              >
-                {user?.email || 'email@example.com'}
+            <div className={styles.userDetails}>
+              <div className={styles.userName}>{user?.name || "Usuario"}</div>
+              <div className={styles.userEmail}>
+                {user?.email || "email@example.com"}
               </div>
             </div>
           )}
         </div>
 
-        <div style={{ display: 'flex', gap: '8px', flexWrap: 'nowrap' }}>
+        <div className={styles.actions}>
           <button
             onClick={() => setShowSettings(true)}
-            style={{ 
-              flex: 1, 
-              padding: '8px', 
-              borderRadius: '6px', 
-              border: `1px solid ${borderColor}`, 
-              backgroundColor: hoverBg,
-              cursor: 'pointer', 
-              display: 'flex', 
-              alignItems: 'center', 
-              justifyContent: 'center', 
-              gap: '6px', 
-              fontSize: '12px',
-              color: secondaryText,
-              fontWeight: '500',
-              transition: 'all 0.2s ease'
-            }}
+            className={`
+              ${styles.actionButton}
+              ${styles.settingsButton}
+              ${sidebarClosed ? styles.actionButtonCollapsed : styles.actionButtonExpanded}
+            `}
             title="Configuración"
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = activeBg;
-              e.currentTarget.style.color = activeText;
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = hoverBg;
-              e.currentTarget.style.color = secondaryText;
-            }}
+            type="button"
           >
             <Settings size={14} />
             {!sidebarClosed && <span>Config</span>}
-          </button>
-          <button
-            onClick={handleLogout}
-            style={{ 
-              flex: 1, 
-              padding: '8px', 
-              borderRadius: '6px', 
-              border: `1px solid ${borderColor}`, 
-              backgroundColor: hoverBg,
-              cursor: 'pointer', 
-              display: 'flex', 
-              alignItems: 'center', 
-              justifyContent: 'center', 
-              gap: '6px', 
-              fontSize: '12px',
-              color: secondaryText,
-              fontWeight: '500',
-              transition: 'all 0.2s ease'
-            }}
-            title="Cerrar sesión"
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = '#fee2e2';
-              e.currentTarget.style.color = isDark ? '#fca5a5' : '#dc2626';
-              e.currentTarget.style.borderColor = isDark ? '#7f1d1d' : '#fecaca';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = hoverBg;
-              e.currentTarget.style.color = secondaryText;
-              e.currentTarget.style.borderColor = borderColor;
-            }}
-          >
-            <LogOut size={14} />
-            {!sidebarClosed && <span>Salir</span>}
           </button>
         </div>
       </div>
@@ -356,5 +210,316 @@ export function AppSidebar({ collapsed = false, onToggle, onNavigate }: AppSideb
         onClose={() => setShowSettings(false)}
       />
     </aside>
+  );
+}
+*/
+
+"use client";
+import React, { useState, useEffect, useRef } from "react";
+import {
+  LayoutDashboard,
+  MessageSquare,
+  Brain,
+  CreditCard,
+  NotebookPen,
+  Languages,
+  LogOut,
+  Settings,
+  ChevronLeft,
+  Menu,
+  X,
+} from "lucide-react";
+import { apiService } from "@/services/apiService";
+import { useToast } from "@/hooks/use-toast";
+import { SettingsModal } from "@/components/SettingsModal";
+import { useRouter, usePathname } from "next/navigation";
+import Link from "next/link";
+import styles from "../styles/sidebar.module.css";
+
+const menuItems = [
+  { title: "Dashboard", url: "/study", icon: LayoutDashboard },
+  { title: "Junior IA", url: "/study/chat", icon: MessageSquare },
+  { title: "Quiz", url: "/study/quiz", icon: Brain },
+  { title: "Flashcards", url: "/study/flashcards", icon: CreditCard },
+  { title: "Notas", url: "/study/notes", icon: NotebookPen },
+  { title: "Traductor", url: "/study/translator", icon: Languages },
+];
+
+interface AppSidebarProps {
+  collapsed?: boolean;
+  onToggle?: () => void;
+  onNavigate?: () => void;
+  isMobileOpen?: boolean;
+  onMobileClose?: () => void;
+}
+
+interface User {
+  id?: number;
+  name?: string;
+  email?: string;
+  picture?: string;
+}
+
+export function AppSidebar({
+  collapsed = false,
+  onToggle,
+  onNavigate,
+  isMobileOpen = false,
+  onMobileClose,
+}: AppSidebarProps) {
+  const navigate = useRouter();
+  const pathname = usePathname();
+  const { toast } = useToast();
+  const [showSettings, setShowSettings] = useState(false);
+  const [sidebarClosed, setSidebarClosed] = useState(collapsed);
+  const [user, setUser] = useState<User | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
+  const sidebarRef = useRef<HTMLDivElement>(null);
+
+  // Detectar si es móvil
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
+  // Cerrar sidebar en móvil al hacer clic fuera
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        isMobile &&
+        isMobileOpen &&
+        sidebarRef.current &&
+        !sidebarRef.current.contains(event.target as Node) &&
+        onMobileClose
+      ) {
+        onMobileClose();
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isMobile, isMobileOpen, onMobileClose]);
+
+  // Cargar usuario
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const userData = localStorage.getItem("user");
+    if (userData) {
+      try {
+        setUser(JSON.parse(userData));
+      } catch (e) {
+        console.error("Error parsing user data:", e);
+      }
+    }
+  }, []);
+
+  const handleLogout = () => {
+    apiService.logout();
+    localStorage.removeItem("user");
+    localStorage.removeItem("token");
+    toast({
+      title: "Sesión cerrada",
+      description: "Has cerrado sesión exitosamente",
+    });
+    navigate.push("/auth");
+  };
+
+  const handleNavigation = (url: string) => {
+    navigate.push(url);
+    onNavigate?.();
+
+    // Cerrar sidebar en móvil después de navegar
+    if (isMobile && onMobileClose) {
+      onMobileClose();
+    }
+  };
+
+  const toggleSidebar = () => {
+    if (isMobile && onMobileClose) {
+      onMobileClose();
+    } else {
+      setSidebarClosed(!sidebarClosed);
+      onToggle?.();
+    }
+  };
+
+  const handleMobileClose = () => {
+    if (onMobileClose) {
+      onMobileClose();
+    }
+  };
+
+  const isActiveRoute = (url: string): boolean => {
+    return pathname === url || pathname?.startsWith(url + "/");
+  };
+
+  // Determinar clase sidebar según el estado
+  const sidebarClass = isMobile
+    ? `${styles.sidebar} ${isMobileOpen ? styles.sidebarExpanded : styles.sidebarCollapsed}`
+    : `${styles.sidebar} ${sidebarClosed ? styles.sidebarCollapsed : styles.sidebarExpanded}`;
+
+  return (
+    <>
+      {/* Overlay para móvil */}
+      {isMobile && isMobileOpen && (
+        <div
+          className={styles.sidebarOverlay}
+          onClick={handleMobileClose}
+          role="presentation"
+          aria-label="Cerrar menú"
+        />
+      )}
+
+      {/* Sidebar principal */}
+      <aside
+        ref={sidebarRef}
+        className={sidebarClass}
+        aria-label="Menú principal de navegación"
+      >
+        {/* Header */}
+        <div className={styles.header} onClick={toggleSidebar}>
+          <div className={styles.headerContent}>
+            <div className={styles.logo} aria-hidden="true">
+              L
+            </div>
+            {(!sidebarClosed || isMobile) && (
+              <span className={styles.logoText}>LearnYos</span>
+            )}
+          </div>
+          {(!sidebarClosed || isMobile) && (
+            <button
+              className={styles.closeButton}
+              onClick={toggleSidebar}
+              aria-label={isMobile ? "Cerrar menú" : "Contraer sidebar"}
+              type="button"
+            >
+              {isMobile ? <X size={20} /> : <ChevronLeft size={20} />}
+            </button>
+          )}
+        </div>
+
+        {/* Navigation */}
+        <nav className={styles.nav} aria-label="Herramientas de estudio">
+          <div className={styles.navList}>
+            {(!sidebarClosed || isMobile) && (
+              <div className={styles.navLabel} aria-hidden="true">
+                HERRAMIENTAS
+              </div>
+            )}
+            {menuItems.map((item) => {
+              const Icon = item.icon;
+              const isActive = isActiveRoute(item.url);
+
+              return (
+                <Link
+                  key={item.url}
+                  href={item.url}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleNavigation(item.url);
+                  }}
+                  className={`
+                    ${styles.navItem}
+                    ${isActive ? styles.navItemActive : styles.navItemInactive}
+                    ${sidebarClosed && !isMobile ? styles.navItemCollapsed : styles.navItemExpanded}
+                  `}
+                  title={item.title}
+                  aria-label={item.title}
+                  aria-current={isActive ? "page" : undefined}
+                >
+                  <Icon
+                    size={20}
+                    className={styles.navItemIcon}
+                    aria-hidden="true"
+                  />
+                  {(!sidebarClosed || isMobile) && (
+                    <span className={styles.navItemText}>{item.title}</span>
+                  )}
+                </Link>
+              );
+            })}
+          </div>
+        </nav>
+
+        {/* Footer - User Info & Actions */}
+        <div className={styles.footer}>
+          <div
+            className={`
+              ${styles.userInfo}
+              ${sidebarClosed && !isMobile ? styles.userInfoCollapsed : styles.userInfoExpanded}
+            `}
+          >
+            <div className={styles.userAvatar} aria-hidden="true">
+              {user?.name?.[0]?.toUpperCase() || "U"}
+            </div>
+            {(!sidebarClosed || isMobile) && (
+              <div className={styles.userDetails}>
+                <div className={styles.userName} aria-label="Nombre de usuario">
+                  {user?.name || "Usuario"}
+                </div>
+                <div
+                  className={styles.userEmail}
+                  aria-label="Email del usuario"
+                >
+                  {user?.email || "email@example.com"}
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div className={styles.actions}>
+            <button
+              onClick={() => setShowSettings(true)}
+              className={`
+                ${styles.actionButton}
+                ${styles.settingsButton}
+                ${sidebarClosed && !isMobile ? styles.actionButtonCollapsed : styles.actionButtonExpanded}
+              `}
+              title="Configuración"
+              aria-label="Abrir configuración"
+              type="button"
+            >
+              <Settings size={14} aria-hidden="true" />
+              {(!sidebarClosed || isMobile) && <span>Config</span>}
+            </button>
+
+            <button
+              onClick={handleLogout}
+              className={`
+                ${styles.actionButton}
+                ${sidebarClosed && !isMobile ? styles.actionButtonCollapsed : styles.actionButtonExpanded}
+              `}
+              title="Cerrar sesión"
+              aria-label="Cerrar sesión"
+              type="button"
+            >
+              <LogOut size={14} aria-hidden="true" />
+              {(!sidebarClosed || isMobile) && <span>Salir</span>}
+            </button>
+          </div>
+        </div>
+
+        <SettingsModal isOpen={showSettings} />
+      </aside>
+
+      {/* Botón flotante para abrir sidebar en móvil */}
+      {isMobile && !isMobileOpen && (
+        <button
+          className={styles.mobileToggleButton}
+          onClick={() => (onMobileClose ? onMobileClose() : null)}
+          aria-label="Abrir menú de navegación"
+          type="button"
+        >
+          <Menu className={styles.mobileToggleIcon} aria-hidden="true" />
+        </button>
+      )}
+    </>
   );
 }
