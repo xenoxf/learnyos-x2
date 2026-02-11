@@ -21,7 +21,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const [isTokenValid, setIsTokenValid] = useState(false);
 
   // Validar token al cargar
-  useEffect(() => {
+  /*useEffect(() => {
     const validateToken = async () => {
       if (typeof window === 'undefined') {
         setIsValidating(false);
@@ -60,7 +60,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     };
 
     validateToken();
-  }, [router]);
+  }, [router]);*/
 
   // Detectar si es móvil
   useEffect(() => {
