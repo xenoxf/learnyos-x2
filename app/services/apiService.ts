@@ -288,14 +288,17 @@ class ApiService {
       });
 
       if (response && (response.valid === true || response.user)) {
+        console.log('[API] Token verified successfully');
         return { valid: true, user: response.user || response.data };
       }
 
+      console.warn('[API] Token verification failed - invalid response');
       return { valid: false };
     } catch (error) {
       console.error('[API] Token verification failed:', error);
-      // Si hay un error 401, el token está expirado
-      if (error instanceof Error && error.message.includes('401')) {
+      // Si hay un error 401, el token está expirado o inválido
+      if (error instanceof Error && (error.message.includes('401') || error.message.includes('Unauthorized'))) {
+        console.warn('[API] Token expired or unauthorized');
         return { valid: false };
       }
       return { valid: false };
