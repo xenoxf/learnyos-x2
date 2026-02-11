@@ -2,12 +2,18 @@ import { Providers } from "./providers";
 import "./globals.css";
 import "katex/dist/katex.min.css";
 import "highlight.js/styles/github-dark.css";
-import { useTokenVerification } from '@/hooks/useTokenVerification';
+import type { Metadata, Viewport } from 'next';
 
-export const metadata = {
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+  userScalable: true,
+};
+
+export const metadata: Metadata = {
   title: "LearnYos - Educación Inteligente",
   description: "Aprende con IA generativa. Exámenes, notas, flashcards y más.",
-  viewport: "width=device-width, initial-scale=1",
 };
 
 export default function RootLayout({
@@ -16,7 +22,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   // En el componente principal, usar el hook
-  useTokenVerification();
+
 
   return (
     <html lang="es" suppressHydrationWarning>

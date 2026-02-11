@@ -16,6 +16,9 @@ import { Card } from "@/components/ui/card";
 import { ArrowRightLeft, Copy, Check, Sparkles, Loader } from "lucide-react";
 import styles from "@/styles/translator.module.css";
 import DashboardLayout from "../layaut";
+import type { Metadata } from 'next';
+
+export const dynamic = 'force-dynamic';
 
 const LANGUAGES = [
   { code: "es", name: "Español", flag: "🇪🇸" },

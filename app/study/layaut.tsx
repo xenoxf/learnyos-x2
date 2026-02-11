@@ -1,81 +1,66 @@
-/*"use client";
+'use client';
 
-import React, { useState, useEffect } from "react";
-import { AppSidebar } from "@/components/AppSidebar";
-import { useAuth } from "@/hooks/useAuth";
-import styles from "@/styles/layout.module.css";
-
-interface DashboardLayoutProps {
-  children: React.ReactNode;
-}
-
-export function DashboardLayout({ children }: DashboardLayoutProps) {
-  const { user } = useAuth();
-  const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [isCollapsed, setIsCollapsed] = useState(false);
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    if (!mounted) return;
-    try {
-      localStorage.setItem("sidebar-collapsed", String(isCollapsed));
-    } catch {
-      // ignore
-    }
-  }, [isCollapsed, mounted]);
-
-  const handleToggleSidebar = () => {
-    setIsCollapsed(!isCollapsed);
-  };
-
-  const handleMobileClose = () => {
-    setMobileMenuOpen(false);
-  };
-
-  return (
-    <>
-      <div className={styles["container"]}>
-        <header className={styles["header"]}>
-          <AppSidebar />
-        </header>
-
-        <main className={styles["main"]}>{children}</main>
-      </div>
-    </>
-  );
-}
-
-export default DashboardLayout;
-*/
-
-"use client";
-import React, { useState, useEffect } from "react";
-import { AppSidebar } from "@/components/AppSidebar";
-import { MobileNavbar } from "@/components/MobileNavbar";
-import { useAuth } from "@/hooks/useAuth";
-import { useTokenVerification } from "@/hooks/useTokenVerification";
-import { useRouter } from "next/navigation";
-import styles from "@/styles/layout.module.css";
+import React, { useState, useEffect } from 'react';
+import { AppSidebar } from '@/components/AppSidebar';
+import { MobileNavbar } from '@/components/MobileNavbar';
+import { useRouter } from 'next/navigation';
+import { apiService } from '@/services/apiService';
+import styles from '@/styles/layout.module.css';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
 }
 
-export function DashboardLayout({ children }: DashboardLayoutProps) {
-  const { user } = useAuth();
+export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const router = useRouter();
-  const { isValid, isLoading } = useTokenVerification();
   const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [isValidating, setIsValidating] = useState(true);
+  const [isTokenValid, setIsTokenValid] = useState(false);
 
-  // Redirigir si token es inválido o expirado
+  // Validar token al cargar
   useEffect(() => {
-    if (!isLoading && !isValid) {
-      router.push('/auth');
-    }
-  }, [isValid, isLoading, router]);
+    const validateToken = async () => {
+      if (typeof window === 'undefined') {
+        setIsValidating(false);
+        return;
+      }
+
+      const token = localStorage.getItem('token');
+
+      if (!token) {
+        setIsTokenValid(false);
+        setIsValidating(false);
+        router.push('/auth');
+        return;
+      }
+
+      try {
+        const result = await apiService.verifyToken();
+
+        if (result.valid) {
+          setIsTokenValid(true);
+        } else {
+          setIsTokenValid(false);
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          router.push('/auth');
+        }
+      } catch (error) {
+        console.error('Token verification error:', error);
+        setIsTokenValid(false);
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        router.push('/auth');
+      } finally {
+        setIsValidating(false);
+      }
+    };
+
+    validateToken();
+  }, [router]);
 
   // Detectar si es móvil
   useEffect(() => {
@@ -84,18 +69,17 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     };
 
     checkMobile();
-    window.addEventListener("resize", checkMobile);
+    window.addEventListener('resize', checkMobile);
 
-    return () => window.removeEventListener("resize", checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
   useEffect(() => {
     setMounted(true);
-    // Cargar estado del sidebar del localStorage
     try {
-      const savedState = localStorage.getItem("sidebar-collapsed");
+      const savedState = localStorage.getItem('sidebar-collapsed');
       if (savedState !== null) {
-        setIsCollapsed(savedState === "true");
+        setIsCollapsed(savedState === 'true');
       }
     } catch {
       // ignore
@@ -105,27 +89,17 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   useEffect(() => {
     if (!mounted) return;
     try {
-      localStorage.setItem("sidebar-collapsed", String(isCollapsed));
+      localStorage.setItem('sidebar-collapsed', String(isCollapsed));
     } catch {
       // ignore
     }
   }, [isCollapsed, mounted]);
 
-
   const handleToggleSidebar = () => {
     setIsCollapsed(!isCollapsed);
   };
 
-  const handleMobileClose = () => {
-    setMobileMenuOpen(false);
-  };
-
-  const handleMobileOpen = () => {
-    setMobileMenuOpen(true);
-  };
-
-  // Mostrar loading mientras se valida el token
-  if (isLoading) {
+  if (isValidating) {
     return (
       <div className={styles.loadingContainer}>
         <div className={styles.spinner}>
@@ -135,14 +109,12 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     );
   }
 
-  // Si token es inválido, no renderizar nada (la redirección ocurre en useEffect)
-  if (!isValid) {
+  if (!isTokenValid) {
     return null;
   }
 
   return (
     <div className={styles.dashboardLayout}>
-      {/* Sidebar para tablet y desktop */}
       {!isMobile && (
         <div
           className={`
@@ -154,12 +126,11 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         </div>
       )}
 
-      {/* Contenido principal */}
       <div
         className={`
           ${styles.mainContent}
-          ${!isMobile && isCollapsed ? styles.mainContentExpanded : ""}
-          ${isMobile ? styles.mainContentMobile : ""}
+          ${!isMobile && isCollapsed ? styles.mainContentExpanded : ''}
+          ${isMobile ? styles.mainContentMobile : ''}
         `}
       >
         <div className={styles.contentArea}>
@@ -167,10 +138,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         </div>
       </div>
 
-      {/* Navbar móvil (bottom navigation) */}
       {isMobile && <MobileNavbar />}
     </div>
   );
 }
-
-export default DashboardLayout;

@@ -20,6 +20,9 @@ import {
 import styles from "@/styles/notes.module.css";
 import DashboardLayout from "../layaut";
 import type { Note } from "@/types";
+import type { Metadata } from 'next';
+
+export const dynamic = 'force-dynamic';
 
 export default function NotesPage() {
   // Estados principales

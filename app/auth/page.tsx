@@ -19,6 +19,7 @@ import type { LoginInput, RegisterInput } from "@/types";
 import { toast } from "@/hooks/use-toast";
 import styles from "@/styles/auth.module.css";
 import Link from "next/link";
+import type { Metadata } from "next";
 
 function AuthContent() {
   const router = useRouter();

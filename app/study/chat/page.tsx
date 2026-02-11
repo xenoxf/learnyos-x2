@@ -25,6 +25,9 @@ import styles from "@/styles/chat.module.css";
 import DashboardLayout from "../layaut";
 import type { Message, Chat } from "@/types";
 import { MarkdownRenderer } from "@/components/MarkdownRenderer";
+import type { Metadata } from 'next';
+
+export const dynamic = 'force-dynamic';
 
 export default function ChatPage() {
   // ==================== STATE ====================

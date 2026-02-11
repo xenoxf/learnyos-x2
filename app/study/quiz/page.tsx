@@ -39,6 +39,7 @@ import {
 import type { Exam, ExamQuestion, ExamOption } from "@/types";
 import styles from "@/styles/quiz.module.css";
 import DashboardLayout from "../layaut";
+import type { Metadata } from 'next';
 
 interface ExamSession {
   exam: Exam;
@@ -56,6 +57,8 @@ interface ExamStats {
   averageTime: number;
   lastAttempt: Date | null;
 }
+
+export const dynamic = 'force-dynamic';
 
 export default function QuizPage() {
   const [exams, setExams] = useState<Exam[]>([]);

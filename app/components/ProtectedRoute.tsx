@@ -1,18 +1,60 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useTokenVerification } from '@/hooks/useTokenVerification';
+import { apiService } from '@/services/apiService';
 
 export function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const router = useRouter();
-  const { isValid, isLoading } = useTokenVerification();
+  const [isValidating, setIsValidating] = useState(true);
+  const [isTokenValid, setIsTokenValid] = useState(false);
 
-  if (isLoading) {
-    return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>Cargando...</div>;
+  useEffect(() => {
+    const validateToken = async () => {
+      if (typeof window === 'undefined') {
+        setIsValidating(false);
+        return;
+      }
+
+      const token = localStorage.getItem('token');
+
+      if (!token) {
+        setIsTokenValid(false);
+        setIsValidating(false);
+        router.push('/auth');
+        return;
+      }
+
+      try {
+        const result = await apiService.verifyToken();
+
+        if (result.valid) {
+          setIsTokenValid(true);
+        } else {
+          setIsTokenValid(false);
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          router.push('/auth');
+        }
+      } catch (error) {
+        console.error('Token verification error:', error);
+        setIsTokenValid(false);
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        router.push('/auth');
+      } finally {
+        setIsValidating(false);
+      }
+    };
+
+    validateToken();
+  }, [router]);
+
+  if (isValidating) {
+    return <div>Validando...</div>;
   }
 
-  if (!isValid) {
-    router.push('/auth');
+  if (!isTokenValid) {
     return null;
   }
 

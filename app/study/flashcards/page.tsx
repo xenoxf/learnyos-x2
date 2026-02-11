@@ -20,6 +20,9 @@ import {
 import styles from "@/styles/flashcards.module.css";
 import DashboardLayout from "../layaut";
 import type { FlashCard } from "@/types";
+import type { Metadata } from 'next';
+
+export const dynamic = 'force-dynamic';
 
 export default function FlashcardsPage() {
   const [flashcards, setFlashcards] = useState<FlashCard[]>([]);
