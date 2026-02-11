@@ -38,9 +38,9 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       }
 
       try {
-        const result = await apiService.verifyToken();
+        const isValid = await apiService.verifyToken();
 
-        if (result.valid) {
+        if (isValid) {
           setIsTokenValid(true);
         } else {
           setIsTokenValid(false);

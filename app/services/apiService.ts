@@ -274,34 +274,18 @@ class ApiService {
 
   // ==================== TOKEN VERIFICATION ====================
 
-  async verifyToken(): Promise<{ valid: boolean; user?: any }> {
+  async verifyToken(): Promise<boolean> {
     try {
-      const token = this.token || (typeof window !== 'undefined' ? localStorage.getItem('token') : null);
-      
-      if (!token) {
-        console.warn('[API] No token found');
-        return { valid: false };
-      }
-
-      const response = await this.request('/auth/verify_token', {
+      const result = await this.request('/auth/verify_token', {
         method: 'GET',
       });
-
-      if (response && (response.valid === true || response.user)) {
-        console.log('[API] Token verified successfully');
-        return { valid: true, user: response.user || response.data };
+      if (result && result.valid) {
+        return true;
       }
-
-      console.warn('[API] Token verification failed - invalid response');
-      return { valid: false };
+      return false;
     } catch (error) {
-      console.error('[API] Token verification failed:', error);
-      // Si hay un error 401, el token está expirado o inválido
-      if (error instanceof Error && (error.message.includes('401') || error.message.includes('Unauthorized'))) {
-        console.warn('[API] Token expired or unauthorized');
-        return { valid: false };
-      }
-      return { valid: false };
+      console.error('[API] Token verification error:', error);
+      return false;
     }
   }
 

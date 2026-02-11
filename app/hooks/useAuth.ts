@@ -59,7 +59,7 @@ export function useAuth(): UseAuthReturn {
 
       try {
         const result = await apiService.verifyToken();
-        if (!result.valid) {
+        if (!result) {
           // Token inválido, limpiar localStorage
           localStorage.removeItem('token');
           localStorage.removeItem('user');
