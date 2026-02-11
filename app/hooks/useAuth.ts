@@ -49,6 +49,31 @@ export function useAuth(): UseAuthReturn {
     loadUser();
   }, []);
 
+  // Verificar token al montar el componente
+  useEffect(() => {
+    const verifyUserToken = async () => {
+      if (typeof window === 'undefined') return;
+      
+      const token = localStorage.getItem('token');
+      if (!token) return;
+
+      try {
+        const result = await apiService.verifyToken();
+        if (!result.valid) {
+          // Token inválido, limpiar localStorage
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+        }
+      } catch (error) {
+        console.error('Error verifying token:', error);
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+      }
+    };
+
+    verifyUserToken();
+  }, []);
+
   const clearError = useCallback(() => {
     setError(null);
   }, []);

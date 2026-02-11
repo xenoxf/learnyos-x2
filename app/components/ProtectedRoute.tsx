@@ -1,33 +1,20 @@
-import { apiService } from '@/services/apiService';
+'use client';
+
 import { useRouter } from 'next/navigation';
-import React, { useEffect, useState } from 'react';
+import { useTokenVerification } from '@/hooks/useTokenVerification';
 
-interface ProtectedRouteProps {
-  children: React.ReactNode;
-}
-
-export function ProtectedRoute({ children }: ProtectedRouteProps) {
+export function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const router = useRouter();
-  const [isAuthed, setIsAuthed] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const { isValid, isLoading } = useTokenVerification();
 
-  useEffect(() => {
-    const checkAuth = () => {
-      const isAuthenticated = apiService.isAuthenticated();
-      if (!isAuthenticated) {
-        router.push('/auth');
-      } else {
-        setIsAuthed(true);
-      }
-      setLoading(false);
-    };
-
-    checkAuth();
-  }, [router]);
-
-  if (loading) {
+  if (isLoading) {
     return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>Cargando...</div>;
   }
 
-  return isAuthed ? <>{children}</> : null;
+  if (!isValid) {
+    router.push('/auth');
+    return null;
+  }
+
+  return <>{children}</>;
 }

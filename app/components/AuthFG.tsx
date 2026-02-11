@@ -25,8 +25,8 @@ export const AuthFG: React.FC<AuthFGProps> = ({ onClose }) => {
       // Revisar clases del tema
       if (html.classList.contains("dark")) {
         setTheme("dark");
-      } else if (html.classList.contains("theme-cereso")) {
-        setTheme("theme-cereso");
+      } else if (html.classList.contains("theme-sakura")) {
+        setTheme("theme-sakura");
       } else if (html.classList.contains("theme-ocean")) {
         setTheme("theme-ocean");
       } else if (html.classList.contains("theme-coffee")) {

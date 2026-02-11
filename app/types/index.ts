@@ -208,3 +208,12 @@ export interface PomodoroConfig {
   soundEnabled: boolean;
   notificationsEnabled: boolean;
 }
+
+// ============= TOKEN & AUTH =============
+
+export interface TokenVerificationResult {
+  isValid: boolean;
+  user?: User;
+  isLoading: boolean;
+  error?: string;
+}

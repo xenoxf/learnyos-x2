@@ -1,5 +1,8 @@
 import { Providers } from "./providers";
 import "./globals.css";
+import "katex/dist/katex.min.css";
+import "highlight.js/styles/github-dark.css";
+import { useTokenVerification } from '@/hooks/useTokenVerification';
 
 export const metadata = {
   title: "LearnYos - Educación Inteligente",
@@ -12,6 +15,9 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // En el componente principal, usar el hook
+  useTokenVerification();
+
   return (
     <html lang="es" suppressHydrationWarning>
       <head>

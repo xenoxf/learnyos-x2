@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { MemoryGame } from "@/components/MemoryGame";
 import { PomodoroTimer } from "@/components/PomodoroTimer";

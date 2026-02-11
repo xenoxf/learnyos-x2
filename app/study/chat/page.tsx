@@ -1,19 +1,11 @@
 "use client";
 
-import React, {
-  useState,
-  useEffect,
-  useRef,
-  useCallback,
-  useMemo,
-} from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { apiService } from "@/services/apiService";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
-import { Textarea } from "@/components/ui/textarea";
-import { PremiumMarkdown } from "@/components/PremiumMarkdown";
 import {
   Send,
   Trash2,
@@ -26,805 +18,485 @@ import {
   Bot,
   User,
   Clock,
-  Search,
-  Brain,
+  Menu,
   Sparkles,
 } from "lucide-react";
 import styles from "@/styles/chat.module.css";
 import DashboardLayout from "../layaut";
 import type { Message, Chat } from "@/types";
+import { MarkdownRenderer } from "@/components/MarkdownRenderer";
 
 export default function ChatPage() {
-  // States
+  // ==================== STATE ====================
   const [chats, setChats] = useState<Chat[]>([]);
-  const [activeChatId, setActiveChatId] = useState<number | null>(null);
+  const [currentChat, setCurrentChat] = useState<Chat | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
-  const [input, setInput] = useState("");
+  const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [isFetchingChats, setIsFetchingChats] = useState(true);
-  const [showChatSidebar, setShowChatSidebar] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [copiedId, setCopiedId] = useState<number | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [isStreaming, setIsStreaming] = useState(false);
-  const [streamingResponse, setStreamingResponse] = useState("");
 
-  const { toast } = useToast();
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLTextAreaElement>(null);
-  const messagesContainerRef = useRef<HTMLDivElement>(null);
-  const streamIntervalRef = useRef<NodeJS.Timeout | null>(null);
-  const chatSidebarRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const { toast } = useToast();
 
-  // Memoized values
-  const activeChat = useMemo(
-    () => chats.find((c) => c.id === activeChatId),
-    [chats, activeChatId],
-  );
-
-  const hasMessages = useMemo(() => messages.length > 0, [messages]);
-
-  const filteredChats = useMemo(() => {
-    if (!searchQuery.trim()) return chats;
-    return chats.filter(
-      (chat) =>
-        (chat.title || "").toLowerCase().includes(searchQuery.toLowerCase()),
-    );
-  }, [chats, searchQuery]);
-
-  // Close sidebar when clicking outside (mobile)
+  // ==================== LOAD INITIAL DATA ====================
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        showChatSidebar &&
-        chatSidebarRef.current &&
-        !chatSidebarRef.current.contains(event.target as Node) &&
-        window.innerWidth < 1024
-      ) {
-        setShowChatSidebar(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [showChatSidebar]);
-
-  // Auto-create first chat
-  useEffect(() => {
-    const initializeChat = async () => {
-      try {
-        setIsFetchingChats(true);
-        const data = await apiService.getUserChats();
-        const typedChats = Array.isArray(data) ? data : [];
-        setChats(typedChats);
-
-        if (typedChats.length === 0) {
-          await createNewChat();
-        } else {
-          const sortedChats = [...typedChats].sort(
-            (a, b) =>
-              new Date(b.updatedAt || b.createdAt).getTime() -
-              new Date(a.updatedAt || a.createdAt).getTime(),
-          );
-          setActiveChatId(sortedChats[0].id);
-        }
-      } catch (err) {
-        console.error("Error loading chats:", err);
-        await createNewChat();
-      } finally {
-        setIsFetchingChats(false);
-      }
-    };
-
-    initializeChat();
+    loadChats();
   }, []);
 
-  // Load messages when active chat changes
-  useEffect(() => {
-    if (activeChatId) {
-      loadMessages(activeChatId);
-    } else {
-      setMessages([]);
-    }
-  }, [activeChatId]);
-
-  // Auto-scroll to bottom
   useEffect(() => {
     scrollToBottom();
-  }, [messages, streamingResponse]);
+  }, [messages]);
 
-  // Focus input
-  useEffect(() => {
-    if (!isLoading) {
-      inputRef.current?.focus();
-    }
-  }, [isLoading, activeChatId]);
-
-  // Cleanup
-  useEffect(() => {
-    return () => {
-      if (streamIntervalRef.current) {
-        clearInterval(streamIntervalRef.current);
-      }
-    };
-  }, []);
-
-  // Functions
-  const scrollToBottom = useCallback(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, []);
-
-  const simulateStreaming = useCallback((text: string) => {
-    setIsStreaming(true);
-    setStreamingResponse("");
-
-    let index = 0;
-    const words = text.split(" ");
-
-    streamIntervalRef.current = setInterval(() => {
-      if (index < words.length) {
-        setStreamingResponse(
-          (prev) => prev + (index > 0 ? " " : "") + words[index],
-        );
-        index++;
-      } else {
-        if (streamIntervalRef.current) {
-          clearInterval(streamIntervalRef.current);
-          streamIntervalRef.current = null;
-        }
-        setIsStreaming(false);
-      }
-    }, 50);
-  }, []);
-
-  const createNewChat = useCallback(async () => {
+  // ==================== API FUNCTIONS ====================
+  const loadChats = async () => {
     try {
-      setIsLoading(true);
-      const initialPrompt =
-        "¡Hola! Soy tu asistente de IA. ¿En qué puedo ayudarte hoy?";
-
-      await apiService.sendMessage(initialPrompt);
-      const updatedChats = await apiService.getUserChats();
-      const typedChats = Array.isArray(updatedChats) ? updatedChats : [];
-      setChats(typedChats);
-
-      if (typedChats.length > 0) {
-        const sortedChats = [...typedChats].sort(
-          (a, b) =>
-            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-        );
-        setActiveChatId(sortedChats[0].id);
-      }
-
-      // Cerrar sidebar en móvil después de crear chat
-      if (window.innerWidth < 1024) {
-        setShowChatSidebar(false);
-      }
-
-      toast({
-        title: "Nuevo chat creado",
-        description: "¡Comienza a conversar con tu asistente de IA!",
-      });
-    } catch (err) {
-      console.error("Error creating chat:", err);
+      const response = await apiService.getUserChats();
+      setChats(response.data || response);
+    } catch (error) {
       toast({
         title: "Error",
-        description: "No se pudo crear el chat. Intenta de nuevo.",
+        description: "No se pudieron cargar los chats",
         variant: "destructive",
       });
-    } finally {
-      setIsLoading(false);
     }
-  }, [toast]);
+  };
 
-  const loadChats = useCallback(async () => {
+  const loadChatMessages = async (chatId: number) => {
     try {
-      setIsFetchingChats(true);
-      setError(null);
-      const data = await apiService.getUserChats();
-      const typedChats = Array.isArray(data) ? data : [];
-      setChats(typedChats);
-    } catch (err: any) {
-      console.error("Error loading chats:", err);
-      setError("No se pudieron cargar los chats");
-    } finally {
-      setIsFetchingChats(false);
+      const response = await apiService.getChatMessages(chatId);
+      setMessages(response.data || response);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "No se pudieron cargar los mensajes",
+        variant: "destructive",
+      });
     }
-  }, []);
+  };
 
-  const loadMessages = useCallback(async (chatId: number) => {
-    try {
-      setIsLoading(true);
-      setError(null);
-      const data = await apiService.getChatMessages(chatId);
+  const handleSendMessage = async () => {
+    if (!inputValue.trim() || isLoading) return;
 
-      if (data?.messages) {
-        const typedMessages = (
-          Array.isArray(data.messages) ? data.messages : []
-        )
-          .map((msg: any) => ({
-            id: msg.id || Date.now(),
-            prompt: msg.prompt || "",
-            response: msg.response || "",
-            createdAt: typeof msg.createdAt === "string" 
-              ? msg.createdAt 
-              : new Date(msg.createdAt || Date.now()).toISOString(),
-          }))
-          .sort(
-            (a, b) =>
-              new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
-          );
+    const userMessage: Message = {
+      id: Date.now(),
+      prompt: inputValue,
+      response: "",
+      createdAt: new Date().toISOString(),
+    };
 
-        setMessages(typedMessages);
-      }
-    } catch (err: any) {
-      console.error("Error loading messages:", err);
-      setError("No se pudieron cargar los mensajes");
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  const handleSendMessage = useCallback(async () => {
-    const trimmedInput = input.trim();
-    if (!trimmedInput || isLoading) return;
-
-    const userPrompt = trimmedInput;
-    setInput("");
-    setError(null);
+    setMessages((prev) => [...prev, userMessage]);
+    setInputValue("");
+    setIsLoading(true);
+    adjustTextareaHeight();
 
     try {
-      setIsLoading(true);
-
-      // Optimistic UI update for user message
-      const tempUserMessage: Message = {
-        id: Date.now(),
-        prompt: userPrompt,
-        response: "",
-        createdAt: new Date().toISOString(),
-      };
-
-      setMessages((prev) => [...prev, tempUserMessage]);
-
-      // Send message to API
       const response = await apiService.sendMessage(
-        userPrompt,
-        activeChatId ?? undefined,
+        inputValue,
+        currentChat?.id,
       );
 
-      // Simular streaming de respuesta
-      if (response?.aiResponse) {
-        simulateStreaming(response.aiResponse);
+      const assistantMessage: Message = {
+        id: response.id || Date.now() + 1,
+        prompt: inputValue,
+        response: response.response || response.message || response,
+        createdAt: new Date().toISOString(),
+        chatId: response.chatId || currentChat?.id,
+      };
+
+      setMessages((prev) => [...prev, assistantMessage]);
+
+      if (!currentChat) {
+        await loadChats();
       }
 
-      // Reload chats to update titles
-      await loadChats();
-    } catch (err: any) {
-      console.error("Error sending message:", err);
-
-      // Remove optimistic message on error
-      setMessages((prev) => prev.filter((msg) => msg.id !== Date.now()));
-
-      setError("Error al enviar el mensaje");
+      if (!currentChat && response.chatId) {
+        const newChat = chats.find((c) => c.id === response.chatId);
+        if (newChat) {
+          setCurrentChat(newChat);
+        }
+      }
+    } catch (error) {
       toast({
         title: "Error",
-        description:
-          err.message ||
-          "Error al enviar el mensaje. Por favor, intenta de nuevo.",
+        description: "No se pudo enviar el mensaje",
         variant: "destructive",
       });
+
+      setMessages((prev) => prev.slice(0, -1));
     } finally {
       setIsLoading(false);
     }
-  }, [input, isLoading, activeChatId, loadChats, toast, simulateStreaming]);
+  };
 
-  const handleCopyMessage = useCallback(
-    (content: string, id: number) => {
-      navigator.clipboard.writeText(content);
-      setCopiedId(id);
+  const handleNewChat = () => {
+    setCurrentChat(null);
+    setMessages([]);
+    setInputValue("");
+    setIsSidebarOpen(false);
 
+    if (textareaRef.current) {
+      textareaRef.current.focus();
+    }
+  };
+
+  const handleSelectChat = async (chat: Chat) => {
+    setCurrentChat(chat);
+    await loadChatMessages(chat.id);
+    setIsSidebarOpen(false);
+  };
+
+  const handleDeleteChat = async (chatId: number, e: React.MouseEvent) => {
+    e.stopPropagation();
+
+    try {
+      await apiService.deleteChat(chatId);
+      setChats((prev) => prev.filter((c) => c.id !== chatId));
+
+      if (currentChat?.id === chatId) {
+        handleNewChat();
+      }
+
+      toast({
+        title: "Éxito",
+        description: "Chat eliminado correctamente",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "No se pudo eliminar el chat",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleCopyMessage = async (text: string, messageId: number) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedId(messageId);
       setTimeout(() => setCopiedId(null), 2000);
 
       toast({
         title: "Copiado",
-        description: "Respuesta copiada al portapapeles",
+        description: "Mensaje copiado al portapapeles",
       });
-    },
-    [toast],
-  );
-
-  const handleNewChat = useCallback(async () => {
-    await createNewChat();
-    setSearchQuery("");
-    inputRef.current?.focus();
-  }, [createNewChat]);
-
-  const handleDeleteChat = useCallback(
-    async (chatId: number, event?: React.MouseEvent) => {
-      event?.stopPropagation();
-
-      if (
-        !confirm(
-          "¿Estás seguro de que quieres eliminar este chat? Esta acción no se puede deshacer.",
-        )
-      ) {
-        return;
-      }
-
-      try {
-        await apiService.deleteChat(chatId);
-        setChats((prev) => prev.filter((c) => c.id !== chatId));
-
-        if (activeChatId === chatId) {
-          // Seleccionar otro chat o crear uno nuevo
-          const remainingChats = chats.filter((c) => c.id !== chatId);
-          if (remainingChats.length > 0) {
-            setActiveChatId(remainingChats[0].id);
-          } else {
-            await createNewChat();
-          }
-        }
-
-        toast({
-          title: "Chat eliminado",
-          description: "El chat ha sido eliminado correctamente",
-        });
-      } catch (err) {
-        toast({
-          title: "Error",
-          description:
-            "No se pudo eliminar el chat. Por favor, intenta de nuevo.",
-          variant: "destructive",
-        });
-      }
-    },
-    [activeChatId, chats, toast, createNewChat],
-  );
-
-  const handleKeyPress = useCallback(
-    (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-      if (e.key === "Enter" && !e.shiftKey && !isLoading) {
-        e.preventDefault();
-        handleSendMessage();
-      }
-    },
-    [handleSendMessage, isLoading],
-  );
-
-  const formatDate = useCallback((dateString: string | Date) => {
-    const date = typeof dateString === "string" ? new Date(dateString) : dateString;
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-
-    if (diffDays === 0) {
-      return "Hoy";
-    } else if (diffDays === 1) {
-      return "Ayer";
-    } else if (diffDays < 7) {
-      return `Hace ${diffDays} días`;
-    } else {
-      return date.toLocaleDateString();
-    }
-  }, []);
-
-  const handleChatSelect = (chatId: number) => {
-    setActiveChatId(chatId);
-    if (window.innerWidth < 1024) {
-      setShowChatSidebar(false);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "No se pudo copiar el mensaje",
+        variant: "destructive",
+      });
     }
   };
 
-  // Render functions
-  const renderChatsList = () => {
-    if (isFetchingChats) {
-      return (
-        <div className={styles.loadingChats}>
-          <Loader className={styles.loadingIcon} />
-          <span>Cargando chats...</span>
-        </div>
-      );
-    }
-
-    if (filteredChats.length === 0) {
-      return (
-        <div className={styles.emptyChats}>
-          <MessageSquare className={styles.emptyChatsIcon} />
-          <p>No hay chats que coincidan</p>
-        </div>
-      );
-    }
-
-    return (
-      <div className={styles.chatsListContent}>
-        {filteredChats.map((chat) => (
-          <div
-            key={chat.id}
-            className={`${styles.chatItem} ${activeChatId === chat.id ? styles.chatItemActive : ""}`}
-            onClick={() => handleChatSelect(chat.id)}
-          >
-            <div className={styles.chatItemIcon}>
-              <MessageSquare size={16} />
-            </div>
-            <div className={styles.chatItemInfo}>
-              <span className={styles.chatItemTitle} title={chat.title}>
-                {chat.title}
-              </span>
-              <div className={styles.chatItemMeta}>
-                <span className={styles.chatItemDate}>
-                  <Clock size={12} />
-                  {formatDate(new Date(chat.updatedAt || chat.createdAt))}
-                </span>
-                <span className={styles.chatItemCount}>
-                  {chat.messageCount} mensajes
-                </span>
-              </div>
-            </div>
-            <Button
-              size="icon"
-              variant="ghost"
-              onClick={(e) => handleDeleteChat(chat.id, e)}
-              className={styles.chatDeleteBtn}
-              aria-label={`Eliminar chat ${chat.title}`}
-            >
-              <Trash2 className={styles.chatDeleteIcon} />
-            </Button>
-          </div>
-        ))}
-      </div>
-    );
+  // ==================== UTILS ====================
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  const renderMessages = () => {
-    if (isLoading && messages.length === 0) {
-      return (
-        <div className={styles.loadingState}>
-          <Loader className={styles.loader} />
-          <p className={styles.loadingText}>Cargando conversación...</p>
-        </div>
-      );
+  const adjustTextareaHeight = () => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = "auto";
+      textareaRef.current.style.height = `${Math.min(
+        textareaRef.current.scrollHeight,
+        200,
+      )}px`;
     }
-
-    if (messages.length === 0) {
-      return (
-        <div className={styles.emptyState}>
-          <div className={styles.emptyIllustration}>
-            <Brain size={64} />
-            <Sparkles className={styles.sparkle1} size={24} />
-            <Sparkles className={styles.sparkle2} size={20} />
-          </div>
-          <h2 className={styles.emptyTitle}>¡Hola! Soy tu asistente de IA</h2>
-          <p className={styles.emptyText}>
-            Puedo ayudarte con explicaciones, ejercicios, resúmenes y mucho más.
-            ¡Comienza a escribir!
-          </p>
-          <div className={styles.suggestions}>
-            <h3 className={styles.suggestionsTitle}>Prueba preguntar:</h3>
-            <div className={styles.suggestionsGrid}>
-              <button
-                className={styles.suggestionCard}
-                onClick={() => setInput("Explícame el teorema de Pitágoras")}
-              >
-                <span role="img" aria-label="math">
-                  📐
-                </span>
-                Explícame el teorema de Pitágoras
-              </button>
-              <button
-                className={styles.suggestionCard}
-                onClick={() => setInput("Resume la Revolución Francesa")}
-              >
-                <span role="img" aria-label="history">
-                  📜
-                </span>
-                Resume la Revolución Francesa
-              </button>
-              <button
-                className={styles.suggestionCard}
-                onClick={() => setInput("Ayúdame con este ejercicio de física")}
-              >
-                <span role="img" aria-label="physics">
-                  ⚛️
-                </span>
-                Ayúdame con un ejercicio
-              </button>
-              <button
-                className={styles.suggestionCard}
-                onClick={() => setInput("Corrige este texto en inglés")}
-              >
-                <span role="img" aria-label="language">
-                  🌐
-                </span>
-                Corrige este texto
-              </button>
-            </div>
-          </div>
-        </div>
-      );
-    }
-
-    return (
-      <div className={styles.messagesList} ref={messagesContainerRef}>
-        {messages.map((message) => (
-          <div key={message.id} className={styles.messageGroup}>
-            {/* User Message */}
-            <div className={styles.userMessageWrapper}>
-              <div className={styles.messageAvatar}>
-                <User size={20} />
-              </div>
-              <div className={styles.messageContent}>
-                <Card className={styles.userMessage}>
-                  <div className={styles.messageHeader}>
-                    <span className={styles.messageAuthor}>Tú</span>
-                    <span className={styles.messageTime}>
-                      {new Date(message.createdAt).toLocaleTimeString([], {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </span>
-                  </div>
-                  <p className={styles.userMessageText}>{message.prompt}</p>
-                </Card>
-              </div>
-            </div>
-
-            {/* AI Response */}
-            <div className={styles.aiMessageWrapper}>
-              <div className={styles.messageAvatar}>
-                <Bot size={20} />
-              </div>
-              <div className={styles.messageContent}>
-                <Card className={styles.aiMessage}>
-                  <div className={styles.messageHeader}>
-                    <span className={styles.messageAuthor}>
-                      <Sparkles size={14} />
-                      Asistente IA
-                    </span>
-                    <span className={styles.messageTime}>
-                      {new Date(message.createdAt).toLocaleTimeString([], {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </span>
-                  </div>
-                  <PremiumMarkdown content={message.response} />
-                  <div className={styles.messageActions}>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() =>
-                        handleCopyMessage(message.response, message.id)
-                      }
-                      className={styles.copyButton}
-                      aria-label="Copiar respuesta"
-                    >
-                      {copiedId === message.id ? (
-                        <>
-                          <Check className={styles.copyIcon} />
-                          Copiado
-                        </>
-                      ) : (
-                        <>
-                          <Copy className={styles.copyIcon} />
-                          Copiar
-                        </>
-                      )}
-                    </Button>
-                  </div>
-                </Card>
-              </div>
-            </div>
-          </div>
-        ))}
-
-        {/* Streaming response */}
-        {isStreaming && streamingResponse && (
-          <div className={styles.aiMessageWrapper}>
-            <div className={styles.messageAvatar}>
-              <Bot size={20} />
-            </div>
-            <div className={styles.messageContent}>
-              <Card className={styles.aiMessage}>
-                <div className={styles.messageHeader}>
-                  <span className={styles.messageAuthor}>
-                    <Sparkles size={14} />
-                    Asistente IA
-                  </span>
-                  <div className={styles.typingIndicator}>
-                    <span className={styles.typingDot}></span>
-                    <span className={styles.typingDot}></span>
-                    <span className={styles.typingDot}></span>
-                  </div>
-                </div>
-                <PremiumMarkdown content={streamingResponse} />
-              </Card>
-            </div>
-          </div>
-        )}
-
-        <div ref={messagesEndRef} />
-      </div>
-    );
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage();
+    }
+  };
+
+  const formatTime = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleTimeString("es-ES", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+
+  // ==================== RENDER ====================
   return (
     <DashboardLayout>
-      <div className={styles.chatLayout}>
-        {/* Chat Sidebar - Ahora es un overlay en móvil */}
-        {showChatSidebar && (
-          <div className={styles.sidebarOverlay}>
-            <aside
-              ref={chatSidebarRef}
-              className={`${styles.sidebar} ${styles.sidebarOpen}`}
-              aria-label="Lista de chats"
+      <div className={styles.chatContainer}>
+        {/* SIDEBAR - HISTORIAL DE CHATS */}
+        <div
+          className={`${styles.sidebar} ${isSidebarOpen ? styles.open : ""}`}
+        >
+          <div className={styles.sidebarHeader}>
+            <button className={styles.newChatButton} onClick={handleNewChat}>
+              <Plus size={18} />
+              Nuevo Chat
+            </button>
+            <button
+              className={styles.menuToggle}
+              onClick={() => setIsSidebarOpen(false)}
             >
-              <div className={styles.sidebarHeader}>
-                <div className={styles.sidebarTitleContainer}>
-                  <h2 className={styles.sidebarTitle}>
-                    <MessageSquare className={styles.sidebarTitleIcon} />
-                    Chats
-                  </h2>
-                  <span className={styles.chatsCount}>{chats.length}</span>
-                </div>
-                <div className={styles.sidebarActions}>
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    onClick={() => setShowChatSidebar(false)}
-                    className={styles.closeSidebarBtn}
-                    aria-label="Cerrar lista de chats"
-                  >
-                    <X className={styles.closeSidebarIcon} />
-                  </Button>
-                </div>
-              </div>
-
-              <div className={styles.sidebarSearch}>
-                <div className={styles.searchContainer}>
-                  <Search className={styles.searchIcon} />
-                  <Input
-                    type="text"
-                    placeholder="Buscar chats..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className={styles.searchInput}
-                  />
-                  {searchQuery && (
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      onClick={() => setSearchQuery("")}
-                      className={styles.clearSearchBtn}
-                    >
-                      <X size={14} />
-                    </Button>
-                  )}
-                </div>
-              </div>
-
-              <Button
-                onClick={handleNewChat}
-                className={styles.newChatBtn}
-                disabled={isLoading}
-              >
-                <Plus className={styles.newChatIcon} />
-                Nuevo Chat
-              </Button>
-
-              <div className={styles.chatsList}>{renderChatsList()}</div>
-            </aside>
+              <X size={20} />
+            </button>
           </div>
-        )}
 
-        {/* Main Chat Area */}
-        <div className={styles.chatContainer}>
-          {/* Header */}
-          <header className={styles.chatHeader}>
-            <Button
-              size="icon"
-              variant="ghost"
-              onClick={() => setShowChatSidebar(!showChatSidebar)}
-              className={styles.toggleSidebarBtn}
-              aria-label={
-                showChatSidebar
-                  ? "Ocultar lista de chats"
-                  : "Mostrar lista de chats"
-              }
-            >
-              {showChatSidebar ? (
-                <X className={styles.toggleSidebarIcon} />
-              ) : (
-                <MessageSquare className={styles.toggleSidebarIcon} />
-              )}
-            </Button>
-
-            <div className={styles.chatHeaderContent}>
-              <div className={styles.chatTitleSection}>
-                <h1 className={styles.chatTitle}>
-                  {activeChat?.title || "Nuevo Chat"}
-                </h1>
-                {activeChat && (
-                  <div className={styles.chatInfo}>
-                    <span className={styles.chatMessageCount}>
-                      <MessageSquare size={12} />
-                      {activeChat.messageCount} mensajes
-                    </span>
-                    <span className={styles.chatDate}>
-                      <Clock size={12} />
-                      {formatDate(activeChat.createdAt)}
-                    </span>
+          <div className={styles.chatHistory}>
+            {chats.length === 0 ? (
+              <div
+                style={{
+                  textAlign: "center",
+                  color: "hsl(var(--muted-foreground))",
+                  padding: "2rem 1rem",
+                }}
+              >
+                <MessageSquare
+                  size={32}
+                  style={{ margin: "0 auto 1rem", opacity: 0.5 }}
+                />
+                <p>No hay chats aún</p>
+                <p style={{ fontSize: "0.875rem", marginTop: "0.5rem" }}>
+                  Crea uno nuevo para empezar
+                </p>
+              </div>
+            ) : (
+              chats.map((chat) => (
+                <div
+                  key={chat.id}
+                  className={`${styles.chatHistoryItem} ${currentChat?.id === chat.id ? styles.active : ""
+                    }`}
+                  onClick={() => handleSelectChat(chat)}
+                >
+                  <MessageSquare size={16} style={{ opacity: 0.7 }} />
+                  <span className={styles.chatHistoryTitle}>
+                    {chat.title || `Chat ${chat.id}`}
+                  </span>
+                  <div className={styles.chatHistoryMeta}>
+                    {chat.messageCount && (
+                      <span style={{ fontSize: "0.75rem", opacity: 0.6 }}>
+                        {chat.messageCount}
+                      </span>
+                    )}
+                    <button
+                      className={styles.deleteChatButton}
+                      onClick={(e) => handleDeleteChat(chat.id, e)}
+                      aria-label="Eliminar chat"
+                    >
+                      <Trash2 size={14} />
+                    </button>
                   </div>
-                )}
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+
+        {/* MAIN CHAT AREA */}
+        <div className={styles.mainChat}>
+          {/* HEADER */}
+          <div className={styles.chatHeader}>
+            <div className={styles.chatHeaderInfo}>
+              <button
+                className={styles.menuToggle}
+                onClick={() => setIsSidebarOpen(true)}
+              >
+                <Menu size={20} />
+              </button>
+              <div className={styles.chatTitle}>
+                <Sparkles size={20} style={{ color: "#7b2cbf" }} />
+                <h2>Junior IA</h2>
               </div>
             </div>
 
-            {activeChatId && (
-              <div className={styles.chatActions}>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleNewChat}
-                  className={styles.newChatHeaderBtn}
-                >
-                  <Plus size={16} />
-                  <span className={styles.newChatText}>Nuevo</span>
-                </Button>
-                {hasMessages && (
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => handleDeleteChat(activeChatId)}
-                    className={styles.deleteChatBtn}
-                    aria-label="Eliminar chat actual"
-                  >
-                    <Trash2 className={styles.deleteIcon} size={16} />
-                  </Button>
-                )}
+            {currentChat && (
+              <div className={styles.messageCount}>
+                <MessageSquare size={14} />
+                <span>{messages.length} mensajes</span>
               </div>
             )}
-          </header>
+          </div>
 
-          {/* Messages Area */}
-          <div className={styles.messagesArea}>{renderMessages()}</div>
+          {/* MESSAGES */}
+          <div className={styles.messagesContainer}>
+            {messages.length === 0 ? (
+              <div className={styles.emptyState}>
+                <div className={styles.emptyStateIcon}>
+                  <Bot size={36} color="white" />
+                </div>
+                <h3>¿Qué quieres aprender hoy?</h3>
+                <p>
+                  Pregúntame sobre cualquier tema y te ayudaré a entenderlo
+                  mejor
+                </p>
+                <div
+                  style={{
+                    display: "flex",
+                    gap: "0.75rem",
+                    flexWrap: "wrap",
+                    justifyContent: "center",
+                    marginTop: "1rem",
+                  }}
+                >
+                  {[
+                    "Explica la teoría cuántica",
+                    "¿Cómo funciona el machine learning?",
+                    "Resumen de la Segunda Guerra Mundial",
+                    "Conceptos básicos de economía",
+                  ].map((suggestion, i) => (
+                    <button
+                      key={i}
+                      onClick={() => setInputValue(suggestion)}
+                      style={{
+                        padding: "0.5rem 1rem",
+                        background: "hsl(var(--muted) / 0.3)",
+                        border: "1px solid hsl(var(--border))",
+                        borderRadius: "20px",
+                        fontSize: "0.875rem",
+                        color: "hsl(var(--foreground))",
+                        cursor: "pointer",
+                        transition: "all 0.2s",
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background =
+                          "hsl(var(--muted) / 0.5)";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background =
+                          "hsl(var(--muted) / 0.3)";
+                      }}
+                    >
+                      {suggestion}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <>
+                {messages.map((msg, index) => (
+                  <React.Fragment key={msg.id || index}>
+                    {/* USER MESSAGE */}
+                    <div className={`${styles.messageWrapper} ${styles.user}`}>
+                      <div className={styles.messageContent}>
+                        <div className={styles.avatar}>
+                          <User size={18} color="white" />
+                        </div>
+                        <div className={styles.messageBody}>
+                          <div className={styles.messageHeader}>
+                            <span className={styles.messageSender}>Tú</span>
+                            <span className={styles.messageTime}>
+                              {formatTime(msg.createdAt)}
+                            </span>
+                          </div>
+                          <div className={styles.messageText}>{msg.prompt}</div>
+                        </div>
+                      </div>
+                    </div>
 
-          {/* Input Area */}
+                    {/* ASSISTANT MESSAGE */}
+                    {msg.response && (
+                      <div
+                        className={`${styles.messageWrapper} ${styles.assistant}`}
+                      >
+                        <div className={styles.messageContent}>
+                          <div className={styles.avatar}>
+                            <Bot size={18} color="white" />
+                          </div>
+                          <div className={styles.messageBody}>
+                            <div className={styles.messageHeader}>
+                              <span className={styles.messageSender}>
+                                Junior
+                              </span>
+                              <span className={styles.messageTime}>
+                                {formatTime(msg.createdAt)}
+                              </span>
+                            </div>
+                            <div className={styles.messageText}>
+                              <MarkdownRenderer content={msg.response} />
+                            </div>
+                            <div className={styles.messageActions}>
+                              <button
+                                className={styles.messageActionButton}
+                                onClick={() =>
+                                  handleCopyMessage(msg.response, msg.id)
+                                }
+                                title="Copiar respuesta"
+                              >
+                                {copiedId === msg.id ? (
+                                  <Check size={14} />
+                                ) : (
+                                  <Copy size={14} />
+                                )}
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </React.Fragment>
+                ))}
+
+                {/* TYPING INDICATOR */}
+                {isLoading && (
+                  <div
+                    className={`${styles.messageWrapper} ${styles.assistant}`}
+                  >
+                    <div className={styles.messageContent}>
+                      <div className={styles.avatar}>
+                        <Bot size={18} color="white" />
+                      </div>
+                      <div className={styles.typingIndicator}>
+                        <div className={styles.typingDot}></div>
+                        <div className={styles.typingDot}></div>
+                        <div className={styles.typingDot}></div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                <div ref={messagesEndRef} />
+              </>
+            )}
+          </div>
+
+          {/* INPUT AREA */}
           <div className={styles.inputArea}>
-            <div className={styles.inputWrapper}>
-              <Textarea
-                ref={inputRef}
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={handleKeyPress}
-                placeholder="Escribe tu mensaje aquí... (Shift + Enter para nueva línea)"
-                disabled={isLoading}
-                className={styles.inputField}
-                aria-label="Mensaje de chat"
+            <div className={styles.inputContainer}>
+              <textarea
+                ref={textareaRef}
+                className={styles.textarea}
+                placeholder="Envía un mensaje..."
+                value={inputValue}
+                onChange={(e) => {
+                  setInputValue(e.target.value);
+                  adjustTextareaHeight();
+                }}
+                onKeyDown={handleKeyDown}
                 rows={1}
+                disabled={isLoading}
               />
-              <Button
-                onClick={handleSendMessage}
-                disabled={isLoading || !input.trim()}
-                size="icon"
+              <button
                 className={styles.sendButton}
-                aria-label="Enviar mensaje"
+                onClick={handleSendMessage}
+                disabled={!inputValue.trim() || isLoading}
               >
                 {isLoading ? (
-                  <Loader className={styles.sendLoader} />
+                  <Loader size={18} className="animate-spin" />
                 ) : (
-                  <Send className={styles.sendIcon} />
+                  <Send size={18} />
                 )}
-              </Button>
+              </button>
             </div>
-            <div className={styles.inputFooter}>
-              <p className={styles.inputHint}>
-                Asistente IA • Presiona Enter para enviar
-              </p>
-              <div className={styles.inputStats}>
-                <span className={styles.charCount}>
-                  {input.length} caracteres
-                </span>
-              </div>
-            </div>
+            <p
+              style={{
+                fontSize: "0.75rem",
+                color: "hsl(var(--muted-foreground))",
+                textAlign: "center",
+                marginTop: "0.5rem",
+              }}
+            >
+              Junior puede cometer errores. Considera verificar información
+              importante.
+            </p>
           </div>
         </div>
       </div>

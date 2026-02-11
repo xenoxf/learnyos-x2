@@ -272,6 +272,36 @@ class ApiService {
     return this.request('/groq/implementation-status');
   }
 
+  // ==================== TOKEN VERIFICATION ====================
+
+  async verifyToken(): Promise<{ valid: boolean; user?: any }> {
+    try {
+      const token = this.token || (typeof window !== 'undefined' ? localStorage.getItem('token') : null);
+      
+      if (!token) {
+        console.warn('[API] No token found');
+        return { valid: false };
+      }
+
+      const response = await this.request('/auth/verify_token', {
+        method: 'GET',
+      });
+
+      if (response && (response.valid === true || response.user)) {
+        return { valid: true, user: response.user || response.data };
+      }
+
+      return { valid: false };
+    } catch (error) {
+      console.error('[API] Token verification failed:', error);
+      // Si hay un error 401, el token está expirado
+      if (error instanceof Error && error.message.includes('401')) {
+        return { valid: false };
+      }
+      return { valid: false };
+    }
+  }
+
   // ==================== UTILS ====================
 
   isAuthenticated(): boolean {

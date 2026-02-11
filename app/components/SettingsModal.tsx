@@ -1,15 +1,22 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { X } from "lucide-react";
-import styles from "../styles/auth.module.css";
+import styles from "../styles/Settings.module.css";
 import type { SettingsFormData } from "@/types";
 
 interface SettingsModalProps {
   isOpen: boolean;
+  onClose: () => void;
 }
 
-export function SettingsModal({ isOpen }: SettingsModalProps) {
+export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const [settings, setSettings] = useState<SettingsFormData>({
     notifications: true,
     theme: "auto",
@@ -27,17 +34,31 @@ export function SettingsModal({ isOpen }: SettingsModalProps) {
 
   const handleSave = () => {
     localStorage.setItem("settings", JSON.stringify(settings));
+    onClose();
   };
 
-  if (!isOpen) return null;
+  if (!mounted || !isOpen) return null;
 
   return (
-    <div className={styles.modalFondo}>
-      <X size={24} onClick={} />
+    <div className={styles.modalFondo} onClick={onClose}>
+      {/* Botón cerrar flotante (opcional, como en AuthFG) */}
+      <button
+        className={styles.closeButton}
+        onClick={onClose}
+        title="Cerrar"
+        type="button"
+      >
+        <X size={20} />
+      </button>
+
       <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
         <div className={styles.modalHeader}>
           <h2>Configuración</h2>
-          <button className={styles.closeButton} type="button">
+          <button
+            className={styles.closeButton}
+            type="button"
+            onClick={onClose}
+          >
             <X size={20} />
           </button>
         </div>
@@ -116,7 +137,11 @@ export function SettingsModal({ isOpen }: SettingsModalProps) {
         </div>
 
         <div className={styles.modalFooter}>
-          <button onClick={on} className={styles.buttonSecondary} type="button">
+          <button
+            onClick={onClose}
+            className={styles.buttonSecondary}
+            type="button"
+          >
             Cancelar
           </button>
           <button
