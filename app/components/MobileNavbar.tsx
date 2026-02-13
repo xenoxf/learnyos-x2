@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useCallback, useMemo, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import {
   LayoutDashboard,
@@ -11,11 +11,20 @@ import {
   User,
   Settings,
   LogOut,
+  Menu,
+  X,
 } from "lucide-react";
 import { apiService } from "@/services/apiService";
 import { useToast } from "@/hooks/use-toast";
 import { SettingsModal } from "@/components/SettingsModal";
 import styles from "@/styles/mobileNavbar.module.css";
+
+// Types
+interface UserData {
+  name?: string;
+  email?: string;
+  avatar?: string;
+}
 
 interface MenuItem {
   title: string;
@@ -24,88 +33,154 @@ interface MenuItem {
   badge?: number;
 }
 
-const mainMenuItems: MenuItem[] = [
+// Custom hook for user data
+const useUser = () => {
+  const [user, setUser] = useState<UserData | null>(null);
+
+  useEffect(() => {
+    const loadUser = () => {
+      try {
+        const userData = localStorage.getItem("user");
+        if (userData) {
+          setUser(JSON.parse(userData));
+        }
+      } catch (e) {
+        console.error("Error parsing user data:", e);
+      }
+    };
+
+    loadUser();
+
+    window.addEventListener("storage", loadUser);
+    return () => window.removeEventListener("storage", loadUser);
+  }, []);
+
+  return user;
+};
+
+// Menu items configuration - TODOS visibles en el navbar
+const navItems: MenuItem[] = [
   { title: "Inicio", url: "/study", icon: LayoutDashboard },
-  { title: "Chat", url: "/study/chat", icon: MessageSquare },
+  { title: "Chat", url: "/study/chat", icon: MessageSquare, badge: 3 },
   { title: "Quiz", url: "/study/quiz", icon: Brain },
   { title: "Notas", url: "/study/notes", icon: NotebookPen },
-];
-
-const secondaryMenuItems: MenuItem[] = [
   { title: "Flashcards", url: "/study/flashcards", icon: CreditCard },
   { title: "Traductor", url: "/study/translator", icon: Languages },
 ];
 
+// Main Component
 export function MobileNavbar() {
   const router = useRouter();
   const pathname = usePathname();
   const { toast } = useToast();
+  const user = useUser();
+
   const [showMenu, setShowMenu] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
-  const [user, setUser] = useState<{
-    name?: string;
-    email?: string;
-  } | null>(null);
+  const [isNavigating, setIsNavigating] = useState(false);
 
-  // Cargar usuario
-  React.useEffect(() => {
-    if (typeof window === "undefined") return;
+  // Active route checker
+  const isActiveRoute = useCallback(
+    (url: string): boolean => {
+      return pathname === url || pathname?.startsWith(url + "/");
+    },
+    [pathname],
+  );
 
-    const userData = localStorage.getItem("user");
-    if (userData) {
+  // Handle navigation
+  const handleNavigation = useCallback(
+    async (url: string) => {
+      if (isNavigating) return;
+
+      setIsNavigating(true);
+      setShowMenu(false);
+
       try {
-        setUser(JSON.parse(userData));
-      } catch (e) {
-        console.error("Error parsing user data:", e);
+        await router.push(url);
+      } catch (error) {
+        toast({
+          title: "Error",
+          description: "No se pudo navegar a la página",
+          variant: "destructive",
+        });
+      } finally {
+        setIsNavigating(false);
       }
+    },
+    [router, toast, isNavigating],
+  );
+
+  // Handle logout
+  const handleLogout = useCallback(async () => {
+    try {
+      await apiService.logout();
+      localStorage.removeItem("user");
+      localStorage.removeItem("token");
+
+      toast({
+        title: "Sesión cerrada",
+        description: "Has cerrado sesión exitosamente",
+      });
+
+      router.push("/auth");
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "No se pudo cerrar la sesión",
+        variant: "destructive",
+      });
     }
+  }, [router, toast]);
+
+  // Toggle menu
+  const toggleMenu = useCallback(() => {
+    setShowMenu((prev) => !prev);
   }, []);
 
-  const handleNavigation = (url: string) => {
-    router.push(url);
-    setShowMenu(false);
-  };
+  // Prevent body scroll when menu is open
+  useEffect(() => {
+    if (showMenu) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
 
-  const handleLogout = () => {
-    apiService.logout();
-    localStorage.removeItem("user");
-    localStorage.removeItem("token");
-    toast({
-      title: "Sesión cerrada",
-      description: "Has cerrado sesión exitosamente",
-    });
-    router.push("/auth");
-  };
-
-  const isActiveRoute = (url: string): boolean => {
-    return pathname === url || pathname?.startsWith(url + "/");
-  };
-
-  const toggleMenu = () => {
-    setShowMenu(!showMenu);
-  };
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [showMenu]);
 
   return (
     <>
-      {/* Overlay del menú desplegable */}
+      {/* Overlay */}
       {showMenu && (
         <div
           className={styles.menuOverlay}
-          onClick={() => setShowMenu(false)}
+          onClick={toggleMenu}
           role="presentation"
           aria-label="Cerrar menú"
         />
       )}
 
-      {/* Menú desplegable con opciones secundarias y perfil */}
+      {/* Expanded Menu */}
       <div
         className={`${styles.expandedMenu} ${showMenu ? styles.expandedMenuOpen : ""}`}
+        role="menu"
+        aria-label="Menú de usuario"
+        aria-hidden={!showMenu}
       >
         <div className={styles.expandedMenuContent}>
-          {/* Perfil de usuario */}
+          {/* Drag handle */}
+          <div className={styles.menuHandle} aria-hidden="true" />
+
+          {/* User Profile */}
           <div className={styles.userSection}>
-            <div className={styles.userAvatar}>
-              {user?.name?.[0]?.toUpperCase() || "U"}
+            <div className={styles.userAvatar} aria-label="Avatar de usuario">
+              {user?.avatar ? (
+                <img src={user.avatar} alt={user.name || "Usuario"} />
+              ) : (
+                user?.name?.[0]?.toUpperCase() || "U"
+              )}
             </div>
             <div className={styles.userInfo}>
               <div className={styles.userName}>{user?.name || "Usuario"}</div>
@@ -115,30 +190,7 @@ export function MobileNavbar() {
             </div>
           </div>
 
-          {/* Opciones secundarias */}
-          <div className={styles.secondaryItems}>
-            <div className={styles.sectionLabel}>Más herramientas</div>
-            {secondaryMenuItems.map((item) => {
-              const Icon = item.icon;
-              const isActive = isActiveRoute(item.url);
-
-              return (
-                <button
-                  key={item.url}
-                  onClick={() => handleNavigation(item.url)}
-                  className={`
-                    ${styles.menuItem}
-                    ${isActive ? styles.menuItemActive : ""}
-                  `}
-                >
-                  <Icon size={20} className={styles.menuItemIcon} />
-                  <span className={styles.menuItemText}>{item.title}</span>
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Acciones */}
+          {/* Acciones de usuario */}
           <div className={styles.actions}>
             <button
               onClick={() => {
@@ -147,24 +199,24 @@ export function MobileNavbar() {
               }}
               className={styles.actionButton}
             >
-              <Settings size={18} />
+              <Settings size={20} />
               <span>Configuración</span>
             </button>
             <button onClick={handleLogout} className={styles.actionButton}>
-              <LogOut size={18} />
+              <LogOut size={20} />
               <span>Cerrar sesión</span>
             </button>
           </div>
         </div>
       </div>
 
-      {/* Bottom Navigation Bar */}
+      {/* Bottom Navigation - SOLO ÍCONOS en ROW */}
       <nav
         className={styles.navbar}
         role="navigation"
         aria-label="Navegación principal"
       >
-        {mainMenuItems.map((item) => {
+        {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = isActiveRoute(item.url);
 
@@ -182,32 +234,48 @@ export function MobileNavbar() {
               <div className={styles.navItemIconWrapper}>
                 <Icon size={24} className={styles.navItemIcon} />
                 {item.badge && item.badge > 0 && (
-                  <span className={styles.badge}>{item.badge}</span>
+                  <span
+                    className={styles.badge}
+                    aria-label={`${item.badge} notificaciones`}
+                  >
+                    {item.badge}
+                  </span>
                 )}
               </div>
-              <span className={styles.navItemLabel}>{item.title}</span>
+              {/* SIN TEXTO - solo íconos */}
             </button>
           );
         })}
 
-        {/* Botón de Menú (más opciones) */}
+        {/* Botón de Perfil/Menú */}
         <button
           onClick={toggleMenu}
           className={`
             ${styles.navItem}
             ${showMenu ? styles.navItemActive : ""}
           `}
-          aria-label="Más opciones"
+          aria-label={showMenu ? "Cerrar menú" : "Abrir menú de usuario"}
           aria-expanded={showMenu}
         >
           <div className={styles.navItemIconWrapper}>
             <User size={24} className={styles.navItemIcon} />
           </div>
-          <span className={styles.navItemLabel}>Menú</span>
+          {/* SIN TEXTO */}
         </button>
       </nav>
 
-      {/* Modal de Configuración */}
+      {/* Loading Indicator */}
+      {isNavigating && (
+        <div
+          className={styles.loadingIndicator}
+          role="status"
+          aria-label="Cargando"
+        >
+          <div className={styles.loadingSpinner} />
+        </div>
+      )}
+
+      {/* Settings Modal */}
       <SettingsModal
         isOpen={showSettings}
         onClose={() => setShowSettings(false)}

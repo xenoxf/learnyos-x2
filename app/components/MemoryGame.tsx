@@ -13,6 +13,8 @@ interface MemoryCard {
   isMatched: boolean;
 }
 
+const EMOJIS = ["🎯", "🧠", "📚", "🔬", "💡", "🎨"];
+
 export const MemoryGame: React.FC = () => {
   const [cards, setCards] = useState<MemoryCard[]>([]);
   const [flippedCards, setFlippedCards] = useState<number[]>([]);
@@ -22,11 +24,9 @@ export const MemoryGame: React.FC = () => {
   const [gameWon, setGameWon] = useState(false);
   const [canClick, setCanClick] = useState(true);
 
-  const emojis = ["🎯", "🧠", "📚", "🔬", "💡", "🎨"];
-
   // Memoized initialization
   const initializeGame = useCallback(() => {
-    const shuffledEmojis = [...emojis, ...emojis]
+    const shuffledEmojis = [...EMOJIS, ...EMOJIS]
       .sort(() => Math.random() - 0.5)
       .map((emoji, index) => ({
         id: index,
@@ -42,7 +42,7 @@ export const MemoryGame: React.FC = () => {
     setGameStarted(false);
     setGameWon(false);
     setCanClick(true);
-  }, [emojis]);
+  }, []);
 
   // Initialize game on mount
   useEffect(() => {
@@ -61,8 +61,12 @@ export const MemoryGame: React.FC = () => {
     if (flippedCards.length === 2) {
       setCanClick(false);
       const [first, second] = flippedCards;
+      
+      // Compare emojis directly from current cards state
+      const firstEmoji = cards[first]?.emoji;
+      const secondEmoji = cards[second]?.emoji;
 
-      if (cards[first].emoji === cards[second].emoji) {
+      if (firstEmoji === secondEmoji) {
         // Match found
         setTimeout(() => {
           setCards((prev) =>
@@ -92,7 +96,7 @@ export const MemoryGame: React.FC = () => {
       }
       setMoves((prev) => prev + 1);
     }
-  }, [flippedCards, cards]);
+  }, [flippedCards]);
 
   const handleCardClick = useCallback(
     (cardId: number) => {
