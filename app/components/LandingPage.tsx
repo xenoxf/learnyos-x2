@@ -7,12 +7,24 @@ import Header from "./Header";
 import { Button } from "./ui/button";
 import { AuthFG } from "./AuthFG";
 import { ThemeToggle } from "./ThemeToggle";
+import { apiService } from "@/services/apiService";
+import { useRouter } from "next/navigation";
+import LoadingModal from "./loadingModal";
 
 export const LandingPage: React.FC = () => {
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
   const handleOpenAuth = () => {
-    setShowAuthModal(true);
+    setLoading(true);
+    if (apiService.isAuthenticated()) {
+      setLoading(false);
+      router.push("/study");
+    } else {
+      setLoading(false);
+      setShowAuthModal(true);
+    }
   };
 
   const handleCloseAuth = () => {
@@ -230,6 +242,7 @@ export const LandingPage: React.FC = () => {
 
       {/* Auth Modal - Renderizado condicional */}
       {showAuthModal && <AuthFG onClose={handleCloseAuth} />}
+      {loading ? <LoadingModal /> : null}
     </>
   );
 };

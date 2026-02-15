@@ -25,9 +25,9 @@ import styles from "@/styles/chat.module.css";
 import DashboardLayout from "../layaut";
 import type { Message, Chat } from "@/types";
 import { MarkdownRenderer } from "@/components/MarkdownRenderer";
-import type { Metadata } from 'next';
+import type { Metadata } from "next";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 export default function ChatPage() {
   // ==================== STATE ====================
@@ -266,8 +266,9 @@ export default function ChatPage() {
               chats.map((chat) => (
                 <div
                   key={chat.id}
-                  className={`${styles.chatHistoryItem} ${currentChat?.id === chat.id ? styles.active : ""
-                    }`}
+                  className={`${styles.chatHistoryItem} ${
+                    currentChat?.id === chat.id ? styles.active : ""
+                  }`}
                   onClick={() => handleSelectChat(chat)}
                 >
                   <MessageSquare size={16} style={{ opacity: 0.7 }} />
@@ -305,18 +306,7 @@ export default function ChatPage() {
               >
                 <Menu size={20} />
               </button>
-              <div className={styles.chatTitle}>
-                <Sparkles size={20} style={{ color: "#7b2cbf" }} />
-                <h2>Junior IA</h2>
-              </div>
             </div>
-
-            {currentChat && (
-              <div className={styles.messageCount}>
-                <MessageSquare size={14} />
-                <span>{messages.length} mensajes</span>
-              </div>
-            )}
           </div>
 
           {/* MESSAGES */}

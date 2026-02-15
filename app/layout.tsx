@@ -2,10 +2,10 @@ import { Providers } from "./providers";
 import "./globals.css";
 import "katex/dist/katex.min.css";
 import "highlight.js/styles/github-dark.css";
-import type { Metadata, Viewport } from 'next';
+import type { Metadata, Viewport } from "next";
 
 export const viewport: Viewport = {
-  width: 'device-width',
+  width: "device-width",
   initialScale: 1,
   maximumScale: 5,
   userScalable: true,
@@ -23,7 +23,6 @@ export default function RootLayout({
 }>) {
   // En el componente principal, usar el hook
 
-
   return (
     <html lang="es" suppressHydrationWarning>
       <head>
@@ -31,8 +30,8 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{
             __html: `
               try {
-                const theme = localStorage.getItem('theme') || 'theme-sakura';
-                document.documentElement.classList.add(theme);
+                //const theme = localStorage.getItem('theme');
+                //document.documentElement.classList.add(theme);
               } catch (e) {}
             `,
           }}

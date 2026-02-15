@@ -53,7 +53,7 @@ export const AuthFG: React.FC<AuthFGProps> = ({ onClose }) => {
   }, []);
 
   const handleGoogleSuccess = (user: any) => {
-    router.push("/(protected)/dashboard");
+    router.push("/study");
     router.refresh();
   };
 
