@@ -96,38 +96,39 @@ export function MobileNavbar() {
 
   return (
     <>
-      {/* Barra de navegación inferior */}
-      <nav className={styles.bottomNav}>
-        {navItems.map((item) => {
-          const Icon = item.icon;
-          const isActive = pathname === item.url;
-          return (
-            <button
-              key={item.url}
-              className={`${styles.navItem} ${isActive ? styles.navItemActive : ""}`}
-              onClick={() => handleNavigation(item.url)}
-              aria-label={item.title}
-            >
-              <div className={styles.navIconWrapper}>
-                <Icon size={20} />
-                {item.badge && (
-                  <span className={styles.badge}>{item.badge}</span>
-                )}
-              </div>
-              <span className={styles.navLabel}>{item.title}</span>
-            </button>
-          );
-        })}
-        {/* Botón para abrir el menú lateral */}
-        <button
-          className={styles.menuButton}
-          onClick={() => setShowMenu(true)}
-          aria-label="Abrir menú"
-        >
-          <Menu size={20} />
-          <span className={styles.navLabel}>Menú</span>
-        </button>
-      </nav>
+      <div className={styles.container} >      {/* Barra de navegación inferior */}
+        <nav className={styles.bottomNav}>
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = pathname === item.url;
+            return (
+              <button
+                key={item.url}
+                className={`${styles.navItem} ${isActive ? styles.navItemActive : ""}`}
+                onClick={() => handleNavigation(item.url)}
+                aria-label={item.title}
+              >
+                <div className={styles.navIconWrapper}>
+                  <Icon size={20} />
+                  {item.badge && (
+                    <span className={styles.badge}>{item.badge}</span>
+                  )}
+                </div>
+                <span className={styles.navLabel}>{item.title}</span>
+              </button>
+            );
+          })}
+          {/* Botón para abrir el menú lateral */}
+          <button
+            className={styles.menuButton}
+            onClick={() => setShowMenu(true)}
+            aria-label="Abrir menú"
+          >
+            <Menu size={20} />
+            <span className={styles.navLabel}>Menú</span>
+          </button>
+        </nav>
+      </div>
 
       {/* Overlay y drawer lateral */}
       {showMenu && (

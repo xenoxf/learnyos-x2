@@ -1,350 +1,320 @@
 /* ============================================
-   BOTTOM NAVIGATION - ESTILO TIKTOK/SHOPIFY
+   BOTTOM NAVIGATION - BOTONES EN FILA
    ============================================ */
-.navbar {
+/*
+.container {
     position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 60px;
-    background: hsl(var(--card) / 0.95);
-    border-top: 1px solid hsl(var(--border));
     display: flex;
-    align-items: center;
-    justify-content: space-around;
-    padding: 0 8px;
+    width: 100%;
+    bottom: 0;
+    justify-content: center;
+    padding: 0 1rem 1.5rem 1rem; /* Cambiado: aumentado el padding inferior de 1rem a 1.5rem 
+    background: transparent;
+    /* Añadir un margen inferior seguro para dispositivos con notch 
+    padding-bottom: env(safe-area-inset-bottom, 1.5rem);
     z-index: 50;
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
+    pointer-events: none; /* Permite que los clicks pasen a través del contenedor 
+}*/
+
+.bottomNav {
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  border-radius: 12px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  width: auto;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  pointer-events: auto;
+  /* Restaura los clicks para el navbar */
 }
 
 /* ============================================
-   NAV ITEMS - SOLO ÍCONOS
-   ============================================ */
+      NAV ITEMS - ICON + LABEL EN COLUMNA
+      ============================================ */
 .navItem {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0;
-    border: none;
-    background: transparent;
-    cursor: pointer;
-    position: relative;
-    transition: all 0.2s ease;
-    border-radius: 8px;
-    width: 44px;
-    height: 44px;
-    min-width: 44px;
-    flex: 0 0 auto;
-    -webkit-tap-highlight-color: transparent;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 0.75rem;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s ease;
+  border-radius: 8px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  min-width: fit-content;
+  /*-webkit-tap-highlight-color: transparent;*/
+  gap: 0.25rem;
 }
 
-.navItemIconWrapper {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 24px;
-    height: 24px;
+.navItem:hover {
+  background: hsl(var(--background) / 0.2);
 }
 
-.navItemIcon {
-    color: hsl(var(--muted-foreground));
-    transition: all 0.2s ease;
-    width: 24px;
-    height: 24px;
+.navItem:active {
+  opacity: 0.7;
+  transform: scale(0.95);
+}
+
+.navIconWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  color: hsl(var(--muted-foreground));
+  transition: all 0.2s ease;
 }
 
 /* Active state */
-.navItemActive .navItemIcon {
-    color: hsl(var(--primary));
+.navItemActive {
+  background: hsl(var(--primary) / 0.1);
 }
 
-/* Hover state (solo desktop) */
-@media (hover: hover) {
-    .navItem:hover .navItemIcon {
-        color: hsl(var(--foreground));
-    }
+.navItemActive .navIconWrapper {
+  color: hsl(var(--primary));
 }
 
-/* Active press state */
-.navItem:active {
-    transform: scale(0.9);
+.navLabel {
+  font-size: 0.65rem;
+  font-weight: 500;
+  color: hsl(var(--muted-foreground));
+  text-align: center;
+  line-height: 1;
+  transition: color 0.2s ease;
 }
 
-/* Focus visible */
-.navItem:focus-visible {
-    outline: 2px solid hsl(var(--primary));
-    outline-offset: 2px;
+.navItemActive .navLabel {
+  color: hsl(var(--primary));
+  font-weight: 600;
 }
 
 /* Badge */
 .badge {
-    position: absolute;
-    top: -4px;
-    right: -4px;
-    min-width: 16px;
-    height: 16px;
-    padding: 0 4px;
-    background: hsl(var(--destructive));
-    color: hsl(var(--destructive-foreground));
-    border-radius: 8px;
-    font-size: 0.625rem;
-    font-weight: bold;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  background: hsl(var(--destructive));
+  color: hsl(var(--destructive-foreground));
+  border-radius: 8px;
+  font-size: 0.6rem;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
 }
 
 /* ============================================
-   EXPANDED MENU (MENÚ DE USUARIO)
+   MENU BUTTON
    ============================================ */
-.menuOverlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
-    z-index: 60;
-    opacity: 0;
-    animation: fadeIn 0.2s ease-out forwards;
+.menuButton {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 0.75rem;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-radius: 8px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  min-width: fit-content;
+  -webkit-tap-highlight-color: transparent;
+  gap: 0.25rem;
+  color: hsl(var(--muted-foreground));
 }
 
+.menuButton:active {
+  opacity: 0.7;
+  transform: scale(0.95);
+}
+
+/* ============================================
+   DRAWER OVERLAY Y MENU
+   ============================================ */
+.drawerOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 60;
+  animation: fadeIn 0.2s ease-out forwards;
+}
+
+.drawer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 280px;
+  max-width: 80vw;
+  height: 100%;
+  background: hsl(var(--card));
+  border-right: 1px solid hsl(var(--border));
+  display: flex;
+  flex-direction: column;
+  animation: slideInLeft 0.3s ease-out;
+  z-index: 70;
+  box-shadow: 4px 0 12px rgba(0, 0, 0, 0.15);
+}
+
+.drawerHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem;
+  border-bottom: 1px solid hsl(var(--border));
+}
+
+.drawerTitle {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: hsl(var(--foreground));
+}
+
+.closeButton {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  color: hsl(var(--muted-foreground));
+  transition: all 0.2s ease;
+}
+
+.closeButton:hover {
+  background: hsl(var(--muted));
+  color: hsl(var(--foreground));
+}
+
+.closeButton:active {
+  transform: scale(0.95);
+}
+
+.drawerContent {
+  flex: 1;
+  padding: 1rem;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.drawerItem {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.875rem 1rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  border-radius: 8px;
+  color: hsl(var(--foreground));
+  transition: all 0.2s ease;
+  width: 100%;
+  text-align: left;
+  font-size: 0.95rem;
+}
+
+.drawerItem:hover {
+  background: hsl(var(--muted));
+}
+
+.drawerItem:active {
+  transform: scale(0.98);
+}
+
+.drawerItem svg {
+  flex-shrink: 0;
+  color: hsl(var(--primary));
+}
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
 @keyframes fadeIn {
-    from {
-        opacity: 0;
-    }
-    to {
-        opacity: 1;
-    }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
-.expandedMenu {
-    position: fixed;
-    bottom: 60px;
-    left: 0;
-    right: 0;
-    background: hsl(var(--card));
-    border-top-left-radius: 20px;
-    border-top-right-radius: 20px;
-    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
-    transform: translateY(100%);
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    z-index: 70;
-    max-height: 70vh;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-}
+@keyframes slideInLeft {
+  from {
+    transform: translateX(-100%);
+  }
 
-.expandedMenuOpen {
-    transform: translateY(0);
-}
-
-.expandedMenuContent {
-    padding: 20px 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-}
-
-/* Menu drag handle */
-.menuHandle {
-    position: absolute;
-    top: 8px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 36px;
-    height: 4px;
-    background: hsl(var(--border));
-    border-radius: 2px;
-    opacity: 0.5;
-}
-
-/* ============================================
-   USER SECTION
-   ============================================ */
-.userSection {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 12px;
-    background: hsl(var(--accent) / 0.5);
-    border-radius: 12px;
-}
-
-.userAvatar {
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    background: linear-gradient(
-        135deg,
-        hsl(var(--primary)) 0%,
-        hsl(var(--primary) / 0.8) 100%
-    );
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: hsl(var(--primary-foreground));
-    font-weight: bold;
-    font-size: 18px;
-    flex-shrink: 0;
-    overflow: hidden;
-}
-
-.userAvatar img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.userInfo {
-    flex: 1;
-    min-width: 0;
-}
-
-.userName {
-    font-weight: 600;
-    font-size: 15px;
-    color: hsl(var(--foreground));
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    margin-bottom: 2px;
-}
-
-.userEmail {
-    font-size: 13px;
-    color: hsl(var(--muted-foreground));
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-/* ============================================
-   ACTION BUTTONS
-   ============================================ */
-.actions {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-.actionButton {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 14px 16px;
-    background: hsl(var(--accent));
-    border: 1px solid hsl(var(--border));
-    border-radius: 12px;
-    cursor: pointer;
-    font-size: 15px;
-    font-weight: 500;
-    color: hsl(var(--foreground));
-    transition: all 0.2s ease;
-    width: 100%;
-    text-align: left;
-    min-height: 48px;
-    -webkit-tap-highlight-color: transparent;
-}
-
-.actionButton:hover {
-    background: hsl(var(--primary) / 0.1);
-    border-color: hsl(var(--primary) / 0.3);
-    color: hsl(var(--primary));
-}
-
-.actionButton:active {
-    transform: scale(0.98);
-}
-
-.actionButton:focus-visible {
-    outline: 2px solid hsl(var(--primary));
-    outline-offset: 2px;
-}
-
-/* ============================================
-   LOADING INDICATOR
-   ============================================ */
-.loadingIndicator {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.3);
-    backdrop-filter: blur(4px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 9999;
-    animation: fadeIn 0.2s ease-out;
-}
-
-.loadingSpinner {
-    width: 40px;
-    height: 40px;
-    border: 3px solid hsl(var(--background));
-    border-top-color: hsl(var(--primary));
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-}
-
-@keyframes spin {
-    to {
-        transform: rotate(360deg);
-    }
-}
-
-/* ============================================
-   DARK MODE
-   ============================================ */
-@media (prefers-color-scheme: dark) {
-    .expandedMenu {
-        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
-    }
-}
-
-/* ============================================
-   REDUCED MOTION
-   ============================================ */
-@media (prefers-reduced-motion: reduce) {
-    .navItem,
-    .expandedMenu,
-    .actionButton,
-    .loadingSpinner {
-        transition: none !important;
-        animation: none !important;
-    }
-
-    .menuOverlay {
-        animation: none !important;
-    }
+  to {
+    transform: translateX(0);
+  }
 }
 
 /* ============================================
    RESPONSIVE - SOLO MÓVIL
    ============================================ */
 @media screen and (min-width: 769px) {
-    .navbar,
-    .expandedMenu,
-    .menuOverlay {
-        display: none !important;
-    }
+
+  .bottomNav,
+  .drawerOverlay,
+  .drawer {
+    display: none !important;
+  }
 }
 
-/* Safe area para iPhone con notch */
-@supports (padding: max(0px)) {
-    .navbar {
-        padding-bottom: max(0px, env(safe-area-inset-bottom));
-        height: calc(60px + env(safe-area-inset-bottom));
-    }
+/* ============================================
+   ACCESSIBILITY
+   ============================================ */
+.navItem:focus-visible,
+.menuButton:focus-visible {
+  outline: 2px solid hsl(var(--primary));
+  outline-offset: 2px;
+}
 
-    .expandedMenu {
-        bottom: calc(60px + env(safe-area-inset-bottom));
-    }
+.drawerItem:focus-visible {
+  outline: 2px solid hsl(var(--primary));
+  outline-offset: -2px;
+}
+
+/* ============================================
+   REDUCED MOTION
+   ============================================ */
+@media (prefers-reduced-motion: reduce) {
+
+  .bottomNav,
+  .navItem,
+  .menuButton,
+  .drawerOverlay,
+  .drawer,
+  .drawerItem {
+    transition: none !important;
+    animation: none !important;
+  }
 }

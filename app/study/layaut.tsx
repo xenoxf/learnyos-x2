@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { AppSidebar } from "@/components/AppSidebar";
 import { MobileNavbar } from "@/components/MobileNavbar";
+import { DashboardHeader } from "@/components/DashboardHeader";
 import { useRouter } from "next/navigation";
 import { apiService } from "@/services/apiService";
 import styles from "@/styles/layout.module.css";

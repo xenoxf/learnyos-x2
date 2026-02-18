@@ -4,6 +4,8 @@ import React, { useState, useEffect } from "react";
 import { X } from "lucide-react";
 import styles from "../styles/Settings.module.css";
 import type { SettingsFormData } from "@/types";
+import { ThemeToggle } from "./ThemeToggle";
+import { ThemeSelector } from "./ThemeSelector";
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -77,23 +79,8 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
             </label>
           </div>
 
-          <div className={styles.settingGroup}>
-            <label className={styles.settingLabel}>Tema</label>
-            <select
-              value={settings.theme}
-              onChange={(e) =>
-                handleChange(
-                  "theme",
-                  e.target.value as "light" | "dark" | "auto",
-                )
-              }
-              className={styles.select}
-            >
-              <option value="light">Claro</option>
-              <option value="dark">Oscuro</option>
-              <option value="auto">Automático</option>
-            </select>
-          </div>
+          <ThemeToggle />
+
 
           <div className={styles.settingGroup}>
             <label className={styles.settingLabel}>Idioma</label>
