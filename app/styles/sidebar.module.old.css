@@ -1,7 +1,3 @@
-/* ============================================
-   SIDEBAR COMPONENT STYLES - MODERNA Y RESPONSIVA
-   ============================================ */
-
 .sidebar {
     display: flex;
     flex-direction: column;
@@ -10,10 +6,11 @@
     background-color: hsl(var(--sidebar-background));
     color: hsl(var(--sidebar-foreground));
     border-right: 1px solid hsl(var(--sidebar-border));
+
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Desktop Styles */
+/* Desktop Styles*/
 .sidebarExpanded {
     width: 220px;
 }
@@ -22,7 +19,7 @@
     width: 80px;
 }
 
-/* Header */
+/* Header*/
 .header {
     display: flex;
     align-items: center;
@@ -36,8 +33,7 @@
     min-height: 80px;
     background-color: hsl(var(--sidebar-background));
 }
-
-/* actions */
+/* actions*/
 .header:hover {
     background-color: hsl(var(--sidebar-accent) / 0.5);
 }
@@ -108,7 +104,7 @@
     transform: scale(0.95);
 }
 
-/* Navigation */
+/* Navigation*/
 .nav {
     flex: 1;
     padding: 0.75rem;
@@ -163,7 +159,7 @@
     overflow: hidden;
 }
 
-/* Navigation Items */
+/* Navigation Items*/
 .navItem {
     display: flex;
     align-items: center;
@@ -235,7 +231,7 @@
     width: 0;
 }
 
-/* Footer */
+/* Footer*/
 .footer {
     border-top: 1px solid hsl(var(--sidebar-border));
     padding: 0.9375rem;
@@ -314,13 +310,12 @@
     white-space: nowrap;
 }
 
-/* Action Buttons */
+/* Action Buttons*/
 .actions {
     display: flex;
     gap: 0.5rem;
     flex-wrap: nowrap;
 }
-
 .actionsCollapsed {
     display: flex;
     justify-content: center;
@@ -328,7 +323,6 @@
     flex-direction: row;
     gap: 3px;
 }
-
 .actionButton {
     flex: 1;
     padding: 0.5rem;
@@ -389,15 +383,22 @@
 
 /* ============================================
    RESPONSIVE DESIGN - MOBILE FIRST
-   ============================================ */
+   ============================================*/
 
-/* Pantallas pequeñas (móviles) */
+/* Pantallas pequeñas (móviles)*/
 @media screen and (max-width: 768px) {
     .sidebar {
-        width: 240px;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        width: 280px !important;
+        /* Ancho fijo en móvil*/
         height: 100vh;
+        transform: translateX(-100%);
         transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: 1000;
         box-shadow: 0 0 40px rgba(0, 0, 0, 0.2);
+        border-right: none;
     }
 
     .sidebarExpanded {
@@ -408,13 +409,27 @@
         transform: translateX(-100%);
     }
 
+    /* Header en móvil*/
+    .header {
+        padding: 1rem;
+        min-height: 70px;
+        position: relative;
+    }
+
     .logo {
         width: 36px;
         height: 36px;
         font-size: 1rem;
     }
 
-    /* Navigation en móvil */
+    .closeButton {
+        position: absolute;
+        right: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+    }
+
+    /* Navigation en móvil*/
     .nav {
         padding: 0.5rem;
     }
@@ -439,7 +454,7 @@
         height: 22px;
     }
 
-    /* Footer en móvil */
+    /* Footer en móvil*/
     .footer {
         padding: 0.75rem;
         gap: 0.75rem;
@@ -469,15 +484,34 @@
     }
 }
 
-/* Tablet (768px - 1023px) */
+/* Tablet (768px - 1023px)*/
 @media screen and (min-width: 769px) and (max-width: 1023px) {
     .sidebarExpanded {
-        width: 200px;
+        width: 260px;
+    }
+
+    .header {
+        padding: 1.125rem;
+    }
+
+    .navItemExpanded {
+        padding: 0.75rem 0.875rem;
+        font-size: 0.875rem;
+    }
+
+    .navItemCollapsed {
+        padding: 0.875rem;
     }
 }
 
-/* Desktop (1024px en adelante) */
+/* Desktop (1024px en adelante)*/
 @media screen and (min-width: 1024px) {
+    .sidebar {
+        position: relative;
+        transform: translateX(0) !important;
+        box-shadow: none;
+    }
+
     .sidebarExpanded {
         width: 240px;
     }
@@ -491,10 +525,15 @@
     }
 }
 
-/* Desktop grande (1440px+) */
+/* Desktop grande (1440px+)*/
 @media screen and (min-width: 1440px) {
     .sidebarExpanded {
         width: 260px;
+    }
+
+    .navItemExpanded {
+        padding: 0.75rem 1rem;
+        font-size: 0.9375rem;
     }
 
     .userAvatar {
@@ -502,16 +541,13 @@
         height: 40px;
         font-size: 1rem;
     }
-    .actionButtonExpanded {
-        margin-right: 20px;
-    }
 }
 
 /* ============================================
    MODAL OVERLAY PARA MÓVIL
-   ============================================ */
+   ============================================
 
-/* Este overlay se usa cuando el sidebar está abierto en móvil */
+/* Este overlay se usa cuando el sidebar está abierto en móvil
 .sidebarOverlay {
     display: none;
 }
@@ -535,6 +571,7 @@
         from {
             opacity: 0;
         }
+
         to {
             opacity: 1;
         }
@@ -543,7 +580,7 @@
 
 /* ============================================
    BOTÓN FLOTANTE PARA ABRIR SIDEBAR EN MÓVIL
-   ============================================ */
+   ============================================
 
 .mobileToggleButton {
     display: none;
@@ -586,7 +623,7 @@
 
 /* ============================================
    ACCESSIBILITY
-   ============================================ */
+   ============================================
 
 @media (prefers-reduced-motion: reduce) {
     .sidebar,
@@ -600,7 +637,7 @@
     }
 }
 
-/* Focus visible para accesibilidad */
+/* Focus visible para accesibilidad
 .navItem:focus-visible,
 .actionButton:focus-visible,
 .closeButton:focus-visible,
@@ -609,7 +646,7 @@
     outline-offset: 2px;
 }
 
-/* High contrast mode */
+/* High contrast mode*/
 @media (prefers-contrast: high) {
     .sidebar {
         border-right: 2px solid hsl(var(--sidebar-border));

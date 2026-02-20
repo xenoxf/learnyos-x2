@@ -81,13 +81,24 @@
     background: hsl(var(--primary) / 0.2) !important;
 }
 
-/* Hidden items: invisible + non-interactive but still in the DOM for measurement */
-.navItemHidden {
-    visibility: hidden;
+/* ─── Ghost measurement container ───────────────────────────────────────────
+   Always off-screen, never visible, never interactive.
+   ALL items live here at full natural size so getBoundingClientRect()
+   always returns accurate widths regardless of visibleCount.
+   Observing the .container (parent of the real nav) gives correct resize
+   signals in both directions — shrink AND grow.
+*/
+.ghost {
+    position: fixed;
+    top: -9999px;
+    left: -9999px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 8px;
     pointer-events: none;
-    /* Collapse them so they don't push layout — but keep for measurement first tick */
-    position: absolute;
-    opacity: 0;
+    visibility: hidden;
+    white-space: nowrap;
 }
 
 /* ─── Icon wrapper ───────────────────────────────────────────────────────────── */
