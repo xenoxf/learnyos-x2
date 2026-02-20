@@ -10,11 +10,8 @@ export interface User {
   email: string;
   name: string;
   picture?: string;
-  avatar?: string;
-  provider?: 'local' | 'google';
+  provider?: "local" | "google";
   googleId?: string;
-  createdAt?: string;
-  updatedAt?: string;
 }
 
 export interface AuthResponse {
@@ -56,7 +53,7 @@ export interface Exam {
   id: number;
   title: string;
   description?: string;
-  difficulty?: 'easy' | 'medium' | 'hard';
+  difficulty?: "easy" | "medium" | "hard";
   totalQuestions: number;
   questions?: ExamQuestion[];
   score?: number;
@@ -71,7 +68,7 @@ export interface FlashCard {
   id: number;
   question: string;
   answer: string;
-  difficulty?: 'easy' | 'medium' | 'hard';
+  difficulty?: "easy" | "medium" | "hard";
   hint?: string;
   tags?: string[];
   reviewDate?: string;
@@ -109,7 +106,7 @@ export interface Note {
   content?: string;
   color?: string;
   tags?: string[];
-  levelOfDetail?: 'breve' | 'medio' | 'alto';
+  levelOfDetail?: "breve" | "medio" | "alto";
   userId?: number;
   createdAt?: string;
   updatedAt?: string;
@@ -148,7 +145,7 @@ export interface GenerateExamInput {
   topic?: string;
   reference?: string;
   referenceText?: string;
-  difficulty?: 'easy' | 'medium' | 'hard';
+  difficulty?: "easy" | "medium" | "hard";
   numberOfQuestions?: number;
   quantity?: number;
 }
@@ -159,7 +156,7 @@ export interface GenerateFlashcardsInput {
   reference?: string;
   numberOfCards?: number;
   quantity?: number;
-  level?: 'easy' | 'medium' | 'hard';
+  level?: "easy" | "medium" | "hard";
 }
 
 export interface GenerateNoteInput {
@@ -167,13 +164,13 @@ export interface GenerateNoteInput {
   referenceText?: string;
   reference?: string;
   quantity?: number;
-  level?: 'breve' | 'medio' | 'alto';
+  level?: "breve" | "medio" | "alto";
 }
 
 // ==================== COMMON TYPES ====================
 
-export type Difficulty = 'easy' | 'medium' | 'hard';
-export type NoteLevel = 'breve' | 'medio' | 'alto';
+export type Difficulty = "easy" | "medium" | "hard";
+export type NoteLevel = "breve" | "medio" | "alto";
 
 export interface ApiResponse<T> {
   data?: T;
@@ -193,7 +190,7 @@ export interface PaginatedResponse<T> {
 
 export interface SettingsFormData {
   notifications: boolean;
-  theme: 'light' | 'dark' | 'auto';
+  theme: "light" | "dark" | "auto";
   language: string;
   dailyGoal: number;
   emailUpdates: boolean;

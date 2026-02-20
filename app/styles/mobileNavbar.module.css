@@ -1,220 +1,297 @@
+/* mobileNavbar.module.css */
+
+/* ─── Container ─────────────────────────────────────────────────────────────── */
 .container {
-  width: 100%;
-  position: fixed;
-  bottom: 0;
-  pointer-events: none;
-  display: flex;
-  justify-content: center;
-  background: transparent;
+    width: 100%;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: center;
+    pointer-events: none;
+    z-index: 50;
+    padding: 0 16px 12px;
 }
 
+/* ─── Nav bar pill ───────────────────────────────────────────────────────────── */
 .bottomNav {
-  background: hsl(var(--card) / 0.95);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 1px solid hsl(var(--border));
-  border-radius: 30px;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-around;
-  gap: 0.25rem;
-  padding: 0.5rem 0.75rem;
-  margin: 0.5rem 1rem;
-  width: auto;
-  max-width: 100%;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
-  pointer-events: auto;
+    background: hsl(var(--card) / 0.95);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid hsl(var(--border) / 0.8);
+    border-radius: 28px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 8px;
+    /* Let the nav grow up to fill available space (minus container padding) */
+    width: fit-content;
+    max-width: calc(100vw - 32px); /* 16px padding * 2 */
+    box-shadow:
+        0 4px 24px rgba(0, 0, 0, 0.12),
+        0 1px 4px rgba(0, 0, 0, 0.06),
+        inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    pointer-events: auto;
+    position: relative;
+    /* Prevent the nav from shrinking items — let JS hide them instead */
+    overflow: visible;
+    flex-shrink: 0;
 }
 
-.navItem,
-.moreButton {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 0.4rem 0.6rem;
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  position: relative;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  border-radius: 12px;
-  white-space: nowrap;
-  flex-shrink: 0;
-  min-width: 60px;
-  gap: 0.2rem;
-  color: hsl(var(--muted-foreground));
-  font-weight: 500;
-  -webkit-tap-highlight-color: transparent;
+/* ─── Nav item (visible & hidden states) ────────────────────────────────────── */
+.navItem {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 7px 11px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    border-radius: 20px;
+    /* Let each item take as little space as it needs */
+    flex-shrink: 0;
+    white-space: nowrap;
+    color: hsl(var(--muted-foreground));
+    text-decoration: none;
+    transition:
+        background 0.18s ease,
+        color 0.18s ease,
+        transform 0.15s ease;
+    position: relative;
+    outline-offset: 2px;
 }
 
-.navItem:hover,
-.moreButton:hover {
-  background: hsl(var(--background) / 0.2);
+.navItem:hover:not(.navItemHidden) {
+    background: hsl(var(--accent) / 0.12);
+    color: hsl(var(--foreground));
 }
 
-.navItem:active,
-.moreButton:active {
-  transform: scale(0.96);
-}
-
-.navIconWrapper {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 24px;
-  height: 24px;
-  color: currentColor;
+.navItem:active:not(.navItemHidden) {
+    transform: scale(0.94);
 }
 
 .navItemActive {
-  background: hsl(var(--primary) / 0.15);
-  color: hsl(var(--primary));
+    background: hsl(var(--primary) / 0.14);
+    color: hsl(var(--primary));
 }
 
-.navItemActive .navIconWrapper {
-  color: hsl(var(--primary));
+.navItemActive:hover {
+    background: hsl(var(--primary) / 0.2) !important;
 }
 
+/* Hidden items: invisible + non-interactive but still in the DOM for measurement */
+.navItemHidden {
+    visibility: hidden;
+    pointer-events: none;
+    /* Collapse them so they don't push layout — but keep for measurement first tick */
+    position: absolute;
+    opacity: 0;
+}
+
+/* ─── Icon wrapper ───────────────────────────────────────────────────────────── */
+.navIconWrapper {
+    position: relative;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* ─── Label ──────────────────────────────────────────────────────────────────── */
 .navLabel {
-  font-size: 0.6rem;
-  font-weight: 600;
-  color: currentColor;
-  text-align: center;
-  line-height: 1.2;
-  letter-spacing: 0.3px;
+    font-size: 0.625rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    margin-top: 3px;
+    line-height: 1;
 }
 
-.navItemActive .navLabel {
-  color: hsl(var(--primary));
-  font-weight: 700;
+/* ─── Badge ──────────────────────────────────────────────────────────────────── */
+.badge {
+    position: absolute;
+    top: -5px;
+    right: -7px;
+    min-width: 17px;
+    height: 17px;
+    background: hsl(var(--destructive));
+    color: hsl(var(--destructive-foreground, 0 0% 100%));
+    border-radius: 10px;
+    font-size: 0.55rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid hsl(var(--card));
+    padding: 0 3px;
+    line-height: 1;
+}
+
+/* ─── "Más" button ───────────────────────────────────────────────────────────── */
+.moreButton {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 7px 11px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    border-radius: 20px;
+    flex-shrink: 0;
+    white-space: nowrap;
+    color: hsl(var(--muted-foreground));
+    transition:
+        background 0.18s ease,
+        color 0.18s ease,
+        transform 0.15s ease;
+    position: relative;
+    /* Always at the end */
+    margin-left: auto;
+}
+
+.moreButton:hover {
+    background: hsl(var(--accent) / 0.12);
+    color: hsl(var(--foreground));
+}
+
+.moreButton:active {
+    transform: scale(0.94);
 }
 
 .moreButtonActive {
-  background: hsl(var(--muted));
-  color: hsl(var(--foreground));
+    background: hsl(var(--accent) / 0.18);
+    color: hsl(var(--foreground));
 }
 
-.badge {
-  position: absolute;
-  top: -6px;
-  right: -6px;
-  min-width: 18px;
-  height: 18px;
-  padding: 0 4px;
-  background: hsl(var(--destructive));
-  color: hsl(var(--destructive-foreground));
-  border-radius: 12px;
-  font-size: 0.55rem;
-  font-weight: bold;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-  border: 2px solid hsl(var(--card));
+/* Active indicator dot on "Más" button */
+.moreActiveDot {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    width: 7px;
+    height: 7px;
+    background: hsl(var(--primary));
+    border-radius: 50%;
+    border: 2px solid hsl(var(--card));
+    animation: popIn 0.2s ease;
 }
 
+/* ─── Floating "Más" menu ────────────────────────────────────────────────────── */
 .moreMenu {
-  position: absolute;
-  bottom: calc(100% + 8px);
-  background: hsl(var(--card) / 0.98);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 1px solid hsl(var(--border));
-  border-radius: 24px;
-  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.2);
-  padding: 0.75rem;
-  min-width: 200px;
-  max-width: calc(100vw - 32px);
-  z-index: 60;
-  animation: slideUp 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  pointer-events: auto;
-  transform-origin: bottom center;
+    position: absolute;
+    bottom: calc(100% + 10px);
+    right: 0;
+    background: hsl(var(--card) / 0.98);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid hsl(var(--border) / 0.9);
+    border-radius: 20px;
+    padding: 6px;
+    min-width: 200px;
+    box-shadow:
+        0 -8px 32px rgba(0, 0, 0, 0.16),
+        0 -2px 8px rgba(0, 0, 0, 0.08),
+        inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    animation: slideUp 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    transform-origin: bottom right;
+    z-index: 60;
 }
 
 .moreMenuSection {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
 }
 
 .moreMenuItem {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  width: 100%;
-  padding: 0.9rem 1rem;
-  background: transparent;
-  border: none;
-  border-radius: 16px;
-  color: hsl(var(--foreground));
-  font-size: 0.95rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.15s ease;
-  text-align: left;
-  -webkit-tap-highlight-color: transparent;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 11px 14px;
+    border: none;
+    background: transparent;
+    border-radius: 14px;
+    color: hsl(var(--foreground));
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    width: 100%;
+    text-align: left;
+    text-decoration: none;
+    transition:
+        background 0.15s ease,
+        color 0.15s ease;
+    white-space: nowrap;
 }
 
 .moreMenuItem:hover {
-  background: hsl(var(--muted) / 0.7);
+    background: hsl(var(--accent) / 0.1);
 }
 
-.moreMenuItem:active {
-  background: hsl(var(--muted));
-  transform: scale(0.98);
+.moreMenuItemActive {
+    background: hsl(var(--primary) / 0.1);
+    color: hsl(var(--primary));
+    font-weight: 600;
 }
 
-.moreMenuItem svg {
-  color: hsl(var(--primary));
-  flex-shrink: 0;
-  width: 20px;
-  height: 20px;
+.menuBadge {
+    margin-left: auto;
+    background: hsl(var(--destructive) / 0.1);
+    color: hsl(var(--destructive));
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    line-height: 1.5;
 }
 
 .moreMenuDivider {
-  height: 1px;
-  background: hsl(var(--border));
-  margin: 0.5rem 0;
+    height: 1px;
+    background: hsl(var(--border) / 0.7);
+    margin: 4px 8px;
 }
 
+/* ─── Animations ─────────────────────────────────────────────────────────────── */
 @keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(10px) scale(0.95);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
+    from {
+        opacity: 0;
+        transform: translateY(8px) scale(0.97);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
 }
 
-@media screen and (min-width: 769px) {
-
-  .container,
-  .bottomNav,
-  .moreMenu {
-    display: none !important;
-  }
+@keyframes popIn {
+    from {
+        transform: scale(0);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
 }
 
-.navItem:focus-visible,
-.moreButton:focus-visible,
-.moreMenuItem:focus-visible {
-  outline: 2px solid hsl(var(--primary));
-  outline-offset: 2px;
+/* ─── Responsive tweaks ──────────────────────────────────────────────────────── */
+@media (min-width: 480px) {
+    .navItem,
+    .moreButton {
+        padding: 8px 13px;
+    }
+
+    .navLabel {
+        font-size: 0.65rem;
+    }
 }
 
-@media (prefers-reduced-motion: reduce) {
-
-  .navItem,
-  .moreButton,
-  .moreMenu,
-  .moreMenuItem {
-    transition: none !important;
-    animation: none !important;
-  }
+/* Hide on desktop (tablet+) — adjust breakpoint as needed */
+@media (min-width: 1024px) {
+    .container {
+        display: none;
+    }
 }

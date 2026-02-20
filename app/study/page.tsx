@@ -2,7 +2,7 @@
 
 import React, { useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { MemoryGame } from "@/components/MemoryGame";
+import { StrategicMemoryGame } from "@/components/MemoryGame";
 import { PomodoroTimer } from "@/components/PomodoroTimer";
 import { CoreLearningStatus } from "@/components/CoreLearningStatus";
 import {
@@ -20,9 +20,9 @@ import {
 } from "lucide-react";
 import styles from "@/styles/dashboard.module.css";
 import DashboardLayout from "@/study/layaut";
-import type { Metadata } from 'next';
+import type { Metadata } from "next";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 const Dashboard: React.FC = () => {
   const router = useRouter();
@@ -32,7 +32,7 @@ const Dashboard: React.FC = () => {
       {
         title: "Junior IA",
         icon: Sparkles,
-        path: "/chat",
+        path: "/study/chat",
         iconClass: styles["toolIconJuniorIA"],
         description: "Asistente de IA avanzado para aprendizaje",
         gradient: "gradient-primary",
@@ -42,7 +42,7 @@ const Dashboard: React.FC = () => {
       {
         title: "Exámenes",
         icon: Target,
-        path: "/quiz",
+        path: "/study/quiz",
         iconClass: styles["toolIconExams"],
         description: "Evaluaciones personalizadas y simulaciones",
         gradient: "gradient-exams",
@@ -58,7 +58,7 @@ const Dashboard: React.FC = () => {
       {
         title: "Flashcards",
         icon: Layers,
-        path: "/flashcards",
+        path: "/study/flashcards",
         iconClass: styles["toolIconFlashcards"],
         description: "Memorización activa con spaced repetition",
         gradient: "gradient-flashcards",
@@ -68,7 +68,7 @@ const Dashboard: React.FC = () => {
       {
         title: "Notas IA",
         icon: Brain,
-        path: "/notes",
+        path: "/study/notes",
         iconClass: styles["toolIconNotes"],
         description: "Apuntes inteligentes con síntesis automática",
         gradient: "gradient-notes",
@@ -78,7 +78,7 @@ const Dashboard: React.FC = () => {
       {
         title: "Traductor IA",
         icon: Globe,
-        path: "/translator",
+        path: "/study/translator",
         iconClass: styles["toolIconTranslator"],
         description: "Traducción contextual con comprensión semántica",
         gradient: "gradient-translator",
@@ -252,7 +252,7 @@ const Dashboard: React.FC = () => {
                 <PomodoroTimer />
               </div>
               <div className={styles.gameCard}>
-                <MemoryGame />
+                <StrategicMemoryGame />
               </div>
             </div>
           </section>
