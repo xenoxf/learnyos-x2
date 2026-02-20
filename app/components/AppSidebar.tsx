@@ -13,7 +13,6 @@ import {
 } from "lucide-react";
 import { apiService } from "@/services/apiService";
 import { useToast } from "@/hooks/use-toast";
-import { SettingsModal } from "@/components/SettingsModal";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import styles from "../styles/sidebar.module.css";
@@ -48,7 +47,6 @@ export function AppSidebar({
   const navigate = useRouter();
   const pathname = usePathname();
   const { toast } = useToast();
-  const [showSettings, setShowSettings] = useState(false);
   const [sidebarClosed, setSidebarClosed] = useState(collapsed);
   const [user, setUser] = useState<User | null>(null);
 
@@ -185,21 +183,6 @@ export function AppSidebar({
           className={`${sidebarClosed ? styles.actions : styles.actionsCollapsed}`}
         >
           <button
-            onClick={() => setShowSettings(true)}
-            className={`
-              ${styles.actionButton}
-              ${styles.settingsButton}
-              ${sidebarClosed ? styles.actionButtonCollapsed : styles.actionButtonExpanded}
-            `}
-            title="Configuración"
-            aria-label="Abrir configuración"
-            type="button"
-          >
-            <Settings size={14} aria-hidden="true" />
-            {!sidebarClosed && <span>Config</span>}
-          </button>
-
-          <button
             onClick={handleLogout}
             className={`
               ${styles.actionButton}
@@ -214,12 +197,6 @@ export function AppSidebar({
           </button>
         </div>
       </div>
-
-      {/* Modal de Configuración */}
-      <SettingsModal
-        isOpen={showSettings}
-        onClose={() => setShowSettings(false)}
-      />
     </aside>
   );
 }
