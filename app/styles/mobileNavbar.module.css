@@ -1,69 +1,62 @@
-/* ============================================
-   BOTTOM NAVIGATION - BOTONES EN FILA
-   ============================================ */
-/*
 .container {
-    position: fixed;
-    display: flex;
-    width: 100%;
-    bottom: 0;
-    justify-content: center;
-    padding: 0 1rem 1.5rem 1rem; /* Cambiado: aumentado el padding inferior de 1rem a 1.5rem 
-    background: transparent;
-    /* Añadir un margen inferior seguro para dispositivos con notch 
-    padding-bottom: env(safe-area-inset-bottom, 1.5rem);
-    z-index: 50;
-    pointer-events: none; /* Permite que los clicks pasen a través del contenedor 
-}*/
+  width: 100%;
+  position: fixed;
+  bottom: 0;
+  pointer-events: none;
+  display: flex;
+  justify-content: center;
+  background: transparent;
+}
 
 .bottomNav {
-  background: hsl(var(--card));
+  background: hsl(var(--card) / 0.95);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   border: 1px solid hsl(var(--border));
-  border-radius: 12px;
+  border-radius: 30px;
   display: flex;
   flex-direction: row;
   align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  padding: 0.75rem;
+  justify-content: space-around;
+  gap: 0.25rem;
+  padding: 0.5rem 0.75rem;
+  margin: 0.5rem 1rem;
   width: auto;
-  overflow-x: auto;
-  overflow-y: hidden;
-  -webkit-overflow-scrolling: touch;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  max-width: 100%;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
   pointer-events: auto;
-  /* Restaura los clicks para el navbar */
 }
 
-/* ============================================
-      NAV ITEMS - ICON + LABEL EN COLUMNA
-      ============================================ */
-.navItem {
+.navItem,
+.moreButton {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 0.5rem 0.75rem;
+  padding: 0.4rem 0.6rem;
   border: none;
   background: transparent;
   cursor: pointer;
   position: relative;
-  transition: all 0.2s ease;
-  border-radius: 8px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 12px;
   white-space: nowrap;
   flex-shrink: 0;
-  min-width: fit-content;
-  /*-webkit-tap-highlight-color: transparent;*/
-  gap: 0.25rem;
+  min-width: 60px;
+  gap: 0.2rem;
+  color: hsl(var(--muted-foreground));
+  font-weight: 500;
+  -webkit-tap-highlight-color: transparent;
 }
 
-.navItem:hover {
+.navItem:hover,
+.moreButton:hover {
   background: hsl(var(--background) / 0.2);
 }
 
-.navItem:active {
-  opacity: 0.7;
-  transform: scale(0.95);
+.navItem:active,
+.moreButton:active {
+  transform: scale(0.96);
 }
 
 .navIconWrapper {
@@ -73,13 +66,12 @@
   justify-content: center;
   width: 24px;
   height: 24px;
-  color: hsl(var(--muted-foreground));
-  transition: all 0.2s ease;
+  color: currentColor;
 }
 
-/* Active state */
 .navItemActive {
-  background: hsl(var(--primary) / 0.1);
+  background: hsl(var(--primary) / 0.15);
+  color: hsl(var(--primary));
 }
 
 .navItemActive .navIconWrapper {
@@ -87,233 +79,141 @@
 }
 
 .navLabel {
-  font-size: 0.65rem;
-  font-weight: 500;
-  color: hsl(var(--muted-foreground));
+  font-size: 0.6rem;
+  font-weight: 600;
+  color: currentColor;
   text-align: center;
-  line-height: 1;
-  transition: color 0.2s ease;
+  line-height: 1.2;
+  letter-spacing: 0.3px;
 }
 
 .navItemActive .navLabel {
   color: hsl(var(--primary));
-  font-weight: 600;
+  font-weight: 700;
 }
 
-/* Badge */
+.moreButtonActive {
+  background: hsl(var(--muted));
+  color: hsl(var(--foreground));
+}
+
 .badge {
   position: absolute;
   top: -6px;
   right: -6px;
-  min-width: 16px;
-  height: 16px;
+  min-width: 18px;
+  height: 18px;
   padding: 0 4px;
   background: hsl(var(--destructive));
   color: hsl(var(--destructive-foreground));
-  border-radius: 8px;
-  font-size: 0.6rem;
+  border-radius: 12px;
+  font-size: 0.55rem;
   font-weight: bold;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  border: 2px solid hsl(var(--card));
 }
 
-/* ============================================
-   MENU BUTTON
-   ============================================ */
-.menuButton {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 0.5rem 0.75rem;
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  border-radius: 8px;
-  white-space: nowrap;
-  flex-shrink: 0;
-  min-width: fit-content;
-  -webkit-tap-highlight-color: transparent;
-  gap: 0.25rem;
-  color: hsl(var(--muted-foreground));
-}
-
-.menuButton:active {
-  opacity: 0.7;
-  transform: scale(0.95);
-}
-
-/* ============================================
-   DRAWER OVERLAY Y MENU
-   ============================================ */
-.drawerOverlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
+.moreMenu {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  background: hsl(var(--card) / 0.98);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid hsl(var(--border));
+  border-radius: 24px;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.2);
+  padding: 0.75rem;
+  min-width: 200px;
+  max-width: calc(100vw - 32px);
   z-index: 60;
-  animation: fadeIn 0.2s ease-out forwards;
+  animation: slideUp 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: auto;
+  transform-origin: bottom center;
 }
 
-.drawer {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 280px;
-  max-width: 80vw;
-  height: 100%;
-  background: hsl(var(--card));
-  border-right: 1px solid hsl(var(--border));
+.moreMenuSection {
   display: flex;
   flex-direction: column;
-  animation: slideInLeft 0.3s ease-out;
-  z-index: 70;
-  box-shadow: 4px 0 12px rgba(0, 0, 0, 0.15);
+  gap: 0.25rem;
 }
 
-.drawerHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1.25rem;
-  border-bottom: 1px solid hsl(var(--border));
-}
-
-.drawerTitle {
-  margin: 0;
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: hsl(var(--foreground));
-}
-
-.closeButton {
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  padding: 0.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 8px;
-  color: hsl(var(--muted-foreground));
-  transition: all 0.2s ease;
-}
-
-.closeButton:hover {
-  background: hsl(var(--muted));
-  color: hsl(var(--foreground));
-}
-
-.closeButton:active {
-  transform: scale(0.95);
-}
-
-.drawerContent {
-  flex: 1;
-  padding: 1rem;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.drawerItem {
+.moreMenuItem {
   display: flex;
   align-items: center;
   gap: 1rem;
-  padding: 0.875rem 1rem;
+  width: 100%;
+  padding: 0.9rem 1rem;
   background: transparent;
   border: none;
-  cursor: pointer;
-  border-radius: 8px;
+  border-radius: 16px;
   color: hsl(var(--foreground));
-  transition: all 0.2s ease;
-  width: 100%;
-  text-align: left;
   font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-align: left;
+  -webkit-tap-highlight-color: transparent;
 }
 
-.drawerItem:hover {
+.moreMenuItem:hover {
+  background: hsl(var(--muted) / 0.7);
+}
+
+.moreMenuItem:active {
   background: hsl(var(--muted));
-}
-
-.drawerItem:active {
   transform: scale(0.98);
 }
 
-.drawerItem svg {
-  flex-shrink: 0;
+.moreMenuItem svg {
   color: hsl(var(--primary));
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
 }
 
-/* ============================================
-   ANIMATIONS
-   ============================================ */
-@keyframes fadeIn {
+.moreMenuDivider {
+  height: 1px;
+  background: hsl(var(--border));
+  margin: 0.5rem 0;
+}
+
+@keyframes slideUp {
   from {
     opacity: 0;
+    transform: translateY(10px) scale(0.95);
   }
 
   to {
     opacity: 1;
+    transform: translateY(0) scale(1);
   }
 }
 
-@keyframes slideInLeft {
-  from {
-    transform: translateX(-100%);
-  }
-
-  to {
-    transform: translateX(0);
-  }
-}
-
-/* ============================================
-   RESPONSIVE - SOLO MÓVIL
-   ============================================ */
 @media screen and (min-width: 769px) {
 
+  .container,
   .bottomNav,
-  .drawerOverlay,
-  .drawer {
+  .moreMenu {
     display: none !important;
   }
 }
 
-/* ============================================
-   ACCESSIBILITY
-   ============================================ */
 .navItem:focus-visible,
-.menuButton:focus-visible {
+.moreButton:focus-visible,
+.moreMenuItem:focus-visible {
   outline: 2px solid hsl(var(--primary));
   outline-offset: 2px;
 }
 
-.drawerItem:focus-visible {
-  outline: 2px solid hsl(var(--primary));
-  outline-offset: -2px;
-}
-
-/* ============================================
-   REDUCED MOTION
-   ============================================ */
 @media (prefers-reduced-motion: reduce) {
 
-  .bottomNav,
   .navItem,
-  .menuButton,
-  .drawerOverlay,
-  .drawer,
-  .drawerItem {
+  .moreButton,
+  .moreMenu,
+  .moreMenuItem {
     transition: none !important;
     animation: none !important;
   }

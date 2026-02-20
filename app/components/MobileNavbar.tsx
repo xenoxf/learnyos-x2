@@ -1,4 +1,5 @@
 "use client";
+
 import React, { useState, useCallback, useEffect, useRef } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import {
@@ -11,14 +12,13 @@ import {
   User,
   Settings,
   LogOut,
-  Menu,
-  X,
+  MoreHorizontal,
 } from "lucide-react";
 import { apiService } from "@/services/apiService";
 import { useToast } from "@/hooks/use-toast";
-import { SettingsModal } from "@/components/SettingsModal";
 import styles from "@/styles/mobileNavbar.module.css";
 import { useAuth } from "@/hooks/useAuthMutation";
+import Link from "next/link";
 
 interface MenuItem {
   title: string;
@@ -27,12 +27,16 @@ interface MenuItem {
   badge?: number;
 }
 
-// Todos estos ítems se muestran en la barra inferior
-const navItems: MenuItem[] = [
+// Elementos que siempre se muestran en la barra inferior
+const primaryNavItems: MenuItem[] = [
   { title: "Inicio", url: "/study", icon: LayoutDashboard },
   { title: "Chat", url: "/study/chat", icon: MessageSquare, badge: 3 },
   { title: "Quiz", url: "/study/quiz", icon: Brain },
   { title: "Notas", url: "/study/notes", icon: NotebookPen },
+];
+
+// Elementos secundarios que van en el menú "Más" (navegación)
+const secondaryNavItems: MenuItem[] = [
   { title: "Flashcards", url: "/study/flashcards", icon: CreditCard },
   { title: "Traductor", url: "/study/translator", icon: Languages },
 ];
@@ -41,41 +45,58 @@ export function MobileNavbar() {
   const router = useRouter();
   const pathname = usePathname();
   const { toast } = useToast();
-  const user = useAuth();
+  const user = useAuth(); // Aunque no se use directamente, se mantiene por si acaso
 
-  const [showMenu, setShowMenu] = useState(false);
-  const [showSettings, setShowSettings] = useState(false);
-  const [isNavigating, setIsNavigating] = useState(false);
+  const [showMoreMenu, setShowMoreMenu] = useState(false);
+  const [menuPosition, setMenuPosition] = useState({ left: 0 });
 
-  const drawerRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const moreButtonRef = useRef<HTMLButtonElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
 
-  // Cerrar drawer al hacer clic fuera
+  // Cerrar menú al hacer clic fuera
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
-        drawerRef.current &&
-        !drawerRef.current.contains(event.target as Node)
+        menuRef.current &&
+        !menuRef.current.contains(event.target as Node) &&
+        moreButtonRef.current &&
+        !moreButtonRef.current.contains(event.target as Node)
       ) {
-        setShowMenu(false);
+        setShowMoreMenu(false);
       }
     };
-    if (showMenu) {
+    if (showMoreMenu) {
       document.addEventListener("mousedown", handleClickOutside);
     }
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [showMenu]);
+  }, [showMoreMenu]);
 
-  const handleNavigation = useCallback(
-    (url: string) => {
-      if (pathname === url) return;
-      setIsNavigating(true);
-      setShowMenu(false);
-      router.push(url);
-      // Resetear el flag después de la navegación (podrías escuchar el evento de carga)
-      setTimeout(() => setIsNavigating(false), 300);
-    },
-    [pathname, router],
-  );
+  // Posicionar el menú centrado respecto al botón "Más"
+  useEffect(() => {
+    if (showMoreMenu && moreButtonRef.current && containerRef.current) {
+      const buttonRect = moreButtonRef.current.getBoundingClientRect();
+      const containerRect = containerRef.current.getBoundingClientRect();
+      const menuWidth = 200; // Ancho aproximado del menú
+      let left =
+        buttonRect.left -
+        containerRect.left +
+        buttonRect.width / 2 -
+        menuWidth / 2;
+      // Evitar que se salga por la izquierda/derecha
+      left = Math.max(8, Math.min(left, containerRect.width - menuWidth - 8));
+      setMenuPosition({ left });
+    }
+  }, [showMoreMenu]);
+  /*
+    const handleNavigation = useCallback(
+      (url: string) => {
+        if (pathname === url) return;
+        setShowMoreMenu(false);
+        router.push(url);
+      },
+      [pathname, router],
+    );*/
 
   const handleLogout = useCallback(async () => {
     try {
@@ -84,7 +105,7 @@ export function MobileNavbar() {
         title: "Sesión cerrada",
         description: "Has cerrado sesión correctamente.",
       });
-      router.push("/login");
+      router.push("/auth");
     } catch {
       toast({
         title: "Error",
@@ -94,97 +115,78 @@ export function MobileNavbar() {
     }
   }, [router, toast]);
 
-  return (
-    <>
-      <div className={styles.container} >      {/* Barra de navegación inferior */}
-        <nav className={styles.bottomNav}>
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = pathname === item.url;
-            return (
-              <button
-                key={item.url}
-                className={`${styles.navItem} ${isActive ? styles.navItemActive : ""}`}
-                onClick={() => handleNavigation(item.url)}
-                aria-label={item.title}
-              >
-                <div className={styles.navIconWrapper}>
-                  <Icon size={20} />
-                  {item.badge && (
-                    <span className={styles.badge}>{item.badge}</span>
-                  )}
-                </div>
-                <span className={styles.navLabel}>{item.title}</span>
-              </button>
-            );
-          })}
-          {/* Botón para abrir el menú lateral */}
-          <button
-            className={styles.menuButton}
-            onClick={() => setShowMenu(true)}
-            aria-label="Abrir menú"
-          >
-            <Menu size={20} />
-            <span className={styles.navLabel}>Menú</span>
-          </button>
-        </nav>
-      </div>
+  const toggleMoreMenu = () => {
+    setShowMoreMenu((prev) => !prev);
+  };
 
-      {/* Overlay y drawer lateral */}
-      {showMenu && (
-        <div className={styles.drawerOverlay}>
-          <div ref={drawerRef} className={styles.drawer}>
-            <div className={styles.drawerHeader}>
-              <h3 className={styles.drawerTitle}>Menú</h3>
-              <button
-                className={styles.closeButton}
-                onClick={() => setShowMenu(false)}
-                aria-label="Cerrar menú"
-              >
-                <X size={20} />
-              </button>
-            </div>
-            <div className={styles.drawerContent}>
-              <button
-                className={styles.drawerItem}
-                onClick={() => {
-                  setShowMenu(false);
-                  // Aquí podrías navegar a una página de perfil si existe
-                  toast({
-                    title: "Perfil",
-                    description: "Funcionalidad en desarrollo",
-                  });
-                }}
-              >
-                <User size={18} />
-                <span>Perfil</span>
-              </button>
-              <button
-                className={styles.drawerItem}
-                onClick={() => {
-                  setShowMenu(false);
-                  setShowSettings(true);
-                }}
-              >
-                <Settings size={18} />
-                <span>Configuración</span>
-              </button>
-              <button className={styles.drawerItem} onClick={handleLogout}>
-                <LogOut size={18} />
-                <span>Cerrar sesión</span>
-              </button>
-            </div>
+  return (
+    <div ref={containerRef} className={styles.container}>
+      <nav className={styles.bottomNav}>
+        {primaryNavItems.map((item) => {
+          const Icon = item.icon;
+          const isActive = pathname === item.url;
+          return (
+            <Link
+              key={item.url}
+              className={`${styles.navItem} ${isActive ? styles.navItemActive : ""}`}
+              href={item.url}
+              aria-label={item.title}
+            >
+              <div className={styles.navIconWrapper}>
+                <Icon size={20} />
+                {item.badge && (
+                  <span className={styles.badge}>{item.badge}</span>
+                )}
+              </div>
+              <span className={styles.navLabel}>{item.title}</span>
+            </Link>
+          );
+        })}
+
+        <button
+          ref={moreButtonRef}
+          className={`${styles.moreButton} ${showMoreMenu ? styles.moreButtonActive : ""}`}
+          onClick={toggleMoreMenu}
+          aria-label="Más opciones"
+          aria-expanded={showMoreMenu}
+        >
+          <MoreHorizontal size={20} />
+          <span className={styles.navLabel}>Más</span>
+        </button>
+      </nav>
+
+      {showMoreMenu && (
+        <div
+          ref={menuRef}
+          className={styles.moreMenu}
+          style={{ left: menuPosition.left }}
+        >
+          <div className={styles.moreMenuSection}>
+            {secondaryNavItems.map((item) => {
+              const Icon = item.icon;
+              return (
+                <Link
+                  key={item.url}
+                  className={styles.moreMenuItem}
+                  href={item.url}
+                >
+                  <Icon size={18} />
+                  <span>{item.title}</span>
+                </Link>
+              );
+            })}
+          </div>
+
+          <div className={styles.moreMenuDivider} />
+
+          <div className={styles.moreMenuSection}>
+            <button className={styles.moreMenuItem} onClick={handleLogout}>
+              <LogOut size={18} />
+              <span>Cerrar sesión</span>
+            </button>
           </div>
         </div>
       )}
-
-      {/* Modal de configuración */}
-      {showSettings && (
-        <SettingsModal
-          isOpen={showSettings}
-          onClose={() => setShowSettings(false)}
-        />
-      )}
-    </>
+    </div>
   );
 }
