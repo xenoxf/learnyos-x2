@@ -36,9 +36,10 @@ import {
   FileQuestion,
   X,
 } from "lucide-react";
-import type { Exam, ExamQuestion, ExamOption } from "@/types";
+import type { Exam, ExamQuestion, ExamOption, GenerateExamData } from "@/types";
 import styles from "@/styles/quiz.module.css";
 import DashboardLayout from "../layaut";
+import { MarkdownRenderer } from "@/components/MarkdownRenderer";
 import type { Metadata } from 'next';
 
 interface ExamSession {
@@ -75,12 +76,12 @@ export default function QuizPage() {
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const { toast } = useToast();
 
-  // Filtros de exámenes
+  // Filtros de exámenes (alineado con backend: easy | medium | hard)
   const difficultyOptions = [
     { value: "all", label: "Todas" },
-    { value: "beginner", label: "Principiante" },
-    { value: "intermediate", label: "Intermedio" },
-    { value: "advanced", label: "Avanzado" },
+    { value: "easy", label: "Fácil" },
+    { value: "medium", label: "Medio" },
+    { value: "hard", label: "Difícil" },
   ];
 
   // Efecto para cargar exámenes
@@ -130,19 +131,35 @@ export default function QuizPage() {
     };
   }, [session]);
 
+  const normalizeExam = (exam: Exam): Exam => {
+    if (!exam.questions?.length) return exam;
+    return {
+      ...exam,
+      questions: exam.questions.map((q) => {
+        const opts = Array.isArray(q.options) ? q.options : [];
+        const correctOpt = opts.find(
+          (o) => typeof o === "object" && (o as ExamOption).isCorrect
+        ) as ExamOption | undefined;
+        const correctAnswer =
+          correctOpt?.text ?? (q as ExamQuestion & { correctAnswer?: string }).correctAnswer;
+        return { ...q, correctAnswer, options: opts };
+      }),
+    };
+  };
+
   const loadExams = async () => {
     try {
       setLoading(true);
       const data = await apiService.getExams();
-
-      const typedData = Array.isArray(data) ? data : data?.data || [];
+      const raw = Array.isArray(data) ? data : (data as { data?: Exam[] })?.data ?? [];
+      const typedData = (raw as Exam[]).map(normalizeExam);
       setExams(typedData);
       setFilteredExams(typedData);
-    } catch (error: any) {
-      console.error("Error loading exams:", error);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "No pudimos cargar los exámenes";
       toast({
         title: "Error",
-        description: error.message || "No pudimos cargar los exámenes",
+        description: message,
         variant: "destructive",
       });
     } finally {
@@ -261,10 +278,11 @@ export default function QuizPage() {
         description: `Obtuviste ${correctCount} de ${total} correctas (${Math.round(percentage)}%)`,
         variant: percentage >= 70 ? "default" : "default",
       });
-    } catch (error: any) {
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Error al procesar el examen";
       toast({
         title: "Error",
-        description: error.message || "Error al procesar el examen",
+        description: msg,
         variant: "destructive",
       });
     } finally {
@@ -277,10 +295,10 @@ export default function QuizPage() {
     setTimer(0);
   };
 
-  const handleGenerateExam = async (data: any) => {
+  const handleGenerateExam = async (data: Partial<GenerateExamData>) => {
     try {
       setGenerating(true);
-      const response = await apiService.generateExam(data);
+      const response = await apiService.generateExam(data as GenerateExamData);
 
       if (response) {
         toast({
@@ -290,10 +308,11 @@ export default function QuizPage() {
         await loadExams();
         setShowGenerateModal(false);
       }
-    } catch (error: any) {
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Error al generar el examen";
       toast({
         title: "Error",
-        description: error.message || "Error al generar el examen",
+        description: msg,
         variant: "destructive",
       });
     } finally {
@@ -309,11 +328,11 @@ export default function QuizPage() {
 
   const getDifficultyColor = (difficulty?: string) => {
     switch (difficulty?.toLowerCase()) {
-      case "beginner":
+      case "easy":
         return "default";
-      case "intermediate":
+      case "medium":
         return "outline";
-      case "advanced":
+      case "hard":
         return "destructive";
       default:
         return "secondary";
@@ -470,9 +489,14 @@ export default function QuizPage() {
               </div>
               <div className={styles.questionPoints}>
                 <Zap size={16} />
-                <span>Valor: {question.correct_answer || 1} punto(s)</span>
+                <span>Valor: {question.correctAnswer || 1} punto(s)</span>
               </div>
             </div>
+            {question.question && (
+              <div className={styles.questionBody}>
+                <MarkdownRenderer content={question.question} />
+              </div>
+            )}
 
             {/* Opciones de respuesta */}
             <div className={styles.optionsContainer}>
@@ -510,7 +534,7 @@ export default function QuizPage() {
                           </div>
                           <div className={styles.optionContent}>
                             <span className={styles.optionText}>
-                              {optionText}
+                              <MarkdownRenderer content={optionText} />
                             </span>
                           </div>
                         </label>
@@ -813,9 +837,9 @@ export default function QuizPage() {
                             <span className={styles.explanationTitle}>
                               Explicación:
                             </span>
-                            <p className={styles.explanationText}>
-                              {q.explanation}
-                            </p>
+                            <div className={styles.explanationText}>
+                              <MarkdownRenderer content={q.explanation} />
+                            </div>
                           </div>
                         )}
                       </div>

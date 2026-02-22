@@ -16,14 +16,8 @@ import { useRouter } from "next/navigation";
 import { apiService } from "@/services/apiService";
 import { useToast } from "@/hooks/use-toast";
 
-declare global {
-  interface Window {
-    google: any;
-  }
-}
-
 interface GoogleAuthButtonProps {
-  onSuccess?: (user: any) => void;
+  onSuccess?: (user: { id: number; email: string; name: string }) => void;
   onError?: (error: string) => void;
 }
 
@@ -32,53 +26,22 @@ export function GoogleAuthButton({ onSuccess, onError }: GoogleAuthButtonProps) 
   const router = useRouter();
   const { toast } = useToast();
 
-  const handleCodeResponse = async (response: any) => {
-    try {
-      if (response.code) {
-        // Enviar código al backend (SIN /api/)
-        const backendUrl = String(process.env.NEXT_PUBLIC_BACKEND_URL);
-        const result = await fetch(`${backendUrl}/auth/google/callback`, {
-          method: "GET",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ code: response.code }),
-        }).then((res) => res.json());
-
-        if (result.token && result.user) {
-          localStorage.setItem("authToken", result.token);
-          localStorage.setItem("user", JSON.stringify(result.user));
-
-          onSuccess?.(result.user);
-          router.push("/(protected)/dashboard");
-          router.refresh();
-        }
-      }
-    } catch (error) {
-      console.error("Code response error:", error);
-      const errorMessage = error instanceof Error ? error.message : "Error al procesar autenticación";
-      onError?.(errorMessage);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handleGoogleClick = async () => {
     try {
       setLoading(true);
-      // Google OAuth flow - redirige al endpoint de Google
-      const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
-      const redirectUri = `${window.location.origin}/auth/callback`;
-      const scope = "openid profile email";
-      const responseType = "code";
-
-      const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=${responseType}&scope=${scope}`;
-
-      window.location.href = googleAuthUrl;
-    } catch (error: any) {
+      // Obtener URL de autenticación desde el backend
+      const { url } = await apiService.getGoogleAuthUrl();
+      
+      // Redirigir a Google
+      window.location.href = url;
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Error al iniciar autenticación con Google";
       toast({
         title: "Error",
-        description: error.message,
+        description: message,
         variant: "destructive",
       });
+      onError?.(message);
       setLoading(false);
     }
   };

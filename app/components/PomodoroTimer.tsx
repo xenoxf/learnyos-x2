@@ -271,12 +271,7 @@ export const PomodoroTimer: React.FC = () => {
     [saveData],
   );
 
-  // Request notification permission
-  useEffect(() => {
-    if ("Notification" in window && Notification.permission === "default") {
-      Notification.requestPermission();
-    }
-  }, []);
+  // Notificaciones se manejan con useToast; no pedir permiso de Notification
 
   // Calculate stroke dasharray for circle
   const circumference = 2 * Math.PI * 45;

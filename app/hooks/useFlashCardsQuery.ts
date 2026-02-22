@@ -1,61 +1,50 @@
 'use client';
 
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { apiService } from '@/services/apiService';
+import type { FlashCard, GenerateFlashCardData } from '@/types';
 
-export interface FlashCard {
-  id: number;
-  question: string;
-  answer: string;
-  difficulty: "easy" | "medium" | "hard";
-  createdAt: Date;
-  nextReviewDate: Date;
-}
-
-export const useGenerateFlashcards = () => {
-  return useMutation({
-    mutationFn: async ({
-      topic,
-      referenceText,
-      numberOfCards,
-    }: {
-      topic?: string;
-      referenceText?: string;
-      numberOfCards?: number;
-    }) =>
-      Promise.all([
-        topic ? Promise.resolve({ topic, quantity: numberOfCards }) : null,
-        referenceText ? Promise.resolve({ reference: referenceText, quantity: numberOfCards }) : null,
-      ]),
-  });
-};
-
-export const useFlashcardsQuery = () => {
+export function useFlashCardsQuery() {
   const queryClient = useQueryClient();
 
-  const createFlashcard = useMutation({
-    mutationFn: (data: Partial<FlashCard>) =>
-      Promise.resolve({
-        id: Date.now(),
-        question: (data as any).question || "",
-        answer: (data as any).answer || "",
-        difficulty: (data as any).difficulty || "medium",
-        createdAt: new Date(),
-        nextReviewDate: new Date(),
-      } as FlashCard),
+  const {
+    data: flashcards = [],
+    isLoading,
+    error,
+  } = useQuery<FlashCard[]>({
+    queryKey: ['flashcards'],
+    queryFn: () => apiService.getFlashcards(),
+  });
+
+  const generateMutation = useMutation<
+    Awaited<ReturnType<typeof apiService.generateFlashcards>>,
+    Error,
+    GenerateFlashCardData
+  >({
+    mutationFn: (input) =>
+      apiService.generateFlashcards({
+        ...input,
+        quantity: input.quantity ?? input.numberOfCards ?? 10,
+      }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["flashcards"] });
+      queryClient.invalidateQueries({ queryKey: ['flashcards'] });
     },
   });
 
-  const deleteFlashcard = useMutation({
-    mutationFn: (id: number) => Promise.resolve({ id }),
+  const deleteMutation = useMutation<void, unknown, number>({
+    mutationFn: (cardId: number) => apiService.deleteFlashcard(cardId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["flashcards"] });
+      queryClient.invalidateQueries({ queryKey: ['flashcards'] });
     },
   });
 
   return {
-    createFlashcard,
-    deleteFlashcard,
+    flashcards,
+    isLoading,
+    error: error ? (error as Error).message : null,
+    generateFlashCards: generateMutation.mutate,
+    deleteFlashCard: deleteMutation.mutate,
+    isGenerating: generateMutation.isPending,
+    isDeleting: deleteMutation.isPending,
   };
-};
+}

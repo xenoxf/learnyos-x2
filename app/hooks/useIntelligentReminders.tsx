@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useLocalStorage } from './useLocalStorage';
+import { toast } from '@/hooks/use-toast';
 
 interface Reminder {
   id: string;
@@ -85,34 +86,23 @@ export const useIntelligentReminders = () => {
   };
 
   const scheduleNotification = (reminder: Reminder) => {
-    if ('Notification' in window && Notification.permission === 'granted') {
-      const now = new Date();
-      const [hours, minutes] = reminder.time.split(':').map(Number);
-      const reminderTime = new Date(now);
-      reminderTime.setHours(hours, minutes, 0, 0);
+    const now = new Date();
+    const [hours, minutes] = reminder.time.split(':').map(Number);
+    const reminderTime = new Date(now);
+    reminderTime.setHours(hours, minutes, 0, 0);
 
-      if (reminderTime <= now) {
-        reminderTime.setDate(reminderTime.getDate() + 1);
-      }
-
-      const timeUntilReminder = reminderTime.getTime() - now.getTime();
-
-      setTimeout(() => {
-        new Notification('FocusOS - Recordatorio de Estudio', {
-          body: reminder.message,
-          icon: '/favicon.ico',
-          tag: reminder.id
-        });
-      }, timeUntilReminder);
+    if (reminderTime <= now) {
+      reminderTime.setDate(reminderTime.getDate() + 1);
     }
-  };
 
-  const requestNotificationPermission = async () => {
-    if ('Notification' in window) {
-      const permission = await Notification.requestPermission();
-      return permission === 'granted';
-    }
-    return false;
+    const timeUntilReminder = reminderTime.getTime() - now.getTime();
+
+    setTimeout(() => {
+      toast({
+        title: 'Recordatorio de Estudio',
+        description: reminder.message,
+      });
+    }, timeUntilReminder);
   };
 
   const toggleReminder = (id: string) => {
@@ -137,7 +127,6 @@ export const useIntelligentReminders = () => {
     reminders,
     studyPattern,
     toggleReminder,
-    requestNotificationPermission,
     analyzeStudyPatterns,
     generateIntelligentReminders
   };

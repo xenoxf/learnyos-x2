@@ -1,306 +1,328 @@
 'use client';
 
-import { BACKEND_URL, BACKEND_API_KEY } from '@/lib/env';
+import type {
+  AuthResponse,
+  LoginInput,
+  RegisterInput,
+  User,
+  Note,
+  FlashCard,
+  FlashCardDeck,
+  GenerateFlashCardData,
+  GenerateFlashcardsResponse,
+  Exam,
+  GenerateExamData,
+  Chat,
+  ChatMessage,
+  SendMessageData,
+  SendMessageResponse,
+  GetChatMessagesResponse,
+  GenerateNoteData,
+} from '@/types';
 
-interface AuthResponse {
-  token: string;
-  user: {
-    id: number;
-    email: string;
-    name: string;
-    picture?: string;
-  };
-}
-
-interface User {
-  id: number;
-  email: string;
-  name: string;
-  picture?: string;
-  provider: 'local' | 'google';
-}
+const API_BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+const API_KEY = process.env.NEXT_BACKEND_API_KEY;
 
 class ApiService {
-  private baseUrl: string;
   private token: string | null = null;
-  private apiKey: string | null = null;
 
   constructor() {
-    //this.baseUrl = String(process.env.NEXT_PUBLIC_BACKEND_UR);
-    this.loadToken();
-    this.baseUrl = 'https://klerk.onrender.com';
-  }
-
-  private loadToken() {
     if (typeof window !== 'undefined') {
       this.token = localStorage.getItem('token');
     }
   }
 
-  setToken(token: string) {
+  setToken(token: string): void {
     this.token = token;
     if (typeof window !== 'undefined') {
       localStorage.setItem('token', token);
     }
   }
 
-  private getHeaders() {
-    const headers: any = {
-      'Content-Type': 'application/json',
-    };
-    if (this.token) {
-      headers['Authorization'] = `Bearer ${this.token}`;
-    }
-    if (this.apiKey) {
-      headers['X-API-Key'] = this.apiKey;
-    }
-    return headers;
+  private getToken(): string | null {
+    return this.token;
   }
 
-  async request(endpoint: string, options: RequestInit = {}) {
-    const url = `${this.baseUrl}${endpoint}`;
-    console.log(`[API] ${options.method || 'GET'} ${url}`);
-
-    try {
-      const response = await fetch(url, {
-        ...options,
-        headers: {
-          ...this.getHeaders(),
-          ...options.headers,
-        },
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || `API Error: ${response.status}`);
-      }
-
-      const data = await response.json();
-      return data;
-    } catch (error) {
-      console.error(`[API Error] ${endpoint}:`, error);
-      throw error;
+  // make the request method generic so callers get a typed return value without casting
+  private async request<T>(
+    endpoint: string,
+    options: RequestInit = {},
+  ): Promise<T> {
+    const headers: HeadersInit = {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    };
+    if (API_KEY) {
+      (headers as Record<string, string>)['x-api-key'] = API_KEY;
     }
+
+    const token = this.getToken();
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+      ...options,
+      headers,
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}));
+      throw new Error((error as Record<string, unknown>).message as string || `API Error: ${response.statusText}`);
+    }
+
+    // the only cast we keep is here, once, inside request
+    return (await response.json()) as T;
   }
 
   // ==================== AUTH ====================
 
-  async login(credentials: { email: string; password: string }): Promise<AuthResponse> {
-    const response = await this.request('/auth/login', {
+  async login(credentials: LoginInput): Promise<AuthResponse> {
+    const { token, user } = await this.request<AuthResponse>('/auth/login', {
       method: 'POST',
       body: JSON.stringify(credentials),
     });
-    if (response.token) {
-      this.setToken(response.token);
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('user', JSON.stringify(response.user));
-      }
+
+    if (!token || !user) {
+      throw new Error('Invalid login response: missing token or user');
     }
-    return response;
+
+    this.setToken(token);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('user', JSON.stringify(user));
+    }
+
+    return { token, user };
   }
 
-  async register(data: { name: string; email: string; password: string }): Promise<AuthResponse> {
-    const response = await this.request('/auth/register', {
+  async register(data: RegisterInput): Promise<AuthResponse> {
+    const { token, user } = await this.request<AuthResponse>('/auth/register', {
       method: 'POST',
       body: JSON.stringify(data),
     });
-    if (response.token) {
-      this.setToken(response.token);
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('user', JSON.stringify(response.user));
-      }
+
+    if (!token || !user) {
+      throw new Error('Invalid register response: missing token or user');
     }
-    return response;
-  }
 
-  async googleAuthWithCode(code: string): Promise<AuthResponse> {
-    const response = await this.request('/auth/google/callback', {
-      method: 'GET',
-      body: JSON.stringify({ code }),
-    });
-    if (response.token) {
-      this.setToken(response.token);
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('user', JSON.stringify(response.user));
-      }
-    }
-    return response;
-  }
-
-  async getGoogleAuthUrl(): Promise<{ url: string }> {
-    return this.request('/auth/google/url');
-  }
-
-  // ==================== USER ====================
-
-  getUser(): User | null {
+    this.setToken(token);
     if (typeof window !== 'undefined') {
-      const user = localStorage.getItem('user');
-      return user ? JSON.parse(user) : null;
+      localStorage.setItem('user', JSON.stringify(user));
     }
-    return null;
+
+    return { token, user };
   }
 
-  async updateUser(data: { name?: string }): Promise<User> {
-    const response = await this.request('/users/name', {
+  async updateUser(data: Partial<User>): Promise<User> {
+    const response = await this.request<User>('/users', {
       method: 'PUT',
       body: JSON.stringify(data),
     });
+
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('user', JSON.stringify(response));
+    }
     return response;
   }
 
-  async deleteUser(): Promise<void> {
-    await this.request('/users', {
-      method: 'DELETE',
-    });
-    this.logout();
+  async logout(): Promise<void> {
+    this.token = null;
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+    }
   }
 
-  async isValidEmail(email: string) {
-    const valid = email.match(
-      /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    );
-    return valid !== null;
+  getUser(): User | null {
+    if (typeof window === 'undefined') return null;
+    const user = localStorage.getItem('user');
+    return user ? JSON.parse(user) : null;
   }
 
-  // ==================== MESSAGES (CHAT) ====================
-
-  async getUserChats() {
-    return this.request('/messages/chats');
+  isAuthenticated(): boolean {
+    return !!this.getToken();
   }
 
-  async getChatMessages(chatId: number) {
-    return this.request(`/messages/chat/${chatId}`);
+  isValidEmail(email: string): boolean {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
   }
-
-  async sendMessage(prompt: string, chatId?: number) {
-    return this.request('/messages/send', {
-      method: 'POST',
-      body: JSON.stringify({ prompt, chatId }),
-    });
-  }
-
-  async deleteChat(chatId: number) {
-    return this.request(`/messages/chat/${chatId}`, {
-      method: 'DELETE',
-    });
-  }
-
-  // ==================== NOTES ====================
-
-  async getNotes() {
-    return this.request('/notes');
-  }
-
-  async getNote(id: number) {
-    return this.request(`/notes/${id}`);
-  }
-
-  async createNote(data: { topic?: string; referenceText?: string; quantity?: number; level?: string }) {
-    return this.request('/notes/generate/topic_or_reference', {
-      method: 'POST',
-      body: JSON.stringify(data),
-    });
-  }
-
-  async deleteNote(id: number) {
-    return this.request(`/notes/${id}`, {
-      method: 'DELETE',
-    });
-  }
-
-  // ==================== FLASHCARDS ====================
-
-  async getFlashcards() {
-    return this.request('/flash-cards');
-  }
-
-  async getFlashcard(id: number) {
-    return this.request(`/flash-cards/${id}`);
-  }
-
-  async generateFlashcards(data: { topic?: string; referenceText?: string; quantity?: number; level?: string }) {
-    return this.request('/flash-cards/generate/topic_or_reference', {
-      method: 'POST',
-      body: JSON.stringify(data),
-    });
-  }
-
-  async deleteFlashcard(id: number) {
-    return this.request(`/flash-cards/${id}`, {
-      method: 'DELETE',
-    });
-  }
-
-  // ==================== EXAMS ====================
-
-  async getExams() {
-    return this.request('/exams');
-  }
-
-  async getExam(id: number) {
-    return this.request(`/exams/${id}`);
-  }
-
-  async generateExam(data: { topic?: string; reference?: string; quantity?: number; level?: string }) {
-    return this.request('/exams/generate/topic_or_referencia', {
-      method: 'POST',
-      body: JSON.stringify(data),
-    });
-  }
-
-  async deleteExam(id: number) {
-    return this.request(`/exams/${id}`, {
-      method: 'DELETE',
-    });
-  }
-
-  // ==================== GROQ (AI) ====================
-
-  async generateWithGroq(prompt: string, model: string = 'mixtral-8x7b-32768') {
-    return this.request('/groq/generate', {
-      method: 'POST',
-      body: JSON.stringify({ prompt, model }),
-    });
-  }
-
-  async getGroqHealth() {
-    return this.request('/groq/health');
-  }
-
-  async getGroqImplementationStatus() {
-    return this.request('/groq/implementation-status');
-  }
-
-  // ==================== TOKEN VERIFICATION ====================
 
   async verifyToken(): Promise<boolean> {
     try {
-      const result = await this.request('/auth/verify_token', {
+      const result = await this.request<{ valid: boolean }>('/auth/verify_token', {
         method: 'GET',
       });
-      if (result && result.valid) {
-        return true;
-      }
-      return false;
+      return result.valid === true;
     } catch (error) {
       console.error('[API] Token verification error:', error);
       return false;
     }
   }
 
-  // ==================== UTILS ====================
-
-  isAuthenticated(): boolean {
-    return !!this.token && !!this.getUser();
+  async getGoogleAuthUrl(): Promise<{ url: string }> {
+    return this.request<{ url: string }>('/auth/google/url', { method: 'GET' });
   }
 
-  logout() {
-    this.token = null;
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
+  async googleAuthWithCode(code: string): Promise<AuthResponse> {
+    const response = await this.request<AuthResponse>('/auth/google/callback', {
+      method: 'POST',
+      body: JSON.stringify({ code }),
+    });
+    if (response.token && response.user) {
+      this.setToken(response.token);
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('user', JSON.stringify(response.user));
+      }
     }
+    return response;
+  }
+
+  // ==================== NOTES ====================
+
+  async getNotes(): Promise<Note[]> {
+    return this.request<Note[]>('/notes', { method: 'GET' });
+  }
+
+  async getNote(id: number): Promise<Note> {
+    return this.request<Note>(`/notes/${id}`, { method: 'GET' });
+  }
+
+  async createNote(data: Partial<Note>): Promise<Note> {
+    return this.request<Note>('/notes', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async generateNote(data: GenerateNoteData): Promise<{ success: boolean; notes: Note[] }> {
+    const payload = {
+      topic: data.topic,
+      referenceText: data.referenceText,
+      numberOfNotes: data.numberOfNotes ?? 1,
+      levelOfDetail: data.levelOfDetail ?? "medio",
+    };
+    return this.request<{ success: boolean; notes: Note[] }>(
+      '/notes/generate/topic_or_reference',
+      { method: 'POST', body: JSON.stringify(payload) }
+    );
+  }
+
+  async updateNote(id: number, data: Partial<Note>): Promise<Note> {
+    return this.request<Note>(`/notes/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteNote(id: number): Promise<void> {
+    await this.request<void>(`/notes/${id}`, { method: 'DELETE' });
+  }
+
+  // ==================== FLASHCARDS ====================
+
+  async getFlashcards(): Promise<FlashCard[]> {
+    return this.request<FlashCard[]>('/flash-cards', { method: 'GET' });
+  }
+
+  async getFlashcard(id: number): Promise<FlashCard> {
+    return this.request<FlashCard>(`/flash-cards/${id}`, { method: 'GET' });
+  }
+
+  async generateFlashcards(data: GenerateFlashCardData): Promise<GenerateFlashcardsResponse> {
+    const payload: Record<string, unknown> = {
+      topic: data.topic,
+      referenceText: data.referenceText,
+      numberOfCards: data.numberOfCards ?? data.quantity,
+    };
+    return this.request<GenerateFlashcardsResponse>('/flash-cards/generate/topic_or_reference', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  }
+
+  async updateFlashcard(id: number, data: Partial<FlashCard>): Promise<FlashCard> {
+    return this.request<FlashCard>(`/flash-cards/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteFlashcard(id: number): Promise<void> {
+    await this.request<void>(`/flash-cards/${id}`, { method: 'DELETE' });
+  }
+
+  // ==================== EXAMS ====================
+
+  async getExams(): Promise<Exam[]> {
+    return this.request<Exam[]>('/exams', { method: 'GET' });
+  }
+
+  async getExam(id: number): Promise<Exam> {
+    return this.request<Exam>(`/exams/${id}`, { method: 'GET' });
+  }
+
+  async generateExam(data: GenerateExamData): Promise<Exam> {
+    return this.request<Exam>('/exams/generate/topic_or_reference', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateExam(id: number, data: Partial<Exam>): Promise<Exam> {
+    return this.request<Exam>(`/exams/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteExam(id: number): Promise<void> {
+    await this.request<void>(`/exams/${id}`, { method: 'DELETE' });
+  }
+
+  // ==================== CHATS ====================
+
+  async getChats(): Promise<Chat[]> {
+    return this.request<Chat[]>('/messages/chats', { method: 'GET' });
+  }
+
+  async getChat(id: number): Promise<Chat> {
+    const res = await this.getChatMessages(id);
+    const messages: ChatMessage[] = (res.messages ?? []).flatMap((m) => [
+      { id: m.id * 2, chatId: res.chatId, content: m.prompt, role: 'user' as const, createdAt: String(m.createdAt), updatedAt: String(m.createdAt) },
+      { id: m.id * 2 + 1, chatId: res.chatId, content: m.response, role: 'assistant' as const, createdAt: String(m.createdAt), updatedAt: String(m.createdAt) },
+    ]);
+    return {
+      id: res.chatId,
+      title: res.title ?? 'Chat',
+      messages,
+      createdAt: '',
+      updatedAt: '',
+    };
+  }
+
+  async getChatMessages(chatId: number): Promise<GetChatMessagesResponse> {
+    return this.request<GetChatMessagesResponse>(`/messages/chat/${chatId}`, { method: 'GET' });
+  }
+
+  async sendMessage(data: SendMessageData): Promise<SendMessageResponse> {
+    return this.request<SendMessageResponse>('/messages/send', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteChat(chatId: number): Promise<void> {
+    await this.request<void>(`/messages/chat/${chatId}`, { method: 'DELETE' });
+  }
+
+  // ==================== GROQ (AI) ====================
+
+  async generateWithGroq(prompt: string): Promise<{ content: string }> {
+    return this.request<{ content: string }>('/groq/generate', {
+      method: 'POST',
+      body: JSON.stringify({ prompt }),
+    });
   }
 }
 

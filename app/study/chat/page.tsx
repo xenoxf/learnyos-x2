@@ -23,7 +23,7 @@ import {
 } from "lucide-react";
 import styles from "@/styles/chat.module.css";
 import DashboardLayout from "../layaut";
-import type { Message, Chat } from "@/types";
+import type { ChatMessage, Chat, SendMessageData, SendMessageResponse } from "@/types";
 import { MarkdownRenderer } from "@/components/MarkdownRenderer";
 import type { Metadata } from "next";
 
@@ -33,7 +33,7 @@ export default function ChatPage() {
   // ==================== STATE ====================
   const [chats, setChats] = useState<Chat[]>([]);
   const [currentChat, setCurrentChat] = useState<Chat | null>(null);
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -55,9 +55,9 @@ export default function ChatPage() {
   // ==================== API FUNCTIONS ====================
   const loadChats = async () => {
     try {
-      const response = await apiService.getUserChats();
-      setChats(response.data || response);
-    } catch (error) {
+      const response = await apiService.getChats();
+      setChats(Array.isArray(response) ? response : []);
+    } catch (_err) {
       toast({
         title: "Error",
         description: "No se pudieron cargar los chats",
@@ -69,8 +69,27 @@ export default function ChatPage() {
   const loadChatMessages = async (chatId: number) => {
     try {
       const response = await apiService.getChatMessages(chatId);
-      setMessages(response.data || response);
-    } catch (error) {
+      const list = response.messages ?? [];
+      const chatMessages: ChatMessage[] = list.flatMap((m) => [
+        {
+          id: m.id * 2,
+          chatId: response.chatId,
+          content: m.prompt,
+          role: "user" as const,
+          createdAt: String(m.createdAt),
+          updatedAt: String(m.createdAt),
+        },
+        {
+          id: m.id * 2 + 1,
+          chatId: response.chatId,
+          content: m.response,
+          role: "assistant" as const,
+          createdAt: String(m.createdAt),
+          updatedAt: String(m.createdAt),
+        },
+      ]);
+      setMessages(chatMessages);
+    } catch (_err) {
       toast({
         title: "Error",
         description: "No se pudieron cargar los mensajes",
@@ -82,39 +101,41 @@ export default function ChatPage() {
   const handleSendMessage = async () => {
     if (!inputValue.trim() || isLoading) return;
 
-    const userMessage: Message = {
-      id: Date.now(),
-      prompt: inputValue,
-      response: "",
-      createdAt: new Date().toISOString(),
-    };
-
-    setMessages((prev) => [...prev, userMessage]);
+    const messageContent = inputValue.trim();
     setInputValue("");
     setIsLoading(true);
     adjustTextareaHeight();
 
-    try {
-      const response = await apiService.sendMessage(
-        inputValue,
-        currentChat?.id,
-      );
+    const userMessage: ChatMessage = {
+      id: Date.now(),
+      chatId: currentChat?.id ?? 0,
+      content: messageContent,
+      role: "user",
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
 
-      const assistantMessage: Message = {
-        id: response.id || Date.now() + 1,
-        prompt: inputValue,
-        response: response.response || response.message || response,
+    setMessages((prev) => [...prev, userMessage]);
+
+    try {
+      const response = await apiService.sendMessage({
+        prompt: messageContent,
+        chatId: currentChat?.id,
+      });
+
+      const assistantMessage: ChatMessage = {
+        id: response.messageId,
+        chatId: response.chatId,
+        content: response.response,
+        role: "assistant",
         createdAt: new Date().toISOString(),
-        chatId: response.chatId || currentChat?.id,
+        updatedAt: new Date().toISOString(),
       };
 
       setMessages((prev) => [...prev, assistantMessage]);
 
-      if (!currentChat) {
-        await loadChats();
-      }
-
       if (!currentChat && response.chatId) {
+        await loadChats();
         const newChat = chats.find((c) => c.id === response.chatId);
         if (newChat) {
           setCurrentChat(newChat);
@@ -127,7 +148,7 @@ export default function ChatPage() {
         variant: "destructive",
       });
 
-      setMessages((prev) => prev.slice(0, -1));
+      setMessages((prev) => prev.filter((m) => m.id !== userMessage.id));
     } finally {
       setIsLoading(false);
     }
@@ -366,66 +387,56 @@ export default function ChatPage() {
             ) : (
               <>
                 {messages.map((msg, index) => (
-                  <React.Fragment key={msg.id || index}>
-                    {/* USER MESSAGE */}
-                    <div className={`${styles.messageWrapper} ${styles.user}`}>
-                      <div className={styles.messageContent}>
-                        <div className={styles.avatar}>
+                  <div
+                    key={msg.id || index}
+                    className={`${styles.messageWrapper} ${
+                      msg.role === "user" ? styles.user : styles.assistant
+                    }`}
+                  >
+                    <div className={styles.messageContent}>
+                      <div className={styles.avatar}>
+                        {msg.role === "user" ? (
                           <User size={18} color="white" />
+                        ) : (
+                          <Bot size={18} color="white" />
+                        )}
+                      </div>
+                      <div className={styles.messageBody}>
+                        <div className={styles.messageHeader}>
+                          <span className={styles.messageSender}>
+                            {msg.role === "user" ? "Tú" : "Junior"}
+                          </span>
+                          <span className={styles.messageTime}>
+                            {formatTime(msg.createdAt)}
+                          </span>
                         </div>
-                        <div className={styles.messageBody}>
-                          <div className={styles.messageHeader}>
-                            <span className={styles.messageSender}>Tú</span>
-                            <span className={styles.messageTime}>
-                              {formatTime(msg.createdAt)}
-                            </span>
+                        <div className={styles.messageText}>
+                          {msg.role === "assistant" ? (
+                            <MarkdownRenderer content={msg.content} />
+                          ) : (
+                            msg.content
+                          )}
+                        </div>
+                        {msg.role === "assistant" && (
+                          <div className={styles.messageActions}>
+                            <button
+                              className={styles.messageActionButton}
+                              onClick={() =>
+                                handleCopyMessage(msg.content, msg.id)
+                              }
+                              title="Copiar respuesta"
+                            >
+                              {copiedId === msg.id ? (
+                                <Check size={14} />
+                              ) : (
+                                <Copy size={14} />
+                              )}
+                            </button>
                           </div>
-                          <div className={styles.messageText}>{msg.prompt}</div>
-                        </div>
+                        )}
                       </div>
                     </div>
-
-                    {/* ASSISTANT MESSAGE */}
-                    {msg.response && (
-                      <div
-                        className={`${styles.messageWrapper} ${styles.assistant}`}
-                      >
-                        <div className={styles.messageContent}>
-                          <div className={styles.avatar}>
-                            <Bot size={18} color="white" />
-                          </div>
-                          <div className={styles.messageBody}>
-                            <div className={styles.messageHeader}>
-                              <span className={styles.messageSender}>
-                                Junior
-                              </span>
-                              <span className={styles.messageTime}>
-                                {formatTime(msg.createdAt)}
-                              </span>
-                            </div>
-                            <div className={styles.messageText}>
-                              <MarkdownRenderer content={msg.response} />
-                            </div>
-                            <div className={styles.messageActions}>
-                              <button
-                                className={styles.messageActionButton}
-                                onClick={() =>
-                                  handleCopyMessage(msg.response, msg.id)
-                                }
-                                title="Copiar respuesta"
-                              >
-                                {copiedId === msg.id ? (
-                                  <Check size={14} />
-                                ) : (
-                                  <Copy size={14} />
-                                )}
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </React.Fragment>
+                  </div>
                 ))}
 
                 {/* TYPING INDICATOR */}

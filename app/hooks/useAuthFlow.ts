@@ -11,7 +11,7 @@ export const useAuthFlow = () => {
   const login = useCallback(async (data: LoginInput) => {
     try {
       const result = await apiService.login(data);
-      router.push('/(protected)/dashboard');
+      router.push('/study');
       return result;
     } catch (error) {
       throw error;
@@ -21,7 +21,7 @@ export const useAuthFlow = () => {
   const register = useCallback(async (data: RegisterInput) => {
     try {
       const result = await apiService.register(data);
-      router.push('/(protected)/dashboard');
+      router.push('/study');
       return result;
     } catch (error) {
       throw error;
@@ -31,7 +31,7 @@ export const useAuthFlow = () => {
   const googleAuth = useCallback(async (code: string) => {
     try {
       const result = await apiService.googleAuthWithCode(code);
-      router.push('/(protected)/dashboard');
+      router.push('/study');
       return result;
     } catch (error) {
       throw error;

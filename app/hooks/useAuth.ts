@@ -1,160 +1,66 @@
-"use client"
+"use client";
 
-import { useEffect, useState, useCallback } from 'react';
-import { apiService } from '@/services/apiService';
+import { useState, useEffect, useCallback } from "react";
+import { apiService } from "@/services/apiService";
+import type { User } from "@/types";
 
-export interface User {
-  id: number;
-  email: string;
-  name: string;
-  picture?: string;
-  provider?: string;
-}
-
-export interface UseAuthReturn {
+interface AuthState {
   user: User | null;
-  loading: boolean;
-  error: string | null;
-  login: (email: string, password: string) => Promise<void>;
-  register: (name: string, email: string, password: string) => Promise<void>;
-  logout: () => void;
   isAuthenticated: boolean;
-  updateProfile: (name: string) => Promise<void>;
-  deleteAccount: () => Promise<void>;
-  clearError: () => void;
+  isLoading: boolean;
 }
 
-export function useAuth(): UseAuthReturn {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+export function useAuth() {
+  const [authState, setAuthState] = useState<AuthState>({
+    user: null,
+    isAuthenticated: false,
+    isLoading: true,
+  });
 
-  // Cargar usuario al montar
   useEffect(() => {
-    const loadUser = () => {
-      try {
-        if (apiService.isAuthenticated()) {
-          const userData = apiService.getUser();
-          if (userData) {
-            setUser(userData as User);
-          }
-        }
-      } catch (err: any) {
-        console.error('Error loading user:', err);
-      } finally {
-        setLoading(false);
-      }
+    const initAuth = () => {
+      const user = apiService.getUser();
+      setAuthState({
+        user: user || null,
+        isAuthenticated: !!user,
+        isLoading: false,
+      });
     };
 
-    loadUser();
+    initAuth();
   }, []);
 
-  // Verificar token al montar el componente
-  useEffect(() => {
-    const verifyUserToken = async () => {
-      if (typeof window === 'undefined') return;
-      
-      const token = localStorage.getItem('token');
-      if (!token) return;
-
+  const updateUser = useCallback(
+    async (data: { name?: string }) => {
       try {
-        const result = await apiService.verifyToken();
-        if (!result) {
-          // Token inválido, limpiar localStorage
-          localStorage.removeItem('token');
-          localStorage.removeItem('user');
-        }
+        const updated = await apiService.updateUser(data);
+        setAuthState((prev) => ({
+          ...prev,
+          user: updated,
+        }));
+        return updated;
       } catch (error) {
-        console.error('Error verifying token:', error);
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
+        console.error("Error updating user:", error);
+        throw error;
       }
-    };
-
-    verifyUserToken();
-  }, []);
-
-  const clearError = useCallback(() => {
-    setError(null);
-  }, []);
-
-  const login = useCallback(async (email: string, password: string) => {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await apiService.login({ email, password });
-      setUser(response.user as User);
-    } catch (err: any) {
-      const message = err?.message || 'Error en login';
-      setError(message);
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  const register = useCallback(async (name: string, email: string, password: string) => {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await apiService.register({ name, email, password });
-      setUser(response.user as User);
-    } catch (err: any) {
-      const message = err?.message || 'Error en registro';
-      setError(message);
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+    },
+    []
+  );
 
   const logout = useCallback(() => {
     apiService.logout();
-    setUser(null);
-    setError(null);
-  }, []);
-
-  const updateProfile = useCallback(async (name: string) => {
-    setLoading(true);
-    setError(null);
-    try {
-      const updatedUser = await apiService.updateUser({ name });
-      setUser(updatedUser as User);
-    } catch (err: any) {
-      const message = err?.message || 'Error al actualizar perfil';
-      setError(message);
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  const deleteAccount = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      await apiService.deleteUser();
-      setUser(null);
-      apiService.logout();
-    } catch (err: any) {
-      const message = err?.message || 'Error al eliminar cuenta';
-      setError(message);
-      throw err;
-    } finally {
-      setLoading(false);
-    }
+    setAuthState({
+      user: null,
+      isAuthenticated: false,
+      isLoading: false,
+    });
   }, []);
 
   return {
-    user,
-    loading,
-    error,
-    login,
-    register,
+    user: authState.user,
+    isAuthenticated: authState.isAuthenticated,
+    isLoading: authState.isLoading,
+    updateUser,
     logout,
-    isAuthenticated: !!user && apiService.isAuthenticated(),
-    updateProfile,
-    deleteAccount,
-    clearError,
   };
 }

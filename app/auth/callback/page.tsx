@@ -3,44 +3,86 @@
 import React, { Suspense, useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { apiService } from "@/services/apiService";
+import { useToast } from "@/hooks/use-toast";
+import { Loader2 } from "lucide-react";
 
 function CallbackContent() {
   const params = useSearchParams();
   const router = useRouter();
-  const [message, setMessage] = useState("Procesando autenticación...");
+  const { toast } = useToast();
+  const [status, setStatus] = useState<"loading" | "ok" | "error">("loading");
 
   useEffect(() => {
-    const code = params.get("code");
+    const token = params.get("token");
     const error = params.get("error");
+    const code = params.get("code");
 
     if (error) {
-      setMessage(`Error: ${error}`);
+      toast({
+        title: "Error de autenticación",
+        description: error === "google_failed" ? "Error al autenticarse con Google." : error,
+        variant: "destructive",
+      });
+      setStatus("error");
+      router.replace("/auth");
       return;
     }
 
-    if (!code) {
-      setMessage("Código de autenticación no encontrado");
-      return;
-    }
-
-    const handleAuth = async () => {
-      try {
-        await apiService.googleAuthWithCode(code);
-        router.push("/");
-      } catch (e) {
-        setMessage("Error durante el proceso de autenticación");
+    if (token) {
+      apiService.setToken(token);
+      const email = params.get("email");
+      if (email && typeof window !== "undefined") {
+        try {
+          const user = { email, name: email.split("@")[0], id: 0 };
+          localStorage.setItem("user", JSON.stringify(user));
+        } catch (_) {}
       }
-    };
+      setStatus("ok");
+      router.replace("/study");
+      return;
+    }
 
-    handleAuth();
-  }, [params, router]);
+    if (code) {
+      apiService
+        .googleAuthWithCode(code)
+        .then((res) => {
+          if (res.user && typeof window !== "undefined") {
+            localStorage.setItem("user", JSON.stringify(res.user));
+          }
+          setStatus("ok");
+          router.replace("/study");
+        })
+        .catch((err: unknown) => {
+          const msg = err instanceof Error ? err.message : "Error durante la autenticación con Google.";
+          toast({
+            title: "Error",
+            description: msg,
+            variant: "destructive",
+          });
+          setStatus("error");
+          router.replace("/auth");
+        });
+      return;
+    }
+
+    setStatus("error");
+    toast({
+      title: "Error",
+      description: "No se recibió token ni código de autenticación.",
+      variant: "destructive",
+    });
+    router.replace("/auth");
+  }, [params, router, toast]);
 
   return (
-    <div className="p-4 max-w-xl mx-auto">
-      <h1 className="text-2xl font-semibold mb-2">
-        Callback de Autenticación
-      </h1>
-      <p className="text-sm text-muted-foreground">{message}</p>
+    <div className="flex flex-col items-center justify-center min-h-[50vh] gap-4 p-4">
+      {status === "loading" && (
+        <>
+          <Loader2 className="w-10 h-10 animate-spin text-primary" />
+          <p className="text-sm text-muted-foreground">Completando inicio de sesión...</p>
+        </>
+      )}
+      {status === "error" && <p className="text-sm text-muted-foreground">Redirigiendo...</p>}
     </div>
   );
 }

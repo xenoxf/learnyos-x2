@@ -1,33 +1,41 @@
-// ...existing imports...
+'use client';
+
 import { useState, useCallback } from 'react';
 import { apiService } from '@/services/apiService';
-
-interface GenerateExamInput {
-  subject: string;
-  quantity?: number;
-  difficulty?: string;
-}
+import type { Exam, GenerateExamData } from '@/types';
 
 export function useGenerateExam() {
+  const [exam, setExam] = useState<Exam | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const generateExam = useCallback(async (input: GenerateExamInput) => {
-    try {
-      setLoading(true);
-      const exam = await apiService.generateExam({
-        topic: input.subject,
-        quantity: input.quantity,
-        level: input.difficulty,
-      });
-      return exam;
-    } catch (err: any) {
-      setError(err.message);
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  const generateExam = useCallback(
+    async (data: GenerateExamData): Promise<Exam | null> => {
+      try {
+        setLoading(true);
+        setError(null);
+        // backend allows optional fields, so we can send data as-is
+        const generated = await apiService.generateExam(data);
 
-  return { generateExam, loading, error };
+        if (generated) {
+          setExam(generated);
+          return generated;
+        }
+        return null;
+      } catch (err: any) {
+        setError(err.message || 'Error al generar examen');
+        return null;
+      } finally {
+        setLoading(false);
+      }
+    },
+    []
+  );
+
+  const resetExam = () => {
+    setExam(null);
+    setError(null);
+  };
+
+  return { exam, loading, error, generateExam, resetExam };
 }

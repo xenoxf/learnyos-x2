@@ -80,12 +80,9 @@ function AuthContent() {
       } else {
         setFormError("Error al iniciar sesión. Por favor, intenta de nuevo.");
       }
-    } catch (error: any) {
-      console.error("Login error:", error);
-      setFormError(
-        error?.message ||
-          "Error al iniciar sesión. Por favor, verifica tus credenciales.",
-      );
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Error al iniciar sesión. Por favor, verifica tus credenciales.";
+      setFormError(message);
     } finally {
       setLoading(false);
     }
@@ -129,11 +126,9 @@ function AuthContent() {
       } else {
         setFormError("Error al registrarse. Por favor, intenta de nuevo.");
       }
-    } catch (error: any) {
-      console.error("Register error:", error);
-      setFormError(
-        error?.message || "Error al registrarse. El email podría estar en uso.",
-      );
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Error al registrarse. El email podría estar en uso.";
+      setFormError(message);
     } finally {
       setLoading(false);
     }
@@ -181,17 +176,20 @@ function AuthContent() {
               </div>
             )}
 
-            {/*
-            Google Button
-
+            <div className={styles.divider}>
+              <div className={styles.dividerLine} />
+              <span className={styles.dividerText}>O continúa con</span>
+              <div className={styles.dividerLine} />
+            </div>
             <GoogleAuthButton
-            *}
-
-            {/*<div className={styles.divider}>
+              onSuccess={handleGoogleSuccess}
+              onError={handleGoogleError}
+            />
+            <div className={styles.divider}>
               <div className={styles.dividerLine} />
               <span className={styles.dividerText}>O continúa con email</span>
               <div className={styles.dividerLine} />
-            </div>*/}
+            </div>
 
             <form
               className={styles.authForm}

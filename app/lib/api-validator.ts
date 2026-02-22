@@ -142,7 +142,7 @@ export function validateCard(data: unknown): data is Card {
     typeof card.title === 'string' &&
     (card.description === undefined || typeof card.description === 'string') &&
     typeof card.totalCards === 'number' &&
-    typeof card.reviewedCards === 'number' &&
+    (card.reviewedCards === undefined || typeof card.reviewedCards === 'number') &&
     (card.lastReviewDate === undefined || typeof card.lastReviewDate === 'string') &&
     (card.flashcards === undefined || Array.isArray(card.flashcards)) &&
     (card.userId === undefined || typeof card.userId === 'number') &&
@@ -183,8 +183,8 @@ export function validateMessage(data: unknown): data is Message {
     typeof message.id === 'number' &&
     typeof message.prompt === 'string' &&
     typeof message.response === 'string' &&
-    typeof message.chatId === 'number' &&
-    typeof message.userId === 'number' &&
+    (message.chatId === undefined || typeof message.chatId === 'number') &&
+    (message.userId === undefined || typeof message.userId === 'number') &&
     typeof message.createdAt === 'string' &&
     (message.updatedAt === undefined || typeof message.updatedAt === 'string')
   );

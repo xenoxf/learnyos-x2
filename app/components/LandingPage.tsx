@@ -1,28 +1,41 @@
 "use client";
 import React, { useState } from "react";
-import { LandingThemeSelector } from "@/components/LandingThemeSelector";
-import Link from "next/link";
 import styles from "@/styles/landing.module.css";
-import Header from "./Header";
 import { Button } from "./ui/button";
 import { AuthFG } from "./AuthFG";
 import { ThemeToggle } from "./ThemeToggle";
 import { apiService } from "@/services/apiService";
 import { useRouter } from "next/navigation";
 import LoadingModal from "./loadingModal";
+import { useToast } from "@/hooks/use-toast";
 
 export const LandingPage: React.FC = () => {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const { toast } = useToast();
 
-  const handleOpenAuth = () => {
+  const handleOpenAuth = async () => {
     setLoading(true);
-    if (apiService.isAuthenticated()) {
+    try {
+      const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+      if (token) {
+        const isValid = await apiService.verifyToken();
+        if (isValid) {
+          setLoading(false);
+          router.push("/study");
+          return;
+        }
+      }
       setLoading(false);
-      router.push("/study");
-    } else {
+      setShowAuthModal(true);
+    } catch (_error) {
       setLoading(false);
+      toast({
+        title: "Error",
+        description: "No se pudo verificar la sesión. Intenta de nuevo.",
+        variant: "destructive",
+      });
       setShowAuthModal(true);
     }
   };

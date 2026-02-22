@@ -6,10 +6,8 @@ import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Trash2,
-  Plus,
   Search,
   Loader,
   BookOpen,
@@ -19,28 +17,22 @@ import {
 } from "lucide-react";
 import styles from "@/styles/notes.module.css";
 import DashboardLayout from "../layaut";
-import type { Note } from "@/types";
-import type { Metadata } from 'next';
+import { MarkdownRenderer } from "@/components/MarkdownRenderer";
+import type { Note, GenerateNoteData } from "@/types";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 export default function NotesPage() {
-  // Estados principales
   const [notes, setNotes] = useState<Note[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-
-  // Estados para generación
   const [isGenerating, setIsGenerating] = useState(false);
   const [topic, setTopic] = useState("");
   const [levelOfDetail, setLevelOfDetail] = useState<"breve" | "medio" | "alto">("medio");
-
-  // Estados para UI
   const [deletingId, setDeletingId] = useState<number | null>(null);
 
   const { toast } = useToast();
 
-  // Cargar notas al montar
   useEffect(() => {
     loadNotes();
   }, []);
@@ -49,13 +41,12 @@ export default function NotesPage() {
     try {
       setLoading(true);
       const data = await apiService.getNotes();
-      const typedNotes = Array.isArray(data) ? data : [];
-      setNotes(typedNotes);
-    } catch (error: any) {
-      console.error("Error loading notes:", error);
+      setNotes(Array.isArray(data) ? data : []);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "No pudimos cargar tus notas";
       toast({
         title: "Error",
-        description: error.message || "No pudimos cargar tus notas",
+        description: message,
         variant: "destructive",
       });
     } finally {
@@ -63,7 +54,6 @@ export default function NotesPage() {
     }
   }, [toast]);
 
-  // Generar nota
   const handleGenerateNotes = async () => {
     if (!topic.trim()) {
       toast({
@@ -76,25 +66,31 @@ export default function NotesPage() {
 
     try {
       setIsGenerating(true);
+      const levelMap: Record<"breve" | "medio" | "alto", "breve" | "medio" | "detallado"> = {
+        breve: "breve",
+        medio: "medio",
+        alto: "detallado",
+      };
 
-      const newNote = await apiService.createNote({
+      const res = await apiService.generateNote({
         topic: topic.trim(),
-        level: levelOfDetail,
+        numberOfNotes: 1,
+        levelOfDetail: levelMap[levelOfDetail],
       });
 
-      if (newNote) {
-        setNotes((prev) => [newNote, ...prev]);
+      if (res?.notes?.length) {
+        setNotes((prev) => [...res.notes, ...prev]);
         setTopic("");
         toast({
           title: "¡Éxito!",
           description: "Nota generada correctamente",
         });
       }
-    } catch (error: any) {
-      console.error("Error generating notes:", error);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "No se pudo generar la nota";
       toast({
         title: "Error",
-        description: error.message || "No se pudo generar la nota",
+        description: message,
         variant: "destructive",
       });
     } finally {
@@ -116,11 +112,11 @@ export default function NotesPage() {
         title: "Nota eliminada",
         description: "La nota ha sido eliminada correctamente",
       });
-    } catch (error: any) {
-      console.error("Error deleting note:", error);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "No se pudo eliminar la nota";
       toast({
         title: "Error",
-        description: error.message || "No se pudo eliminar la nota",
+        description: message,
         variant: "destructive",
       });
     } finally {
@@ -128,12 +124,25 @@ export default function NotesPage() {
     }
   };
 
-  // Filtrar notas
-  const filteredNotes = notes.filter(
-    (note) =>
-      (note.title || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (note.content || "").toLowerCase().includes(searchQuery.toLowerCase()),
-  );
+  const getNoteDisplayContent = (note: Note): string => {
+    if (note.content) return note.content;
+    if (note.noteContents?.length) {
+      return note.noteContents
+        .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+        .map((c) => c.content ?? "")
+        .filter(Boolean)
+        .join("\n\n");
+    }
+    if (note.blocks?.length) {
+      return note.blocks.map((b) => b.content ?? "").join(" ");
+    }
+    return "";
+  };
+
+  const filteredNotes = notes.filter((note) => {
+    const text = (note.title || "") + " " + getNoteDisplayContent(note);
+    return text.toLowerCase().includes(searchQuery.toLowerCase());
+  });
 
   return (
     <DashboardLayout>
@@ -277,16 +286,13 @@ export default function NotesPage() {
                   </div>
                 )}
 
-                <p className={styles.notePreview}>
-                  {note.content && note.content.length > 150
-                    ? `${note.content.substring(0, 150)}...`
-                    : note.content || "Sin contenido"}
-                </p>
-
-                <div className={styles.noteFooter}>
-                  <span className={styles.noteDate}>
-                    {note.createdAt ? new Date(note.createdAt).toLocaleDateString() : "Sin fecha"}
-                  </span>
+                <div className={styles.notePreview}>
+                  {(() => {
+                    const full = getNoteDisplayContent(note);
+                    if (!full) return <em>Sin contenido</em>;
+                    const preview = full.length > 200 ? `${full.slice(0, 200)}...` : full;
+                    return <MarkdownRenderer content={preview} />;
+                  })()}
                 </div>
               </Card>
             ))}

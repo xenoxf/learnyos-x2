@@ -97,40 +97,33 @@
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    padding: 0.75rem 1rem;
-    border-radius: 10px;
-    background-color: transparent;
-    border: 1px solid transparent;
+    padding: 0.875rem 1rem;
+    border-radius: 12px;
+    background-color: hsl(var(--muted) / 0.3);
+    border: 1px solid hsl(var(--border) / 0.5);
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     color: hsl(var(--foreground));
     position: relative;
     min-height: 48px;
 }
 
 .chatHistoryItem:hover {
-    background-color: hsl(var(--accent) / 0.5);
+    background-color: hsl(var(--muted) / 0.6);
     border-color: hsl(var(--border));
+    transform: translateX(4px);
 }
 
 .chatHistoryItem.active {
     background: linear-gradient(
         135deg,
-        hsl(var(--primary) / 0.1),
-        hsl(var(--secondary) / 0.1)
+        rgba(6, 182, 212, 0.15),
+        rgba(123, 44, 191, 0.15)
     );
-    border-color: hsl(var(--primary) / 0.3);
-}
-
-.chatHistoryItem.active::before {
-    content: "";
-    position: absolute;
-    left: 0;
-    top: 4px;
-    height: calc(100% - 8px);
-    width: 3px;
-    background: linear-gradient(135deg, #06b6d4, #7b2cbf, #ec4899);
-    border-radius: 0 3px 3px 0;
+    border-color: hsl(var(--primary) / 0.5);
+    border-left: 3px solid;
+    border-left-color: #06b6d4;
+    padding-left: calc(1rem - 2px);
 }
 
 .chatHistoryTitle {
@@ -139,6 +132,7 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    font-weight: 500;
 }
 
 .chatHistoryMeta {
@@ -287,12 +281,6 @@
     background: hsl(var(--muted-foreground));
 }
 
-.messageWrapper {
-    display: flex;
-    width: 100%;
-    animation: fadeIn 0.3s ease-out;
-}
-
 @keyframes fadeIn {
     from {
         opacity: 0;
@@ -302,12 +290,21 @@
     }
 }
 
+.messageWrapper {
+    display: flex;
+    width: 100%;
+    animation: fadeIn 0.3s ease-out;
+}
+
 .messageWrapper.user {
     justify-content: flex-end;
 }
 
+.messageWrapper.assistant {
+    justify-content: flex-start;
+}
+
 .messageContent {
-    max-width: min(70%, 800px);
     display: flex;
     gap: 0.75rem;
     padding: 1rem;
@@ -316,15 +313,21 @@
 }
 
 .user .messageContent {
+    max-width: min(70%, 800px);
     background: linear-gradient(135deg, #06b6d4, #7b2cbf, #ec4899);
     color: white;
     border-bottom-right-radius: 4px;
 }
 
 .assistant .messageContent {
-    background-color: hsl(var(--card));
-    border: 1px solid hsl(var(--border));
-    border-bottom-left-radius: 4px;
+    width: 100%;
+    max-width: 100%;
+    background-color: transparent;
+    border: none;
+    padding: 1.5rem 0;
+    border-bottom-left-radius: 0;
+    padding-left: 0;
+    padding-right: 0;
 }
 
 .avatar {
@@ -342,7 +345,7 @@
 }
 
 .assistant .avatar {
-    background: linear-gradient(135deg, #06b6d4, #7b2cbf, #ec4899);
+    display: none;
 }
 
 .messageBody {

@@ -1,0 +1,433 @@
+/* ============================================
+   MARKDOWN RENDERER STYLES
+   ============================================ */
+
+.markdownContent {
+    font-family: inherit;
+    line-height: 1.6;
+    color: hsl(var(--foreground));
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+/* ============================================
+   HEADINGS
+   ============================================ */
+
+.markdownContent h1,
+.markdownContent h2,
+.markdownContent h3,
+.markdownContent h4,
+.markdownContent h5,
+.markdownContent h6 {
+    margin: 1em 0 0.5em 0;
+    font-weight: 600;
+    line-height: 1.3;
+    color: hsl(var(--foreground));
+}
+
+.markdownContent h1 {
+    font-size: 2em;
+    border-bottom: 2px solid hsl(var(--border));
+    padding-bottom: 0.3em;
+}
+
+.markdownContent h2 {
+    font-size: 1.5em;
+    border-bottom: 1px solid hsl(var(--border));
+    padding-bottom: 0.3em;
+}
+
+.markdownContent h3 {
+    font-size: 1.25em;
+}
+
+.markdownContent h4 {
+    font-size: 1.1em;
+}
+
+.markdownContent h5 {
+    font-size: 1em;
+}
+
+.markdownContent h6 {
+    font-size: 0.95em;
+    color: hsl(var(--muted-foreground));
+}
+
+/* ============================================
+   PARAGRAPHS & TEXT
+   ============================================ */
+
+.markdownContent p {
+    margin: 0.5em 0;
+    text-align: justify;
+}
+
+.markdownContent strong {
+    font-weight: 600;
+    color: hsl(var(--foreground));
+}
+
+.markdownContent em {
+    font-style: italic;
+    color: hsl(var(--foreground));
+}
+
+.markdownContent del {
+    text-decoration: line-through;
+    color: hsl(var(--muted-foreground));
+}
+
+.markdownContent u {
+    text-decoration: underline;
+    text-decoration-color: hsl(var(--primary));
+    text-underline-offset: 2px;
+}
+
+/* ============================================
+   CODE BLOCKS & INLINE CODE
+   ============================================ */
+
+.markdownContent code {
+    font-family: 'Monaco', 'Courier New', monospace;
+    font-size: 0.9em;
+}
+
+.markdownContent code:not([class*="hljs"]) {
+    background-color: hsl(var(--muted) / 0.5);
+    color: hsl(var(--foreground));
+    padding: 0.2em 0.4em;
+    border-radius: 3px;
+    border: 1px solid hsl(var(--border));
+}
+
+.markdownContent pre {
+    background-color: #1e1e1e;
+    color: #d4d4d4;
+    padding: 1em;
+    border-radius: 6px;
+    overflow-x: auto;
+    margin: 0.5em 0;
+    border: 1px solid #333333;
+    font-family: 'Monaco', 'Courier New', monospace;
+    font-size: 0.9em;
+    line-height: 1.5;
+}
+
+.markdownContent pre code {
+    background-color: transparent;
+    color: inherit;
+    padding: 0;
+    border: none;
+}
+
+/* Highlight.js colors - Always Dark Theme */
+.markdownContent .hljs {
+    background-color: #1e1e1e !important;
+    color: #d4d4d4 !important;
+}
+
+.markdownContent .hljs-attr {
+    color: #9cdcfe;
+}
+
+.markdownContent .hljs-attribute {
+    color: #9cdcfe;
+}
+
+.markdownContent .hljs-built_in {
+    color: #4ec9b0;
+}
+
+.markdownContent .hljs-builtin-name {
+    color: #4ec9b0;
+}
+
+.markdownContent .hljs-literal {
+    color: #4ec9b0;
+}
+
+.markdownContent .hljs-bullet {
+    color: #d7ba7d;
+}
+
+.markdownContent .hljs-code {
+    color: #9cdcfe;
+}
+
+.markdownContent .hljs-emphasis {
+    color: #d7ba7d;
+    font-style: italic;
+}
+
+.markdownContent .hljs-strong {
+    color: #d7ba7d;
+    font-weight: bold;
+}
+
+.markdownContent .hljs-formula {
+    color: #9cdcfe;
+}
+
+.markdownContent .hljs-keyword {
+    color: #569cd6;
+}
+
+.markdownContent .hljs-selector-tag {
+    color: #569cd6;
+}
+
+.markdownContent .hljs-literal {
+    color: #569cd6;
+}
+
+.markdownContent .hljs-section {
+    color: #569cd6;
+}
+
+.markdownContent .hljs-link {
+    color: #9cdcfe;
+}
+
+.markdownContent .hljs-meta {
+    color: #858585;
+}
+
+.markdownContent .hljs-meta-string {
+    color: #ce9178;
+}
+
+.markdownContent .hljs-number {
+    color: #b5cea8;
+}
+
+.markdownContent .hljs-quote {
+    color: #608b4e;
+}
+
+.markdownContent .hljs-regexp {
+    color: #ce9178;
+}
+
+.markdownContent .hljs-string {
+    color: #ce9178;
+}
+
+.markdownContent .hljs-symbol {
+    color: #9cdcfe;
+}
+
+.markdownContent .hljs-template-tag {
+    color: #569cd6;
+}
+
+.markdownContent .hljs-template-variable {
+    color: #9cdcfe;
+}
+
+.markdownContent .hljs-title {
+    color: #4ec9b0;
+}
+
+.markdownContent .hljs-type {
+    color: #4ec9b0;
+}
+
+.markdownContent .hljs-variable {
+    color: #9cdcfe;
+}
+
+/* ============================================
+   LISTS
+   ============================================ */
+
+.markdownContent ul,
+.markdownContent ol {
+    margin: 0.5em 0;
+    padding-left: 2em;
+}
+
+.markdownContent li {
+    margin: 0.25em 0;
+}
+
+.markdownContent ul li {
+    list-style-type: disc;
+}
+
+.markdownContent ol li {
+    list-style-type: decimal;
+}
+
+.markdownContent ul ul,
+.markdownContent ol ol {
+    margin: 0.25em 0;
+    padding-left: 2em;
+}
+
+.markdownContent ul ul li {
+    list-style-type: circle;
+}
+
+.markdownContent ul ul ul li {
+    list-style-type: square;
+}
+
+/* ============================================
+   BLOCKQUOTES
+   ============================================ */
+
+.markdownContent blockquote {
+    margin: 0.5em 0;
+    padding: 0.5em 0 0.5em 1em;
+    border-left: 3px solid hsl(var(--primary));
+    background-color: hsl(var(--muted) / 0.3);
+    color: hsl(var(--muted-foreground));
+    font-style: italic;
+}
+
+.markdownContent blockquote p {
+    margin: 0.25em 0;
+}
+
+/* ============================================
+   TABLES
+   ============================================ */
+
+.markdownContent table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 0.5em 0;
+    border: 1px solid hsl(var(--border));
+}
+
+.markdownContent thead {
+    background-color: hsl(var(--muted) / 0.5);
+}
+
+.markdownContent th,
+.markdownContent td {
+    border: 1px solid hsl(var(--border));
+    padding: 0.5em 0.75em;
+    text-align: left;
+}
+
+.markdownContent th {
+    font-weight: 600;
+    color: hsl(var(--foreground));
+}
+
+.markdownContent tbody tr:nth-child(even) {
+    background-color: hsl(var(--muted) / 0.2);
+}
+
+/* ============================================
+   LINKS
+   ============================================ */
+
+.markdownContent a {
+    color: hsl(var(--primary));
+    text-decoration: underline;
+    text-decoration-color: hsl(var(--primary) / 0.5);
+    text-underline-offset: 2px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.markdownContent a:hover {
+    color: hsl(var(--primary) / 0.8);
+    text-decoration-color: hsl(var(--primary));
+}
+
+.markdownContent a:visited {
+    color: hsl(var(--primary) / 0.6);
+}
+
+/* ============================================
+   HORIZONTAL RULES
+   ============================================ */
+
+.markdownContent hr {
+    border: none;
+    border-top: 1px solid hsl(var(--border));
+    margin: 1em 0;
+}
+
+/* ============================================
+   IMAGES
+   ============================================ */
+
+.markdownContent img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 6px;
+    border: 1px solid hsl(var(--border));
+    margin: 0.5em 0;
+    display: block;
+}
+
+/* ============================================
+   RESPONSIVE ADJUSTMENTS
+   ============================================ */
+
+@media (max-width: 768px) {
+    .markdownContent h1 {
+        font-size: 1.75em;
+    }
+
+    .markdownContent h2 {
+        font-size: 1.35em;
+    }
+
+    .markdownContent h3 {
+        font-size: 1.15em;
+    }
+
+    .markdownContent ul,
+    .markdownContent ol {
+        padding-left: 1.5em;
+    }
+
+    .markdownContent pre {
+        font-size: 0.85em;
+        padding: 0.75em;
+    }
+
+    .markdownContent table {
+        font-size: 0.9em;
+    }
+
+    .markdownContent th,
+    .markdownContent td {
+        padding: 0.4em 0.5em;
+    }
+}
+
+@media (max-width: 480px) {
+    .markdownContent h1 {
+        font-size: 1.5em;
+    }
+
+    .markdownContent h2 {
+        font-size: 1.25em;
+    }
+
+    .markdownContent h3 {
+        font-size: 1.05em;
+    }
+
+    .markdownContent ul,
+    .markdownContent ol {
+        padding-left: 1.25em;
+    }
+
+    .markdownContent blockquote {
+        padding-left: 0.75em;
+    }
+
+    .markdownContent pre {
+        border-radius: 4px;
+        font-size: 0.8em;
+    }
+}

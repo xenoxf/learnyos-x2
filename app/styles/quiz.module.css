@@ -13,12 +13,12 @@
 .title {
   font-size: 2rem;
   font-weight: 700;
-  color: var(--foreground);
+  color: hsl(var(--foreground));
   margin-bottom: 0.5rem;
 }
 
 .description {
-  color: var(--muted-foreground);
+  color: hsl(var(--muted-foreground));
   font-size: 1rem;
 }
 
@@ -30,12 +30,12 @@
 .examTitle {
   font-size: 1.75rem;
   font-weight: 700;
-  color: var(--foreground);
+  color: hsl(var(--foreground));
   margin-bottom: 0.5rem;
 }
 
 .examProgress {
-  color: var(--muted-foreground);
+  color: hsl(var(--muted-foreground));
   font-size: 0.875rem;
   margin-bottom: 1rem;
 }
@@ -49,9 +49,9 @@
 .questionCard {
   padding: 2rem;
   margin-bottom: 2rem;
-  border: 2px solid var(--border);
+  border: 2px solid hsl(var(--border));
   border-radius: 12px;
-  background: var(--card);
+  background: hsl(var(--card));
 }
 
 .questionContent {
@@ -61,8 +61,20 @@
 .questionText {
   font-size: 1.25rem;
   font-weight: 600;
-  color: var(--foreground);
+  color: hsl(var(--foreground));
   line-height: 1.5;
+}
+
+.questionBody {
+  margin-bottom: 1.5rem;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  max-width: 100%;
+}
+
+.questionBody .prose {
+  max-width: 100%;
+  overflow-wrap: break-word;
 }
 
 /* Options Container */
@@ -75,9 +87,9 @@
 .optionButton {
   padding: 1.25rem;
   text-align: left;
-  border: 2px solid var(--border);
+  border: 2px solid hsl(var(--border));
   border-radius: 8px;
-  background: var(--card);
+  background: hsl(var(--card));
   cursor: pointer;
   transition: all 0.3s ease;
   display: flex;
@@ -86,12 +98,12 @@
 }
 
 .optionButton:hover {
-  border-color: var(--primary);
+  border-color: hsl(var(--primary));
   background: hsl(var(--primary) / 0.05);
 }
 
 .optionButton.optionSelected {
-  border-color: var(--primary);
+  border-color: hsl(var(--primary));
   background: hsl(var(--primary) / 0.1);
 }
 
@@ -103,21 +115,21 @@
   height: 32px;
   min-width: 32px;
   border-radius: 50%;
-  border: 2px solid var(--border);
+  border: 2px solid hsl(var(--border));
   font-weight: 600;
-  color: var(--muted-foreground);
+  color: hsl(var(--muted-foreground));
   font-size: 0.875rem;
 }
 
 .optionButton.optionSelected .optionRadio {
-  background: var(--primary);
-  color: var(--primary-foreground);
-  border-color: var(--primary);
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  border-color: hsl(var(--primary));
 }
 
 .optionText {
   flex: 1;
-  color: var(--foreground);
+  color: hsl(var(--foreground));
   font-size: 1rem;
   line-height: 1.5;
   word-wrap: break-word;
@@ -154,7 +166,7 @@
 .resultsTitle {
   font-size: 2rem;
   font-weight: 700;
-  color: var(--foreground);
+  color: hsl(var(--foreground));
 }
 
 /* Results Summary */
@@ -185,14 +197,14 @@
 .percentage {
   font-size: 3rem;
   font-weight: 700;
-  color: var(--foreground);
+  color: hsl(var(--foreground));
   margin: 0;
 }
 
 .scoreText {
   font-size: 1.125rem;
   font-weight: 600;
-  color: var(--foreground);
+  color: hsl(var(--foreground));
   margin: 0;
 }
 
@@ -219,7 +231,7 @@
 .resultCard {
   padding: 1.5rem;
   border-radius: 8px;
-  border: 2px solid var(--border);
+  border: 2px solid hsl(var(--border));
 }
 
 .resultCard.resultCorrect {
@@ -262,14 +274,14 @@
 
 .resultQuestion {
   font-weight: 600;
-  color: var(--foreground);
+  color: hsl(var(--foreground));
   margin: 0;
   font-size: 1rem;
 }
 
 .userAnswer {
   font-size: 0.875rem;
-  color: var(--muted-foreground);
+  color: hsl(var(--muted-foreground));
   margin: 0;
 }
 
@@ -281,7 +293,7 @@
 
 .explanation {
   font-size: 0.875rem;
-  color: var(--muted-foreground);
+  color: hsl(var(--muted-foreground));
   margin: 0.5rem 0 0 0;
   font-style: italic;
 }
@@ -297,8 +309,8 @@
 .examCard {
   padding: 1.5rem;
   border-radius: 12px;
-  border: 1px solid var(--border);
-  background: var(--card);
+  border: 1px solid hsl(var(--border));
+  background: hsl(var(--card));
   transition: all 0.3s ease;
   display: flex;
   flex-direction: column;
@@ -307,18 +319,18 @@
 
 .examCard:hover {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  border-color: var(--primary);
+  border-color: hsl(var(--primary));
 }
 
 .examCardTitle {
   font-size: 1.125rem;
   font-weight: 700;
-  color: var(--foreground);
+  color: hsl(var(--foreground));
   margin: 0;
 }
 
 .examCardDescription {
-  color: var(--muted-foreground);
+  color: hsl(var(--muted-foreground));
   font-size: 0.875rem;
   margin: 0;
   line-height: 1.5;
@@ -326,13 +338,13 @@
 
 .examCardMeta {
   font-size: 0.875rem;
-  color: var(--muted-foreground);
+  color: hsl(var(--muted-foreground));
   margin: 0;
 }
 
 .metaLabel {
   font-weight: 600;
-  color: var(--foreground);
+  color: hsl(var(--foreground));
 }
 
 .examButton {
@@ -348,11 +360,11 @@
   padding: 3rem;
   text-align: center;
   border-radius: 12px;
-  background: var(--card);
+  background: hsl(var(--card));
 }
 
 .emptyText {
-  color: var(--muted-foreground);
+  color: hsl(var(--muted-foreground));
   font-size: 1.125rem;
   margin-bottom: 1.5rem;
 }
@@ -368,7 +380,7 @@
 }
 
 .loadingText {
-  color: var(--muted-foreground);
+  color: hsl(var(--muted-foreground));
   font-size: 1rem;
 }
 
@@ -388,7 +400,7 @@
 }
 
 .errorText {
-  color: var(--muted-foreground);
+  color: hsl(var(--muted-foreground));
   text-align: center;
   padding: 1rem;
 }

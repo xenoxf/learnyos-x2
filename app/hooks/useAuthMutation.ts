@@ -1,47 +1,58 @@
 'use client';
 
-import { useCallback } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { apiService } from '@/services/apiService';
-import type { AuthResponse, LoginInput, RegisterInput } from '@/types';
-import { useRouter } from 'next/navigation';
+import type { AuthResponse, User } from '@/types';
 
-export const useAuth = () => {
-  const router = useRouter();
-  const queryClient = useQueryClient();
-
+export function useAuthMutation() {
   const loginMutation = useMutation({
-    mutationFn: (data: LoginInput) => apiService.login(data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['user'] });
-      router.push('/protected/dashboard');
+    mutationFn: async (credentials: { email: string; password: string }) => {
+      return await apiService.login(credentials);
     },
   });
 
   const registerMutation = useMutation({
-    mutationFn: (data: RegisterInput) => apiService.register(data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['user'] });
-      router.push('/protected/dashboard');
+    mutationFn: async (data: { name: string; email: string; password: string }) => {
+      return await apiService.register(data);
+    },
+  });
+
+  const updateUserMutation = useMutation({
+    mutationFn: async (data: { name?: string }) => {
+      return await apiService.updateUser(data);
     },
   });
 
   const logoutMutation = useMutation({
     mutationFn: async () => {
       apiService.logout();
-    },
-    onSuccess: () => {
-      queryClient.clear();
-      router.push('/');
+      return true;
     },
   });
 
   return {
-    login: loginMutation.mutateAsync,
-    register: registerMutation.mutateAsync,
-    logout: logoutMutation.mutateAsync,
-    isLoading: loginMutation.isPending || registerMutation.isPending,
-    isAuthenticated: apiService.isAuthenticated(),
-    user: apiService.getUser(),
+    login: loginMutation.mutate,
+    loginAsync: loginMutation.mutateAsync,
+    isLoggingIn: loginMutation.isPending,
+    loginError: loginMutation.error,
+
+    register: registerMutation.mutate,
+    registerAsync: registerMutation.mutateAsync,
+    isRegistering: registerMutation.isPending,
+    registerError: registerMutation.error,
+
+    updateUser: updateUserMutation.mutate,
+    updateUserAsync: updateUserMutation.mutateAsync,
+    isUpdatingUser: updateUserMutation.isPending,
+    updateUserError: updateUserMutation.error,
+
+    logout: logoutMutation.mutate,
+    isLoggingOut: logoutMutation.isPending,
+
+    isLoading:
+      loginMutation.isPending ||
+      registerMutation.isPending ||
+      updateUserMutation.isPending ||
+      logoutMutation.isPending,
   };
-};
+}

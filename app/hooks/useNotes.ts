@@ -1,52 +1,45 @@
-"use client"
+"use client";
 
-import { useState, useEffect, useCallback } from 'react';
-import { apiService } from '@/services/apiService';
+import { useState, useEffect } from "react";
+import { apiService } from "@/services/apiService";
+import type { Note } from "@/types";
 
 export function useNotes() {
-  const [notes, setNotes] = useState<any[]>([]);
+  const [notes, setNotes] = useState<Note[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const loadNotes = useCallback(async () => {
-    try {
-      setLoading(true);
-      const data = await apiService.getNotes();
-      setNotes(data || []);
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
+  useEffect(() => {
+    const fetchNotes = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const data = await apiService.getNotes();
+        setNotes(Array.isArray(data) ? data : []);
+      } catch (err: any) {
+        setError(err.message || "Error al cargar notas");
+        setNotes([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchNotes();
   }, []);
 
-  const generateNote = useCallback(async (data: { topic?: string; referenceText?: string; quantity?: number; level?: string }) => {
-    try {
-      setLoading(true);
-      const note = await apiService.createNote(data);
-      setNotes([...notes, note]);
-      return note;
-    } catch (err: any) {
-      setError(err.message);
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  }, [notes]);
+  const addNote = (note: Note) => {
+    setNotes((prev: Note[]) => [...prev, note]);
+  };
 
-  const deleteNote = useCallback(async (noteId: number) => {
-    try {
-      await apiService.deleteNote(noteId);
-      setNotes(notes.filter(n => n.id !== noteId));
-    } catch (err: any) {
-      setError(err.message);
-      throw err;
-    }
-  }, [notes]);
+  const removeNote = (noteId: number) => {
+    setNotes((prev: Note[]) => prev.filter((n) => n.id !== noteId));
+  };
 
-  useEffect(() => {
-    loadNotes();
-  }, [loadNotes]);
+  const updateNote = (noteId: number, updated: Partial<Note>) => {
+    setNotes((prev: Note[]) =>
+      prev.map((n) => (n.id === noteId ? { ...n, ...updated } : n)),
+    );
+  };
 
-  return { notes, loading, error, generateNote, deleteNote, loadNotes };
+  return { notes, loading, error, addNote, removeNote, updateNote };
 }

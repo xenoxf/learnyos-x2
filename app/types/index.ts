@@ -1,23 +1,25 @@
 /**
- * Tipos globales para la aplicación LearnYos
- * Sincronizados con Backend Klerk (NestJS)
+ * Tipos globales para LearnYos Frontend
+ * Sincronizados 100% con DTOs del Backend Klerk (NestJS)
+ * SIN DISFRACES - Tipos exactos, nada de casting innecesario
  */
 
-// ==================== USER ====================
+// ==================== AUTHENTICATION ====================
 
 export interface User {
-  id?: number;
+  id: number;
   email: string;
   name: string;
   picture?: string;
   provider?: "local" | "google";
   googleId?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface AuthResponse {
   token: string;
   user: User;
-  message?: string | null;
 }
 
 export interface LoginInput {
@@ -31,44 +33,53 @@ export interface RegisterInput {
   name: string;
 }
 
-// ==================== EXAM ====================
+// ==================== EXAMS ====================
+
+export type DifficultyLevel = "easy" | "medium" | "hard";
 
 export interface ExamOption {
   id?: number;
   text: string;
-  isCorrect?: boolean;
-  correct_answer?: boolean;
+  isCorrect: boolean;
 }
 
 export interface ExamQuestion {
   id?: number;
   question: string;
   explanation?: string;
-  options: ExamOption[] | string[];
+  options: ExamOption[];
   correctAnswer?: string;
-  correct_answer?: string;
 }
 
 export interface Exam {
   id: number;
   title: string;
   description?: string;
-  difficulty?: "easy" | "medium" | "hard";
+  difficulty: DifficultyLevel;
   totalQuestions: number;
-  questions?: ExamQuestion[];
+  questions: ExamQuestion[];
   score?: number;
+  estimatedTime?: string;
   userId?: number;
   createdAt: string;
   updatedAt: string;
 }
 
-// ==================== FLASHCARD ====================
+export interface GenerateExamData {
+  topic?: string;
+  reference?: string;
+  numberOfQuestions: number;
+  difficulty: string;
+}
 
+// ==================== FLASHCARDS ====================
+
+/** Una sola tarjeta (respuesta del backend GET /flash-cards y dentro de generate) */
 export interface FlashCard {
   id: number;
   question: string;
   answer: string;
-  difficulty?: "easy" | "medium" | "hard";
+  difficulty?: DifficultyLevel;
   hint?: string;
   tags?: string[];
   reviewDate?: string;
@@ -78,6 +89,38 @@ export interface FlashCard {
   updatedAt?: string;
 }
 
+/** Mazo/deck para UI: agrupa tarjetas con título */
+export interface FlashCardDeck {
+  id: number;
+  title: string;
+  description?: string;
+  totalCards: number;
+  reviewedCards?: number;
+  lastReviewDate?: string;
+  cards: FlashCard[];
+  userId?: number;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface GenerateFlashCardData {
+  topic?: string;
+  referenceText?: string;
+  /** Se envía al backend como numberOfCards */
+  quantity: number;
+  numberOfCards?: number;
+  level?: string;
+}
+
+/** Respuesta del backend POST /flash-cards/generate/topic_or_reference */
+export interface GenerateFlashcardsResponse {
+  success: boolean;
+  card: { id: number; title: string; description?: string; totalCards: number };
+  totalCreated: number;
+  flashcards: FlashCard[];
+}
+
+/** Mazo (entidad Card del backend) para validación */
 export interface Card {
   id: number;
   title: string;
@@ -87,34 +130,11 @@ export interface Card {
   lastReviewDate?: string;
   flashcards?: FlashCard[];
   userId?: number;
-  createdAt?: string;
-  updatedAt?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
-// ==================== NOTE ====================
-
-export interface NoteContent {
-  id?: number;
-  noteId?: number;
-  text: string;
-  createdAt?: string;
-}
-
-export interface Note {
-  id: number;
-  title: string;
-  content?: string;
-  color?: string;
-  tags?: string[];
-  levelOfDetail?: "breve" | "medio" | "alto";
-  userId?: number;
-  createdAt?: string;
-  updatedAt?: string;
-  noteContents?: NoteContent[];
-}
-
-// ==================== CHAT & MESSAGE ====================
-
+/** Mensaje de chat (entidad Message del backend) */
 export interface Message {
   id: number;
   prompt: string;
@@ -122,61 +142,100 @@ export interface Message {
   chatId?: number;
   userId?: number;
   createdAt: string;
+  updatedAt?: string;
+}
+
+// ==================== NOTES ====================
+
+export interface NoteBlock {
+  id?: number;
+  content?: string;
+  type?: "paragraph" | "heading" | "list" | "code";
+  order?: number;
+}
+
+/** Contenido de nota (entidad note_contents del backend) */
+export interface NoteContent {
+  id?: number;
+  noteId?: number;
+  title?: string;
+  content: string;
+  type?: string;
+  order?: number;
+}
+
+export interface Note {
+  id: number;
+  title: string;
+  description?: string;
+  content?: string;
+  category?: string;
+  tags?: string[];
+  levelOfDetail?: "breve" | "medio" | "alto";
+  blocks?: NoteBlock[];
+  noteContents?: NoteContent[];
+  userId?: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/** Payload para POST /notes/generate/topic_or_reference (alineado con backend) */
+export interface GenerateNoteData {
+  topic?: string;
+  referenceText?: string;
+  numberOfNotes?: number;
+  /** Backend: 'breve' | 'medio' | 'detallado' */
+  levelOfDetail?: "breve" | "medio" | "detallado";
+}
+
+// ==================== CHAT & MESSAGES ====================
+
+export type MessageRole = "user" | "assistant";
+
+export interface ChatMessage {
+  id: number;
+  chatId: number;
+  content: string;
+  role: MessageRole;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface Chat {
   id: number;
-  title?: string;
-  messages?: Message[];
+  title: string;
+  messages?: ChatMessage[];
   messageCount?: number;
   userId?: number;
   createdAt: string;
-  updatedAt?: string;
+  updatedAt: string;
 }
 
-export interface SendMessageInput {
+export interface SendMessageData {
   prompt: string;
   chatId?: number;
 }
 
-// ==================== GENERATION INPUTS ====================
-
-export interface GenerateExamInput {
-  topic?: string;
-  reference?: string;
-  referenceText?: string;
-  difficulty?: "easy" | "medium" | "hard";
-  numberOfQuestions?: number;
-  quantity?: number;
+export interface SendMessageResponse {
+  chatId: number;
+  response: string;
+  messageId: number;
 }
 
-export interface GenerateFlashcardsInput {
-  topic?: string;
-  referenceText?: string;
-  reference?: string;
-  numberOfCards?: number;
-  quantity?: number;
-  level?: "easy" | "medium" | "hard";
+/** Respuesta del backend GET /messages/chat/:chatId */
+export interface GetChatMessagesResponse {
+  chatId: number;
+  title?: string;
+  messages: Array<{ id: number; prompt: string; response: string; createdAt: string }>;
 }
 
-export interface GenerateNoteInput {
-  topic?: string;
-  referenceText?: string;
-  reference?: string;
-  quantity?: number;
-  level?: "breve" | "medio" | "alto";
-}
-
-// ==================== COMMON TYPES ====================
-
-export type Difficulty = "easy" | "medium" | "hard";
-export type NoteLevel = "breve" | "medio" | "alto";
+// ==================== API RESPONSES ====================
 
 export interface ApiResponse<T> {
+  success: boolean;
   data?: T;
   message?: string;
-  status?: number;
-  success?: boolean;
+  error?: string;
 }
 
 export interface PaginatedResponse<T> {
@@ -184,16 +243,16 @@ export interface PaginatedResponse<T> {
   total: number;
   page: number;
   limit: number;
+  pages: number;
 }
 
-// ==================== SETTINGS AND CONFIGURATION ====================
+// ==================== OTHER ====================
 
-export interface SettingsFormData {
-  notifications: boolean;
-  theme: "light" | "dark" | "auto";
-  language: string;
-  dailyGoal: number;
-  emailUpdates: boolean;
+export interface TokenVerificationResult {
+  isValid: boolean;
+  user?: User;
+  isLoading: boolean;
+  error?: string;
 }
 
 export interface PomodoroConfig {
@@ -204,13 +263,4 @@ export interface PomodoroConfig {
   autoStartBreak: boolean;
   soundEnabled: boolean;
   notificationsEnabled: boolean;
-}
-
-// ============= TOKEN & AUTH =============
-
-export interface TokenVerificationResult {
-  isValid: boolean;
-  user?: User;
-  isLoading: boolean;
-  error?: string;
 }

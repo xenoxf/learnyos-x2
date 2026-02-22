@@ -57,12 +57,13 @@ export default function TranslatorPage() {
       const targetLangName =
         LANGUAGES.find((l) => l.code === targetLang)?.name || targetLang;
 
-      let result: any = null;
+      let result: string = "";
 
       // Intentar con Groq del backend primero
       try {
         const prompt = `Traduce el siguiente texto de ${sourceLangName} a ${targetLangName} manteniéndolo académico y preciso:\n\n"${text}"\n\nResponde SOLO con la traducción, sin explicaciones adicionales.`;
-        result = await apiService.generateWithGroq(prompt);
+        const response = await apiService.generateWithGroq(prompt);
+        result = response.content || "";
       } catch (groqError) {
         // Fallback: Usar MyMemory API (pública, sin key)
         console.warn("Groq no disponible, usando fallback MyMemory");
@@ -98,8 +99,7 @@ export default function TranslatorPage() {
         }
       }
 
-      const translatedResult = typeof result === 'string' ? result : (result?.text || result || "Sin respuesta");
-      setTranslatedText(translatedResult);
+      setTranslatedText(result || "");
       toast({
         title: "¡Traducción completada!",
         description: "El texto ha sido traducido correctamente",

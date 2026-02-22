@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { ThemeProvider } from "@/contexts/ThemeContext"
 import { CodeThemeProvider } from "@/contexts/CodeThemeContext"
 import { Toaster } from "@/components/ui/sonner"
+import { Toaster as ToastToaster } from "@/components/ui/toaster"
 import ErrorBoundary from "@/components/ErrorBoundary"
 import { useState } from "react"
 
@@ -27,6 +28,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
           <CodeThemeProvider>
             {children}
             <Toaster />
+            <ToastToaster />
           </CodeThemeProvider>
         </ThemeProvider>
       </QueryClientProvider>

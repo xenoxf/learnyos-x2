@@ -5,7 +5,7 @@
 
 // ==================== BACKEND ====================
 export const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3001';
-export const BACKEND_API_KEY = process.env.NEXT_BACKEND_API_KEY;
+export const BACKEND_API_KEY = process.env.NEXT_PUBLIC_BACKEND_API_KEY || process.env.NEXT_BACKEND_API_KEY;
 
 // ==================== GOOGLE AUTH ====================
 export const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;

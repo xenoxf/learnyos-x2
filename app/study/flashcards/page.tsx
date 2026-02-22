@@ -1,390 +1,280 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import { useState, useMemo } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiService } from "@/services/apiService";
+import type { FlashCard, FlashCardDeck, GenerateFlashCardData } from "@/types";
 import { useToast } from "@/hooks/use-toast";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import {
-  ChevronLeft,
-  ChevronRight,
-  Trash2,
-  RotateCw,
-  Loader,
-  Plus,
-  Sparkles,
-  Search,
-  X,
-} from "lucide-react";
 import styles from "@/styles/flashcards.module.css";
+import { MarkdownRenderer } from "@/components/MarkdownRenderer";
 import DashboardLayout from "../layaut";
-import type { FlashCard } from "@/types";
-import type { Metadata } from 'next';
 
-export const dynamic = 'force-dynamic';
+const DEFAULT_DECK_TITLE = "Mis tarjetas";
+
+function buildSingleDeck(cards: FlashCard[]): FlashCardDeck {
+  return {
+    id: 0,
+    title: DEFAULT_DECK_TITLE,
+    totalCards: cards.length,
+    cards,
+  };
+}
 
 export default function FlashcardsPage() {
-  const [flashcards, setFlashcards] = useState<FlashCard[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [isFlipped, setIsFlipped] = useState(false);
-  const [deleting, setDeleting] = useState<number | null>(null);
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [topic, setTopic] = useState("");
-  const [quantity, setQuantity] = useState(5);
-  const [showGeneratorForm, setShowGeneratorForm] = useState(false);
+  const queryClient = useQueryClient();
   const { toast } = useToast();
+  const [selectedDeck, setSelectedDeck] = useState<FlashCardDeck | null>(null);
+  const [currentCardIndex, setCurrentCardIndex] = useState(0);
+  const [isFlipped, setIsFlipped] = useState(false);
+  const [showGenerateForm, setShowGenerateForm] = useState(false);
+  const [formData, setFormData] = useState<GenerateFlashCardData>({
+    topic: "",
+    quantity: 10,
+  });
 
-  useEffect(() => {
-    loadFlashcards();
-  }, []);
+  const { data: cards = [], isLoading: isLoadingDecks } = useQuery<FlashCard[]>({
+    queryKey: ["flashcards"],
+    queryFn: () => apiService.getFlashcards(),
+  });
 
-  const loadFlashcards = useCallback(async () => {
-    try {
-      setLoading(true);
-      const data = await apiService.getFlashcards();
-      const typedData = Array.isArray(data) ? data : [];
-      setFlashcards(typedData);
-      setCurrentIndex(0);
-      setIsFlipped(false);
-    } catch (error: any) {
-      console.error("Error loading flashcards:", error);
-      toast({
-        title: "Error",
-        description: error.message || "No pudimos cargar tus tarjetas",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  }, [toast]);
-
-  const handleGenerateFlashcards = async () => {
-    if (!topic.trim() || quantity <= 0) {
-      toast({
-        title: "Campos requeridos",
-        description: "Por favor ingresa un tema y cantidad válida",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    try {
-      setIsGenerating(true);
-      const newFlashcards = await apiService.generateFlashcards({
-        topic: topic.trim(),
-        quantity,
-      });
-
-      if (newFlashcards?.cards && Array.isArray(newFlashcards.cards)) {
-        setFlashcards((prev) => [...newFlashcards.cards, ...prev]);
-        setTopic("");
-        setQuantity(5);
-        setShowGeneratorForm(false);
-        toast({
-          title: "¡Éxito!",
-          description: `Se generaron ${newFlashcards.cards.length} flashcards correctamente`,
-        });
-      }
-    } catch (error: any) {
-      console.error("Error generating flashcards:", error);
-      toast({
-        title: "Error",
-        description: error.message || "No se pudieron generar las flashcards",
-        variant: "destructive",
-      });
-    } finally {
-      setIsGenerating(false);
-    }
-  };
-
-  const handleNext = () => {
-    if (currentIndex < flashcards.length - 1) {
-      setCurrentIndex(currentIndex + 1);
-      setIsFlipped(false);
-    } else {
-      toast({
-        title: "Fin del mazo",
-        description: "¡Has llegado a la última tarjeta!",
-      });
-    }
-  };
-
-  const handlePrevious = () => {
-    if (currentIndex > 0) {
-      setCurrentIndex(currentIndex - 1);
-      setIsFlipped(false);
-    }
-  };
-
-  const handleDelete = async (id: number) => {
-    try {
-      setDeleting(id);
-      await apiService.deleteFlashcard(id);
-      const newFlashcards = flashcards.filter((f) => f.id !== id);
-      setFlashcards(newFlashcards);
-      setCurrentIndex(
-        Math.max(0, Math.min(currentIndex, newFlashcards.length - 1)),
-      );
-      toast({
-        title: "Tarjeta eliminada",
-        description: "La tarjeta ha sido removida correctamente",
-      });
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message || "Error al eliminar la tarjeta",
-        variant: "destructive",
-      });
-    } finally {
-      setDeleting(null);
-    }
-  };
-
-  const filteredFlashcards = flashcards.filter(
-    (card) =>
-      (card.question || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (card.answer || "").toLowerCase().includes(searchQuery.toLowerCase()),
+  const decks: FlashCardDeck[] = useMemo(
+    () => (cards.length > 0 ? [buildSingleDeck(cards)] : []),
+    [cards]
   );
 
-  if (loading) {
-    return (
-      <DashboardLayout>
-        <div className={styles.container}>
-          <div className="flex flex-col items-center justify-center py-24 gap-4">
-            <Loader className="w-8 h-8 animate-spin" />
-            <p>Cargando tus flashcards...</p>
-          </div>
-        </div>
-      </DashboardLayout>
-    );
-  }
+  const { mutate: generateFlashcards, isPending: isGenerating } = useMutation({
+    mutationFn: (data: GenerateFlashCardData) =>
+      apiService.generateFlashcards({
+        ...data,
+        quantity: data.quantity ?? data.numberOfCards ?? 10,
+      }),
+    onSuccess: (res) => {
+      queryClient.invalidateQueries({ queryKey: ["flashcards"] });
+      if (res.flashcards?.length && res.card) {
+        const newDeck: FlashCardDeck = {
+          id: res.card.id,
+          title: res.card.title,
+          totalCards: res.totalCreated,
+          cards: res.flashcards,
+        };
+        setSelectedDeck(newDeck);
+        setCurrentCardIndex(0);
+        setShowGenerateForm(false);
+        setFormData({ topic: "", quantity: 10 });
+        toast({
+          title: "Éxito",
+          description: `Se generaron ${res.totalCreated} flashcards correctamente`,
+        });
+      }
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error?.message ?? "Error al generar flashcards",
+        variant: "destructive",
+      });
+    },
+  });
 
-  if (flashcards.length === 0) {
-    return (
-      <DashboardLayout>
-        <div className={styles.container}>
-          <section className={styles.header}>
-            <h1 className={styles.title}>🃏 Flashcards</h1>
-            <p className={styles.description}>
-              Tarjetas de estudio con repetición espaciada
-            </p>
-          </section>
+  const { mutate: deleteDeck } = useMutation({
+    mutationFn: (deckId: number) => apiService.deleteFlashcard(deckId),
+    onSuccess: () => {
+      setSelectedDeck(null);
+      queryClient.invalidateQueries({ queryKey: ["flashcards"] });
+    },
+  });
 
-          <Card className="p-12 text-center">
-            <p className="mb-4">No tienes flashcards aún</p>
-            <div className="flex gap-2">
-              <Button onClick={loadFlashcards} variant="outline">
-                <RotateCw className="w-4 h-4 mr-2" />
-                Actualizar
-              </Button>
-              <Button onClick={() => setShowGeneratorForm(true)}>
-                <Plus className="w-4 h-4 mr-2" />
-                Generar Flashcards
-              </Button>
-            </div>
-          </Card>
+  const handleGenerateFlashcards = () => {
+    if (!formData.topic?.trim()) return;
+    generateFlashcards(formData);
+  };
 
-          {showGeneratorForm && (
-            <Card className="mt-6 p-6">
-              <h2 className="mb-4 font-semibold">Generar Flashcards con IA</h2>
-              <div className="space-y-4">
-                <div>
-                  <label className="text-sm font-medium">Tema</label>
-                  <Input
-                    value={topic}
-                    onChange={(e) => setTopic(e.target.value)}
-                    placeholder="Ej: Historia de España"
-                    disabled={isGenerating}
-                  />
-                </div>
-                <div>
-                  <label className="text-sm font-medium">Cantidad de tarjetas</label>
-                  <Input
-                    type="number"
-                    value={quantity}
-                    onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 5))}
-                    min="1"
-                    max="50"
-                    disabled={isGenerating}
-                  />
-                </div>
-                <div className="flex gap-2">
-                  <Button onClick={handleGenerateFlashcards} disabled={isGenerating}>
-                    {isGenerating ? (
-                      <>
-                        <Loader className="w-4 h-4 mr-2 animate-spin" />
-                        Generando...
-                      </>
-                    ) : (
-                      <>
-                        <Sparkles className="w-4 h-4 mr-2" />
-                        Generar
-                      </>
-                    )}
-                  </Button>
-                  <Button
-                    onClick={() => setShowGeneratorForm(false)}
-                    variant="outline"
-                    disabled={isGenerating}
-                  >
-                    Cancelar
-                  </Button>
-                </div>
-              </div>
-            </Card>
-          )}
-        </div>
-      </DashboardLayout>
-    );
-  }
-
-  const current = flashcards[currentIndex];
-  const progress = Math.round(((currentIndex + 1) / flashcards.length) * 100);
+  const currentCard = selectedDeck?.cards[currentCardIndex];
+  const progress =
+    selectedDeck && selectedDeck.cards.length > 0
+      ? ((currentCardIndex + 1) / selectedDeck.cards.length) * 100
+      : 0;
 
   return (
     <DashboardLayout>
-      <div className={styles.container}>
-        <section className={styles.header}>
-          <h1 className={styles.title}>🃏 Flashcards</h1>
-          <p className={styles.description}>
-            {currentIndex + 1} de {flashcards.length} • {progress}%
-          </p>
-        </section>
-
-        {/* Progress Bar */}
-        <div className="w-full bg-muted rounded-full h-2 mb-6 overflow-hidden">
-          <div
-            className="bg-primary h-full transition-all duration-300"
-            style={{ width: `${progress}%` }}
-          ></div>
+    <div className={styles.flashcardsContainer}>
+      <div className={styles.decksSidebar}>
+        <div className={styles.sidebarHeader}>
+          <h2 className={styles.sidebarTitle}>Mis Mazos</h2>
+          <button
+            className={styles.createButton}
+            onClick={() => setShowGenerateForm(!showGenerateForm)}
+          >
+            + Nuevo
+          </button>
         </div>
 
-        {/* Flip Card */}
-        <Card
-          onClick={() => setIsFlipped(!isFlipped)}
-          className={`${styles.flipCard} ${isFlipped ? styles.flipped : ""} cursor-pointer mb-8 h-64 flex items-center justify-center`}
-        >
-          <div className={styles.flipCardInner}>
-            <div className={styles.flipCardFront}>
-              <p className={styles.cardLabel}>Pregunta</p>
-              <p className={styles.cardContent}>{current.question}</p>
-            </div>
-            <div className={styles.flipCardBack}>
-              <p className={styles.cardLabel}>Respuesta</p>
-              <p className={styles.cardContent}>{current.answer}</p>
-            </div>
+        {showGenerateForm && (
+          <div className={styles.generateForm}>
+            <input
+              type="text"
+              placeholder="Tema..."
+              value={formData.topic ?? ""}
+              onChange={(e) =>
+                setFormData({ ...formData, topic: e.target.value })
+              }
+              className={styles.formInput}
+            />
+            <input
+              type="number"
+              placeholder="Cantidad..."
+              value={formData.quantity ?? 10}
+              onChange={(e) =>
+                setFormData({
+                  ...formData,
+                  quantity: parseInt(e.target.value, 10) || 10,
+                })
+              }
+              className={styles.formInput}
+              min={1}
+              max={50}
+            />
+            <button
+              onClick={handleGenerateFlashcards}
+              disabled={isGenerating}
+              className={styles.generateButton}
+            >
+              {isGenerating ? "Generando..." : "Generar"}
+            </button>
+            <button
+              onClick={() => setShowGenerateForm(false)}
+              className={styles.cancelButton}
+            >
+              Cancelar
+            </button>
           </div>
-          <div className="absolute bottom-4 right-4 text-xs">
-            {isFlipped ? "Ver pregunta" : "Ver respuesta"}
+        )}
+
+        {isLoadingDecks ? (
+          <div className={styles.loadingState}>Cargando mazos...</div>
+        ) : decks.length === 0 ? (
+          <div className={styles.emptyState}>
+            <p>Sin mazos aún</p>
+            <p className={styles.hint}>Crea o genera uno</p>
           </div>
-        </Card>
-
-        {/* Controls */}
-        <div className={styles.controls}>
-          <Button
-            variant="outline"
-            onClick={handlePrevious}
-            disabled={currentIndex === 0}
-            className="flex-1"
-          >
-            <ChevronLeft className="w-4 h-4 mr-2" />
-            Anterior
-          </Button>
-
-          <div className="flex items-center justify-center px-4 text-sm font-medium">
-            {currentIndex + 1} / {flashcards.length}
+        ) : (
+          <div className={styles.decksList}>
+            {decks.map((deck) => (
+              <div
+                key={deck.id}
+                className={`${styles.deckItem} ${
+                  selectedDeck?.id === deck.id ? styles.deckItemActive : ""
+                }`}
+                onClick={() => {
+                  setSelectedDeck(deck);
+                  setCurrentCardIndex(0);
+                  setIsFlipped(false);
+                }}
+              >
+                <div className={styles.deckItemTitle}>{deck.title}</div>
+                <span className={styles.deckCardCount}>{deck.cards.length}</span>
+                {deck.id !== 0 && (
+                  <button
+                    className={styles.deleteButton}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      deleteDeck(deck.id);
+                    }}
+                  >
+                    ×
+                  </button>
+                )}
+              </div>
+            ))}
           </div>
-
-          <Button
-            variant="outline"
-            onClick={handleNext}
-            disabled={currentIndex === flashcards.length - 1}
-            className="flex-1"
-          >
-            Siguiente
-            <ChevronRight className="w-4 h-4 ml-2" />
-          </Button>
-
-          <Button
-            variant="destructive"
-            onClick={() => handleDelete(current.id)}
-            disabled={deleting === current.id}
-            size="icon"
-          >
-            {deleting === current.id ? (
-              <Loader className="w-4 h-4 animate-spin" />
-            ) : (
-              <Trash2 className="w-4 h-4" />
-            )}
-          </Button>
-        </div>
-
-        {/* Actions */}
-        <div className="mt-6 flex justify-center gap-2">
-          <Button onClick={loadFlashcards} variant="secondary" size="sm">
-            <RotateCw className="w-4 h-4 mr-2" />
-            Recargar mazo
-          </Button>
-          <Button onClick={() => setShowGeneratorForm(!showGeneratorForm)} size="sm">
-            <Plus className="w-4 h-4 mr-2" />
-            Generar
-          </Button>
-        </div>
-
-        {showGeneratorForm && (
-          <Card className="mt-6 p-6">
-            <h3 className="mb-4 font-semibold">Generar Nuevas Flashcards</h3>
-            <div className="space-y-4">
-              <div>
-                <label className="text-sm font-medium">Tema</label>
-                <Input
-                  value={topic}
-                  onChange={(e) => setTopic(e.target.value)}
-                  placeholder="Ej: Biología Celular"
-                  disabled={isGenerating}
-                />
-              </div>
-              <div>
-                <label className="text-sm font-medium">Cantidad</label>
-                <Input
-                  type="number"
-                  value={quantity}
-                  onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 5))}
-                  min="1"
-                  max="50"
-                  disabled={isGenerating}
-                />
-              </div>
-              <div className="flex gap-2">
-                <Button onClick={handleGenerateFlashcards} disabled={isGenerating} className="flex-1">
-                  {isGenerating ? (
-                    <>
-                      <Loader className="w-4 h-4 mr-2 animate-spin" />
-                      Generando...
-                    </>
-                  ) : (
-                    <>
-                      <Sparkles className="w-4 h-4 mr-2" />
-                      Generar
-                    </>
-                  )}
-                </Button>
-                <Button
-                  onClick={() => setShowGeneratorForm(false)}
-                  variant="outline"
-                  disabled={isGenerating}
-                  className="flex-1"
-                >
-                  Cancelar
-                </Button>
-              </div>
-            </div>
-          </Card>
         )}
       </div>
+
+      <div className={styles.flashcardsMain}>
+        {!selectedDeck ? (
+          <div className={styles.noDeckSelected}>
+            <h2>Selecciona un mazo</h2>
+            <p>O genera uno nuevo</p>
+          </div>
+        ) : (
+          <>
+            <div className={styles.flashcardsHeader}>
+              <h1 className={styles.deckTitle}>{selectedDeck.title}</h1>
+              <div className={styles.progress}>
+                <span className={styles.progressText}>
+                  {currentCardIndex + 1} / {selectedDeck.cards.length}
+                </span>
+                <div className={styles.progressBar}>
+                  <div
+                    className={styles.progressFill}
+                    style={{ width: `${progress}%` }}
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className={styles.cardContainer}>
+              {currentCard ? (
+                <div
+                  className={`${styles.flashcard} ${
+                    isFlipped ? styles.flipped : ""
+                  }`}
+                  onClick={() => setIsFlipped(!isFlipped)}
+                >
+                  <div className={styles.cardFace}>
+                    <div className={styles.cardInner}>
+                      <h2 className={styles.cardTitle}>
+                        {isFlipped ? "Respuesta" : "Pregunta"}
+                      </h2>
+                      <div className={styles.cardContent}>
+                        <MarkdownRenderer
+                          content={
+                            isFlipped ? currentCard.answer : currentCard.question
+                          }
+                        />
+                      </div>
+                      <span className={styles.cardHint}>
+                        Haz clic para voltear
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className={styles.noCard}>Sin tarjetas</div>
+              )}
+            </div>
+
+            <div className={styles.navigation}>
+              <button
+                onClick={() =>
+                  setCurrentCardIndex(Math.max(0, currentCardIndex - 1))
+                }
+                disabled={currentCardIndex === 0}
+                className={styles.navButton}
+              >
+                ← Anterior
+              </button>
+              <button
+                onClick={() =>
+                  setCurrentCardIndex(
+                    Math.min(
+                      selectedDeck.cards.length - 1,
+                      currentCardIndex + 1
+                    )
+                  )
+                }
+                disabled={
+                  currentCardIndex === selectedDeck.cards.length - 1
+                }
+                className={styles.navButton}
+              >
+                Siguiente →
+              </button>
+            </div>
+          </>
+        )}
+      </div>
+    </div>
     </DashboardLayout>
   );
 }
