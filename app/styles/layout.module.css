@@ -16,7 +16,7 @@
    ============================================ */
 
 .sidebarWrapper {
-  width: 240px;
+  width: fit-content;
   height: 100vh;
   transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   flex-shrink: 0;
@@ -25,7 +25,7 @@
 }
 
 .sidebarWrapperExpanded {
-  width: 240px;
+  width: fit-content;
 }
 
 .sidebarWrapperCollapsed {
@@ -91,7 +91,7 @@
   }
 }
 
-/* Tablet */
+/* Tablet 
 @media screen and (min-width: 769px) and (max-width: 1023px) {
   .sidebarWrapperExpanded {
     width: 220px;
