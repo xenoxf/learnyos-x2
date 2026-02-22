@@ -297,8 +297,34 @@ export default function QuizPage() {
 
   const handleGenerateExam = async (data: Partial<GenerateExamData>) => {
     try {
+      // Validar que tenemos los datos mínimos requeridos
+      if (!data.numberOfQuestions || !data.difficulty) {
+        toast({
+          title: "Datos incompletos",
+          description: "Debes proporcionar número de preguntas y dificultad",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (!data.topic && !data.reference) {
+        toast({
+          title: "Datos incompletos",
+          description: "Debes proporcionar un tema o texto de referencia",
+          variant: "destructive",
+        });
+        return;
+      }
+
       setGenerating(true);
-      const response = await apiService.generateExam(data as GenerateExamData);
+      const validData: GenerateExamData = {
+        numberOfQuestions: data.numberOfQuestions,
+        difficulty: data.difficulty,
+        topic: data.topic,
+        reference: data.reference,
+      };
+
+      const response = await apiService.generateExam(validData);
 
       if (response) {
         toast({
@@ -309,7 +335,8 @@ export default function QuizPage() {
         setShowGenerateModal(false);
       }
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Error al generar el examen";
+      const msg =
+        err instanceof Error ? err.message : "Error al generar el examen";
       toast({
         title: "Error",
         description: msg,

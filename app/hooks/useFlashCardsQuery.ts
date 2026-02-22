@@ -24,7 +24,7 @@ export function useFlashCardsQuery() {
     mutationFn: (input) =>
       apiService.generateFlashcards({
         ...input,
-        quantity: input.quantity ?? input.numberOfCards ?? 10,
+        quantity: input.quantity,
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['flashcards'] });

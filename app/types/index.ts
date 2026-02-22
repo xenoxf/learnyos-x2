@@ -106,9 +106,7 @@ export interface FlashCardDeck {
 export interface GenerateFlashCardData {
   topic?: string;
   referenceText?: string;
-  /** Se envía al backend como numberOfCards */
   quantity: number;
-  numberOfCards?: number;
   level?: string;
 }
 
@@ -183,9 +181,9 @@ export interface Note {
 export interface GenerateNoteData {
   topic?: string;
   referenceText?: string;
+  color?: string;
   numberOfNotes?: number;
-  /** Backend: 'breve' | 'medio' | 'detallado' */
-  levelOfDetail?: "breve" | "medio" | "detallado";
+  levelOfDetail?: string;
 }
 
 // ==================== CHAT & MESSAGES ====================

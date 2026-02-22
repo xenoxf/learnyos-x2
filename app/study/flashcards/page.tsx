@@ -3,7 +3,12 @@
 import { useState, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiService } from "@/services/apiService";
-import type { FlashCard, FlashCardDeck, GenerateFlashCardData } from "@/types";
+import type {
+  FlashCard,
+  FlashCardDeck,
+  GenerateFlashCardData,
+  GenerateFlashcardsResponse,
+} from "@/types";
 import { useToast } from "@/hooks/use-toast";
 import styles from "@/styles/flashcards.module.css";
 import { MarkdownRenderer } from "@/components/MarkdownRenderer";
@@ -42,13 +47,17 @@ export default function FlashcardsPage() {
     [cards]
   );
 
-  const { mutate: generateFlashcards, isPending: isGenerating } = useMutation({
+  const { mutate: generateFlashcards, isPending: isGenerating } = useMutation<
+    GenerateFlashcardsResponse,
+    Error,
+    GenerateFlashCardData
+  >({
     mutationFn: (data: GenerateFlashCardData) =>
       apiService.generateFlashcards({
         ...data,
-        quantity: data.quantity ?? data.numberOfCards ?? 10,
+        quantity: data.quantity ?? 10,
       }),
-    onSuccess: (res) => {
+    onSuccess: (res: GenerateFlashcardsResponse) => {
       queryClient.invalidateQueries({ queryKey: ["flashcards"] });
       if (res.flashcards?.length && res.card) {
         const newDeck: FlashCardDeck = {

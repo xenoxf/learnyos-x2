@@ -66,20 +66,13 @@ export default function NotesPage() {
 
     try {
       setIsGenerating(true);
-      const levelMap: Record<"breve" | "medio" | "alto", "breve" | "medio" | "detallado"> = {
-        breve: "breve",
-        medio: "medio",
-        alto: "detallado",
-      };
 
       const res = await apiService.generateNote({
         topic: topic.trim(),
-        numberOfNotes: 1,
-        levelOfDetail: levelMap[levelOfDetail],
       });
 
-      if (res?.notes?.length) {
-        setNotes((prev) => [...res.notes, ...prev]);
+      if (res) {
+        setNotes((prev) => [res, ...prev]);
         setTopic("");
         toast({
           title: "¡Éxito!",

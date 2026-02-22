@@ -195,17 +195,22 @@ class ApiService {
     });
   }
 
-  async generateNote(data: GenerateNoteData): Promise<{ success: boolean; notes: Note[] }> {
-    const payload = {
+  async generateNote(data: GenerateNoteData): Promise<Note> {
+    const payload: Record<string, string | undefined> = {
       topic: data.topic,
       referenceText: data.referenceText,
-      numberOfNotes: data.numberOfNotes ?? 1,
-      levelOfDetail: data.levelOfDetail ?? "medio",
+      color: data.color,
     };
-    return this.request<{ success: boolean; notes: Note[] }>(
-      '/notes/generate/topic_or_reference',
-      { method: 'POST', body: JSON.stringify(payload) }
+
+    // Remove undefined values
+    Object.keys(payload).forEach(
+      (key) => payload[key] === undefined && delete payload[key]
     );
+
+    return this.request<Note>('/notes/generate/topic_or_reference', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
   }
 
   async updateNote(id: number, data: Partial<Note>): Promise<Note> {
@@ -233,8 +238,13 @@ class ApiService {
     const payload: Record<string, unknown> = {
       topic: data.topic,
       referenceText: data.referenceText,
-      numberOfCards: data.numberOfCards ?? data.quantity,
+      quantity: data.quantity,
     };
+
+    if (data.level) {
+      payload.level = data.level;
+    }
+
     return this.request<GenerateFlashcardsResponse>('/flash-cards/generate/topic_or_reference', {
       method: 'POST',
       body: JSON.stringify(payload),

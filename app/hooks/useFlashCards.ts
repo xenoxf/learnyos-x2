@@ -2,7 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import { apiService } from '@/services/apiService';
-import type { FlashCard, GenerateFlashCardData } from '@/types';
+import type {
+  FlashCard,
+  GenerateFlashCardData,
+  GenerateFlashcardsResponse,
+} from '@/types';
 
 export function useFlashCards() {
   const [flashcards, setFlashcards] = useState<FlashCard[]>([]);
@@ -49,17 +53,19 @@ export function useFlashCards() {
     try {
       setLoading(true);
       setError(null);
-      const res = await apiService.generateFlashcards({
+      const res: GenerateFlashcardsResponse = await apiService.generateFlashcards({
         ...data,
-        quantity: data.quantity ?? data.numberOfCards ?? 10,
+        quantity: data.quantity ?? 10,
       });
-      if (res?.flashcards?.length) {
+      if (res.flashcards?.length) {
         addFlashCards(res.flashcards);
         return res.flashcards;
       }
       return null;
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Error al generar flashcards');
+      const errorMessage =
+        err instanceof Error ? err.message : 'Error al generar flashcards';
+      setError(errorMessage);
       return null;
     } finally {
       setLoading(false);
