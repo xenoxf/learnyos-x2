@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { apiService } from '@/services/apiService';
 import type {
   FlashCard,
-  GenerateFlashCardData,
+  GenerateFlashCardDto,
   GenerateFlashcardsResponse,
 } from '@/types';
 
@@ -49,7 +49,7 @@ export function useFlashCards() {
     );
   };
 
-  const generateFlashCards = async (data: GenerateFlashCardData): Promise<FlashCard[] | null> => {
+  const generateFlashCards = async (data: GenerateFlashCardDto): Promise<FlashCard[] | null> => {
     try {
       setLoading(true);
       setError(null);

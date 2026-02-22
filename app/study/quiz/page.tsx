@@ -36,7 +36,7 @@ import {
   FileQuestion,
   X,
 } from "lucide-react";
-import type { Exam, ExamQuestion, ExamOption, GenerateExamData } from "@/types";
+import type { Exam, ExamQuestion, ExamOption, GenerateExamDto } from "@/types";
 import styles from "@/styles/quiz.module.css";
 import DashboardLayout from "../layaut";
 import { MarkdownRenderer } from "@/components/MarkdownRenderer";
@@ -295,7 +295,7 @@ export default function QuizPage() {
     setTimer(0);
   };
 
-  const handleGenerateExam = async (data: Partial<GenerateExamData>) => {
+  const handleGenerateExam = async (data: Partial<GenerateExamDto>) => {
     try {
       // Validar que tenemos los datos mínimos requeridos
       if (!data.numberOfQuestions || !data.difficulty) {
@@ -317,7 +317,7 @@ export default function QuizPage() {
       }
 
       setGenerating(true);
-      const validData: GenerateExamData = {
+      const validData: GenerateExamDto = {
         numberOfQuestions: data.numberOfQuestions,
         difficulty: data.difficulty,
         topic: data.topic,

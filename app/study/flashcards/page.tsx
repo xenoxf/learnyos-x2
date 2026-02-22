@@ -6,7 +6,7 @@ import { apiService } from "@/services/apiService";
 import type {
   FlashCard,
   FlashCardDeck,
-  GenerateFlashCardData,
+  GenerateFlashCardDto,
   GenerateFlashcardsResponse,
 } from "@/types";
 import { useToast } from "@/hooks/use-toast";
@@ -32,9 +32,10 @@ export default function FlashcardsPage() {
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
   const [showGenerateForm, setShowGenerateForm] = useState(false);
-  const [formData, setFormData] = useState<GenerateFlashCardData>({
+  const [formData, setFormData] = useState<GenerateFlashCardDto>({
     topic: "",
     quantity: 10,
+    level: ''
   });
 
   const { data: cards = [], isLoading: isLoadingDecks } = useQuery<FlashCard[]>({
@@ -50,9 +51,9 @@ export default function FlashcardsPage() {
   const { mutate: generateFlashcards, isPending: isGenerating } = useMutation<
     GenerateFlashcardsResponse,
     Error,
-    GenerateFlashCardData
+    GenerateFlashCardDto
   >({
-    mutationFn: (data: GenerateFlashCardData) =>
+    mutationFn: (data: GenerateFlashCardDto) =>
       apiService.generateFlashcards({
         ...data,
         quantity: data.quantity ?? 10,
@@ -69,7 +70,7 @@ export default function FlashcardsPage() {
         setSelectedDeck(newDeck);
         setCurrentCardIndex(0);
         setShowGenerateForm(false);
-        setFormData({ topic: "", quantity: 10 });
+        setFormData({ topic: "", quantity: 10, level: '' });
         toast({
           title: "Éxito",
           description: `Se generaron ${res.totalCreated} flashcards correctamente`,

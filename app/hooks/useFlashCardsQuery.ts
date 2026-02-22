@@ -2,7 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiService } from '@/services/apiService';
-import type { FlashCard, GenerateFlashCardData } from '@/types';
+import type { FlashCard, GenerateFlashCardDto } from '@/types';
 
 export function useFlashCardsQuery() {
   const queryClient = useQueryClient();
@@ -19,7 +19,7 @@ export function useFlashCardsQuery() {
   const generateMutation = useMutation<
     Awaited<ReturnType<typeof apiService.generateFlashcards>>,
     Error,
-    GenerateFlashCardData
+    GenerateFlashCardDto
   >({
     mutationFn: (input) =>
       apiService.generateFlashcards({

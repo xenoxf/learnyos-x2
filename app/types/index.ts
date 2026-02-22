@@ -65,7 +65,7 @@ export interface Exam {
   updatedAt: string;
 }
 
-export interface GenerateExamData {
+export interface GenerateExamDto {
   topic?: string;
   reference?: string;
   numberOfQuestions: number;
@@ -103,11 +103,11 @@ export interface FlashCardDeck {
   updatedAt?: string;
 }
 
-export interface GenerateFlashCardData {
+export interface GenerateFlashCardDto {
   topic?: string;
   referenceText?: string;
   quantity: number;
-  level?: string;
+  level: string;
 }
 
 /** Respuesta del backend POST /flash-cards/generate/topic_or_reference */
@@ -145,6 +145,21 @@ export interface Message {
 
 // ==================== NOTES ====================
 
+export type LevelOfDetail = "breve" | "medio" | "detallado" | "alto";
+
+/** Contenido de nota (entidad note_contents del backend) */
+export interface NoteContent {
+  id: number;
+  noteId: number;
+  title?: string;
+  content: string;
+  type: string;
+  order: number;
+  userId?: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface NoteBlock {
   id?: number;
   content?: string;
@@ -152,16 +167,7 @@ export interface NoteBlock {
   order?: number;
 }
 
-/** Contenido de nota (entidad note_contents del backend) */
-export interface NoteContent {
-  id?: number;
-  noteId?: number;
-  title?: string;
-  content: string;
-  type?: string;
-  order?: number;
-}
-
+/** Entidad Note del backend */
 export interface Note {
   id: number;
   title: string;
@@ -169,7 +175,7 @@ export interface Note {
   content?: string;
   category?: string;
   tags?: string[];
-  levelOfDetail?: "breve" | "medio" | "alto";
+  levelOfDetail?: LevelOfDetail;
   blocks?: NoteBlock[];
   noteContents?: NoteContent[];
   userId?: number;
@@ -177,13 +183,18 @@ export interface Note {
   updatedAt: string;
 }
 
-/** Payload para POST /notes/generate/topic_or_reference (alineado con backend) */
-export interface GenerateNoteData {
+/** Respuesta del backend POST /notes/generate/topic_or_reference */
+export interface GenerateNoteResponse {
+  success: boolean;
+  notes: Note[];
+}
+
+/** Payload para POST /notes/generate/topic_or_reference */
+export interface GenerateNoteDto {
   topic?: string;
   referenceText?: string;
-  color?: string;
   numberOfNotes?: number;
-  levelOfDetail?: string;
+  levelOfDetail?: LevelOfDetail;
 }
 
 // ==================== CHAT & MESSAGES ====================
@@ -224,7 +235,12 @@ export interface SendMessageResponse {
 export interface GetChatMessagesResponse {
   chatId: number;
   title?: string;
-  messages: Array<{ id: number; prompt: string; response: string; createdAt: string }>;
+  messages: Array<{
+    id: number;
+    prompt: string;
+    response: string;
+    createdAt: string;
+  }>;
 }
 
 // ==================== API RESPONSES ====================

@@ -8,16 +8,16 @@ import type {
   Note,
   FlashCard,
   FlashCardDeck,
-  GenerateFlashCardData,
+  GenerateFlashCardDto,
   GenerateFlashcardsResponse,
   Exam,
-  GenerateExamData,
+  GenerateExamDto,
   Chat,
   ChatMessage,
   SendMessageData,
   SendMessageResponse,
   GetChatMessagesResponse,
-  GenerateNoteData,
+  GenerateNoteDto,
 } from '@/types';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
@@ -188,34 +188,10 @@ class ApiService {
     return this.request<Note>(`/notes/${id}`, { method: 'GET' });
   }
 
-  async createNote(data: Partial<Note>): Promise<Note> {
-    return this.request<Note>('/notes', {
-      method: 'POST',
-      body: JSON.stringify(data),
-    });
-  }
 
-  async generateNote(data: GenerateNoteData): Promise<Note> {
-    const payload: Record<string, string | undefined> = {
-      topic: data.topic,
-      referenceText: data.referenceText,
-      color: data.color,
-    };
-
-    // Remove undefined values
-    Object.keys(payload).forEach(
-      (key) => payload[key] === undefined && delete payload[key]
-    );
-
+  async generateNote(data: GenerateNoteDto): Promise<Note> {
     return this.request<Note>('/notes/generate/topic_or_reference', {
       method: 'POST',
-      body: JSON.stringify(payload),
-    });
-  }
-
-  async updateNote(id: number, data: Partial<Note>): Promise<Note> {
-    return this.request<Note>(`/notes/${id}`, {
-      method: 'PUT',
       body: JSON.stringify(data),
     });
   }
@@ -234,7 +210,7 @@ class ApiService {
     return this.request<FlashCard>(`/flash-cards/${id}`, { method: 'GET' });
   }
 
-  async generateFlashcards(data: GenerateFlashCardData): Promise<GenerateFlashcardsResponse> {
+  async generateFlashcards(data: GenerateFlashCardDto): Promise<GenerateFlashcardsResponse> {
     const payload: Record<string, unknown> = {
       topic: data.topic,
       referenceText: data.referenceText,
@@ -272,7 +248,7 @@ class ApiService {
     return this.request<Exam>(`/exams/${id}`, { method: 'GET' });
   }
 
-  async generateExam(data: GenerateExamData): Promise<Exam> {
+  async generateExam(data: GenerateExamDto): Promise<Exam> {
     return this.request<Exam>('/exams/generate/topic_or_reference', {
       method: 'POST',
       body: JSON.stringify(data),
