@@ -20,7 +20,6 @@
   height: 100vh;
   transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   flex-shrink: 0;
-  overflow: hidden;
   border-right: 1px solid hsl(var(--border));
 }
 

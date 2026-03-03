@@ -594,7 +594,9 @@
 
 .noteTag:hover {
     background: hsl(var(--primary) / 0.15);
-    border-color: hsl(var(--primary) / 0.4);
+    border-color: "use client";
+
+hsl(var(--primary) / 0.4);
 }
 
 /* Preview */
