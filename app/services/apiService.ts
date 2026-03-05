@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import type {
   AuthResponse,
@@ -7,18 +7,19 @@ import type {
   User,
   Note,
   FlashCard,
-  FlashCardDeck,
-  GenerateFlashCardDto,
-  GenerateFlashcardsResponse,
+  GenerateFlashCardData,
+  Card,
   Exam,
-  GenerateExamDto,
+  GenerateExamData,
   Chat,
   ChatMessage,
   SendMessageData,
   SendMessageResponse,
   GetChatMessagesResponse,
-  GenerateNoteDto,
-} from '@/types';
+  GenerateNoteData,
+  GenerateNotesResponse,
+  GenerateFlashcardsResponse,
+} from "@/types";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 const API_KEY = process.env.NEXT_BACKEND_API_KEY;
@@ -27,15 +28,15 @@ class ApiService {
   private token: string | null = null;
 
   constructor() {
-    if (typeof window !== 'undefined') {
-      this.token = localStorage.getItem('token');
+    if (typeof window !== "undefined") {
+      this.token = localStorage.getItem("token");
     }
   }
 
   setToken(token: string): void {
     this.token = token;
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('token', token);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("token", token);
     }
   }
 
@@ -49,16 +50,16 @@ class ApiService {
     options: RequestInit = {},
   ): Promise<T> {
     const headers: HeadersInit = {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
       ...options.headers,
     };
     if (API_KEY) {
-      (headers as Record<string, string>)['x-api-key'] = API_KEY;
+      (headers as Record<string, string>)["x-api-key"] = API_KEY;
     }
 
     const token = this.getToken();
     if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
+      headers["Authorization"] = `Bearer ${token}`;
     }
 
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
@@ -68,7 +69,10 @@ class ApiService {
 
     if (!response.ok) {
       const error = await response.json().catch(() => ({}));
-      throw new Error((error as Record<string, unknown>).message as string || `API Error: ${response.statusText}`);
+      throw new Error(
+        ((error as Record<string, unknown>).message as string) ||
+          `API Error: ${response.statusText}`,
+      );
     }
 
     // the only cast we keep is here, once, inside request
@@ -78,64 +82,64 @@ class ApiService {
   // ==================== AUTH ====================
 
   async login(credentials: LoginInput): Promise<AuthResponse> {
-    const { token, user } = await this.request<AuthResponse>('/auth/login', {
-      method: 'POST',
+    const { token, user } = await this.request<AuthResponse>("/auth/login", {
+      method: "POST",
       body: JSON.stringify(credentials),
     });
 
     if (!token || !user) {
-      throw new Error('Invalid login response: missing token or user');
+      throw new Error("Invalid login response: missing token or user");
     }
 
     this.setToken(token);
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('user', JSON.stringify(user));
+    if (typeof window !== "undefined") {
+      localStorage.setItem("user", JSON.stringify(user));
     }
 
     return { token, user };
   }
 
   async register(data: RegisterInput): Promise<AuthResponse> {
-    const { token, user } = await this.request<AuthResponse>('/auth/register', {
-      method: 'POST',
+    const { token, user } = await this.request<AuthResponse>("/auth/register", {
+      method: "POST",
       body: JSON.stringify(data),
     });
 
     if (!token || !user) {
-      throw new Error('Invalid register response: missing token or user');
+      throw new Error("Invalid register response: missing token or user");
     }
 
     this.setToken(token);
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('user', JSON.stringify(user));
+    if (typeof window !== "undefined") {
+      localStorage.setItem("user", JSON.stringify(user));
     }
 
     return { token, user };
   }
 
   async updateUser(data: Partial<User>): Promise<User> {
-    const response = await this.request<User>('/users', {
-      method: 'PUT',
+    const response = await this.request<User>("/users", {
+      method: "PUT",
       body: JSON.stringify(data),
     });
 
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('user', JSON.stringify(response));
+    if (typeof window !== "undefined") {
+      localStorage.setItem("user", JSON.stringify(response));
     }
     return response;
   }
 
   async logout(): Promise<void> {
     this.token = null;
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
     }
   }
 
   getUser(): User | null {
-    if (typeof window === 'undefined') return null;
-    const user = localStorage.getItem('user');
+    if (typeof window === "undefined") return null;
+    const user = localStorage.getItem("user");
     return user ? JSON.parse(user) : null;
   }
 
@@ -150,29 +154,51 @@ class ApiService {
 
   async verifyToken(): Promise<boolean> {
     try {
-      const result = await this.request<{ valid: boolean }>('/auth/verify_token', {
-        method: 'GET',
-      });
+      const result = await this.request<{ valid: boolean }>(
+        "/auth/verify_token",
+        {
+          method: "GET",
+        },
+      );
       return result.valid === true;
     } catch (error) {
-      console.error('[API] Token verification error:', error);
       return false;
     }
   }
 
   async getGoogleAuthUrl(): Promise<{ url: string }> {
-    return this.request<{ url: string }>('/auth/google/url', { method: 'GET' });
+    return this.request<{ url: string }>("/auth/google/url", { method: "GET" });
   }
 
   async googleAuthWithCode(code: string): Promise<AuthResponse> {
-    const response = await this.request<AuthResponse>('/auth/google/callback', {
-      method: 'POST',
+    const response = await this.request<AuthResponse>("/auth/google/callback", {
+      method: "POST",
       body: JSON.stringify({ code }),
     });
     if (response.token && response.user) {
       this.setToken(response.token);
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('user', JSON.stringify(response.user));
+      if (typeof window !== "undefined") {
+        localStorage.setItem("user", JSON.stringify(response.user));
+      }
+    }
+    return response;
+  }
+
+  async loginWithGoogle(googleToken: {
+    idToken: string;
+    email: string;
+    name: string;
+    googleId: string;
+  }): Promise<AuthResponse> {
+    const response = (await this.request("/auth/google", {
+      method: "POST",
+      body: JSON.stringify(googleToken),
+    })) as AuthResponse;
+
+    if (response.token) {
+      this.setToken(response.token);
+      if (typeof window !== "undefined") {
+        localStorage.setItem("user", JSON.stringify(response.user));
       }
     }
     return response;
@@ -181,36 +207,35 @@ class ApiService {
   // ==================== NOTES ====================
 
   async getNotes(): Promise<Note[]> {
-    return this.request<Note[]>('/notes', { method: 'GET' });
+    return this.request<Note[]>("/notes", { method: "GET" });
   }
 
   async getNote(id: number): Promise<Note> {
-    return this.request<Note>(`/notes/${id}`, { method: 'GET' });
+    return this.request<Note>(`/notes/${id}`, { method: "GET" });
   }
 
-
-  async generateNote(data: GenerateNoteDto): Promise<Note> {
-    return this.request<Note>('/notes/generate/topic_or_reference', {
-      method: 'POST',
+  async generateNote(data: GenerateNoteData): Promise<GenerateNotesResponse> {
+    return this.request<GenerateNotesResponse>("/notes/generate/topic_or_reference", {
+      method: "POST",
       body: JSON.stringify(data),
     });
   }
 
   async deleteNote(id: number): Promise<void> {
-    await this.request<void>(`/notes/${id}`, { method: 'DELETE' });
+    await this.request<void>(`/notes/${id}`, { method: "DELETE" });
   }
 
   // ==================== FLASHCARDS ====================
 
-  async getFlashcards(): Promise<FlashCard[]> {
-    return this.request<FlashCard[]>('/flash-cards', { method: 'GET' });
+  async getFlashcards(): Promise<Card[]> {
+    return this.request<Card[]>("/flash-cards", { method: "GET" });
   }
 
-  async getFlashcard(id: number): Promise<FlashCard> {
-    return this.request<FlashCard>(`/flash-cards/${id}`, { method: 'GET' });
+  async getFlashcard(id: number): Promise<Card> {
+    return this.request<Card>(`/flash-cards/${id}`, { method: "GET" });
   }
 
-  async generateFlashcards(data: GenerateFlashCardDto): Promise<GenerateFlashcardsResponse> {
+  async generateFlashcards(data: GenerateFlashCardData): Promise<GenerateFlashcardsResponse> {
     const payload: Record<string, unknown> = {
       topic: data.topic,
       referenceText: data.referenceText,
@@ -221,92 +246,88 @@ class ApiService {
       payload.level = data.level;
     }
 
-    return this.request<GenerateFlashcardsResponse>('/flash-cards/generate/topic_or_reference', {
-      method: 'POST',
+    return this.request<GenerateFlashcardsResponse>("/flash-cards/generate/topic_or_reference", {
+      method: "POST",
       body: JSON.stringify(payload),
     });
   }
 
-  async updateFlashcard(id: number, data: Partial<FlashCard>): Promise<FlashCard> {
-    return this.request<FlashCard>(`/flash-cards/${id}`, {
-      method: 'PUT',
-      body: JSON.stringify(data),
-    });
+  async deleteFlashcard(id: number): Promise<void> {
+    await this.request<void>(`/flash-cards/${id}`, { method: "DELETE" });
   }
 
-  async deleteFlashcard(id: number): Promise<void> {
-    await this.request<void>(`/flash-cards/${id}`, { method: 'DELETE' });
+  async deleteCard(id: number): Promise<void> {
+    await this.request<void>(`/flash-cards/card/${id}`, { method: "DELETE" });
   }
 
   // ==================== EXAMS ====================
 
   async getExams(): Promise<Exam[]> {
-    return this.request<Exam[]>('/exams', { method: 'GET' });
+    return this.request<Exam[]>("/exams", { method: "GET" });
   }
 
   async getExam(id: number): Promise<Exam> {
-    return this.request<Exam>(`/exams/${id}`, { method: 'GET' });
+    return this.request<Exam>(`/exams/${id}`, { method: "GET" });
   }
 
-  async generateExam(data: GenerateExamDto): Promise<Exam> {
-    return this.request<Exam>('/exams/generate/topic_or_reference', {
-      method: 'POST',
+  async generateExam(data: GenerateExamData): Promise<Exam> {
+    return this.request<Exam>("/exams/generate/topic_or_reference", {
+      method: "POST",
       body: JSON.stringify(data),
     });
   }
 
   async updateExam(id: number, data: Partial<Exam>): Promise<Exam> {
     return this.request<Exam>(`/exams/${id}`, {
-      method: 'PUT',
+      method: "PUT",
       body: JSON.stringify(data),
     });
   }
 
   async deleteExam(id: number): Promise<void> {
-    await this.request<void>(`/exams/${id}`, { method: 'DELETE' });
+    await this.request<void>(`/exams/${id}`, { method: "DELETE" });
   }
 
   // ==================== CHATS ====================
 
   async getChats(): Promise<Chat[]> {
-    return this.request<Chat[]>('/messages/chats', { method: 'GET' });
+    return this.request<Chat[]>("/messages/chats", { method: "GET" });
   }
 
   async getChat(id: number): Promise<Chat> {
-    const res = await this.getChatMessages(id);
-    const messages: ChatMessage[] = (res.messages ?? []).flatMap((m) => [
-      { id: m.id * 2, chatId: res.chatId, content: m.prompt, role: 'user' as const, createdAt: String(m.createdAt), updatedAt: String(m.createdAt) },
-      { id: m.id * 2 + 1, chatId: res.chatId, content: m.response, role: 'assistant' as const, createdAt: String(m.createdAt), updatedAt: String(m.createdAt) },
-    ]);
-    return {
-      id: res.chatId,
-      title: res.title ?? 'Chat',
-      messages,
-      createdAt: '',
-      updatedAt: '',
-    };
+    return this.request<Chat>(`/messages/chat/${id}`, { method: "GET" });
   }
 
+  async createChat(data: { title: string }): Promise<Chat> {
+    return this.request<Chat>("/messages/chats", {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+  }
+
+
   async getChatMessages(chatId: number): Promise<GetChatMessagesResponse> {
-    return this.request<GetChatMessagesResponse>(`/messages/chat/${chatId}`, { method: 'GET' });
+    return this.request<GetChatMessagesResponse>(`/messages/chat/${chatId}`, {
+      method: "GET",
+    });
   }
 
   async sendMessage(data: SendMessageData): Promise<SendMessageResponse> {
-    return this.request<SendMessageResponse>('/messages/send', {
-      method: 'POST',
+    return this.request<SendMessageResponse>("/messages/send", {
+      method: "POST",
       body: JSON.stringify(data),
     });
   }
 
   async deleteChat(chatId: number): Promise<void> {
-    await this.request<void>(`/messages/chat/${chatId}`, { method: 'DELETE' });
+    await this.request<void>(`/messages/chat/${chatId}`, { method: "DELETE" });
   }
 
   // ==================== GROQ (AI) ====================
 
   async generateWithGroq(prompt: string): Promise<{ content: string }> {
-    return this.request<{ content: string }>('/groq/generate', {
-      method: 'POST',
+    return this.request<{ content: string }>("/groq/generate", {
+      method: "POST",
       body: JSON.stringify({ prompt }),
     });
   }

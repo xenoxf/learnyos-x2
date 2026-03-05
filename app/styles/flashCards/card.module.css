@@ -1,0 +1,12 @@
+
+.title {
+    color: hsl(var(--muted-foreground));
+    font-family: sans-serif;
+}
+.content {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1rem;
+    background-color: hsl(var(--background));
+}

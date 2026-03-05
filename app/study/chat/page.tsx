@@ -111,8 +111,7 @@ export default function ChatPage() {
       chatId: currentChat?.id ?? 0,
       content: messageContent,
       role: "user",
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
+      createdAt: new Date().toISOString()
     };
 
     setMessages((prev) => [...prev, userMessage]);
@@ -128,8 +127,7 @@ export default function ChatPage() {
         chatId: response.chatId,
         content: response.response,
         role: "assistant",
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
+        createdAt: new Date().toISOString()
       };
 
       setMessages((prev) => [...prev, assistantMessage]);

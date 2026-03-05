@@ -1,367 +1,814 @@
-/* Flashcards Page Styles */
-/* SOLO VARIABLES GLOBALES - SIN :root */
+/* flashcards.module.css - Página de Flashcards */
 
-.container {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: var(--spacing-lg);
+/* ============================================
+   ANIMACIONES
+   ============================================ */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
-.header {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+@keyframes slideInLeft {
+    from {
+        transform: translateX(-20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
 }
 
-.title {
-  font-size: 1.875rem;
-  font-weight: 900;
-  color: white;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
+@keyframes flip {
+    from {
+        transform: rotateY(0deg);
+    }
+    to {
+        transform: rotateY(180deg);
+    }
 }
 
-.titleIcon {
-  width: 1.5rem;
-  height: 1.5rem;
-  color: hsl(var(--primary));
+@keyframes pulse {
+    0%, 100% {
+        opacity: 0.6;
+    }
+    50% {
+        opacity: 1;
+    }
 }
 
-.subtitle {
-  font-size: 0.875rem;
-  color: hsl(var(--muted-foreground));
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
 }
 
-.statsGrid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 0.5rem;
+.spin {
+    animation: spin 1s linear infinite;
 }
 
-.statCard {
-  background: hsl(var(--card));
-  border: 1px solid hsl(var(--border));
-  border-radius: var(--radius);
-  padding: 1rem;
-  text-align: center;
-  box-shadow: var(--shadow-md);
+/* ============================================
+   CONTENEDOR PRINCIPAL
+   ============================================ */
+.flashcardsContainer {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    height: 100vh;
+    background: hsl(var(--background));
+    position: relative;
+    overflow: hidden;
 }
 
-.statIcon {
-  font-size: 1.5rem;
-  margin-bottom: 0.25rem;
+@media (max-width: 768px) {
+    .flashcardsContainer {
+        grid-template-columns: 1fr;
+    }
 }
 
-.statLabel {
-  color: hsl(var(--muted-foreground));
-  font-size: 0.75rem;
-  font-weight: 600;
+/* ============================================
+   OVERLAY MÓVIL
+   ============================================ */
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 25;
+    animation: fadeIn 0.3s ease;
+    display: none;
 }
 
-.statValue {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: hsl(var(--foreground));
-  margin-top: 0.5rem;
+@media (max-width: 768px) {
+    .overlay {
+        display: block;
+    }
 }
 
-.cardCounter {
-  text-align: center;
-  color: hsl(var(--muted-foreground));
-  font-size: 0.875rem;
-  font-weight: 600;
+/* ============================================
+   SIDEBAR
+   ============================================ */
+.sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    padding: 1.5rem;
+    background: hsl(var(--secondary));
+    border-right: 1px solid hsl(var(--border));
+    overflow-y: auto;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    z-index: 30;
 }
 
-.cardFlipContainer {
-  position: relative;
-  height: 12rem;
-  cursor: pointer;
-  perspective: 1000px;
+.sidebar.open {
+    transform: translateX(0);
 }
 
-.cardFlipInner {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-  transform-style: preserve-3d;
+.sidebar.closed {
+    display: none;
 }
 
-.cardFlipInner.flipped {
-  transform: rotateY(180deg);
+@media (max-width: 768px) {
+    .sidebar {
+        position: fixed;
+        left: 0;
+        top: 0;
+        width: 300px;
+        height: 100vh;
+        border-right: 1px solid hsl(var(--border));
+    }
+
+    .sidebar.closed {
+        transform: translateX(-100%);
+        display: flex;
+    }
 }
 
-.cardFace {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  backface-visibility: hidden;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
-  border-radius: var(--radius);
-  text-align: center;
-  box-shadow: var(--shadow-lg);
+/* ============================================
+   SECTIONS
+   ============================================ */
+.sidebarSection {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
 }
 
-.cardFront {
-  background: hsl(var(--primary));
-  color: hsl(var(--primary-foreground));
+.sidebarTitle {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: hsl(var(--muted-foreground));
+    letter-spacing: 0.1em;
 }
 
-.cardBack {
-  background: hsl(var(--secondary));
-  color: hsl(var(--primary-foreground));
-  transform: rotateY(180deg);
+/* ============================================
+   FORMULARIO
+   ============================================ */
+.generateForm {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
 }
 
-.cardLabel {
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.8);
-  margin-bottom: 0.75rem;
+.formInput,
+.formSelect {
+    width: 100%;
+    padding: 0.625rem;
+    background: hsl(var(--background));
+    border: 1px solid hsl(var(--border));
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    color: hsl(var(--foreground));
+    font-family: inherit;
+    transition: border-color 0.2s, background-color 0.2s;
 }
 
-.cardContent {
-  font-size: 1.25rem;
-  font-weight: bold;
-  line-height: 1.5;
-  word-break: break-word;
+.formInput:focus,
+.formSelect:focus {
+    outline: none;
+    border-color: hsl(var(--primary));
+    background-color: hsl(var(--background));
 }
 
-.cardHint {
-  font-size: 0.75rem;
-  color: rgba(255, 255, 255, 0.6);
-  margin-top: 1rem;
-  font-style: italic;
+.formInput::placeholder {
+    color: hsl(var(--muted-foreground) / 0.7);
 }
 
-.buttonsGrid {
-  display: flex;
-  gap: var(--spacing-sm);
-  justify-content: center;
-  flex-wrap: wrap;
+.formSelect {
+    cursor: pointer;
 }
 
-.button {
-  padding: var(--spacing-sm) 1rem;
-  border: 1px solid hsl(var(--border));
-  background: hsl(var(--card));
-  color: hsl(var(--foreground));
-  border-radius: var(--radius);
-  font-weight: 600;
-  cursor: pointer;
-  transition: var(--transition-base);
-  font-size: 0.875rem;
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
+.submitButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    background: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
+    border: none;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s, opacity 0.2s;
 }
 
-.button:hover:not(:disabled) {
-  background: hsl(var(--border));
-  transform: translateY(-2px);
+.submitButton:hover:not(:disabled) {
+    background: hsl(var(--primary) / 0.9);
 }
 
-.button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+.submitButton:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
-.buttonFlip {
-  background: hsl(var(--primary));
-  border: none;
-  color: hsl(var(--primary-foreground));
+/* ============================================
+   LISTA DE MAZOS
+   ============================================ */
+.decksList {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    max-height: calc(100vh - 400px);
+    overflow-y: auto;
 }
 
-.buttonFlip:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px hsla(var(--primary), 0.3);
+.deckItem {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    background: hsl(var(--background));
+    border: 1px solid hsl(var(--border));
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: background-color 0.2s, border-color 0.2s;
+    animation: slideInLeft 0.3s ease;
 }
 
-.buttonKnown {
-  background: hsl(var(--accent));
-  border: none;
-  color: hsl(var(--primary-foreground));
+.deckItem:hover {
+    background: hsl(var(--background) / 0.8);
+    border-color: hsl(var(--primary) / 0.5);
 }
 
-.buttonKnown:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px hsla(var(--accent), 0.3);
+.deckItem.active {
+    background: hsl(var(--primary) / 0.1);
+    border-color: hsl(var(--primary));
 }
 
-.buttonUnknown {
-  background: hsl(var(--destructive));
-  border: none;
-  color: hsl(var(--primary-foreground));
+.deckContent {
+    flex: 1;
+    min-width: 0;
 }
 
-.buttonUnknown:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px hsla(var(--destructive), 0.3);
+.deckTitle {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: hsl(var(--foreground));
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-.createButton {
-  width: 100%;
-  padding: 1rem;
-  background: hsl(var(--primary));
-  border: none;
-  color: hsl(var(--primary-foreground));
-  font-weight: bold;
-  border-radius: var(--radius);
-  cursor: pointer;
-  transition: var(--transition-base);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--spacing-sm);
-  font-size: 1rem;
+.deckCount {
+    font-size: 0.75rem;
+    color: hsl(var(--muted-foreground));
+    margin: 0.25rem 0 0;
 }
 
-.createButton:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 24px hsla(var(--primary), 0.3);
+.deleteBtn {
+    padding: 0.5rem;
+    background: transparent;
+    border: none;
+    color: hsl(var(--muted-foreground));
+    cursor: pointer;
+    border-radius: 0.25rem;
+    transition: color 0.2s, background-color 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.cardsList {
-  display: grid;
-  gap: 1rem;
+.deleteBtn:hover {
+    color: hsl(var(--destructive));
+    background: hsl(var(--destructive) / 0.1);
 }
 
-.cardItem {
-  background: hsl(var(--card));
-  border: 1px solid hsl(var(--border));
-  border-radius: var(--radius);
-  padding: 1rem;
-  cursor: pointer;
-  transition: var(--transition-base);
-}
-
-.cardItem:hover {
-  border-color: hsl(var(--primary));
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px hsla(var(--primary), 0.2);
-}
-
-.cardItemTitle {
-  font-weight: bold;
-  color: hsl(var(--foreground));
-  margin-bottom: 0.25rem;
-}
-
-.cardItemDescription {
-  font-size: 0.875rem;
-  color: hsl(var(--muted-foreground));
+/* ============================================
+   ESTADOS
+   ============================================ */
+.loadingState {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    padding: 2rem 1rem;
+    color: hsl(var(--muted-foreground));
 }
 
 .emptyState {
-  text-align: center;
-  padding: 2rem;
-  color: hsl(var(--muted-foreground));
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    padding: 2rem 1rem;
+    color: hsl(var(--muted-foreground));
+    text-align: center;
 }
 
-.loadingSpinner {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 20rem;
-  color: hsl(var(--primary));
+.emptyState svg {
+    opacity: 0.5;
 }
 
-/* Media Queries */
+/* ============================================
+   CONTENIDO PRINCIPAL
+   ============================================ */
+.mainContent {
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    background: hsl(var(--background));
+}
 
-@media (min-width: 640px) {
-  .title {
-    font-size: 1.875rem;
-  }
+.emptyContent {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1.5rem;
+    padding: 4rem 2rem;
+    color: hsl(var(--muted-foreground));
+}
 
-  .titleIcon {
+.emptyContent svg {
+    opacity: 0.5;
+    color: hsl(var(--primary));
+}
+
+/* ============================================
+   VISTA DE MAZO
+   ============================================ */
+.deckView {
+    padding: 2rem;
+    animation: fadeIn 0.3s ease;
+}
+
+.deckHeader {
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid hsl(var(--border));
+}
+
+.deckHeader h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: hsl(var(--foreground));
+    margin: 0;
+}
+
+.deckDescription {
+    font-size: 0.875rem;
+    color: hsl(var(--muted-foreground));
+    margin: 0.5rem 0 0;
+}
+
+.deckStats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.statCard {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 1rem;
+    background: hsl(var(--secondary));
+    border: 1px solid hsl(var(--border));
+    border-radius: 0.75rem;
+}
+
+.statLabel {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: hsl(var(--muted-foreground));
+}
+
+.statValue {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: hsl(var(--primary));
+}
+
+.startButton {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem 2rem;
+    background: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
+    border: none;
+    border-radius: 0.75rem;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    margin-bottom: 2rem;
+}
+
+.startButton:hover {
+    background: hsl(var(--primary) / 0.9);
+}
+
+.previewCards {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.previewCards h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: hsl(var(--foreground));
+    margin: 0;
+}
+
+.cardPreviewList {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.previewCard {
+    display: flex;
+    gap: 1rem;
+    padding: 1rem;
+    background: hsl(var(--secondary));
+    border: 1px solid hsl(var(--border));
+    border-radius: 0.5rem;
+    animation: slideInLeft 0.3s ease;
+}
+
+.previewNumber {
+    flex-shrink: 0;
     width: 2rem;
     height: 2rem;
-  }
-
-  .subtitle {
-    font-size: 1rem;
-  }
-
-  .statsGrid {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1rem;
-  }
-
-  .statCard {
-    padding: 1.5rem;
-  }
-
-  .statIcon {
-    font-size: 2rem;
-  }
-
-  .statValue {
-    font-size: 1.875rem;
-  }
-
-  .cardFlipContainer {
-    height: 16rem;
-  }
-
-  .cardContent {
-    font-size: 1.5rem;
-  }
-
-  .button {
-    padding: 0.75rem 1.5rem;
-    font-size: 1rem;
-  }
-
-  .createButton {
-    padding: 1.5rem;
-    font-size: 1.125rem;
-  }
-
-  .cardItem {
-    padding: 1.5rem;
-  }
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
+    border-radius: 50%;
+    font-size: 0.875rem;
+    font-weight: 600;
 }
 
-@media (min-width: 768px) {
-  .container {
-    gap: var(--spacing-xl);
-  }
+.previewContent {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
 
-  .title {
-    font-size: 2.25rem;
-  }
-
-  .titleIcon {
-    width: 2.5rem;
-    height: 2.5rem;
-  }
-
-  .subtitle {
-    font-size: 1.125rem;
-  }
-
-  .cardFlipContainer {
-    height: 20rem;
-  }
-
-  .cardContent {
-    font-size: 2rem;
-  }
-
-  .cardLabel {
-    font-size: 1rem;
-  }
-
-  .cardHint {
+.previewFront {
     font-size: 0.875rem;
-  }
+    font-weight: 600;
+    color: hsl(var(--foreground));
+    margin: 0;
+}
 
-  .cardsList {
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  }
+.previewBack {
+    font-size: 0.75rem;
+    color: hsl(var(--muted-foreground));
+    margin: 0;
+}
+
+/* ============================================
+   MODO ESTUDIO
+   ============================================ */
+.studyContainer {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    background: linear-gradient(135deg, hsl(var(--background)), hsl(var(--secondary) / 0.5));
+    padding: 2rem;
+    gap: 2rem;
+    overflow-y: auto;
+}
+
+.studyHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid hsl(var(--border));
+}
+
+.studyHeader h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: hsl(var(--foreground));
+    margin: 0;
+}
+
+.exitButton {
+    padding: 0.75rem 1.5rem;
+    background: hsl(var(--destructive));
+    color: hsl(var(--destructive-foreground));
+    border: none;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.exitButton:hover {
+    background: hsl(var(--destructive) / 0.9);
+}
+
+.cardProgress {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.progressText {
+    font-size: 0.875rem;
+    color: hsl(var(--muted-foreground));
+}
+
+.progressBar {
+    width: 100%;
+    height: 4px;
+    background: hsl(var(--border));
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.progressFill {
+    height: 100%;
+    background: hsl(var(--primary));
+    border-radius: 2px;
+    transition: width 0.3s ease;
+}
+
+.studyContent {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+    flex: 1;
+    justify-content: center;
+}
+
+/* ============================================
+   TARJETA FLASHCARD
+   ============================================ */
+.flashcard {
+    perspective: 1000px;
+    width: 100%;
+    max-width: 500px;
+    height: 300px;
+    cursor: pointer;
+}
+
+.cardInner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transition: transform 0.6s;
+    transform-style: preserve-3d;
+}
+
+.flashcard.flipped .cardInner {
+    transform: rotateY(180deg);
+}
+
+.cardFront,
+.cardBack {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    padding: 2rem;
+    background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary) / 0.7));
+    border-radius: 1rem;
+    color: hsl(var(--primary-foreground));
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.cardBack {
+    background: linear-gradient(135deg, hsl(var(--secondary)), hsl(var(--secondary) / 0.7));
+    color: hsl(var(--foreground));
+    transform: rotateY(180deg);
+}
+
+.cardLabel {
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    opacity: 0.8;
+    margin: 0;
+}
+
+.cardText {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0;
+    line-height: 1.4;
+}
+
+.cardActions {
+    display: flex;
+    gap: 1rem;
+}
+
+.speakButton {
+    padding: 0.5rem;
+    background: hsl(var(--primary-foreground) / 0.2);
+    border: 1px solid hsl(var(--primary-foreground) / 0.5);
+    color: hsl(var(--primary-foreground));
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.speakButton:hover {
+    background: hsl(var(--primary-foreground) / 0.3);
+}
+
+.flipHint {
+    position: absolute;
+    bottom: 1rem;
+    font-size: 0.75rem;
+    opacity: 0.7;
+    margin: 0;
+}
+
+/* ============================================
+   NAVEGACIÓN DE ESTUDIO
+   ============================================ */
+.studyNavigation {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    justify-content: center;
+    padding: 1.5rem;
+    background: hsl(var(--secondary));
+    border-radius: 0.75rem;
+    border: 1px solid hsl(var(--border));
+}
+
+.navButton {
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.2s;
+    font-size: 1.25rem;
+}
+
+.navButton:hover:not(:disabled) {
+    background: hsl(var(--primary) / 0.9);
+    transform: scale(1.05);
+}
+
+.navButton:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.cardCount {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: hsl(var(--foreground));
+}
+
+.deleteCardButton {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background: hsl(var(--destructive));
+    color: hsl(var(--destructive-foreground));
+    border: none;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.deleteCardButton:hover {
+    background: hsl(var(--destructive) / 0.9);
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 768px) {
+    .flashcardsContainer {
+        grid-template-columns: 1fr;
+    }
+
+    .deckView {
+        padding: 1.5rem 1rem;
+    }
+
+    .deckHeader h1 {
+        font-size: 1.5rem;
+    }
+
+    .studyContainer {
+        padding: 1.5rem 1rem;
+    }
+
+    .studyHeader {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: flex-start;
+    }
+
+    .studyHeader h1 {
+        font-size: 1.5rem;
+    }
+
+    .flashcard {
+        max-width: 100%;
+        height: 250px;
+    }
+
+    .cardFront,
+    .cardBack {
+        padding: 1.5rem;
+    }
+
+    .cardText {
+        font-size: 1.25rem;
+    }
+
+    .studyNavigation {
+        flex-direction: row;
+        gap: 1rem;
+    }
+
+    .navButton {
+        width: 40px;
+        height: 40px;
+    }
+}
+
+@media (max-width: 480px) {
+    .studyContainer {
+        padding: 1rem 0.75rem;
+    }
+
+    .flashcard {
+        height: 200px;
+    }
+
+    .cardFront,
+    .cardBack {
+        padding: 1rem;
+    }
+
+    .cardLabel {
+        font-size: 0.75rem;
+    }
+
+    .cardText {
+        font-size: 1rem;
+    }
+
+    .cardActions {
+        gap: 0.5rem;
+    }
+
+    .speakButton {
+        padding: 0.375rem;
+    }
+
+    .navButton {
+        width: 36px;
+        height: 36px;
+    }
+
+    .cardCount {
+        font-size: 1rem;
+    }
 }

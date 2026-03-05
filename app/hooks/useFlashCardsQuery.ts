@@ -2,24 +2,27 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiService } from '@/services/apiService';
-import type { FlashCard, GenerateFlashCardDto } from '@/types';
+import type { FlashCard, Card, GenerateFlashCardData, GenerateFlashcardsResponse } from '@/types';
 
 export function useFlashCardsQuery() {
   const queryClient = useQueryClient();
 
   const {
-    data: flashcards = [],
+    data: cards = [],
     isLoading,
     error,
-  } = useQuery<FlashCard[]>({
+  } = useQuery<Card[]>({
     queryKey: ['flashcards'],
     queryFn: () => apiService.getFlashcards(),
   });
 
+  // Extraer todas las flashcards de todos los cards
+  const flashcards: FlashCard[] = cards.flatMap((card: Card) => card.flashcards || []);
+
   const generateMutation = useMutation<
-    Awaited<ReturnType<typeof apiService.generateFlashcards>>,
+    GenerateFlashcardsResponse,
     Error,
-    GenerateFlashCardDto
+    GenerateFlashCardData
   >({
     mutationFn: (input) =>
       apiService.generateFlashcards({

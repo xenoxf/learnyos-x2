@@ -16,6 +16,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import styles from "../styles/sidebar.module.css";
+import { ThemeSelector } from "./ThemeSelector";
 
 const menuItems = [
   { title: "Dashboard", url: "/study", icon: LayoutDashboard },

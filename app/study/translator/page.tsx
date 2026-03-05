@@ -1,280 +1,176 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
 import { apiService } from "@/services/apiService";
 import { useToast } from "@/hooks/use-toast";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Card } from "@/components/ui/card";
-import { ArrowRightLeft, Copy, Check, Sparkles, Loader } from "lucide-react";
-import styles from "@/styles/translator.module.css";
+import { MarkdownRenderer } from "@/components/MarkdownRenderer";
 import DashboardLayout from "../layaut";
-import type { Metadata } from 'next';
+import styles from "@/styles/translator.module.css";
 
-export const dynamic = 'force-dynamic';
-
-const LANGUAGES = [
-  { code: "es", name: "Español", flag: "🇪🇸" },
-  { code: "en", name: "Inglés", flag: "🇬🇧" },
-  { code: "fr", name: "Francés", flag: "🇫🇷" },
-  { code: "pt", name: "Portugués", flag: "🇵🇹" },
-  { code: "de", name: "Alemán", flag: "🇩🇪" },
-  { code: "it", name: "Italiano", flag: "🇮🇹" },
-  { code: "ja", name: "Japonés", flag: "🇯🇵" },
-  { code: "zh", name: "Chino", flag: "🇨🇳" },
-];
+interface TranslationResult {
+  original: string;
+  translated: string;
+  language: string;
+}
 
 export default function TranslatorPage() {
-  const [text, setText] = useState("");
-  const [sourceLang, setSourceLang] = useState("es");
-  const [targetLang, setTargetLang] = useState("en");
-  const [translatedText, setTranslatedText] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [copied, setCopied] = useState(false);
   const { toast } = useToast();
+  const [text, setText] = useState("");
+  const [targetLanguage, setTargetLanguage] = useState("español");
+  const [result, setResult] = useState<TranslationResult | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleTranslate = async () => {
     if (!text.trim()) {
       toast({
         title: "Error",
-        description: "Ingresa el texto a traducir",
+        description: "Por favor ingresa un texto para traducir",
         variant: "destructive",
       });
       return;
     }
 
+    setIsLoading(true);
+
     try {
-      setLoading(true);
-      const sourceLangName =
-        LANGUAGES.find((l) => l.code === sourceLang)?.name || sourceLang;
-      const targetLangName =
-        LANGUAGES.find((l) => l.code === targetLang)?.name || targetLang;
+      const prompt = `Traduce el siguiente texto al ${targetLanguage}. Retorna SOLO la traducción sin explicaciones:\n\n${text}`;
+      const response = await apiService.generateWithGroq(prompt);
 
-      let result: string = "";
+      const translated = response.content || "";
 
-      // Intentar con Groq del backend primero
-      try {
-        const prompt = `Traduce el siguiente texto de ${sourceLangName} a ${targetLangName} manteniéndolo académico y preciso:\n\n"${text}"\n\nResponde SOLO con la traducción, sin explicaciones adicionales.`;
-        const response = await apiService.generateWithGroq(prompt);
-        result = response.content || "";
-      } catch (groqError) {
-        // Fallback: Usar MyMemory API (pública, sin key)
-        console.warn("Groq no disponible, usando fallback MyMemory");
-        try {
-          const langMap: { [key: string]: string } = {
-            es: "es",
-            en: "en",
-            fr: "fr",
-            pt: "pt",
-            de: "de",
-            it: "it",
-            ja: "ja",
-            zh: "zh",
-          };
+      setResult({
+        original: text,
+        translated,
+        language: targetLanguage,
+      });
 
-          const from = langMap[sourceLang] || sourceLang;
-          const to = langMap[targetLang] || targetLang;
-
-          const response = await fetch(
-            `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${from}|${to}`,
-            { method: "GET", mode: "cors" }
-          );
-
-          const data = await response.json();
-          if (data.responseData && data.responseData.translatedText) {
-            result = data.responseData.translatedText;
-          } else {
-            result = "No se pudo procesar la traducción";
-          }
-        } catch (memoryError) {
-          console.error("MyMemory también falló:", memoryError);
-          result = "Error en la traducción. Intenta más tarde.";
-        }
-      }
-
-      setTranslatedText(result || "");
       toast({
-        title: "¡Traducción completada!",
-        description: "El texto ha sido traducido correctamente",
+        title: "Éxito",
+        description: "Texto traducido correctamente",
       });
     } catch (error: any) {
+      const errorMsg = error?.message || "Error al traducir el texto";
       toast({
         title: "Error",
-        description: error.message || "Error al traducir",
+        description: errorMsg,
         variant: "destructive",
       });
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
-  const handleSwapLanguages = () => {
-    setSourceLang(targetLang);
-    setTargetLang(sourceLang);
-    setTranslatedText("");
+  const handleCopy = (text: string) => {
+    if (typeof window !== "undefined") {
+      navigator.clipboard.writeText(text).then(() => {
+        toast({
+          title: "Copiado",
+          description: "Texto copiado al portapapeles",
+        });
+      });
+    }
   };
 
-  const handleCopy = () => {
-    navigator.clipboard.writeText(translatedText);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-    toast({
-      title: "Copiado",
-      description: "Traducción copiada al portapapeles",
-    });
-  };
-
-  const sourceLangObj = LANGUAGES.find((l) => l.code === sourceLang);
-  const targetLangObj = LANGUAGES.find((l) => l.code === targetLang);
+  const languages = [
+    "español",
+    "inglés",
+    "francés",
+    "alemán",
+    "italiano",
+    "portugués",
+    "chino",
+    "japonés",
+    "coreano",
+    "árabe",
+  ];
 
   return (
     <DashboardLayout>
-      <div className={styles.container}>
-        <section className={styles.header}>
-          <h1 className={styles.title}>🌐 Traductor IA</h1>
-          <p className={styles.description}>
-            Traduce textos manteniendo el contexto académico
-          </p>
-        </section>
+      <div className={styles.translatorContainer}>
+        <div className={styles.header}>
+          <h1>Traductor</h1>
+          <p className={styles.subtitle}>Traduce textos a diferentes idiomas</p>
+        </div>
 
-        <div className={styles.translatorWrapper}>
-          {/* Language Selection */}
-          <Card className="p-6 mb-6">
-            <div className={styles.languageSelector}>
-              <div className={styles.languageControl}>
-                <label className={styles.label}>Idioma de origen</label>
-                <Select
-                  value={sourceLang}
-                  onValueChange={setSourceLang}
-                  disabled={loading}
-                >
-                  <SelectTrigger className={styles.selectTrigger}>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {LANGUAGES.map((lang) => (
-                      <SelectItem key={lang.code} value={lang.code}>
-                        <span className="mr-2">{lang.flag}</span>
-                        {lang.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={handleSwapLanguages}
-                disabled={loading}
-                className={styles.swapButton}
-                title="Intercambiar idiomas"
-              >
-                <ArrowRightLeft className="w-4 h-4" />
-              </Button>
-
-              <div className={styles.languageControl}>
-                <label className={styles.label}>Idioma destino</label>
-                <Select
-                  value={targetLang}
-                  onValueChange={setTargetLang}
-                  disabled={loading}
-                >
-                  <SelectTrigger className={styles.selectTrigger}>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {LANGUAGES.map((lang) => (
-                      <SelectItem key={lang.code} value={lang.code}>
-                        <span className="mr-2">{lang.flag}</span>
-                        {lang.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-          </Card>
-
-          {/* Input and Output */}
-          <div className={styles.contentWrapper}>
-            <div className={styles.textArea}>
-              <div className="flex items-center justify-between mb-2">
-                <label className={styles.label}>Texto a traducir</label>
-                <span className="text-xs text-muted-foreground">
-                  {text.length} caracteres
-                </span>
-              </div>
-              <Textarea
+        <div className={styles.content}>
+          <div className={styles.inputSection}>
+            <div className={styles.inputGroup}>
+              <label htmlFor="text">Texto a traducir</label>
+              <textarea
+                id="text"
                 value={text}
                 onChange={(e) => setText(e.target.value)}
                 placeholder="Ingresa el texto que deseas traducir..."
                 className={styles.textarea}
-                rows={8}
-                disabled={loading}
+                rows={6}
               />
+              <div className={styles.charCount}>
+                {text.length} / 5000 caracteres
+              </div>
             </div>
 
-            <Button
-              onClick={handleTranslate}
-              disabled={loading || !text.trim()}
-              size="lg"
-              className={styles.translateButton}
-            >
-              {loading ? (
-                <>
-                  <Loader className="w-4 h-4 mr-2 animate-spin" />
-                  Traduciendo...
-                </>
-              ) : (
-                <>
-                  <Sparkles className="w-4 h-4 mr-2" />
-                  Traducir
-                </>
-              )}
-            </Button>
+            <div className={styles.inputGroup}>
+              <label htmlFor="language">Idioma destino</label>
+              <select
+                id="language"
+                value={targetLanguage}
+                onChange={(e) => setTargetLanguage(e.target.value)}
+                className={styles.select}
+              >
+                {languages.map((lang) => (
+                  <option key={lang} value={lang}>
+                    {lang.charAt(0).toUpperCase() + lang.slice(1)}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-            {translatedText && (
-              <div className={styles.textArea}>
-                <div className="flex items-center justify-between mb-2">
-                  <label className={styles.label}>Traducción</label>
-                  <span className="text-xs text-muted-foreground">
-                    {translatedText.length} caracteres
-                  </span>
-                </div>
-                <Card className={styles.outputCard}>
-                  <p className={styles.translatedText}>{translatedText}</p>
-                </Card>
-                <div className={styles.outputActions}>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleCopy}
+            <button
+              onClick={handleTranslate}
+              disabled={isLoading || !text.trim()}
+              className={styles.button}
+            >
+              {isLoading ? "Traduciendo..." : "Traducir"}
+            </button>
+          </div>
+
+          {result && (
+            <div className={styles.resultSection}>
+              <div className={styles.resultCard}>
+                <div className={styles.resultHeader}>
+                  <h3>Original</h3>
+                  <button
+                    onClick={() => handleCopy(result.original)}
                     className={styles.copyButton}
+                    title="Copiar"
                   >
-                    {copied ? (
-                      <>
-                        <Check className="w-4 h-4 mr-2" />
-                        Copiado
-                      </>
-                    ) : (
-                      <>
-                        <Copy className="w-4 h-4 mr-2" />
-                        Copiar
-                      </>
-                    )}
-                  </Button>
+                    📋
+                  </button>
+                </div>
+                <div className={styles.resultContent}>
+                  <MarkdownRenderer content={result.original} />
                 </div>
               </div>
-            )}
-          </div>
+
+              <div className={styles.arrow}>→</div>
+
+              <div className={styles.resultCard}>
+                <div className={styles.resultHeader}>
+                  <h3>{result.language}</h3>
+                  <button
+                    onClick={() => handleCopy(result.translated)}
+                    className={styles.copyButton}
+                    title="Copiar"
+                  >
+                    📋
+                  </button>
+                </div>
+                <div className={styles.resultContent}>
+                  <MarkdownRenderer content={result.translated} />
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </DashboardLayout>

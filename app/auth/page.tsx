@@ -81,7 +81,10 @@ function AuthContent() {
         setFormError("Error al iniciar sesión. Por favor, intenta de nuevo.");
       }
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : "Error al iniciar sesión. Por favor, verifica tus credenciales.";
+      const message =
+        err instanceof Error
+          ? err.message
+          : "Error al iniciar sesión. Por favor, verifica tus credenciales.";
       setFormError(message);
     } finally {
       setLoading(false);
@@ -127,7 +130,10 @@ function AuthContent() {
         setFormError("Error al registrarse. Por favor, intenta de nuevo.");
       }
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : "Error al registrarse. El email podría estar en uso.";
+      const message =
+        err instanceof Error
+          ? err.message
+          : "Error al registrarse. El email podría estar en uso.";
       setFormError(message);
     } finally {
       setLoading(false);
@@ -175,21 +181,6 @@ function AuthContent() {
                 </span>
               </div>
             )}
-
-            <div className={styles.divider}>
-              <div className={styles.dividerLine} />
-              <span className={styles.dividerText}>O continúa con</span>
-              <div className={styles.dividerLine} />
-            </div>
-            <GoogleAuthButton
-              onSuccess={handleGoogleSuccess}
-              onError={handleGoogleError}
-            />
-            <div className={styles.divider}>
-              <div className={styles.dividerLine} />
-              <span className={styles.dividerText}>O continúa con email</span>
-              <div className={styles.dividerLine} />
-            </div>
 
             <form
               className={styles.authForm}

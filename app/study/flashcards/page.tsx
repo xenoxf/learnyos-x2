@@ -1,290 +1,434 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiService } from "@/services/apiService";
 import type {
   FlashCard,
+  Card,
   FlashCardDeck,
-  GenerateFlashCardDto,
+  GenerateFlashCardData,
   GenerateFlashcardsResponse,
 } from "@/types";
 import { useToast } from "@/hooks/use-toast";
-import styles from "@/styles/flashcards.module.css";
-import { MarkdownRenderer } from "@/components/MarkdownRenderer";
+import styles from "@/styles/flashCards/flashcards.module.css";
 import DashboardLayout from "../layaut";
-
-const DEFAULT_DECK_TITLE = "Mis tarjetas";
-
-function buildSingleDeck(cards: FlashCard[]): FlashCardDeck {
-  return {
-    id: 0,
-    title: DEFAULT_DECK_TITLE,
-    totalCards: cards.length,
-    cards,
-  };
-}
+import {
+  Loader,
+  Book,
+  Sparkles,
+  ChevronLeft,
+  ChevronRight,
+  RotateCcw,
+} from "lucide-react";
+import { MarkdownRenderer } from "@/components/MarkdownRenderer";
+import { Separator } from "@radix-ui/react-dropdown-menu";
+import CardContent from "@/components/card/Card";
+import CardGrid from "@/components/card/CardGrid";
 
 export default function FlashcardsPage() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
+
+  // Estado
   const [selectedDeck, setSelectedDeck] = useState<FlashCardDeck | null>(null);
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
   const [showGenerateForm, setShowGenerateForm] = useState(false);
-  const [formData, setFormData] = useState<GenerateFlashCardDto>({
+  const [formData, setFormData] = useState<GenerateFlashCardData>({
     topic: "",
     quantity: 10,
-    level: ''
   });
 
-  const { data: cards = [], isLoading: isLoadingDecks } = useQuery<FlashCard[]>({
+  // Queries
+  const { data: cards = [], isLoading: isLoadingCards } = useQuery<Card[]>({
     queryKey: ["flashcards"],
     queryFn: () => apiService.getFlashcards(),
   });
 
-  const decks: FlashCardDeck[] = useMemo(
-    () => (cards.length > 0 ? [buildSingleDeck(cards)] : []),
-    [cards]
+  // Extraer flashcards
+  const allFlashcards: FlashCard[] = useMemo(
+    () => cards.flatMap((card: Card) => card.flashcards || []),
+    [cards],
   );
 
+  // Crear deck único
+  const currentDeck: FlashCardDeck | null = useMemo(() => {
+    if (selectedDeck) return selectedDeck;
+    if (allFlashcards.length > 0) {
+      return {
+        id: 0,
+        title: "Todas tus flashcards",
+        description: `${allFlashcards.length} tarjetas`,
+        totalCards: allFlashcards.length,
+        flashcards: allFlashcards,
+        createdAt: new Date().toISOString(),
+      };
+    }
+    return null;
+  }, [selectedDeck, allFlashcards]);
+
+  const currentCard = currentDeck?.flashcards?.[currentCardIndex];
+  const progress = currentDeck?.flashcards
+    ? ((currentCardIndex + 1) / currentDeck.flashcards.length) * 100
+    : 0;
+
+  // Mutations
   const { mutate: generateFlashcards, isPending: isGenerating } = useMutation<
     GenerateFlashcardsResponse,
     Error,
-    GenerateFlashCardDto
+    GenerateFlashCardData
   >({
-    mutationFn: (data: GenerateFlashCardDto) =>
+    mutationFn: (data) =>
       apiService.generateFlashcards({
         ...data,
         quantity: data.quantity ?? 10,
       }),
-    onSuccess: (res: GenerateFlashcardsResponse) => {
+    onSuccess: (res) => {
       queryClient.invalidateQueries({ queryKey: ["flashcards"] });
       if (res.flashcards?.length && res.card) {
         const newDeck: FlashCardDeck = {
           id: res.card.id,
           title: res.card.title,
+          description: res.card.description ?? "",
           totalCards: res.totalCreated,
-          cards: res.flashcards,
+          flashcards: res.flashcards,
+          createdAt: new Date().toISOString(),
         };
         setSelectedDeck(newDeck);
         setCurrentCardIndex(0);
+        setIsFlipped(false);
         setShowGenerateForm(false);
-        setFormData({ topic: "", quantity: 10, level: '' });
         toast({
-          title: "Éxito",
-          description: `Se generaron ${res.totalCreated} flashcards correctamente`,
+          title: "✨ Éxito",
+          description: `Se generaron ${res.totalCreated} flashcards`,
         });
       }
     },
-    onError: (error: Error) => {
+    onError: (error) => {
       toast({
-        title: "Error",
-        description: error?.message ?? "Error al generar flashcards",
+        title: "❌ Error",
+        description: error.message,
         variant: "destructive",
       });
     },
   });
 
-  const { mutate: deleteDeck } = useMutation({
-    mutationFn: (deckId: number) => apiService.deleteFlashcard(deckId),
-    onSuccess: () => {
-      setSelectedDeck(null);
-      queryClient.invalidateQueries({ queryKey: ["flashcards"] });
-    },
-  });
-
-  const handleGenerateFlashcards = () => {
-    if (!formData.topic?.trim()) return;
+  // Handlers
+  const handleGenerate = useCallback(() => {
+    if (!formData.topic?.trim()) {
+      toast({
+        title: "⚠️ Campos requeridos",
+        description: "Por favor ingresa un tema",
+        variant: "destructive",
+      });
+      return;
+    }
     generateFlashcards(formData);
-  };
+  }, [formData, generateFlashcards, toast]);
 
-  const currentCard = selectedDeck?.cards[currentCardIndex];
-  const progress =
-    selectedDeck && selectedDeck.cards.length > 0
-      ? ((currentCardIndex + 1) / selectedDeck.cards.length) * 100
-      : 0;
+  const handleNextCard = useCallback(() => {
+    if (
+      currentDeck?.flashcards &&
+      currentCardIndex < currentDeck.flashcards.length - 1
+    ) {
+      setCurrentCardIndex((prev) => prev + 1);
+      setIsFlipped(false);
+    }
+  }, [currentDeck, currentCardIndex]);
 
+  const handlePrevCard = useCallback(() => {
+    if (currentCardIndex > 0) {
+      setCurrentCardIndex((prev) => prev - 1);
+      setIsFlipped(false);
+    }
+  }, [currentCardIndex]);
+
+  const handleReset = useCallback(() => {
+    setCurrentCardIndex(0);
+    setIsFlipped(false);
+    setSelectedDeck(null);
+  }, []);
+
+  // Render
   return (
     <DashboardLayout>
-    <div className={styles.flashcardsContainer}>
-      <div className={styles.decksSidebar}>
-        <div className={styles.sidebarHeader}>
-          <h2 className={styles.sidebarTitle}>Mis Mazos</h2>
-          <button
-            className={styles.createButton}
-            onClick={() => setShowGenerateForm(!showGenerateForm)}
-          >
-            + Nuevo
-          </button>
+      <div className={styles.container}>
+        {/* Header */}
+        <div className={styles.header}>
+          <div>
+            <h1 className={styles.title}>📚 Flashcards</h1>
+            <p className={styles.subtitle}>
+              {currentDeck?.totalCards ?? 0} tarjetas disponibles
+            </p>
+          </div>
+          <div className={styles.headerActions}>
+            {currentDeck && (
+              <button onClick={handleReset} className={styles.formButton}>
+                <RotateCcw className="w-4 h-4" />
+                Reiniciar
+              </button>
+            )}
+          </div>
         </div>
 
-        {showGenerateForm && (
-          <div className={styles.generateForm}>
-            <input
-              type="text"
-              placeholder="Tema..."
-              value={formData.topic ?? ""}
-              onChange={(e) =>
-                setFormData({ ...formData, topic: e.target.value })
-              }
-              className={styles.formInput}
-            />
-            <input
-              type="number"
-              placeholder="Cantidad..."
-              value={formData.quantity ?? 10}
-              onChange={(e) =>
-                setFormData({
-                  ...formData,
-                  quantity: parseInt(e.target.value, 10) || 10,
-                })
-              }
-              className={styles.formInput}
-              min={1}
-              max={50}
-            />
-            <button
-              onClick={handleGenerateFlashcards}
-              disabled={isGenerating}
-              className={styles.generateButton}
-            >
-              {isGenerating ? "Generando..." : "Generar"}
-            </button>
-            <button
-              onClick={() => setShowGenerateForm(false)}
-              className={styles.cancelButton}
-            >
-              Cancelar
-            </button>
+        {isLoadingCards ? (
+          <div className={styles.loading}>
+            <Loader className={styles.spinner} />
+            <p>Cargando flashcards...</p>
           </div>
-        )}
-
-        {isLoadingDecks ? (
-          <div className={styles.loadingState}>Cargando mazos...</div>
-        ) : decks.length === 0 ? (
-          <div className={styles.emptyState}>
-            <p>Sin mazos aún</p>
-            <p className={styles.hint}>Crea o genera uno</p>
-          </div>
-        ) : (
-          <div className={styles.decksList}>
-            {decks.map((deck) => (
-              <div
-                key={deck.id}
-                className={`${styles.deckItem} ${
-                  selectedDeck?.id === deck.id ? styles.deckItemActive : ""
-                }`}
-                onClick={() => {
-                  setSelectedDeck(deck);
-                  setCurrentCardIndex(0);
-                  setIsFlipped(false);
-                }}
-              >
-                <div className={styles.deckItemTitle}>{deck.title}</div>
-                <span className={styles.deckCardCount}>{deck.cards.length}</span>
-                {deck.id !== 0 && (
-                  <button
-                    className={styles.deleteButton}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      deleteDeck(deck.id);
+        ) : !currentDeck ? (
+          <div className={styles.mainContent}>
+            {/* Sidebar con formulario */}
+            <div className={styles.sidebar}>
+              <div className={styles.sidebarSection}>
+                <div className={styles.sectionHeader}>
+                  <Sparkles className="w-4 h-4" />
+                  Generar Tarjetas
+                </div>
+                <div className={styles.sectionContent}>
+                  <form
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      handleGenerate();
                     }}
+                    className={styles.generateForm}
                   >
-                    ×
-                  </button>
-                )}
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
-      <div className={styles.flashcardsMain}>
-        {!selectedDeck ? (
-          <div className={styles.noDeckSelected}>
-            <h2>Selecciona un mazo</h2>
-            <p>O genera uno nuevo</p>
-          </div>
-        ) : (
-          <>
-            <div className={styles.flashcardsHeader}>
-              <h1 className={styles.deckTitle}>{selectedDeck.title}</h1>
-              <div className={styles.progress}>
-                <span className={styles.progressText}>
-                  {currentCardIndex + 1} / {selectedDeck.cards.length}
-                </span>
-                <div className={styles.progressBar}>
-                  <div
-                    className={styles.progressFill}
-                    style={{ width: `${progress}%` }}
-                  />
+                    <input
+                      type="text"
+                      placeholder="Tema o referencia..."
+                      value={formData.topic ?? ""}
+                      onChange={(e) =>
+                        setFormData({ ...formData, topic: e.target.value })
+                      }
+                      className={styles.formInput}
+                    />
+                    <input
+                      type="number"
+                      placeholder="Cantidad (2-20)"
+                      min="2"
+                      max="20"
+                      value={formData.quantity ?? 10}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          quantity: Math.max(
+                            2,
+                            Math.min(20, parseInt(e.target.value, 10) || 10),
+                          ),
+                        })
+                      }
+                      className={styles.formInput}
+                    />
+                    <button
+                      type="submit"
+                      disabled={isGenerating}
+                      className={styles.formButton}
+                    >
+                      {isGenerating ? (
+                        <>
+                          <Loader className="w-4 h-4 animate-spin" />
+                          Generando...
+                        </>
+                      ) : (
+                        <>
+                          <Sparkles className="w-4 h-4" />
+                          Generar
+                        </>
+                      )}
+                    </button>
+                  </form>
                 </div>
               </div>
-            </div>
 
-            <div className={styles.cardContainer}>
-              {currentCard ? (
-                <div
-                  className={`${styles.flashcard} ${
-                    isFlipped ? styles.flipped : ""
-                  }`}
-                  onClick={() => setIsFlipped(!isFlipped)}
-                >
-                  <div className={styles.cardFace}>
-                    <div className={styles.cardInner}>
-                      <h2 className={styles.cardTitle}>
-                        {isFlipped ? "Respuesta" : "Pregunta"}
-                      </h2>
-                      <div className={styles.cardContent}>
-                        <MarkdownRenderer
-                          content={
-                            isFlipped ? currentCard.answer : currentCard.question
-                          }
-                        />
+              {allFlashcards.length > 0 && (
+                <div className={styles.sidebarSection}>
+                  <div className={styles.sectionHeader}>📊 Estadísticas</div>
+                  <div className={styles.sectionContent}>
+                    <div className={styles.statsGrid}>
+                      <div className={styles.statCard}>
+                        <div className={styles.statNumber}>
+                          {allFlashcards.length}
+                        </div>
+                        <div className={styles.statName}>Total</div>
                       </div>
-                      <span className={styles.cardHint}>
-                        Haz clic para voltear
-                      </span>
+                      <div className={styles.statCard}>
+                        <div className={styles.statNumber}>{cards.length}</div>
+                        <div className={styles.statName}>Mazos</div>
+                      </div>
                     </div>
                   </div>
                 </div>
-              ) : (
-                <div className={styles.noCard}>Sin tarjetas</div>
               )}
             </div>
 
-            <div className={styles.navigation}>
-              <button
-                onClick={() =>
-                  setCurrentCardIndex(Math.max(0, currentCardIndex - 1))
-                }
-                disabled={currentCardIndex === 0}
-                className={styles.navButton}
-              >
-                ← Anterior
-              </button>
-              <button
-                onClick={() =>
-                  setCurrentCardIndex(
-                    Math.min(
-                      selectedDeck.cards.length - 1,
-                      currentCardIndex + 1
-                    )
-                  )
-                }
-                disabled={
-                  currentCardIndex === selectedDeck.cards.length - 1
-                }
-                className={styles.navButton}
-              >
-                Siguiente →
-              </button>
+            {/* Empty state */}
+            <div className={styles.cardViewer}>
+              <div className={styles.emptyState}>
+                <Book className={styles.emptyIcon} />
+                <h3 className={styles.emptyTitle}>Sin flashcards</h3>
+                <p className={styles.emptyDescription}>
+                  Genera tu primera tarjeta completando el formulario
+                </p>
+              </div>
             </div>
-          </>
+          </div>
+        ) : (
+          /* Card Viewer */
+          <div className={styles.mainContent}>
+            {/* Sidebar de control */}
+            <div className={styles.sidebar}>
+              <div className={styles.sidebarSection}>
+                <div className={styles.sectionHeader}>📈 Progreso</div>
+                <div className={styles.sectionContent}>
+                  <div className={styles.progressBar}>
+                    <div
+                      className={styles.progressFill}
+                      style={{ width: `${progress}%` }}
+                    />
+                  </div>
+                  <div className={styles.progressInfo}>
+                    <span>
+                      {currentCardIndex + 1} de{" "}
+                      {currentDeck?.flashcards?.length ?? 0}
+                    </span>
+                    <span>{Math.round(progress)}%</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className={styles.sidebarSection}>
+                <div className={styles.sectionHeader}>⚙️ Opciones</div>
+                <div className={styles.sectionContent}>
+                  <button onClick={handleReset} className={styles.formButton}>
+                    <RotateCcw className="w-4 h-4" />
+                    Reiniciar
+                  </button>
+                  <button
+                    onClick={() => setShowGenerateForm(!showGenerateForm)}
+                    className={styles.formButton}
+                  >
+                    <Sparkles className="w-4 h-4" />
+                    {showGenerateForm ? "Cerrar" : "Generar"}
+                  </button>
+                </div>
+              </div>
+
+              {showGenerateForm && (
+                <div className={styles.sidebarSection}>
+                  <div className={styles.sectionContent}>
+                    <form
+                      onSubmit={(e) => {
+                        e.preventDefault();
+                        handleGenerate();
+                      }}
+                      className={styles.generateForm}
+                    >
+                      <input
+                        type="text"
+                        placeholder="Nuevo tema..."
+                        value={formData.topic ?? ""}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            topic: e.target.value,
+                          })
+                        }
+                        className={styles.formInput}
+                      />
+                      <input
+                        type="number"
+                        placeholder="Cantidad"
+                        min="2"
+                        max="20"
+                        value={formData.quantity ?? 10}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            quantity: parseInt(e.target.value, 10) || 10,
+                          })
+                        }
+                        className={styles.formInput}
+                      />
+                      <button
+                        type="submit"
+                        disabled={isGenerating}
+                        className={styles.formButton}
+                      >
+                        {isGenerating ? "..." : "Generar"}
+                      </button>
+                    </form>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Card viewer */}
+            <div className={styles.cardViewer}>
+              {currentCard && (
+                <>
+                  {/* Tarjeta */}
+                  <div
+                    className={styles.card}
+                    onClick={() => setIsFlipped(!isFlipped)}
+                  >
+                    <div className={styles.cardInner}>
+                      <div className={styles.cardLabel}>
+                        {isFlipped ? "Respuesta" : "Pregunta"}
+                      </div>
+                      <div className={styles.cardContent}>
+                        <MarkdownRenderer
+                          content={
+                            isFlipped ? currentCard.back : currentCard.front
+                          }
+                        />
+                      </div>
+                    </div>
+                    <div className={styles.cardFooter}>
+                      <span>Click para girar</span>
+                      <span>
+                        {currentCard.difficulty &&
+                          `Dificultad: ${currentCard.difficulty}`}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Navegación */}
+                  <div className={styles.navigation}>
+                    <button
+                      onClick={handlePrevCard}
+                      disabled={currentCardIndex === 0}
+                      className={styles.navButton}
+                    >
+                      <ChevronLeft className="w-4 h-4" />
+                      Anterior
+                    </button>
+                    <div className={styles.statItem}>
+                      <span className={styles.statLabel}>
+                        {currentCardIndex + 1} /{" "}
+                        {currentDeck?.flashcards?.length}
+                      </span>
+                    </div>
+                    <button
+                      onClick={handleNextCard}
+                      disabled={
+                        currentCardIndex ===
+                        (currentDeck?.flashcards?.length ?? 0) - 1
+                      }
+                      className={styles.navButton}
+                    >
+                      Siguiente
+                      <ChevronRight className="w-4 h-4" />
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
         )}
       </div>
-    </div>
+      <Separator className="my-4" />
+      {cards ? <CardGrid cards={cards} /> : <p>No hay cards</p>}
     </DashboardLayout>
   );
 }

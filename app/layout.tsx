@@ -26,7 +26,7 @@ export default function RootLayout({
   return (
     <html lang="es" suppressHydrationWarning>
       <head>
-        <script
+        {/*<script
           dangerouslySetInnerHTML={{
             __html: `
               try {
@@ -35,7 +35,7 @@ export default function RootLayout({
               } catch (e) {}
             `,
           }}
-        />
+          />*/}
       </head>
       <body className="body">
         <Providers>{children}</Providers>

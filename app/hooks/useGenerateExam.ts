@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import { apiService } from '@/services/apiService';
-import type { Exam, GenerateExamDto } from '@/types';
+import type { Exam, GenerateExamData } from '@/types';
 
 export function useGenerateExam() {
   const [exam, setExam] = useState<Exam | null>(null);
@@ -10,7 +10,7 @@ export function useGenerateExam() {
   const [error, setError] = useState<string | null>(null);
 
   const generateExam = useCallback(
-    async (data: GenerateExamDto): Promise<Exam | null> => {
+    async (data: GenerateExamData): Promise<Exam | null> => {
       try {
         setLoading(true);
         setError(null);

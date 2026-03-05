@@ -1,120 +1,100 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { apiService } from '@/services/apiService';
-import { useToast } from '@/hooks/use-toast';
+import { useCallback, useState } from 'react';
 import type { User, AuthResponse } from '@/types';
+import { apiService } from '@/services/apiService';
+import { useToast } from './use-toast';
 
-export const useGoogleAuth = () => {
-  const [user, setUser] = useState<User | null>(apiService.getUser());
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+interface GoogleToken {
+  email: string;
+  name: string;
+  picture?: string;
+  sub: string;
+}
+
+function decodeJWT(token: string): GoogleToken {
+  try {
+    const parts = token.split('.');
+    if (parts.length !== 3) {
+      throw new Error('Invalid token format');
+    }
+
+    const decoded = JSON.parse(
+      atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')),
+    );
+
+    return decoded as GoogleToken;
+  } catch (error) {
+    throw new Error('Failed to decode JWT');
+  }
+}
+
+export function useGoogleAuth() {
   const { toast } = useToast();
-  const router = useRouter();
-  const searchParams = useSearchParams();
+  const [user, setUser] = useState<User | null>(apiService.getUser());
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const loginWithGoogle = useCallback(
+  const handleGoogleSuccess = useCallback(
     async (idToken: string): Promise<AuthResponse> => {
-      setIsLoading(true);
+      setLoading(true);
       setError(null);
 
       try {
-        if (!idToken || idToken.length === 0) {
-          throw new Error('Token de Google inválido');
+        if (!idToken) {
+          throw new Error('No credential received from Google');
         }
 
-        const baseUrl = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3001';
-        const response = await fetch(`${baseUrl}/auth/google`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ idToken }),
+        const decoded = decodeJWT(idToken);
+
+        if (!decoded.email) {
+          throw new Error('No email in Google token');
+        }
+
+        const authResponse = await apiService.loginWithGoogle({
+          idToken,
+          email: decoded.email,
+          name: decoded.name,
+          googleId: decoded.sub,
         });
 
-        if (!response.ok) {
-          const errorData = await response.json().catch(() => ({})) as { message?: string };
-          throw new Error(errorData.message ?? 'Error al autenticarse con Google');
+        if (authResponse.token && authResponse.user) {
+          setUser(authResponse.user);
+          return authResponse;
         }
 
-        const data: AuthResponse = await response.json();
-        apiService.setToken(data.token);
-        if (data.user && typeof window !== 'undefined') {
-          localStorage.setItem('user', JSON.stringify(data.user));
-        }
-        setUser(data.user);
-
-        toast({
-          title: 'Éxito',
-          description: `Bienvenido, ${data.user.name}`,
-        });
-
-        return data;
-      } catch (err: unknown) {
-        const errorMessage = err instanceof Error ? err.message : 'Error al autenticarse con Google';
-        setError(errorMessage);
+        throw new Error('No token in response');
+      } catch (err: any) {
+        const errorMsg = err?.message || 'Error al autenticarse con Google';
+        setError(errorMsg);
         toast({
           title: 'Error',
-          description: errorMessage,
+          description: errorMsg,
           variant: 'destructive',
         });
         throw err;
       } finally {
-        setIsLoading(false);
+        setLoading(false);
       }
     },
-    [toast]
+    [toast],
   );
 
-  const logout = useCallback(() => {
-    apiService.logout();
-    setUser(null);
-    setError(null);
+  const handleGoogleError = useCallback(() => {
+    const errorMsg = 'Error al autenticarse con Google';
+    setError(errorMsg);
     toast({
-      title: 'Sesión cerrada',
-      description: 'Has cerrado sesión correctamente',
+      title: 'Error',
+      description: errorMsg,
+      variant: 'destructive',
     });
-    router.push('/');
-  }, [toast, router]);
-
-  const handleGoogleCallback = useCallback(
-    async (code: string) => {
-      try {
-        setIsLoading(true);
-        const response = await apiService.googleAuthWithCode(code);
-        if (response.user && typeof window !== 'undefined') {
-          localStorage.setItem('user', JSON.stringify(response.user));
-        }
-        setUser(response.user);
-        router.push('/study');
-      } catch (err: unknown) {
-        const msg = err instanceof Error ? err.message : 'Error al autenticar con Google';
-        setError(msg);
-        toast({
-          title: 'Error',
-          description: msg,
-          variant: 'destructive',
-        });
-      } finally {
-        setIsLoading(false);
-      }
-    },
-    [router, toast]
-  );
-
-  useEffect(() => {
-    const code = searchParams.get('code');
-    if (code) {
-      handleGoogleCallback(code);
-    }
-  }, [searchParams, handleGoogleCallback]);
+  }, [toast]);
 
   return {
     user,
-    isLoading,
+    loading,
     error,
-    loginWithGoogle,
-    logout,
-    isAuthenticated: apiService.isAuthenticated(),
-    router,
+    handleGoogleSuccess,
+    handleGoogleError,
   };
-};
+}

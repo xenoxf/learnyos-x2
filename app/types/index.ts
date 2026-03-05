@@ -11,7 +11,7 @@ export interface User {
   email: string;
   name: string;
   picture?: string;
-  provider?: "local" | "google";
+  provider: "local" | "google";
   googleId?: string;
   createdAt: string;
   updatedAt: string;
@@ -38,7 +38,7 @@ export interface RegisterInput {
 export type DifficultyLevel = "easy" | "medium" | "hard";
 
 export interface ExamOption {
-  id?: number;
+  id: number;
   text: string;
   isCorrect: boolean;
 }
@@ -65,7 +65,7 @@ export interface Exam {
   updatedAt: string;
 }
 
-export interface GenerateExamDto {
+export interface GenerateExamData {
   topic?: string;
   reference?: string;
   numberOfQuestions: number;
@@ -77,37 +77,21 @@ export interface GenerateExamDto {
 /** Una sola tarjeta (respuesta del backend GET /flash-cards y dentro de generate) */
 export interface FlashCard {
   id: number;
-  question: string;
-  answer: string;
+  front: string;
+  back: string;
   difficulty?: DifficultyLevel;
   hint?: string;
-  tags?: string[];
   reviewDate?: string;
   cardId?: number;
   userId?: number;
   createdAt?: string;
-  updatedAt?: string;
 }
 
-/** Mazo/deck para UI: agrupa tarjetas con título */
-export interface FlashCardDeck {
-  id: number;
-  title: string;
-  description?: string;
-  totalCards: number;
-  reviewedCards?: number;
-  lastReviewDate?: string;
-  cards: FlashCard[];
-  userId?: number;
-  createdAt?: string;
-  updatedAt?: string;
-}
-
-export interface GenerateFlashCardDto {
+export interface GenerateFlashCardData {
   topic?: string;
   referenceText?: string;
   quantity: number;
-  level: string;
+  level?: string;
 }
 
 /** Respuesta del backend POST /flash-cards/generate/topic_or_reference */
@@ -122,15 +106,17 @@ export interface GenerateFlashcardsResponse {
 export interface Card {
   id: number;
   title: string;
-  description?: string;
+  description: string;
   totalCards: number;
   reviewedCards?: number;
   lastReviewDate?: string;
-  flashcards?: FlashCard[];
+  flashcards: FlashCard[];
   userId?: number;
   createdAt: string;
-  updatedAt: string;
 }
+
+/** Alias para Card cuando se usa en contexto de UI de mazo */
+export type FlashCardDeck = Card;
 
 /** Mensaje de chat (entidad Message del backend) */
 export interface Message {
@@ -153,18 +139,9 @@ export interface NoteContent {
   noteId: number;
   title?: string;
   content: string;
-  type: string;
   order: number;
   userId?: number;
   createdAt: string;
-  updatedAt: string;
-}
-
-export interface NoteBlock {
-  id?: number;
-  content?: string;
-  type?: "paragraph" | "heading" | "list" | "code";
-  order?: number;
 }
 
 /** Entidad Note del backend */
@@ -172,29 +149,24 @@ export interface Note {
   id: number;
   title: string;
   description?: string;
-  content?: string;
-  category?: string;
-  tags?: string[];
   levelOfDetail?: LevelOfDetail;
-  blocks?: NoteBlock[];
   noteContents?: NoteContent[];
   userId?: number;
   createdAt: string;
-  updatedAt: string;
+}
+
+/** Payload para POST /notes/generate/topic_or_reference - alineado con backend */
+export interface GenerateNoteData {
+  topic?: string;
+  referenceText?: string;
+  numberOfNotes: number;
+  levelOfDetail: "breve" | "medio" | "detallado";
 }
 
 /** Respuesta del backend POST /notes/generate/topic_or_reference */
-export interface GenerateNoteResponse {
+export interface GenerateNotesResponse {
   success: boolean;
   notes: Note[];
-}
-
-/** Payload para POST /notes/generate/topic_or_reference */
-export interface GenerateNoteDto {
-  topic?: string;
-  referenceText?: string;
-  numberOfNotes?: number;
-  levelOfDetail?: LevelOfDetail;
 }
 
 // ==================== CHAT & MESSAGES ====================
@@ -207,17 +179,15 @@ export interface ChatMessage {
   content: string;
   role: MessageRole;
   createdAt: string;
-  updatedAt: string;
 }
 
 export interface Chat {
   id: number;
   title: string;
-  messages?: ChatMessage[];
+  messages: ChatMessage[];
   messageCount?: number;
-  userId?: number;
+  userId: number;
   createdAt: string;
-  updatedAt: string;
 }
 
 export interface SendMessageData {
@@ -234,7 +204,7 @@ export interface SendMessageResponse {
 /** Respuesta del backend GET /messages/chat/:chatId */
 export interface GetChatMessagesResponse {
   chatId: number;
-  title?: string;
+  title: string;
   messages: Array<{
     id: number;
     prompt: string;
