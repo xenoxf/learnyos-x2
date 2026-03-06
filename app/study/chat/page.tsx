@@ -3,9 +3,6 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { apiService } from "@/services/apiService";
 import { useToast } from "@/hooks/use-toast";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card } from "@/components/ui/card";
 import {
   Send,
   Trash2,
@@ -17,15 +14,12 @@ import {
   X,
   Bot,
   User,
-  Clock,
   Menu,
-  Sparkles,
 } from "lucide-react";
 import styles from "@/styles/chat.module.css";
 import DashboardLayout from "../layaut";
-import type { ChatMessage, Chat, SendMessageData, SendMessageResponse } from "@/types";
+import type { ChatMessage, Chat } from "@/types";
 import { MarkdownRenderer } from "@/components/MarkdownRenderer";
-import type { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
 
@@ -36,14 +30,65 @@ export default function ChatPage() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [copiedId, setCopiedId] = useState<number | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { toast } = useToast();
 
-  // ==================== LOAD INITIAL DATA ====================
+  // ==================== SUGERENCIAS ====================
+  const suggestions = [
+    {
+      icon: "🧠",
+      title: "Ciencia",
+      text: "Explica la teoría cuántica"
+    },
+    {
+      icon: "🤖",
+      title: "Tecnología",
+      text: "¿Cómo funciona el machine learning?"
+    },
+    {
+      icon: "📚",
+      title: "Historia",
+      text: "Resumen de la Segunda Guerra Mundial"
+    },
+    {
+      icon: "📊",
+      title: "Economía",
+      text: "Conceptos básicos de economía"
+    },
+    {
+      icon: "🎨",
+      title: "Arte",
+      text: "Historia del arte renacentista"
+    },
+    {
+      icon: "💡",
+      title: "Consejos",
+      text: "Consejos para ser más productivo"
+    }
+  ];
+
+  // ==================== DETECTAR MÓVIL ====================
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+      if (window.innerWidth <= 768) {
+        setIsSidebarOpen(false);
+      } else {
+        setIsSidebarOpen(true);
+      }
+    };
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // ==================== CARGAR DATOS ====================
   useEffect(() => {
     loadChats();
   }, []);
@@ -52,7 +97,7 @@ export default function ChatPage() {
     scrollToBottom();
   }, [messages]);
 
-  // ==================== API FUNCTIONS ====================
+  // ==================== FUNCIONES API ====================
   const loadChats = async () => {
     try {
       const response = await apiService.getChats();
@@ -75,17 +120,16 @@ export default function ChatPage() {
           id: m.id * 2,
           chatId: response.chatId,
           content: m.prompt,
-          role: "user" as const,
-          createdAt: String(m.createdAt),
-          updatedAt: String(m.createdAt),
+          role: "user",
+          createdAt: String(m.createdAt)
         },
         {
           id: m.id * 2 + 1,
           chatId: response.chatId,
           content: m.response,
-          role: "assistant" as const,
-          createdAt: String(m.createdAt),
-          updatedAt: String(m.createdAt),
+          role: "assistant",
+          createdAt: String(m.createdAt)
+
         },
       ]);
       setMessages(chatMessages);
@@ -156,17 +200,14 @@ export default function ChatPage() {
     setCurrentChat(null);
     setMessages([]);
     setInputValue("");
-    setIsSidebarOpen(false);
-
-    if (textareaRef.current) {
-      textareaRef.current.focus();
-    }
+    if (isMobile) setIsSidebarOpen(false);
+    if (textareaRef.current) textareaRef.current.focus();
   };
 
   const handleSelectChat = async (chat: Chat) => {
     setCurrentChat(chat);
     await loadChatMessages(chat.id);
-    setIsSidebarOpen(false);
+    if (isMobile) setIsSidebarOpen(false);
   };
 
   const handleDeleteChat = async (chatId: number, e: React.MouseEvent) => {
@@ -236,221 +277,193 @@ export default function ChatPage() {
 
   const formatTime = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleTimeString("es-ES", {
-      hour: "2-digit",
-      minute: "2-digit",
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMins / 60);
+    const diffDays = Math.floor(diffHours / 24);
+
+    if (diffMins < 1) return "Ahora";
+    if (diffMins < 60) return `Hace ${diffMins} min`;
+    if (diffHours < 24) return `Hace ${diffHours} h`;
+    if (diffDays === 1) return "Ayer";
+    return date.toLocaleDateString("es-ES", {
+      day: "2-digit",
+      month: "2-digit",
     });
   };
 
   // ==================== RENDER ====================
   return (
     <DashboardLayout>
-      <div className={styles.chatContainer}>
-        {/* SIDEBAR - HISTORIAL DE CHATS */}
-        <div
-          className={`${styles.sidebar} ${isSidebarOpen ? styles.open : ""}`}
-        >
+      <div className={styles.container}>
+        {/* OVERLAY MÓVIL */}
+        {isMobile && isSidebarOpen && (
+          <div
+            className={styles.overlay}
+            onClick={() => setIsSidebarOpen(false)}
+          />
+        )}
+
+        {/* SIDEBAR */}
+        <aside className={`${styles.sidebar} ${isSidebarOpen ? styles.open : styles.closed}`}>
           <div className={styles.sidebarHeader}>
+            <div className={styles.sidebarHeaderTop}>
+              <h2>Conversaciones</h2>
+              {isMobile && (
+                <button
+                  className={styles.closeButton}
+                  onClick={() => setIsSidebarOpen(false)}
+                >
+                  <X size={20} />
+                </button>
+              )}
+            </div>
             <button className={styles.newChatButton} onClick={handleNewChat}>
               <Plus size={18} />
-              Nuevo Chat
-            </button>
-            <button
-              className={styles.menuToggle}
-              onClick={() => setIsSidebarOpen(false)}
-            >
-              <X size={20} />
+              Nuevo chat
             </button>
           </div>
 
-          <div className={styles.chatHistory}>
+          <div className={styles.chatList}>
             {chats.length === 0 ? (
-              <div
-                style={{
-                  textAlign: "center",
-                  color: "hsl(var(--muted-foreground))",
-                  padding: "2rem 1rem",
-                }}
-              >
-                <MessageSquare
-                  size={32}
-                  style={{ margin: "0 auto 1rem", opacity: 0.5 }}
-                />
-                <p>No hay chats aún</p>
-                <p style={{ fontSize: "0.875rem", marginTop: "0.5rem" }}>
-                  Crea uno nuevo para empezar
-                </p>
+              <div className={styles.emptyChats}>
+                <MessageSquare size={40} />
+                <p>No hay conversaciones</p>
+                <span>Crea un nuevo chat para empezar</span>
               </div>
             ) : (
               chats.map((chat) => (
                 <div
                   key={chat.id}
-                  className={`${styles.chatHistoryItem} ${
-                    currentChat?.id === chat.id ? styles.active : ""
-                  }`}
+                  className={`${styles.chatItem} ${currentChat?.id === chat.id ? styles.active : ""}`}
                   onClick={() => handleSelectChat(chat)}
                 >
-                  <MessageSquare size={16} style={{ opacity: 0.7 }} />
-                  <span className={styles.chatHistoryTitle}>
-                    {chat.title || `Chat ${chat.id}`}
-                  </span>
-                  <div className={styles.chatHistoryMeta}>
+                  <MessageSquare size={18} />
+                  <div className={styles.chatInfo}>
+                    <span className={styles.chatTitle}>
+                      {chat.title || `Chat ${chat.id}`}
+                    </span>
                     {chat.messageCount && (
-                      <span style={{ fontSize: "0.75rem", opacity: 0.6 }}>
-                        {chat.messageCount}
+                      <span className={styles.messageCount}>
+                        {chat.messageCount} mensajes
                       </span>
                     )}
-                    <button
-                      className={styles.deleteChatButton}
-                      onClick={(e) => handleDeleteChat(chat.id, e)}
-                      aria-label="Eliminar chat"
-                    >
-                      <Trash2 size={14} />
-                    </button>
                   </div>
+                  <button
+                    className={styles.deleteButton}
+                    onClick={(e) => handleDeleteChat(chat.id, e)}
+                    aria-label="Eliminar chat"
+                  >
+                    <Trash2 size={16} />
+                  </button>
                 </div>
               ))
             )}
           </div>
-        </div>
 
-        {/* MAIN CHAT AREA */}
-        <div className={styles.mainChat}>
+        </aside>
+
+        {/* MAIN CHAT */}
+        <main className={styles.main}>
           {/* HEADER */}
-          <div className={styles.chatHeader}>
-            <div className={styles.chatHeaderInfo}>
-              <button
-                className={styles.menuToggle}
-                onClick={() => setIsSidebarOpen(true)}
-              >
-                <Menu size={20} />
-              </button>
-            </div>
-          </div>
+          <header className={styles.header}>
+            <button
+              className={styles.menuButton}
+              onClick={() => setIsSidebarOpen(true)}
+            >
+              <Menu size={20} />
+            </button>
+
+            {currentChat ? (
+              <div className={styles.headerInfo}>
+                <h3>{currentChat.title || `Chat ${currentChat.id}`}</h3>
+                {messages.length > 0 && (
+                  <span className={styles.messageStatus}>
+                    {messages.length} mensajes
+                  </span>
+                )}
+              </div>
+            ) : (
+              <div className={styles.headerInfo}>
+                <h3>Nuevo chat</h3>
+              </div>
+            )}
+          </header>
 
           {/* MESSAGES */}
-          <div className={styles.messagesContainer}>
+          <div className={styles.messages}>
             {messages.length === 0 ? (
-              <div className={styles.emptyState}>
-                <div className={styles.emptyStateIcon}>
-                  <Bot size={36} color="white" />
+              <div className={styles.welcome}>
+                <div className={styles.welcomeIcon}>
+                  <Bot size={48} />
                 </div>
-                <h3>¿Qué quieres aprender hoy?</h3>
-                <p>
-                  Pregúntame sobre cualquier tema y te ayudaré a entenderlo
-                  mejor
-                </p>
-                <div
-                  style={{
-                    display: "flex",
-                    gap: "0.75rem",
-                    flexWrap: "wrap",
-                    justifyContent: "center",
-                    marginTop: "1rem",
-                  }}
-                >
-                  {[
-                    "Explica la teoría cuántica",
-                    "¿Cómo funciona el machine learning?",
-                    "Resumen de la Segunda Guerra Mundial",
-                    "Conceptos básicos de economía",
-                  ].map((suggestion, i) => (
+                <h1>¡Hola! Soy Junior</h1>
+                <p>¿Qué te gustaría preguntar hoy?</p>
+                <div className={styles.suggestions}>
+                  {suggestions.map((suggestion, index) => (
                     <button
-                      key={i}
-                      onClick={() => setInputValue(suggestion)}
-                      style={{
-                        padding: "0.5rem 1rem",
-                        background: "hsl(var(--muted) / 0.3)",
-                        border: "1px solid hsl(var(--border))",
-                        borderRadius: "20px",
-                        fontSize: "0.875rem",
-                        color: "hsl(var(--foreground))",
-                        cursor: "pointer",
-                        transition: "all 0.2s",
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.background =
-                          "hsl(var(--muted) / 0.5)";
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.background =
-                          "hsl(var(--muted) / 0.3)";
-                      }}
+                      key={index}
+                      className={styles.suggestionCard}
+                      onClick={() => setInputValue(suggestion.text)}
                     >
-                      {suggestion}
+                      <span className={styles.suggestionIcon}>{suggestion.icon}</span>
+                      <div className={styles.suggestionContent}>
+                        <span className={styles.suggestionTitle}>{suggestion.title}</span>
+                        <span className={styles.suggestionText}>{suggestion.text}</span>
+                      </div>
                     </button>
                   ))}
                 </div>
               </div>
             ) : (
               <>
-                {messages.map((msg, index) => (
+                {messages.map((msg) => (
                   <div
-                    key={msg.id || index}
-                    className={`${styles.messageWrapper} ${
-                      msg.role === "user" ? styles.user : styles.assistant
-                    }`}
+                    key={msg.id}
+                    className={`${styles.message} ${msg.role === "user" ? styles.userMessage : styles.botMessage}`}
                   >
-                    <div className={styles.messageContent}>
-                      <div className={styles.avatar}>
-                        {msg.role === "user" ? (
-                          <User size={18} color="white" />
+                    <div className={styles.messageAvatar}>
+                      {msg.role === "user" ? <User size={18} /> : <Bot size={18} />}
+                    </div>
+                    <div className={styles.messageBubble}>
+                      <div className={styles.messageHeader}>
+                        <span className={styles.messageSender}>
+                          {msg.role === "user" ? "Tú" : "Junior"}
+                        </span>
+                        <span className={styles.messageTime}>
+                          {formatTime(msg.createdAt)}
+                        </span>
+                      </div>
+                      <div className={styles.messageContent}>
+                        {msg.role === "assistant" ? (
+                          <MarkdownRenderer content={msg.content} />
                         ) : (
-                          <Bot size={18} color="white" />
+                          msg.content
                         )}
                       </div>
-                      <div className={styles.messageBody}>
-                        <div className={styles.messageHeader}>
-                          <span className={styles.messageSender}>
-                            {msg.role === "user" ? "Tú" : "Junior"}
-                          </span>
-                          <span className={styles.messageTime}>
-                            {formatTime(msg.createdAt)}
-                          </span>
-                        </div>
-                        <div className={styles.messageText}>
-                          {msg.role === "assistant" ? (
-                            <MarkdownRenderer content={msg.content} />
-                          ) : (
-                            msg.content
-                          )}
-                        </div>
-                        {msg.role === "assistant" && (
-                          <div className={styles.messageActions}>
-                            <button
-                              className={styles.messageActionButton}
-                              onClick={() =>
-                                handleCopyMessage(msg.content, msg.id)
-                              }
-                              title="Copiar respuesta"
-                            >
-                              {copiedId === msg.id ? (
-                                <Check size={14} />
-                              ) : (
-                                <Copy size={14} />
-                              )}
-                            </button>
-                          </div>
-                        )}
-                      </div>
+                      {msg.role === "assistant" && (
+                        <button
+                          className={styles.copyButton}
+                          onClick={() => handleCopyMessage(msg.content, msg.id)}
+                          title="Copiar respuesta"
+                        >
+                          {copiedId === msg.id ? <Check size={14} /> : <Copy size={14} />}
+                        </button>
+                      )}
                     </div>
                   </div>
                 ))}
 
-                {/* TYPING INDICATOR */}
                 {isLoading && (
-                  <div
-                    className={`${styles.messageWrapper} ${styles.assistant}`}
-                  >
-                    <div className={styles.messageContent}>
-                      <div className={styles.avatar}>
-                        <Bot size={18} color="white" />
-                      </div>
-                      <div className={styles.typingIndicator}>
-                        <div className={styles.typingDot}></div>
-                        <div className={styles.typingDot}></div>
-                        <div className={styles.typingDot}></div>
-                      </div>
+                  <div className={`${styles.message} ${styles.botMessage}`}>
+                    <div className={styles.messageAvatar}>
+                      <Bot size={18} />
+                    </div>
+                    <div className={styles.typing}>
+                      <span></span>
+                      <span></span>
+                      <span></span>
                     </div>
                   </div>
                 )}
@@ -460,13 +473,13 @@ export default function ChatPage() {
             )}
           </div>
 
-          {/* INPUT AREA */}
+          {/* INPUT */}
           <div className={styles.inputArea}>
             <div className={styles.inputContainer}>
               <textarea
                 ref={textareaRef}
                 className={styles.textarea}
-                placeholder="Envía un mensaje..."
+                placeholder="Escribe tu mensaje..."
                 value={inputValue}
                 onChange={(e) => {
                   setInputValue(e.target.value);
@@ -481,26 +494,14 @@ export default function ChatPage() {
                 onClick={handleSendMessage}
                 disabled={!inputValue.trim() || isLoading}
               >
-                {isLoading ? (
-                  <Loader size={18} className="animate-spin" />
-                ) : (
-                  <Send size={18} />
-                )}
+                {isLoading ? <Loader size={18} className={styles.spin} /> : <Send size={18} />}
               </button>
             </div>
-            <p
-              style={{
-                fontSize: "0.75rem",
-                color: "hsl(var(--muted-foreground))",
-                textAlign: "center",
-                marginTop: "0.5rem",
-              }}
-            >
-              Junior puede cometer errores. Considera verificar información
-              importante.
+            <p className={styles.disclaimer}>
+              Junior puede cometer errores. Considera verificar información importante.
             </p>
           </div>
-        </div>
+        </main>
       </div>
     </DashboardLayout>
   );

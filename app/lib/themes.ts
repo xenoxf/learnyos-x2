@@ -58,6 +58,6 @@ export const themes = [
   },
 ] as const;
 export const getStoredTheme = (): Theme => {
-  if (typeof window === "undefined") return "light";
-  return (localStorage.getItem("learnyos-theme") as Theme) || "light";
+  if (typeof window === "undefined") return "dark";
+  return (localStorage.getItem("learnyos-theme") as Theme) || "dark";
 };

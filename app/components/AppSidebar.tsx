@@ -16,7 +16,8 @@ import { useToast } from "@/hooks/use-toast";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import styles from "../styles/sidebar.module.css";
-import { ThemeSelector } from "./ThemeSelector";
+import { ThemeToggle } from "./ThemeToggle";
+import { ThemeToggleSidebr } from "./ThemeToogleSidebr";
 
 const menuItems = [
   { title: "Dashboard", url: "/study", icon: LayoutDashboard },
@@ -181,8 +182,9 @@ export function AppSidebar({
           )}
         </div>
         <div
-          className={`${sidebarClosed ? styles.actions : styles.actionsCollapsed}`}
+          className={`${sidebarClosed ? styles.actionsCollapsed : styles.actions}`}
         >
+          <ThemeToggleSidebr isCollapse={collapsed} />
           <button
             onClick={handleLogout}
             className={`

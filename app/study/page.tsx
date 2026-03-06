@@ -20,7 +20,6 @@ import {
 } from "lucide-react";
 import styles from "@/styles/dashboard.module.css";
 import DashboardLayout from "@/study/layaut";
-import type { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
 

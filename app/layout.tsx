@@ -25,18 +25,7 @@ export default function RootLayout({
 
   return (
     <html lang="es" suppressHydrationWarning>
-      <head>
-        {/*<script
-          dangerouslySetInnerHTML={{
-            __html: `
-              try {
-                //const theme = localStorage.getItem('theme');
-                //document.documentElement.classList.add(theme);
-              } catch (e) {}
-            `,
-          }}
-          />*/}
-      </head>
+      <head></head>
       <body className="body">
         <Providers>{children}</Providers>
       </body>
