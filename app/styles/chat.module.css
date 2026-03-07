@@ -1,8 +1,8 @@
-/* chat.module.css */
+/* chat.module.css
 
 /* ============================================
    VARIABLES Y ANIMACIONES
-   ============================================ */
+   ============================================
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -49,7 +49,7 @@
 
 /* ============================================
    CONTAINER PRINCIPAL
-   ============================================ */
+   ============================================
 .container {
   display: flex;
   height: 100vh;
@@ -60,7 +60,7 @@
 
 /* ============================================
    OVERLAY MÓVIL
-   ============================================ */
+   ============================================
 .overlay {
   position: fixed;
   top: 0;
@@ -74,7 +74,7 @@
 
 /* ============================================
    SIDEBAR
-   ============================================ */
+   ============================================
 .sidebar {
   width: 320px;
   background: hsl(var(--background));
@@ -100,7 +100,7 @@
   }
 }
 
-/* Sidebar Header */
+/* Sidebar Header
 .sidebarHeader {
   padding: 1.5rem;
   border-bottom: 1px solid hsl(var(--border));
@@ -140,7 +140,7 @@
   transform: scale(1.05);
 }
 
-/* Nuevo Chat Button */
+/* Nuevo Chat Button
 .newChatButton {
   width: 100%;
   padding: 0.875rem;
@@ -167,7 +167,7 @@
   transform: translateY(0);
 }
 
-/* Chat List */
+/* Chat List
 .chatList {
   flex: 1;
   overflow-y: auto;
@@ -199,7 +199,7 @@
   opacity: 0.8;
 }
 
-/* Chat Item */
+/* Chat Item
 .chatItem {
   display: flex;
   align-items: center;
@@ -276,7 +276,7 @@
   transform: scale(1.1);
 }
 
-/* Sidebar Footer */
+/* Sidebar Footer
 .sidebarFooter {
   padding: 1rem 1.5rem;
   border-top: 1px solid hsl(var(--border));
@@ -307,16 +307,23 @@
 
 /* ============================================
    MAIN CHAT
-   ============================================ */
+   ============================================
 .main {
   flex: 1;
   display: flex;
   flex-direction: column;
   background: hsl(var(--background));
   position: relative;
+  transition: margin 0.3s ease;
 }
 
-/* Header */
+@media (min-width: 769px) {
+  .mainWithSidebar {
+    margin-left: 300px;
+  }
+}
+
+/* Header
 .header {
   padding: 1rem 1.5rem;
   border-bottom: 1px solid hsl(var(--border));
@@ -367,7 +374,7 @@
   color: hsl(var(--muted-foreground));
 }
 
-/* Messages Area */
+/* Messages Area
 .messages {
   flex: 1;
   overflow-y: auto;
@@ -377,7 +384,7 @@
   gap: 1rem;
 }
 
-/* Welcome Screen */
+/* Welcome Screen
 .welcome {
   height: 100%;
   display: flex;
@@ -418,7 +425,7 @@
   font-size: 1.1rem;
 }
 
-/* Suggestions Grid */
+/* Suggestions Grid
 .suggestions {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -477,7 +484,7 @@
   line-height: 1.4;
 }
 
-/* Message */
+/* Message
 .message {
   display: flex;
   gap: 1rem;
@@ -584,7 +591,7 @@
   transform: scale(1.1);
 }
 
-/* Typing Indicator */
+/* Typing Indicator
 .typing {
   padding: 1rem 1.5rem;
   background: hsl(var(--muted) / 0.3);
@@ -609,7 +616,7 @@
   animation-delay: 0.4s;
 }
 
-/* Input Area */
+/* Input Area
 .inputArea {
   padding: 1.5rem;
   border-top: 1px solid hsl(var(--border));
@@ -694,7 +701,7 @@
 
 /* ============================================
    RESPONSIVE
-   ============================================ */
+   ============================================
 @media (max-width: 768px) {
   .sidebar {
     position: fixed;
@@ -727,4 +734,419 @@
   .inputArea {
     padding: 1rem;
   }
+}
+*/
+
+/* chat.module.css */
+
+.container {
+    display: flex;
+    height: 100vh;
+    background: hsl(var(--background));
+    overflow: hidden;
+    position: relative;
+}
+
+/* Main content */
+.main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: hsl(var(--background));
+    overflow: hidden;
+    position: relative;
+}
+
+/* Header del chat */
+.header {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid hsl(var(--border));
+    background: hsl(var(--background));
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-shrink: 0;
+}
+
+.menuButton {
+    display: none;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    border: none;
+    background: hsl(var(--muted) / 0.3);
+    color: hsl(var(--foreground));
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.menuButton:hover {
+    background: hsl(var(--muted) / 0.5);
+}
+
+@media (max-width: 768px) {
+    .menuButton {
+        display: flex;
+    }
+}
+
+.headerInfo h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: hsl(var(--foreground));
+    margin: 0 0 0.25rem 0;
+}
+
+.messageStatus {
+    font-size: 0.75rem;
+    color: hsl(var(--muted-foreground));
+}
+
+/* Área de mensajes */
+.messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+/* Pantalla de bienvenida */
+.welcome {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.welcomeIcon {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: linear-gradient(
+        135deg,
+        hsl(var(--primary)),
+        hsl(var(--primary) / 0.5)
+    );
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    margin-bottom: 1.5rem;
+}
+
+.welcome h1 {
+    font-size: 1.75rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: hsl(var(--foreground));
+}
+
+.welcome p {
+    color: hsl(var(--muted-foreground));
+    margin-bottom: 2rem;
+}
+
+/* Grid de sugerencias */
+.suggestions {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    width: 100%;
+}
+
+.suggestionCard {
+    padding: 1rem;
+    background: hsl(var(--muted) / 0.3);
+    border: 1px solid hsl(var(--border));
+    border-radius: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    text-align: left;
+    transition: all 0.2s;
+}
+
+.suggestionCard:hover {
+    background: hsl(var(--muted) / 0.5);
+    border-color: hsl(var(--primary));
+}
+
+.suggestionIcon {
+    font-size: 1.5rem;
+}
+
+.suggestionContent {
+    flex: 1;
+}
+
+.suggestionTitle {
+    display: block;
+    font-size: 0.6875rem;
+    color: hsl(var(--primary));
+    font-weight: 600;
+    margin-bottom: 0.125rem;
+    text-transform: uppercase;
+}
+
+.suggestionText {
+    display: block;
+    font-size: 0.875rem;
+    color: hsl(var(--foreground));
+}
+
+/* Mensajes */
+.message {
+    display: flex;
+    gap: 1rem;
+    max-width: 80%;
+}
+
+.userMessage {
+    align-self: flex-end;
+    flex-direction: row-reverse;
+}
+
+.botMessage {
+    align-self: flex-start;
+}
+
+.messageAvatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: linear-gradient(
+        135deg,
+        hsl(var(--primary)),
+        hsl(var(--primary) / 0.8)
+    );
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    flex-shrink: 0;
+}
+
+.userMessage .messageAvatar {
+    background: hsl(var(--muted));
+    color: hsl(var(--foreground));
+}
+
+.messageBubble {
+    background: hsl(var(--muted) / 0.3);
+    border-radius: 16px;
+    padding: 0.875rem 1rem;
+    position: relative;
+}
+
+.userMessage .messageBubble {
+    background: hsl(var(--primary));
+    color: hsl(var(--muted-foreground));
+}
+
+.messageHeader {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.375rem;
+}
+
+.messageSender {
+    font-weight: 600;
+    font-size: 0.8125rem;
+}
+
+.userMessage .messageSender {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.messageTime {
+    font-size: 0.6875rem;
+    color: hsl(var(--muted-foreground));
+}
+
+.userMessage .messageTime {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.messageContent {
+    font-size: 0.875rem;
+    line-height: 1.5;
+    word-wrap: break-word;
+}
+
+/* Botón copiar */
+.copyButton {
+    position: absolute;
+    bottom: -10px;
+    right: 8px;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: none;
+    background: hsl(var(--background));
+    color: hsl(var(--muted-foreground));
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: all 0.2s;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.messageBubble:hover .copyButton {
+    opacity: 1;
+}
+
+.copyButton:hover {
+    background: hsl(var(--muted));
+    color: hsl(var(--foreground));
+}
+
+/* Indicador de escritura */
+.typing {
+    padding: 0.875rem 1.25rem;
+    background: hsl(var(--muted) / 0.3);
+    border-radius: 16px;
+    display: flex;
+    gap: 0.25rem;
+}
+
+.typing span {
+    width: 6px;
+    height: 6px;
+    background: hsl(var(--muted-foreground));
+    border-radius: 50%;
+    animation: pulse 1.4s infinite;
+}
+
+.typing span:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.typing span:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+/* Área de input */
+.inputArea {
+    padding: 1.5rem;
+    border-top: 1px solid hsl(var(--border));
+    background: hsl(var(--background));
+    flex-shrink: 0;
+}
+
+.inputContainer {
+    display: flex;
+    gap: 0.75rem;
+    background: hsl(var(--muted) / 0.3);
+    border: 1px solid hsl(var(--border));
+    border-radius: 24px;
+    padding: 0.375rem 0.375rem 0.375rem 1rem;
+    transition: all 0.2s;
+}
+
+.inputContainer:focus-within {
+    border-color: hsl(var(--primary));
+    box-shadow: 0 0 0 2px hsl(var(--primary) / 0.1);
+}
+
+.textarea {
+    flex: 1;
+    padding: 0.5rem 0;
+    border: none;
+    background: transparent;
+    color: hsl(var(--foreground));
+    font-size: 0.875rem;
+    resize: none;
+    max-height: 100px;
+    font-family: inherit;
+}
+
+.textarea:focus {
+    outline: none;
+}
+
+.textarea::placeholder {
+    color: hsl(var(--muted-foreground));
+}
+
+.sendButton {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: none;
+    background: hsl(var(--primary));
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    flex-shrink: 0;
+}
+
+.sendButton:hover:not(:disabled) {
+    background: hsl(var(--primary) / 0.9);
+    transform: scale(1.05);
+}
+
+.sendButton:active:not(:disabled) {
+    transform: scale(0.95);
+}
+
+.sendButton:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.disclaimer {
+    font-size: 0.6875rem;
+    color: hsl(var(--muted-foreground));
+    text-align: center;
+    margin-top: 0.75rem;
+}
+
+/* Animaciones */
+@keyframes pulse {
+    0%,
+    100% {
+        opacity: 0.4;
+    }
+    50% {
+        opacity: 1;
+    }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .messages {
+        padding: 1rem;
+    }
+
+    .message {
+        max-width: 90%;
+    }
+
+    .suggestions {
+        grid-template-columns: 1fr;
+    }
+
+    .welcome h1 {
+        font-size: 1.5rem;
+    }
+
+    .welcome p {
+        font-size: 0.9375rem;
+    }
 }

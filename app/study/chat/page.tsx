@@ -20,6 +20,7 @@ import styles from "@/styles/chat.module.css";
 import DashboardLayout from "../layaut";
 import type { ChatMessage, Chat } from "@/types";
 import { MarkdownRenderer } from "@/components/MarkdownRenderer";
+import ChatHistory from "@/components/chat/history";
 
 export const dynamic = "force-dynamic";
 
@@ -54,21 +55,6 @@ export default function ChatPage() {
       icon: "📚",
       title: "Historia",
       text: "Resumen de la Segunda Guerra Mundial"
-    },
-    {
-      icon: "📊",
-      title: "Economía",
-      text: "Conceptos básicos de economía"
-    },
-    {
-      icon: "🎨",
-      title: "Arte",
-      text: "Historia del arte renacentista"
-    },
-    {
-      icon: "💡",
-      title: "Consejos",
-      text: "Consejos para ser más productivo"
     }
   ];
 
@@ -152,10 +138,10 @@ export default function ChatPage() {
 
     const userMessage: ChatMessage = {
       id: Date.now(),
-      chatId: currentChat?.id ?? 0,
+      chatId: currentChat?.id ?? undefined,
       content: messageContent,
       role: "user",
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
     };
 
     setMessages((prev) => [...prev, userMessage]);
@@ -167,20 +153,28 @@ export default function ChatPage() {
       });
 
       const assistantMessage: ChatMessage = {
-        id: response.messageId,
+        id: response.id,
         chatId: response.chatId,
         content: response.response,
         role: "assistant",
-        createdAt: new Date().toISOString()
+        createdAt: response.createdAt ?? new Date().toISOString(),
       };
 
       setMessages((prev) => [...prev, assistantMessage]);
 
-      if (!currentChat && response.chatId) {
-        await loadChats();
-        const newChat = chats.find((c) => c.id === response.chatId);
-        if (newChat) {
-          setCurrentChat(newChat);
+      if (response.chatId) {
+        if (!currentChat) {
+          const updatedChats = await apiService.getChats();
+          const newChat = updatedChats.find((c) => c.id === response.chatId);
+          setCurrentChat(
+            newChat ?? {
+              id: response.chatId,
+              title: "Nuevo Chat",
+              messageCount: 2,
+              createdAt: new Date().toISOString(),
+            }
+          );
+          setChats(updatedChats);
         }
       }
     } catch (error) {
@@ -297,80 +291,23 @@ export default function ChatPage() {
   return (
     <DashboardLayout>
       <div className={styles.container}>
-        {/* OVERLAY MÓVIL */}
-        {isMobile && isSidebarOpen && (
-          <div
-            className={styles.overlay}
-            onClick={() => setIsSidebarOpen(false)}
-          />
-        )}
+        <ChatHistory
+          chats={chats}
+          handleNewChat={handleNewChat}
+          handleSelectChat={handleSelectChat}
+          handleDeleteChat={handleDeleteChat}
+          currentChat={currentChat}
+          isOpen={isSidebarOpen}
+          onToggle={() => setIsSidebarOpen((p) => !p)}
+          isMobile={isMobile}
+        />
 
-        {/* SIDEBAR */}
-        <aside className={`${styles.sidebar} ${isSidebarOpen ? styles.open : styles.closed}`}>
-          <div className={styles.sidebarHeader}>
-            <div className={styles.sidebarHeaderTop}>
-              <h2>Conversaciones</h2>
-              {isMobile && (
-                <button
-                  className={styles.closeButton}
-                  onClick={() => setIsSidebarOpen(false)}
-                >
-                  <X size={20} />
-                </button>
-              )}
-            </div>
-            <button className={styles.newChatButton} onClick={handleNewChat}>
-              <Plus size={18} />
-              Nuevo chat
-            </button>
-          </div>
-
-          <div className={styles.chatList}>
-            {chats.length === 0 ? (
-              <div className={styles.emptyChats}>
-                <MessageSquare size={40} />
-                <p>No hay conversaciones</p>
-                <span>Crea un nuevo chat para empezar</span>
-              </div>
-            ) : (
-              chats.map((chat) => (
-                <div
-                  key={chat.id}
-                  className={`${styles.chatItem} ${currentChat?.id === chat.id ? styles.active : ""}`}
-                  onClick={() => handleSelectChat(chat)}
-                >
-                  <MessageSquare size={18} />
-                  <div className={styles.chatInfo}>
-                    <span className={styles.chatTitle}>
-                      {chat.title || `Chat ${chat.id}`}
-                    </span>
-                    {chat.messageCount && (
-                      <span className={styles.messageCount}>
-                        {chat.messageCount} mensajes
-                      </span>
-                    )}
-                  </div>
-                  <button
-                    className={styles.deleteButton}
-                    onClick={(e) => handleDeleteChat(chat.id, e)}
-                    aria-label="Eliminar chat"
-                  >
-                    <Trash2 size={16} />
-                  </button>
-                </div>
-              ))
-            )}
-          </div>
-
-        </aside>
-
-        {/* MAIN CHAT */}
-        <main className={styles.main}>
-          {/* HEADER */}
+        <main className={`${styles.main} ${isSidebarOpen ? styles.mainWithSidebar : ""}`}>
           <header className={styles.header}>
             <button
               className={styles.menuButton}
               onClick={() => setIsSidebarOpen(true)}
+              aria-label="Abrir historial"
             >
               <Menu size={20} />
             </button>

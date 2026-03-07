@@ -175,7 +175,7 @@ export type MessageRole = "user" | "assistant";
 
 export interface ChatMessage {
   id: number;
-  chatId: number;
+  chatId?: number | null;
   content: string;
   role: MessageRole;
   createdAt: string;
@@ -184,10 +184,11 @@ export interface ChatMessage {
 export interface Chat {
   id: number;
   title: string;
-  messages: ChatMessage[];
+  messages?: ChatMessage[];
   messageCount?: number;
-  userId: number;
+  userId?: number;
   createdAt: string;
+  updatedAt?: string;
 }
 
 export interface SendMessageData {
@@ -195,16 +196,19 @@ export interface SendMessageData {
   chatId?: number;
 }
 
+/** Respuesta del backend POST /messages/send - devuelve la entidad Message */
 export interface SendMessageResponse {
-  chatId: number;
+  id: number;
+  chatId?: number;
   response: string;
-  messageId: number;
+  prompt: string;
+  createdAt: string;
 }
 
 /** Respuesta del backend GET /messages/chat/:chatId */
 export interface GetChatMessagesResponse {
   chatId: number;
-  title: string;
+  title?: string;
   messages: Array<{
     id: number;
     prompt: string;

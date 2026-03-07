@@ -12,6 +12,12 @@
     pointer-events: none;
     z-index: 50;
     padding: 0 16px 12px;
+    transform: translateY(0);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.containerHidden {
+    transform: translateY(100%);
 }
 
 /* ─── Nav bar pill ───────────────────────────────────────────────────────────── */

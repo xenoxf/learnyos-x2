@@ -15,7 +15,7 @@ import { Sun, Moon } from "lucide-react";
 import styles from "@/styles/themeToggleSidebar.module.css";
 
 interface ThemeToggleSidebrProps {
-  isCollapse: boolean;
+  isCollapse?: boolean;
 }
 
 export const ThemeToggleSidebr: React.FC<ThemeToggleSidebrProps> = ({

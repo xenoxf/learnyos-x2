@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { apiService } from "@/services/apiService";
 import { useToast } from "@/hooks/use-toast";
 import { MarkdownRenderer } from "@/components/MarkdownRenderer";
 import DashboardLayout from "../layaut";
@@ -11,6 +10,34 @@ interface TranslationResult {
   original: string;
   translated: string;
   language: string;
+}
+
+const LANG_CODES: Record<string, string> = {
+  español: "es",
+  inglés: "en",
+  francés: "fr",
+  alemán: "de",
+  italiano: "it",
+  portugués: "pt",
+  chino: "zh",
+  japonés: "ja",
+  coreano: "ko",
+  árabe: "ar",
+};
+
+async function translateWithMyMemory(
+  text: string,
+  targetLang: string
+): Promise<string> {
+  const targetCode = LANG_CODES[targetLang] ?? "es";
+  const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=auto|${targetCode}`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error("Error al conectar con el servicio de traducción");
+  const data = (await res.json()) as { responseData?: { translatedText?: string }; responseStatus?: number };
+  if (data.responseStatus !== 200 || !data.responseData?.translatedText) {
+    throw new Error("No se pudo obtener la traducción");
+  }
+  return data.responseData.translatedText;
 }
 
 export default function TranslatorPage() {
@@ -33,10 +60,7 @@ export default function TranslatorPage() {
     setIsLoading(true);
 
     try {
-      const prompt = `Traduce el siguiente texto al ${targetLanguage}. Retorna SOLO la traducción sin explicaciones:\n\n${text}`;
-      const response = await apiService.generateWithGroq(prompt);
-
-      const translated = response.content || "";
+      const translated = await translateWithMyMemory(text, targetLanguage);
 
       setResult({
         original: text,
@@ -48,8 +72,8 @@ export default function TranslatorPage() {
         title: "Éxito",
         description: "Texto traducido correctamente",
       });
-    } catch (error: any) {
-      const errorMsg = error?.message || "Error al traducir el texto";
+    } catch (err: unknown) {
+      const errorMsg = err instanceof Error ? err.message : "Error al traducir el texto";
       toast({
         title: "Error",
         description: errorMsg,

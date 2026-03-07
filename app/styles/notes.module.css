@@ -207,7 +207,8 @@
     overflow-y: auto;
 }
 
-.noteItem {
+.noteItem,
+.moduleItem {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -221,22 +222,31 @@
     animation: slideInLeft 0.3s ease;
 }
 
-.noteItem:hover {
+.noteItem:hover,
+.moduleItem:hover {
     background: hsl(var(--background) / 0.8);
     border-color: hsl(var(--primary) / 0.5);
 }
 
-.noteItem.active {
+.noteItem.active,
+.moduleItem.active {
     background: hsl(var(--primary) / 0.1);
     border-color: hsl(var(--primary));
 }
 
-.noteItemContent {
+.noteItemContent,
+.moduleItemContent {
     flex: 1;
     min-width: 0;
 }
 
-.noteTitle {
+.moduleIcon {
+    color: hsl(var(--primary));
+    flex-shrink: 0;
+}
+
+.noteTitle,
+.moduleTitle {
     font-size: 0.875rem;
     font-weight: 600;
     color: hsl(var(--foreground));
@@ -246,7 +256,8 @@
     text-overflow: ellipsis;
 }
 
-.noteMeta {
+.noteMeta,
+.moduleMeta {
     font-size: 0.75rem;
     color: hsl(var(--muted-foreground));
     margin: 0.25rem 0 0;
@@ -320,6 +331,63 @@
 .noteViewContainer {
     padding: 2rem;
     animation: fadeIn 0.3s ease;
+}
+
+.moduleHeader {
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid hsl(var(--border));
+}
+
+.moduleHeader h1.moduleTitle {
+    font-size: 2rem;
+    font-weight: 700;
+    color: hsl(var(--foreground));
+    margin: 0;
+    white-space: normal;
+}
+
+.moduleDate {
+    font-size: 0.875rem;
+    color: hsl(var(--muted-foreground));
+    margin: 0.5rem 0 0;
+}
+
+.notesGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.5rem;
+}
+
+.noteCard {
+    background: hsl(var(--card));
+    border: 1px solid hsl(var(--border));
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.noteCardTitle {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: hsl(var(--foreground));
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.noteIndex {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: hsl(var(--muted-foreground));
+}
+
+.noteCardContent {
+    font-size: 0.9375rem;
+    line-height: 1.6;
 }
 
 .noteHeader {

@@ -17,6 +17,8 @@ import { useToast } from "@/hooks/use-toast";
 import styles from "@/styles/mobileNavbar.module.css";
 import Link from "next/link";
 
+const SCROLL_THRESHOLD = 10;
+
 interface MenuItem {
   title: string;
   url: string;
@@ -44,6 +46,8 @@ export function MobileNavbar() {
 
   const [visibleCount, setVisibleCount] = useState(ALL_NAV_ITEMS.length);
   const [showMoreMenu, setShowMoreMenu] = useState(false);
+  const [navVisible, setNavVisible] = useState(true);
+  const lastScrollY = useRef(0);
 
   // ─── Refs ────────────────────────────────────────────────────────────────────
 
