@@ -2,36 +2,37 @@
 
 /* ─── Container ─────────────────────────────────────────────────────────────── */
 .container {
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    pointer-events: none;
-    transform: translateY(0);
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+  transform: translateY(0);
+  position: fixed;
+  border: 4px solid white;
+  bottom: 0;
+  background: hsl(var(--card) / 0.95);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .containerHidden {
-    transform: translateY(100%);
+  transform: translateY(100%);
 }
 
 .bottomNav {
-    background: hsl(var(--card) / 0.95);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid hsl(var(--border) / 0.8);
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    padding: 6px 8px;
-    width: fit-content;
-    max-width: calc(100vw - 32px);
-    box-shadow:
-        0 4px 24px rgba(0, 0, 0, 0.12),
-        0 1px 4px rgba(0, 0, 0, 0.06),
-        inset 0 1px 0 rgba(255, 255, 255, 0.08);
-    pointer-events: auto;
-    position: relative;
-    flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 8px;
+  width: 100%;
+  max-width: calc(100vw - 32px);
+  box-shadow:
+    0 4px 24px rgba(0, 0, 0, 0.12),
+    0 1px 4px rgba(0, 0, 0, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  pointer-events: auto;
+  position: relative;
+  flex-shrink: 0;
 }
 
 /* ─── Nav bar pill ─────────────────────────────────────────────────────────────
@@ -59,44 +60,45 @@
 
 /* ─── Nav item (visible & hidden states) ────────────────────────────────────── */
 .navItem {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 7px 11px;
-    border: none;
-    background: transparent;
-    cursor: pointer;
-    border-radius: 20px;
-    /* Let each item take as little space as it needs */
-    flex-shrink: 0;
-    white-space: nowrap;
-    color: hsl(var(--muted-foreground));
-    text-decoration: none;
-    transition:
-        background 0.18s ease,
-        color 0.18s ease,
-        transform 0.15s ease;
-    position: relative;
-    outline-offset: 2px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 7px 11px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  border-radius: 20px;
+  /* Let each item take as little space as it needs */
+  flex-shrink: 0;
+  white-space: nowrap;
+  color: hsl(var(--muted-foreground));
+  text-decoration: none;
+  transition:
+    background 0.18s ease,
+    color 0.18s ease,
+    transform 0.15s ease;
+
+  bottom: 0;
+  outline-offset: 2px;
 }
 
 .navItem:hover:not(.navItemHidden) {
-    background: hsl(var(--accent) / 0.12);
-    color: hsl(var(--foreground));
+  background: hsl(var(--accent) / 0.12);
+  color: hsl(var(--foreground));
 }
 
 .navItem:active:not(.navItemHidden) {
-    transform: scale(0.94);
+  transform: scale(0.94);
 }
 
 .navItemActive {
-    background: hsl(var(--primary) / 0.14);
-    color: hsl(var(--primary));
+  background: hsl(var(--primary) / 0.14);
+  color: hsl(var(--primary));
 }
 
 .navItemActive:hover {
-    background: hsl(var(--primary) / 0.2) !important;
+  background: hsl(var(--primary) / 0.2) !important;
 }
 
 /* ─── Ghost measurement container ───────────────────────────────────────────
@@ -107,220 +109,223 @@
    signals in both directions — shrink AND grow.
 */
 .ghost {
-    position: fixed;
-    top: -9999px;
-    left: -9999px;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    padding: 6px 8px;
-    pointer-events: none;
-    visibility: hidden;
-    white-space: nowrap;
+  position: fixed;
+  top: -9999px;
+  left: -9999px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 8px;
+  pointer-events: none;
+  visibility: hidden;
+  white-space: nowrap;
 }
 
 /* ─── Icon wrapper ───────────────────────────────────────────────────────────── */
 .navIconWrapper {
-    position: relative;
-    width: 24px;
-    height: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  position: relative;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* ─── Label ──────────────────────────────────────────────────────────────────── */
 .navLabel {
-    font-size: 0.625rem;
-    font-weight: 600;
-    letter-spacing: 0.01em;
-    margin-top: 3px;
-    line-height: 1;
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  margin-top: 3px;
+  line-height: 1;
 }
 
 /* ─── Badge ──────────────────────────────────────────────────────────────────── */
 .badge {
-    position: absolute;
-    top: -5px;
-    right: -7px;
-    min-width: 17px;
-    height: 17px;
-    background: hsl(var(--destructive));
-    color: hsl(var(--destructive-foreground, 0 0% 100%));
-    border-radius: 10px;
-    font-size: 0.55rem;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 2px solid hsl(var(--card));
-    padding: 0 3px;
-    line-height: 1;
+  position: absolute;
+  top: -5px;
+  right: -7px;
+  min-width: 17px;
+  height: 17px;
+  background: hsl(var(--destructive));
+  color: hsl(var(--destructive-foreground, 0 0% 100%));
+  border-radius: 10px;
+  font-size: 0.55rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid hsl(var(--card));
+  padding: 0 3px;
+  line-height: 1;
 }
 
 /* ─── "Más" button ───────────────────────────────────────────────────────────── */
 .moreButton {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 7px 11px;
-    border: none;
-    background: transparent;
-    cursor: pointer;
-    border-radius: 20px;
-    flex-shrink: 0;
-    white-space: nowrap;
-    color: hsl(var(--muted-foreground));
-    transition:
-        background 0.18s ease,
-        color 0.18s ease,
-        transform 0.15s ease;
-    position: relative;
-    /* Always at the end */
-    margin-left: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 7px 11px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  border-radius: 20px;
+  flex-shrink: 0;
+  white-space: nowrap;
+  color: hsl(var(--muted-foreground));
+  transition:
+    background 0.18s ease,
+    color 0.18s ease,
+    transform 0.15s ease;
+  position: relative;
+  /* Always at the end */
+  margin-left: auto;
 }
 
 .moreButton:hover {
-    background: hsl(var(--accent) / 0.12);
-    color: hsl(var(--foreground));
+  background: hsl(var(--accent) / 0.12);
+  color: hsl(var(--foreground));
 }
 
 .moreButton:active {
-    transform: scale(0.94);
+  transform: scale(0.94);
 }
 
 .moreButtonActive {
-    background: hsl(var(--accent) / 0.18);
-    color: hsl(var(--foreground));
+  background: hsl(var(--accent) / 0.18);
+  color: hsl(var(--foreground));
 }
 
 /* Active indicator dot on "Más" button */
 .moreActiveDot {
-    position: absolute;
-    top: 5px;
-    right: 5px;
-    width: 7px;
-    height: 7px;
-    background: hsl(var(--primary));
-    border-radius: 50%;
-    border: 2px solid hsl(var(--card));
-    animation: popIn 0.2s ease;
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 7px;
+  height: 7px;
+  background: hsl(var(--primary));
+  border-radius: 50%;
+  border: 2px solid hsl(var(--card));
+  animation: popIn 0.2s ease;
 }
 
 /* ─── Floating "Más" menu ────────────────────────────────────────────────────── */
 .moreMenu {
-    position: absolute;
-    bottom: calc(100% + 10px);
-    right: 0;
-    background: hsl(var(--card) / 0.98);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid hsl(var(--border) / 0.9);
-    border-radius: 20px;
-    padding: 6px;
-    min-width: 200px;
-    box-shadow:
-        0 -8px 32px rgba(0, 0, 0, 0.16),
-        0 -2px 8px rgba(0, 0, 0, 0.08),
-        inset 0 1px 0 rgba(255, 255, 255, 0.08);
-    animation: slideUp 0.22s cubic-bezier(0.16, 1, 0.3, 1);
-    transform-origin: bottom right;
-    z-index: 60;
+  position: absolute;
+  bottom: calc(100% + 10px);
+  right: 0;
+  background: hsl(var(--card) / 0.98);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid hsl(var(--border) / 0.9);
+  border-radius: 20px;
+  padding: 6px;
+  min-width: 200px;
+  box-shadow:
+    0 -8px 32px rgba(0, 0, 0, 0.16),
+    0 -2px 8px rgba(0, 0, 0, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  animation: slideUp 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  transform-origin: bottom right;
+  z-index: 60;
 }
 
 .moreMenuSection {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
 .moreMenuItem {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 11px 14px;
-    border: none;
-    background: transparent;
-    border-radius: 14px;
-    color: hsl(var(--foreground));
-    font-size: 0.9rem;
-    font-weight: 500;
-    cursor: pointer;
-    width: 100%;
-    text-align: left;
-    text-decoration: none;
-    transition:
-        background 0.15s ease,
-        color 0.15s ease;
-    white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 14px;
+  border: none;
+  background: transparent;
+  border-radius: 14px;
+  color: hsl(var(--foreground));
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  text-decoration: none;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+  white-space: nowrap;
 }
 
 .moreMenuItem:hover {
-    background: hsl(var(--accent) / 0.1);
+  background: hsl(var(--accent) / 0.1);
 }
 
 .moreMenuItemActive {
-    background: hsl(var(--primary) / 0.1);
-    color: hsl(var(--primary));
-    font-weight: 600;
+  background: hsl(var(--primary) / 0.1);
+  color: hsl(var(--primary));
+  font-weight: 600;
 }
 
 .menuBadge {
-    margin-left: auto;
-    background: hsl(var(--destructive) / 0.1);
-    color: hsl(var(--destructive));
-    padding: 2px 8px;
-    border-radius: 20px;
-    font-size: 0.72rem;
-    font-weight: 700;
-    line-height: 1.5;
+  margin-left: auto;
+  background: hsl(var(--destructive) / 0.1);
+  color: hsl(var(--destructive));
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1.5;
 }
 
 .moreMenuDivider {
-    height: 1px;
-    background: hsl(var(--border) / 0.7);
-    margin: 4px 8px;
+  height: 1px;
+  background: hsl(var(--border) / 0.7);
+  margin: 4px 8px;
 }
 
 /* ─── Animations ─────────────────────────────────────────────────────────────── */
 @keyframes slideUp {
-    from {
-        opacity: 0;
-        transform: translateY(8px) scale(0.97);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-    }
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.97);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 @keyframes popIn {
-    from {
-        transform: scale(0);
-        opacity: 0;
-    }
-    to {
-        transform: scale(1);
-        opacity: 1;
-    }
+  from {
+    transform: scale(0);
+    opacity: 0;
+  }
+
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
 /* ─── Responsive tweaks ──────────────────────────────────────────────────────── */
 @media (min-width: 480px) {
-    .navItem,
-    .moreButton {
-        padding: 8px 13px;
-    }
 
-    .navLabel {
-        font-size: 0.65rem;
-    }
+  .navItem,
+  .moreButton {
+    padding: 8px 13px;
+  }
+
+  .navLabel {
+    font-size: 0.65rem;
+  }
 }
 
 /* Hide on desktop (tablet+) — adjust breakpoint as needed */
 @media (min-width: 1024px) {
-    .container {
-        display: none;
-    }
+  .container {
+    display: none;
+  }
 }

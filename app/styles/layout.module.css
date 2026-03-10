@@ -3,12 +3,12 @@
    ============================================ */
 
 .dashboardLayout {
-    display: flex;
-    flex-direction: row;
-    height: 100vh;
-    width: 100%;
-    background-color: hsl(var(--background));
-    overflow: hidden;
+  display: flex;
+  flex-direction: row;
+  height: 100vh;
+  width: 100%;
+  background-color: hsl(var(--background));
+  overflow: hidden;
 }
 
 /* ============================================
@@ -16,19 +16,19 @@
    ============================================ */
 
 .sidebarWrapper {
-    width: fit-content;
-    height: 100%;
-    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    flex-shrink: 0;
-    border-right: 1px solid hsl(var(--border));
+  width: fit-content;
+  height: 100%;
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  flex-shrink: 0;
+  border-right: 1px solid hsl(var(--border));
 }
 
 .sidebarWrapperExpanded {
-    width: fit-content;
+  width: fit-content;
 }
 
 .sidebarWrapperCollapsed {
-    width: 80px;
+  width: 80px;
 }
 
 /* ============================================
@@ -36,40 +36,40 @@
    ============================================ */
 
 .mainContent {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    height: 100%;
-    /* overflow: hidden;*/
-    background-color: hsl(var(--background));
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  /* overflow: hidden;*/
+  background-color: hsl(var(--background));
 }
 
 /* cuando el sidebar está colapsado (visual tweaks) */
 .mainContentExpanded {
-    transition:
-        margin 0.25s ease,
-        padding 0.25s ease;
+  transition:
+    margin 0.25s ease,
+    padding 0.25s ease;
 }
 
 /* ajustes específicos para móvil cuando el layout usa navbar en lugar de sidebar */
 .mainContentMobile {
-    width: 100%;
-    padding-bottom: env(safe-area-inset-bottom);
+  width: 100%;
+  padding-bottom: env(safe-area-inset-bottom);
 }
 
 .contentArea {
-    flex: 1;
-    width: 100%;
-    height: 100%;
+  flex: 1;
+  width: 100%;
+  height: 100%;
 }
 
 .contentWrapper {
-    width: 100%;
-    height: 100%;
-    overflow-y: auto;
-    overflow-x: hidden;
-    background-color: hsl(var(--background));
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background-color: hsl(var(--background));
 }
 
 /* ============================================
@@ -78,17 +78,18 @@
 
 /* Móvil - Ocultar sidebar, mostrar navbar */
 @media screen and (max-width: 768px) {
-    .sidebarWrapper {
-        display: none !important;
-    }
+  .sidebarWrapper {
+    display: none !important;
+  }
 
-    .mainContent {
-        width: 100%;
-    }
+  .mainContent {
+    width: 100%;
+  }
 
-    .dashboardLayout {
-        flex-direction: column;
-    }
+  .dashboardLayout {
+    flex-direction: column;
+    padding: 0 0 70px 0;
+  }
 }
 
 /* Tablet
@@ -100,17 +101,17 @@
 
 /* Desktop */
 @media screen and (min-width: 1024px) {
-    .sidebarWrapperCollapsed {
-        width: 80px;
-    }
+  .sidebarWrapperCollapsed {
+    width: 80px;
+  }
 }
 
 /* Desktop grande */
 @media screen and (min-width: 1440px) {
-    .contentWrapper {
-        max-width: 1600px;
-        margin: 0 auto;
-    }
+  .contentWrapper {
+    max-width: 1600px;
+    margin: 0 auto;
+  }
 }
 
 /* ============================================
@@ -118,11 +119,12 @@
    ============================================ */
 
 @media (prefers-reduced-motion: reduce) {
-    .dashboardLayout,
-    .sidebarWrapper,
-    .mainContent {
-        transition: none !important;
-    }
+
+  .dashboardLayout,
+  .sidebarWrapper,
+  .mainContent {
+    transition: none !important;
+  }
 }
 
 /* ============================================
@@ -130,42 +132,42 @@
    ============================================ */
 
 .loadingContainer {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: var(--bg-primary, white);
-    z-index: 1000;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-primary, white);
+  z-index: 1000;
 }
 
 .spinner {
-    text-align: center;
+  text-align: center;
 }
 
 .spinner::before {
-    content: "";
-    display: inline-block;
-    width: 2.5rem;
-    height: 2.5rem;
-    border: 3px solid var(--border-color, #e5e7eb);
-    border-top-color: var(--primary, #3b82f6);
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-    margin-bottom: 1rem;
+  content: "";
+  display: inline-block;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 3px solid var(--border-color, #e5e7eb);
+  border-top-color: var(--primary, #3b82f6);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
 }
 
 @keyframes spin {
-    to {
-        transform: rotate(360deg);
-    }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .spinner p {
-    margin: 0;
-    color: var(--text-primary, #000);
-    font-size: 0.95rem;
+  margin: 0;
+  color: var(--text-primary, #000);
+  font-size: 0.95rem;
 }
