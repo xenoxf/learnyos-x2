@@ -44,18 +44,18 @@ export default function ChatPage() {
     {
       icon: "🧠",
       title: "Ciencia",
-      text: "Explica la teoría cuántica"
+      text: "Explica la teoría cuántica",
     },
     {
       icon: "🤖",
       title: "Tecnología",
-      text: "¿Cómo funciona el machine learning?"
+      text: "¿Cómo funciona el machine learning?",
     },
     {
       icon: "📚",
       title: "Historia",
-      text: "Resumen de la Segunda Guerra Mundial"
-    }
+      text: "Resumen de la Segunda Guerra Mundial",
+    },
   ];
 
   // ==================== DETECTAR MÓVIL ====================
@@ -70,8 +70,8 @@ export default function ChatPage() {
     };
 
     checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
   // ==================== CARGAR DATOS ====================
@@ -107,15 +107,14 @@ export default function ChatPage() {
           chatId: response.chatId,
           content: m.prompt,
           role: "user",
-          createdAt: String(m.createdAt)
+          createdAt: String(m.createdAt),
         },
         {
           id: m.id * 2 + 1,
           chatId: response.chatId,
           content: m.response,
           role: "assistant",
-          createdAt: String(m.createdAt)
-
+          createdAt: String(m.createdAt),
         },
       ]);
       setMessages(chatMessages);
@@ -172,7 +171,7 @@ export default function ChatPage() {
               title: "Nuevo Chat",
               messageCount: 2,
               createdAt: new Date().toISOString(),
-            }
+            },
           );
           setChats(updatedChats);
         }
@@ -300,34 +299,12 @@ export default function ChatPage() {
           isOpen={isSidebarOpen}
           onToggle={() => setIsSidebarOpen((p) => !p)}
           isMobile={isMobile}
+          isCollapse={!isSidebarOpen}
         />
 
-        <main className={`${styles.main} ${isSidebarOpen ? styles.mainWithSidebar : ""}`}>
-          <header className={styles.header}>
-            <button
-              className={styles.menuButton}
-              onClick={() => setIsSidebarOpen(true)}
-              aria-label="Abrir historial"
-            >
-              <Menu size={20} />
-            </button>
-
-            {currentChat ? (
-              <div className={styles.headerInfo}>
-                <h3>{currentChat.title || `Chat ${currentChat.id}`}</h3>
-                {messages.length > 0 && (
-                  <span className={styles.messageStatus}>
-                    {messages.length} mensajes
-                  </span>
-                )}
-              </div>
-            ) : (
-              <div className={styles.headerInfo}>
-                <h3>Nuevo chat</h3>
-              </div>
-            )}
-          </header>
-
+        <main
+          className={`${styles.main} ${isSidebarOpen ? styles.mainWithSidebar : ""}`}
+        >
           {/* MESSAGES */}
           <div className={styles.messages}>
             {messages.length === 0 ? (
@@ -344,10 +321,16 @@ export default function ChatPage() {
                       className={styles.suggestionCard}
                       onClick={() => setInputValue(suggestion.text)}
                     >
-                      <span className={styles.suggestionIcon}>{suggestion.icon}</span>
+                      <span className={styles.suggestionIcon}>
+                        {suggestion.icon}
+                      </span>
                       <div className={styles.suggestionContent}>
-                        <span className={styles.suggestionTitle}>{suggestion.title}</span>
-                        <span className={styles.suggestionText}>{suggestion.text}</span>
+                        <span className={styles.suggestionTitle}>
+                          {suggestion.title}
+                        </span>
+                        <span className={styles.suggestionText}>
+                          {suggestion.text}
+                        </span>
                       </div>
                     </button>
                   ))}
@@ -361,7 +344,11 @@ export default function ChatPage() {
                     className={`${styles.message} ${msg.role === "user" ? styles.userMessage : styles.botMessage}`}
                   >
                     <div className={styles.messageAvatar}>
-                      {msg.role === "user" ? <User size={18} /> : <Bot size={18} />}
+                      {msg.role === "user" ? (
+                        <User size={18} />
+                      ) : (
+                        <Bot size={18} />
+                      )}
                     </div>
                     <div className={styles.messageBubble}>
                       <div className={styles.messageHeader}>
@@ -385,7 +372,11 @@ export default function ChatPage() {
                           onClick={() => handleCopyMessage(msg.content, msg.id)}
                           title="Copiar respuesta"
                         >
-                          {copiedId === msg.id ? <Check size={14} /> : <Copy size={14} />}
+                          {copiedId === msg.id ? (
+                            <Check size={14} />
+                          ) : (
+                            <Copy size={14} />
+                          )}
                         </button>
                       )}
                     </div>
@@ -431,11 +422,16 @@ export default function ChatPage() {
                 onClick={handleSendMessage}
                 disabled={!inputValue.trim() || isLoading}
               >
-                {isLoading ? <Loader size={18} className={styles.spin} /> : <Send size={18} />}
+                {isLoading ? (
+                  <Loader size={18} className={styles.spin} />
+                ) : (
+                  <Send size={18} />
+                )}
               </button>
             </div>
             <p className={styles.disclaimer}>
-              Junior puede cometer errores. Considera verificar información importante.
+              Junior puede cometer errores. Considera verificar información
+              importante.
             </p>
           </div>
         </main>

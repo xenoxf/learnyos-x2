@@ -16,6 +16,7 @@ import { apiService } from "@/services/apiService";
 import { useToast } from "@/hooks/use-toast";
 import styles from "@/styles/mobileNavbar.module.css";
 import Link from "next/link";
+import { ThemeToggleSidebr } from "./ThemeToogleSidebr";
 
 const SCROLL_THRESHOLD = 10;
 
@@ -296,6 +297,7 @@ export function MobileNavbar() {
               )}
 
               <div className={styles.moreMenuSection}>
+                <ThemeToggleSidebr />
                 <button
                   role="menuitem"
                   className={styles.moreMenuItem}

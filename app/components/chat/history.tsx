@@ -3,7 +3,13 @@
 import React from "react";
 import type { Chat } from "@/types";
 import styles from "@/styles/chatHistory.module.css";
-import { MessageSquare, Plus, Trash2, PanelLeftClose, PanelLeft } from "lucide-react";
+import {
+  MessageSquare,
+  Plus,
+  Trash2,
+  PanelLeftClose,
+  PanelLeft,
+} from "lucide-react";
 
 interface HistoryProps {
   chats: Chat[];
@@ -14,6 +20,7 @@ interface HistoryProps {
   isOpen: boolean;
   onToggle: () => void;
   isMobile?: boolean;
+  isCollapse: boolean;
 }
 
 export default function History({
@@ -25,11 +32,12 @@ export default function History({
   isOpen,
   onToggle,
   isMobile = false,
+  isCollapse,
 }: HistoryProps) {
   return (
     <>
       <button
-        className={styles.toggleButton}
+        className={styles[`toggleButton ${isCollapse ? "bajo" : "alto"}`]}
         onClick={onToggle}
         aria-label={isOpen ? "Ocultar historial" : "Mostrar historial"}
         title={isOpen ? "Ocultar" : "Mostrar conversaciones"}
@@ -42,14 +50,11 @@ export default function History({
       </button>
 
       <aside
-        className={`${styles.sidebar} ${isOpen ? styles.open : styles.closed}`}
+        className={`${styles.sidebar} ${isCollapse ? styles.kl : styles.lk} ${isOpen ? styles.open : styles.closed}`}
       >
         <div className={styles.sidebarHeader}>
           <h2 className={styles.sidebarTitle}>Conversaciones</h2>
-          <button
-            className={styles.newChatButton}
-            onClick={handleNewChat}
-          >
+          <button className={styles.newChatButton} onClick={handleNewChat}>
             <Plus size={18} />
             Nuevo chat
           </button>
@@ -76,11 +81,6 @@ export default function History({
                   <span className={styles.chatTitle}>
                     {chat.title || `Chat ${chat.id}`}
                   </span>
-                  {chat.messageCount != null && (
-                    <span className={styles.messageCount}>
-                      {chat.messageCount} mensajes
-                    </span>
-                  )}
                 </div>
                 <button
                   className={styles.deleteButton}
@@ -96,11 +96,7 @@ export default function History({
       </aside>
 
       {isMobile && isOpen && (
-        <div
-          className={styles.overlay}
-          onClick={onToggle}
-          aria-hidden="true"
-        />
+        <div className={styles.overlay} onClick={onToggle} aria-hidden="true" />
       )}
     </>
   );

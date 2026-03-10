@@ -1,13 +1,20 @@
-/* chatHistory.module.css - Versión simplificada sin fixed */
+/* chatHistory.module.css - Historial con funcionalidad de minimizar sin fixed */
 
-/* Botón toggle */
+.container {
+    display: flex;
+    height: 100%;
+    width: 180px;
+    position: relative;
+}
+
+/* Botón toggle - AHORA SÍ FUNCIONA PARA MINIMIZAR */
 .toggleButton {
-    position: absolute;
-    left: 100%;
-    top: 50%;
+    position: fixed;
+    top: 10px;
     transform: translateY(-50%);
     width: 28px;
     height: 48px;
+    left: auto;
     border: none;
     border-radius: 0 8px 8px 0;
     background: hsl(var(--primary));
@@ -17,15 +24,45 @@
     align-items: center;
     justify-content: center;
     transition: all 0.2s ease;
-    margin-left: 2px;
+    z-index: 10;
+    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.bajo {
+    left: 80px !important;
+}
+
+.alto {
+    left: 220px !important;
+}
+
+.kl {
+    margin-left: 80px !important;
+}
+.lk {
+    margin-left: 220px !important;
 }
 
 .toggleButton:hover {
     width: 32px;
     background: hsl(var(--primary) / 0.9);
+    padding-left: 4px;
 }
 
-/* Sidebar */
+.toggleButton:active {
+    transform: translateY(-50%) scale(0.95);
+}
+
+.doorIcon {
+    flex-shrink: 0;
+    transition: transform 0.2s ease;
+}
+
+.toggleButton:hover .doorIcon {
+    transform: scale(1.1);
+}
+
+/* Sidebar - AHORA USA POSITION RELATIVE PARA MANTENER EL FLUJO */
 .sidebar {
     width: 280px;
     height: 100%;
@@ -33,21 +70,44 @@
     border-right: 1px solid hsl(var(--border));
     display: flex;
     flex-direction: column;
-    transition: width 0.3s ease;
-    position: relative;
+    transition:
+        width 0.3s ease,
+        margin 0.3s ease;
+    position: fixed;
+    top: 0;
+    left: auto;
     flex-shrink: 0;
+    overflow: hidden; /* Importante para cuando está cerrado */
 }
 
 .sidebar.closed {
     width: 0;
-    min-width: 0;
     border-right: none;
 }
 
 .sidebar.closed .sidebarHeader,
 .sidebar.closed .chatList,
 .sidebar.closed .sidebarFooter {
-    display: none;
+    opacity: 0;
+    visibility: hidden;
+    transition:
+        opacity 0.2s ease,
+        visibility 0.2s ease;
+}
+
+.sidebar.open {
+    width: 280px;
+    border-right: 1px solid hsl(var(--border));
+}
+
+.sidebar.open .sidebarHeader,
+.sidebar.open .chatList,
+.sidebar.open .sidebarFooter {
+    opacity: 1;
+    visibility: visible;
+    transition:
+        opacity 0.3s ease 0.1s,
+        visibility 0.3s ease 0.1s;
 }
 
 /* Header del sidebar */
@@ -55,6 +115,9 @@
     padding: 1.25rem;
     border-bottom: 1px solid hsl(var(--border));
     flex-shrink: 0;
+    transition:
+        opacity 0.2s ease,
+        visibility 0.2s ease;
 }
 
 .sidebarTitle {
@@ -62,6 +125,9 @@
     font-weight: 600;
     color: hsl(var(--foreground));
     margin: 0 0 1rem 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 }
 
 /* Botón nuevo chat */
@@ -98,6 +164,10 @@
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
+    transition:
+        opacity 0.2s ease,
+        visibility 0.2s ease;
+    min-width: 260px; /* Evita que los elementos se compriman */
 }
 
 /* Estado vacío */
@@ -135,6 +205,7 @@
     cursor: pointer;
     transition: all 0.2s ease;
     position: relative;
+    white-space: nowrap;
 }
 
 .chatItem:hover {
@@ -157,6 +228,7 @@
 .chatInfo {
     flex: 1;
     min-width: 0;
+    overflow: hidden;
 }
 
 .chatTitle {
@@ -192,13 +264,15 @@
     flex-shrink: 0;
 }
 
-.chatItem:hover .deleteButton {
+.chatItem:hover .deleteButton,
+.chatItem:focus-within .deleteButton {
     opacity: 1;
 }
 
 .deleteButton:hover {
     background: hsl(var(--destructive));
     color: white;
+    transform: scale(1.05);
 }
 
 /* Footer del sidebar */
@@ -206,12 +280,16 @@
     padding: 1rem 1.25rem;
     border-top: 1px solid hsl(var(--border));
     flex-shrink: 0;
+    transition:
+        opacity 0.2s ease,
+        visibility 0.2s ease;
 }
 
 .userInfo {
     display: flex;
     align-items: center;
     gap: 0.75rem;
+    margin-bottom: 0.5rem;
 }
 
 .userAvatar {
@@ -228,18 +306,39 @@
     justify-content: center;
     color: white;
     font-weight: 600;
+    flex-shrink: 0;
 }
 
-.userInfo span {
+.userDetails {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+}
+
+.userName {
+    display: block;
     font-size: 0.875rem;
     font-weight: 500;
     color: hsl(var(--foreground));
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.userEmail {
+    display: block;
+    font-size: 0.75rem;
+    color: hsl(var(--muted-foreground));
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 /* Botón de salir */
 .logoutButton {
-    padding: 0.25rem 0.5rem;
-    border-radius: 6px;
+    width: 100%;
+    padding: 0.5rem;
+    border-radius: 8px;
     border: 1px solid hsl(var(--border));
     background: transparent;
     color: hsl(var(--muted-foreground));
@@ -248,7 +347,8 @@
     transition: all 0.2s;
     display: flex;
     align-items: center;
-    gap: 0.25rem;
+    justify-content: center;
+    gap: 0.375rem;
 }
 
 .logoutButton:hover {
@@ -262,6 +362,7 @@
     position: fixed;
     inset: 0;
     background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(4px);
     z-index: 100;
     animation: fadeIn 0.2s ease;
 }
@@ -276,6 +377,21 @@
     }
 }
 
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.chatItem {
+    animation: slideIn 0.3s ease;
+}
+
 /* Media queries para responsive */
 @media (max-width: 768px) {
     .sidebar {
@@ -287,8 +403,18 @@
         box-shadow: 2px 0 20px rgba(0, 0, 0, 0.15);
     }
 
+    .sidebar.closed {
+        transform: translateX(-100%);
+        width: 280px; /* Mantiene el ancho en móvil cuando está cerrado */
+    }
+
+    .sidebar.open {
+        transform: translateX(0);
+        width: 280px;
+    }
+
     .toggleButton {
-        display: none; /* Ocultamos el botón en móvil porque se usa el menú hamburguesa */
+        display: none; /* Ocultamos el botón toggle en móvil porque usamos menú hamburguesa */
     }
 }
 
@@ -296,7 +422,8 @@
 .toggleButton:focus-visible,
 .newChatButton:focus-visible,
 .deleteButton:focus-visible,
-.chatItem:focus-visible {
+.chatItem:focus-visible,
+.logoutButton:focus-visible {
     outline: 2px solid hsl(var(--primary));
     outline-offset: 2px;
 }
