@@ -215,10 +215,13 @@ class ApiService {
   }
 
   async generateNote(data: GenerateNoteData): Promise<GenerateNotesResponse> {
-    return this.request<GenerateNotesResponse>("/notes/generate/topic_or_reference", {
-      method: "POST",
-      body: JSON.stringify(data),
-    });
+    return this.request<GenerateNotesResponse>(
+      "/notes/generate/topic_or_reference",
+      {
+        method: "POST",
+        body: JSON.stringify(data),
+      },
+    );
   }
 
   async deleteNote(id: number): Promise<void> {
@@ -235,7 +238,9 @@ class ApiService {
     return this.request<Card>(`/flash-cards/${id}`, { method: "GET" });
   }
 
-  async generateFlashcards(data: GenerateFlashCardData): Promise<GenerateFlashcardsResponse> {
+  async generateFlashcards(
+    data: GenerateFlashCardData,
+  ): Promise<GenerateFlashcardsResponse> {
     const payload: Record<string, unknown> = {
       topic: data.topic,
       referenceText: data.referenceText,
@@ -246,10 +251,13 @@ class ApiService {
       payload.level = data.level;
     }
 
-    return this.request<GenerateFlashcardsResponse>("/flash-cards/generate/topic_or_reference", {
-      method: "POST",
-      body: JSON.stringify(payload),
-    });
+    return this.request<GenerateFlashcardsResponse>(
+      "/flash-cards/generate/topic_or_reference",
+      {
+        method: "POST",
+        body: JSON.stringify(payload),
+      },
+    );
   }
 
   async deleteFlashcard(id: number): Promise<void> {
@@ -304,7 +312,6 @@ class ApiService {
       body: JSON.stringify(data),
     });
   }
-
 
   async getChatMessages(chatId: number): Promise<GetChatMessagesResponse> {
     return this.request<GetChatMessagesResponse>(`/messages/chat/${chatId}`, {

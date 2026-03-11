@@ -43,10 +43,6 @@ function AuthContent() {
         duration: 4000,
       });
     }
-
-    if (apiService.isAuthenticated()) {
-      router.push("/study");
-    }
   }, [formError]);
 
   const handleLogin = async (e: React.FormEvent) => {
