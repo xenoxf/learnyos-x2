@@ -14,7 +14,6 @@ export interface User {
   provider: "local" | "google";
   googleId?: string;
   createdAt: string;
-  updatedAt: string;
 }
 
 export interface AuthResponse {
