@@ -6,7 +6,6 @@ import { MobileNavbar } from "@/components/MobileNavbar";
 import { useRouter } from "next/navigation";
 import { apiService } from "@/services/apiService";
 import styles from "@/styles/layout.module.css";
-import { toast } from "sonner";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -18,7 +17,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  const [isTokenValid, setIsTokenValid] = useState(false);
+  const [isValidating, setIsValidating] = useState(false);
+  const [isTokenValid, setIsTokenValid] = useState(true);
 
   // Detectar si es móvil
   useEffect(() => {
@@ -56,6 +56,16 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const handleToggleSidebar = () => {
     setIsCollapsed(!isCollapsed);
   };
+
+  if (isValidating) {
+    return (
+      <div className={styles.loadingContainer}>
+        <div className={styles.spinner}>
+          <p>Validando sesión...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!isTokenValid) {
     return null;

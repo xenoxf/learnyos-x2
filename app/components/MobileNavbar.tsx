@@ -51,7 +51,7 @@ export function MobileNavbar() {
   const [visibleCount, setVisibleCount] = useState(ALL_NAV_ITEMS.length);
   const [showMoreMenu, setShowMoreMenu] = useState(false);
   const [navVisible, setNavVisible] = useState(true);
-  const [isMeasuring, setIsMeasuring] = useState(false);
+  const [isMeasuring, setIsMeasuring] = useState(false); // 👈 ESTADO FALTANTE
   const [windowWidth, setWindowWidth] = useState(0);
 
   const lastScrollY = useRef(0);
@@ -62,8 +62,10 @@ export function MobileNavbar() {
   const itemWidthsRef = useRef<number[]>([]);
   const moreButtonWidthRef = useRef(70);
 
+  // Medir anchos de items de manera eficiente
   const measureItems = useCallback(() => {
     if (!navRef.current) return;
+
     const items = navRef.current.querySelectorAll(`.${styles.navItem}`);
     const moreButton = moreButtonRef.current;
 
@@ -72,19 +74,25 @@ export function MobileNavbar() {
         (item) => item.getBoundingClientRect().width + 4,
       );
     }
+
     if (moreButton) {
       moreButtonWidthRef.current = moreButton.getBoundingClientRect().width + 4;
     }
   }, []);
 
+  // Calcular cuántos items caben
   const computeVisibleCount = useCallback(() => {
     if (!navRef.current || itemWidthsRef.current.length === 0) return;
-    const navWidth = navRef.current.clientWidth;
+
+    const nav = navRef.current;
+    const navWidth = nav.clientWidth;
+
     let usedWidth = moreButtonWidthRef.current;
     let count = 0;
 
     for (let i = 0; i < itemWidthsRef.current.length; i++) {
       const candidateWidth = usedWidth + itemWidthsRef.current[i];
+
       if (candidateWidth <= navWidth) {
         usedWidth = candidateWidth;
         count = i + 1;
@@ -92,32 +100,48 @@ export function MobileNavbar() {
         break;
       }
     }
+
     setVisibleCount(Math.max(1, count));
   }, []);
 
+  // Efecto para medir después de render
   useEffect(() => {
-    setIsMeasuring(true);
+    setIsMeasuring(true); // 👈 USADO AQUÍ
+
     const timeoutId = setTimeout(() => {
       measureItems();
       computeVisibleCount();
-      setIsMeasuring(false);
+      setIsMeasuring(false); // 👈 USADO AQUÍ
     }, 50);
+
     return () => clearTimeout(timeoutId);
   }, [pathname, measureItems, computeVisibleCount]);
 
+  // Efecto para resize con debounce
   useEffect(() => {
     const handleResize = () => {
       setWindowWidth(window.innerWidth);
-      if (resizeTimeoutRef.current) clearTimeout(resizeTimeoutRef.current);
+
+      if (resizeTimeoutRef.current) {
+        clearTimeout(resizeTimeoutRef.current);
+      }
+
       resizeTimeoutRef.current = setTimeout(() => {
         measureItems();
         computeVisibleCount();
       }, RESIZE_DEBOUNCE);
     };
+
     window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      if (resizeTimeoutRef.current) {
+        clearTimeout(resizeTimeoutRef.current);
+      }
+    };
   }, [measureItems, computeVisibleCount]);
 
+  // Efecto para scroll (ocultar/mostrar navbar)
   useEffect(() => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
@@ -132,19 +156,20 @@ export function MobileNavbar() {
       } else if (scrollingUp && !navVisible) {
         setNavVisible(true);
       }
+
       lastScrollY.current = currentScrollY;
     };
+
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, [navVisible]);
 
-  // --- CORRECCIÓN AQUÍ: Manejo de click outside más robusto ---
+  // Efecto para cerrar menú con click outside
   useEffect(() => {
     if (!showMoreMenu) return;
 
     const handleClickOutside = (e: MouseEvent) => {
       const target = e.target as Node;
-      // Verificamos si el clic fue dentro del menú o en el botón "Más"
       if (
         menuRef.current?.contains(target) ||
         moreButtonRef.current?.contains(target)
@@ -154,9 +179,20 @@ export function MobileNavbar() {
       setShowMoreMenu(false);
     };
 
-    // Usar 'click' en lugar de 'mousedown' para evitar conflictos con botones internos
-    document.addEventListener("click", handleClickOutside);
-    return () => document.removeEventListener("click", handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [showMoreMenu]);
+
+  // Efecto para cerrar menú con ESC
+  useEffect(() => {
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && showMoreMenu) {
+        setShowMoreMenu(false);
+      }
+    };
+
+    document.addEventListener("keydown", handleEsc);
+    return () => document.removeEventListener("keydown", handleEsc);
   }, [showMoreMenu]);
 
   const handleLogout = useCallback(async () => {
@@ -180,6 +216,7 @@ export function MobileNavbar() {
     () => ALL_NAV_ITEMS.slice(0, visibleCount),
     [visibleCount],
   );
+
   const hiddenItems = useMemo(
     () => ALL_NAV_ITEMS.slice(visibleCount),
     [visibleCount],
@@ -198,17 +235,24 @@ export function MobileNavbar() {
 
   return (
     <div
-      className={`${styles.container} ${!navVisible ? styles.containerHidden : ""}`}
+      className={`${styles.container} ${
+        !navVisible ? styles.containerHidden : ""
+      }`}
     >
       <nav ref={navRef} className={styles.bottomNav}>
+        {/* Items visibles */}
         {visibleItems.map((item) => {
           const Icon = item.icon;
+          const active = isActive(item.url);
           return (
             <Link
               key={item.url}
               href={item.url}
-              className={`${styles.navItem} ${isActive(item.url) ? styles.navItemActive : ""}`}
+              className={`${styles.navItem} ${
+                active ? styles.navItemActive : ""
+              }`}
               onClick={() => setShowMoreMenu(false)}
+              prefetch={true}
             >
               <div className={styles.navIconWrapper}>
                 <Icon size={22} />
@@ -221,32 +265,44 @@ export function MobileNavbar() {
           );
         })}
 
+        {/* Botón "Más" */}
         <button
           ref={moreButtonRef}
-          className={`${styles.moreButton} ${showMoreMenu ? styles.moreButtonActive : ""}`}
-          onClick={(e) => {
-            e.stopPropagation(); // Evita que el clic se propague
-            setShowMoreMenu((prev) => !prev);
-          }}
+          className={`${styles.moreButton} ${
+            showMoreMenu ? styles.moreButtonActive : ""
+          }`}
+          onClick={() => setShowMoreMenu((prev) => !prev)}
+          aria-label="Más opciones"
           aria-expanded={showMoreMenu}
+          aria-haspopup="true"
         >
           <MoreHorizontal size={22} />
           <span className={styles.navLabel}>Más</span>
           {hasActiveHidden && <span className={styles.moreActiveDot} />}
         </button>
 
+        {/* Menú flotante */}
         {showMoreMenu && (
-          <div ref={menuRef} className={styles.moreMenu}>
+          <div
+            ref={menuRef}
+            className={styles.moreMenu}
+            role="menu"
+            aria-label="Opciones adicionales"
+          >
             {hiddenItems.length > 0 && (
               <>
                 <div className={styles.moreMenuSection}>
                   {hiddenItems.map((item) => {
                     const Icon = item.icon;
+                    const active = isActive(item.url);
                     return (
                       <Link
                         key={item.url}
                         href={item.url}
-                        className={`${styles.moreMenuItem} ${isActive(item.url) ? styles.moreMenuItemActive : ""}`}
+                        role="menuitem"
+                        className={`${styles.moreMenuItem} ${
+                          active ? styles.moreMenuItemActive : ""
+                        }`}
                         onClick={() => setShowMoreMenu(false)}
                       >
                         <Icon size={18} />
@@ -263,15 +319,15 @@ export function MobileNavbar() {
             )}
 
             <div className={styles.moreMenuSection}>
-              {/* CORRECCIÓN: Wrapper con stopPropagation para asegurar el clic en el tema */}
-              <div
-                className={styles.themeToggleWrapper}
-                onClick={(e) => e.stopPropagation()}
-              >
+              {/* ThemeToggleSidebr - ahora con contexto asegurado */}
+              <div className={styles.themeToggleWrapper}>
                 <ThemeToggleSidebr />
               </div>
-
-              <button className={styles.moreMenuItem} onClick={handleLogout}>
+              <button
+                role="menuitem"
+                className={styles.moreMenuItem}
+                onClick={handleLogout}
+              >
                 <LogOut size={18} />
                 <span>Cerrar sesión</span>
               </button>
