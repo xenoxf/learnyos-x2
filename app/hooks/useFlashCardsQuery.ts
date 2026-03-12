@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { apiService } from '@/services/apiService';
-import type { FlashCard, Card, GenerateFlashCardData, GenerateFlashcardsResponse } from '@/types';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiService } from "@/services/apiService";
+import type { FlashCard, Card, GenerateFlashCardData } from "@/types";
 
 export function useFlashCardsQuery() {
   const queryClient = useQueryClient();
@@ -12,32 +12,30 @@ export function useFlashCardsQuery() {
     isLoading,
     error,
   } = useQuery<Card[]>({
-    queryKey: ['flashcards'],
+    queryKey: ["flashcards"],
     queryFn: () => apiService.getFlashcards(),
   });
 
   // Extraer todas las flashcards de todos los cards
-  const flashcards: FlashCard[] = cards.flatMap((card: Card) => card.flashcards || []);
+  const flashcards: FlashCard[] = cards.flatMap(
+    (card: Card) => card.flashcards || [],
+  );
 
-  const generateMutation = useMutation<
-    GenerateFlashcardsResponse,
-    Error,
-    GenerateFlashCardData
-  >({
+  const generateMutation = useMutation<Card, Error, GenerateFlashCardData>({
     mutationFn: (input) =>
       apiService.generateFlashcards({
         ...input,
         quantity: input.quantity,
       }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['flashcards'] });
+      queryClient.invalidateQueries({ queryKey: ["flashcards"] });
     },
   });
 
   const deleteMutation = useMutation<void, unknown, number>({
     mutationFn: (cardId: number) => apiService.deleteFlashcard(cardId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['flashcards'] });
+      queryClient.invalidateQueries({ queryKey: ["flashcards"] });
     },
   });
 

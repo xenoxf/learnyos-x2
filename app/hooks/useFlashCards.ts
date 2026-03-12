@@ -1,11 +1,6 @@
-import { useState, useEffect } from 'react';
-import { apiService } from '@/services/apiService';
-import type {
-  FlashCard,
-  Card,
-  GenerateFlashCardData,
-  GenerateFlashcardsResponse,
-} from '@/types';
+import { useState, useEffect } from "react";
+import { apiService } from "@/services/apiService";
+import type { FlashCard, Card, GenerateFlashCardData } from "@/types";
 
 export function useFlashCards() {
   const [flashcards, setFlashcards] = useState<FlashCard[]>([]);
@@ -24,7 +19,8 @@ export function useFlashCards() {
           : [];
         setFlashcards(allFlashcards);
       } catch (err: unknown) {
-        const errorMessage = err instanceof Error ? err.message : 'Error al cargar flashcards';
+        const errorMessage =
+          err instanceof Error ? err.message : "Error al cargar flashcards";
         setError(errorMessage);
         setFlashcards([]);
       } finally {
@@ -53,11 +49,13 @@ export function useFlashCards() {
     );
   };
 
-  const generateFlashCards = async (data: GenerateFlashCardData): Promise<FlashCard[] | null> => {
+  const generateFlashCards = async (
+    data: GenerateFlashCardData,
+  ): Promise<FlashCard[] | null> => {
     try {
       setLoading(true);
       setError(null);
-      const res: GenerateFlashcardsResponse = await apiService.generateFlashcards({
+      const res: Card = await apiService.generateFlashcards({
         ...data,
         quantity: data.quantity ?? 10,
       });
@@ -68,7 +66,7 @@ export function useFlashCards() {
       return null;
     } catch (err: unknown) {
       const errorMessage =
-        err instanceof Error ? err.message : 'Error al generar flashcards';
+        err instanceof Error ? err.message : "Error al generar flashcards";
       setError(errorMessage);
       return null;
     } finally {

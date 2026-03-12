@@ -61,7 +61,6 @@ export interface Exam {
   estimatedTime?: string;
   userId?: number;
   createdAt: string;
-  updatedAt: string;
 }
 
 export interface GenerateExamData {
@@ -73,7 +72,6 @@ export interface GenerateExamData {
 
 // ==================== FLASHCARDS ====================
 
-/** Una sola tarjeta (respuesta del backend GET /flash-cards y dentro de generate) */
 export interface FlashCard {
   id: number;
   front: string;
@@ -94,13 +92,6 @@ export interface GenerateFlashCardData {
 }
 
 /** Respuesta del backend POST /flash-cards/generate/topic_or_reference */
-export interface GenerateFlashcardsResponse {
-  success: boolean;
-  card: { id: number; title: string; description?: string; totalCards: number };
-  totalCreated: number;
-  flashcards: FlashCard[];
-}
-
 /** Mazo (entidad Card del backend) para validación */
 export interface Card {
   id: number;
@@ -125,7 +116,6 @@ export interface Message {
   chatId?: number;
   userId?: number;
   createdAt: string;
-  updatedAt?: string;
 }
 
 // ==================== NOTES ====================

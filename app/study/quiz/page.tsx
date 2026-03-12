@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useMemo } from "react";
 import { useExams } from "@/hooks/useExams";
 import { apiService } from "@/services/apiService";
 import {
@@ -12,46 +12,78 @@ import {
   CheckCircle,
   XCircle,
   AlertCircle,
+  Trophy,
+  Clock,
+  BarChart3,
+  ChevronLeft,
+  Target,
 } from "lucide-react";
 import styles from "@/styles/quiz.module.css";
-import type { Exam, GenerateExamData } from "@/types";
+import type { Exam, GenerateExamData, ExamQuestion } from "@/types";
 import DashboardLayout from "../layaut";
 import { MarkdownRenderer } from "@/components/MarkdownRenderer";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { useToast } from "@/hooks/use-toast";
 
 const QuizPage: React.FC = () => {
   const { exams, loading, error, addExam, removeExam, updateExam } = useExams();
+  const { toast } = useToast();
+
+  // Estados de Navegación y Examen
   const [selectedExam, setSelectedExam] = useState<Exam | null>(null);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [userAnswers, setUserAnswers] = useState<Map<number, number>>(new Map());
+  const [userAnswers, setUserAnswers] = useState<Map<number, number>>(
+    new Map(),
+  );
   const [testStarted, setTestStarted] = useState(false);
   const [showResults, setShowResults] = useState(false);
   const [generating, setGenerating] = useState(false);
-  const [sidebarOpen, setSidebarOpen] = useState(true);
 
-  // Form states for generation
   const [formData, setFormData] = useState<GenerateExamData>({
     topic: "",
     numberOfQuestions: 5,
     difficulty: "medium",
   });
 
+  // --- LÓGICA DE NEGOCIO ---
+
   const handleGenerateExam = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // CORRECCIÓN: Separamos el toast del return
+    if (!formData.topic) {
+      toast({
+        title: "Falta el tema",
+        variant: "destructive",
+      });
+      return; // Ahora devuelve void explícitamente
+    }
+
     setGenerating(true);
     try {
       const newExam = await apiService.generateExam(formData);
       if (newExam) {
         addExam(newExam);
         setFormData({ topic: "", numberOfQuestions: 5, difficulty: "medium" });
+        toast({
+          title: "¡Examen generado!",
+          description: "Ya puedes comenzar a estudiar.",
+        });
       }
     } catch (err) {
-      console.error("Error generating exam:", err);
+      toast({
+        title: "Error",
+        description: "No se pudo generar el examen",
+        variant: "destructive",
+      });
     } finally {
       setGenerating(false);
     }
   };
 
   const handleStartTest = (exam: Exam) => {
+    if (!exam.questions || exam.questions.length === 0) return;
     setSelectedExam(exam);
     setCurrentQuestionIndex(0);
     setUserAnswers(new Map());
@@ -65,329 +97,291 @@ const QuizPage: React.FC = () => {
     setUserAnswers(newAnswers);
   };
 
-  const handleNextQuestion = () => {
-    if (selectedExam && currentQuestionIndex < selectedExam.questions.length - 1) {
-      setCurrentQuestionIndex(currentQuestionIndex + 1);
-    }
-  };
-
-  const handlePreviousQuestion = () => {
-    if (currentQuestionIndex > 0) {
-      setCurrentQuestionIndex(currentQuestionIndex - 1);
-    }
-  };
-
   const handleFinishTest = () => {
-    const correctAnswers = selectedExam?.questions.reduce((count, question, index) => {
-      const selectedAnswer = userAnswers.get(index);
-      if (selectedAnswer !== undefined && question.options[selectedAnswer]?.isCorrect) {
-        return count + 1;
-      }
-      return count;
-    }, 0) || 0;
+    if (!selectedExam) return;
 
-    const score = ((correctAnswers / (selectedExam?.questions.length || 1)) * 100);
+    const correctCount = selectedExam.questions.reduce(
+      (count, question, index) => {
+        const selectedIdx = userAnswers.get(index);
+        return selectedIdx !== undefined &&
+          question.options[selectedIdx]?.isCorrect
+          ? count + 1
+          : count;
+      },
+      0,
+    );
 
-    if (selectedExam) {
-      updateExam(selectedExam.id, { score });
-    }
-
+    const finalScore = (correctCount / selectedExam.questions.length) * 100;
+    updateExam(selectedExam.id, { score: finalScore });
     setShowResults(true);
     setTestStarted(false);
   };
 
-  const handleDeleteExam = async (examId: number, e: React.MouseEvent) => {
-    e.stopPropagation();
-    try {
-      await apiService.deleteExam(examId);
-      removeExam(examId);
-      if (selectedExam?.id === examId) {
-        setSelectedExam(null);
-      }
-    } catch (err) {
-      console.error("Error deleting exam:", err);
-    }
-  };
+  // --- RENDERIZADO DE ESTADOS ---
 
-  const handleCloseResults = () => {
-    setShowResults(false);
-    setSelectedExam(null);
-  };
-
-  if (testStarted && selectedExam) {
-    const currentQuestion = selectedExam.questions[currentQuestionIndex];
-    const selectedAnswerIndex = userAnswers.get(currentQuestionIndex);
-
-    return (
-      <DashboardLayout>      <div className={styles.quizContainer}>
-        <div className={styles.testHeader}>
-          <div className={styles.testInfo}>
-            <h1>{selectedExam.title}</h1>
-            <p>
-              Pregunta {currentQuestionIndex + 1} de {selectedExam.questions.length}
-            </p>
-          </div>
-          <div className={styles.progressBar}>
-            <div
-              className={styles.progressFill}
-              style={{
-                width: `${((currentQuestionIndex + 1) / selectedExam.questions.length) * 100}%`,
-              }}
-            />
-          </div>
-        </div>
-
-        <div className={styles.questionContent}>
-          <h2 className={styles.questionText}><MarkdownRenderer content={currentQuestion.question} /></h2>
-
-          <div className={styles.optionsGrid}>
-            {currentQuestion.options.map((option, index) => (
-              <button
-                key={index}
-                className={`${styles.optionButton} ${selectedAnswerIndex === index ? styles.selected : ""
-                  }`}
-                onClick={() => handleAnswerQuestion(index)}
-              >
-                <span className={styles.optionLetter}>
-                  {String.fromCharCode(65 + index)}
-                </span>
-                <span className={styles.optionText}><MarkdownRenderer content={option.text} /></span>
-              </button>
-            ))}
-          </div>
-
-          {currentQuestion.explanation && (
-            <div className={styles.explanation}>
-              <AlertCircle size={20} />
-              <p>{currentQuestion.explanation}</p>
-            </div>
-          )}
-        </div>
-
-        <div className={styles.navigationButtons}>
-          <button
-            onClick={handlePreviousQuestion}
-            disabled={currentQuestionIndex === 0}
-            className={styles.navButton}
-          >
-            Anterior
-          </button>
-
-          <div className={styles.questionCounter}>
-            {currentQuestionIndex + 1} / {selectedExam.questions.length}
-          </div>
-
-          {currentQuestionIndex === selectedExam.questions.length - 1 ? (
-            <button
-              onClick={handleFinishTest}
-              className={`${styles.navButton} ${styles.finish}`}
-            >
-              Terminar
-            </button>
-          ) : (
-            <button
-              onClick={handleNextQuestion}
-              className={styles.navButton}
-            >
-              Siguiente
-            </button>
-          )}
-        </div>
-      </div>
-      </DashboardLayout>
-    );
-  }
-
+  // 1. ESTADO: RESULTADOS
   if (showResults && selectedExam) {
-    const correctAnswers = selectedExam.questions.reduce((count, question, index) => {
-      const selectedAnswer = userAnswers.get(index);
-      if (selectedAnswer !== undefined && question.options[selectedAnswer]?.isCorrect) {
-        return count + 1;
-      }
-      return count;
-    }, 0);
-
-    const score = ((correctAnswers / selectedExam.questions.length) * 100);
-
+    const score = selectedExam.score || 0;
     return (
-      <DashboardLayout>      <div className={styles.quizContainer}>
-        <div className={styles.resultsContainer}>
-          <div className={styles.scoreCircle}>
-            <span className={styles.scoreValue}>{Math.round(score)}%</span>
-          </div>
+      <DashboardLayout>
+        <div className={styles.resultsWrapper}>
+          <div className={styles.resultsCard}>
+            <div className={styles.scoreHeader}>
+              <div className={styles.trophyIcon}>
+                <Trophy size={48} color={score >= 60 ? "#eab308" : "#94a3b8"} />
+              </div>
+              <h2>¡Examen Completado!</h2>
+              <div className={styles.scoreCircle}>
+                <span className={styles.scoreBig}>{Math.round(score)}%</span>
+                <span className={styles.scoreLabel}>Calificación</span>
+              </div>
+            </div>
 
-          <h2>Resultados del examen</h2>
-          <p className={styles.scoreText}>
-            Obtuviste {correctAnswers} respuestas correctas de {selectedExam.questions.length}
-          </p>
-
-          <div className={styles.resultsList}>
-            {selectedExam.questions.map((question, index) => {
-              const selectedAnswer = userAnswers.get(index);
-              const isCorrect = selectedAnswer !== undefined && question.options[selectedAnswer]?.isCorrect;
-
-              return (
-                <div key={index} className={`${styles.resultItem} ${isCorrect ? styles.correct : styles.incorrect}`}>
-                  <div className={styles.resultIcon}>
-                    {isCorrect ? <CheckCircle size={24} /> : <XCircle size={24} />}
-                  </div>
-                  <div className={styles.resultContent}>
-                    <p className={styles.resultQuestion}><MarkdownRenderer content={question.question} /> </p>
-                    <p className={styles.resultAnswer}>
-                      Tu respuesta: {selectedAnswer !== undefined ? question.options[selectedAnswer].text : "No respondida"}
+            <div className={styles.resultsList}>
+              {selectedExam.questions.map((q, idx) => {
+                const ansIdx = userAnswers.get(idx);
+                const isCorrect =
+                  ansIdx !== undefined && q.options[ansIdx]?.isCorrect;
+                return (
+                  <div
+                    key={idx}
+                    className={`${styles.resultReviewItem} ${isCorrect ? styles.revCorrect : styles.revIncorrect}`}
+                  >
+                    <div className={styles.revHeader}>
+                      {isCorrect ? (
+                        <CheckCircle size={20} />
+                      ) : (
+                        <XCircle size={20} />
+                      )}
+                      <span>Pregunta {idx + 1}</span>
+                    </div>
+                    <p className={styles.revQuestion}>{q.question}</p>
+                    <p className={styles.revUserAns}>
+                      <strong>Tu respuesta:</strong>{" "}
+                      {ansIdx !== undefined
+                        ? q.options[ansIdx].text
+                        : "No respondida"}
                     </p>
+                    {!isCorrect && (
+                      <p className={styles.revCorrectAns}>
+                        <strong>Correcta:</strong>{" "}
+                        {q.options.find((o) => o.isCorrect)?.text}
+                      </p>
+                    )}
                   </div>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
 
-          <button onClick={handleCloseResults} className={styles.primaryButton}>
-            Volver a exámenes
-          </button>
+            <Button
+              onClick={() => {
+                setShowResults(false);
+                setSelectedExam(null);
+              }}
+              className="w-full mt-6"
+            >
+              Volver al Inicio
+            </Button>
+          </div>
         </div>
-      </div>
       </DashboardLayout>
     );
   }
 
-  return (
-    <DashboardLayout>    <div className={styles.quizContainer}>
-      <aside className={`${styles.quizSidebar} ${sidebarOpen ? "" : styles.closed}`}>
-        <div className={styles.sidebarSection}>
-          <h3 className={styles.sidebarSectionTitle}>Generar Examen</h3>
-          <form onSubmit={handleGenerateExam} className={styles.generateForm}>
-            <input
-              type="text"
-              placeholder="Tema o referencia"
-              value={formData.topic}
-              onChange={(e) => setFormData({ ...formData, topic: e.target.value })}
-              className={styles.formInput}
-            />
-            <input
-              type="number"
-              min="1"
-              max="50"
-              value={formData.numberOfQuestions}
-              onChange={(e) =>
-                setFormData({
-                  ...formData,
-                  numberOfQuestions: parseInt(e.target.value),
-                })
-              }
-              className={styles.formInput}
-              placeholder="Número de preguntas"
-            />
-            <select
-              value={formData.difficulty}
-              onChange={(e) =>
-                setFormData({ ...formData, difficulty: e.target.value })
-              }
-              className={styles.formSelect}
-            >
-              <option value="easy">Fácil</option>
-              <option value="medium">Medio</option>
-              <option value="hard">Difícil</option>
-            </select>
-            <button
-              type="submit"
-              disabled={generating}
-              className={styles.submitButton}
-            >
-              {generating ? (
-                <>
-                  <Loader className={styles.spin} size={18} />
-                  Generando...
-                </>
-              ) : (
-                <>
-                  <Plus size={18} />
-                  Generar
-                </>
-              )}
-            </button>
-          </form>
-        </div>
+  // 2. ESTADO: TEST EN CURSO
+  if (testStarted && selectedExam) {
+    const currentQ = selectedExam.questions[currentQuestionIndex];
+    const progress =
+      ((currentQuestionIndex + 1) / selectedExam.questions.length) * 100;
 
-        <div className={styles.sidebarSection}>
-          <h3 className={styles.sidebarSectionTitle}>Tus Exámenes</h3>
-          <div className={styles.examsList}>
+    return (
+      <DashboardLayout>
+        <div className={styles.activeQuizContainer}>
+          <div className={styles.quizTopBar}>
+            <div className={styles.quizInfo}>
+              <h3>{selectedExam.title}</h3>
+              <span>
+                Pregunta {currentQuestionIndex + 1} de{" "}
+                {selectedExam.questions.length}
+              </span>
+            </div>
+            <div className={styles.mainProgressBar}>
+              <div
+                className={styles.progressFill}
+                style={{ width: `${progress}%` }}
+              />
+            </div>
+          </div>
+
+          <div className={styles.questionCard}>
+            <div className={styles.questionText}>
+              <MarkdownRenderer content={currentQ.question} />
+            </div>
+
+            <div className={styles.optionsGrid}>
+              {currentQ.options.map((opt, i) => (
+                <button
+                  key={i}
+                  className={`${styles.optionBtn} ${userAnswers.get(currentQuestionIndex) === i ? styles.optSelected : ""}`}
+                  onClick={() => handleAnswerQuestion(i)}
+                >
+                  <span className={styles.optLetter}>
+                    {String.fromCharCode(65 + i)}
+                  </span>
+                  <span className={styles.optText}>{opt.text}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className={styles.quizNavigation}>
+            <Button
+              variant="outline"
+              disabled={currentQuestionIndex === 0}
+              onClick={() => setCurrentQuestionIndex((prev) => prev - 1)}
+            >
+              Anterior
+            </Button>
+
+            {currentQuestionIndex === selectedExam.questions.length - 1 ? (
+              <Button onClick={handleFinishTest} className={styles.finishBtn}>
+                Finalizar Examen
+              </Button>
+            ) : (
+              <Button
+                onClick={() => setCurrentQuestionIndex((prev) => prev + 1)}
+              >
+                Siguiente
+              </Button>
+            )}
+          </div>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  // 3. ESTADO: DASHBOARD PRINCIPAL (LISTA Y GENERACIÓN)
+  return (
+    <DashboardLayout>
+      <div className={styles.dashboardGrid}>
+        {/* Sidebar de Generación */}
+        <aside className={styles.sidePanel}>
+          <div className={styles.panelHeader}>
+            <Plus size={20} />
+            <h2>Nuevo Examen</h2>
+          </div>
+          <form onSubmit={handleGenerateExam} className={styles.genForm}>
+            <div className={styles.field}>
+              <label>¿Sobre qué quieres aprender?</label>
+              <Input
+                placeholder="Ej: React Hooks, Historia de Roma..."
+                value={formData.topic}
+                onChange={(e) =>
+                  setFormData({ ...formData, topic: e.target.value })
+                }
+              />
+            </div>
+            <div className={styles.field}>
+              <label>Nº de preguntas</label>
+              <Input
+                type="number"
+                value={formData.numberOfQuestions}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    numberOfQuestions: parseInt(e.target.value),
+                  })
+                }
+              />
+            </div>
+            <div className={styles.field}>
+              <label>Dificultad</label>
+              <select
+                className={styles.customSelect}
+                value={formData.difficulty}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    difficulty: e.target.value as any,
+                  })
+                }
+              >
+                <option value="easy">Fácil</option>
+                <option value="medium">Intermedio</option>
+                <option value="hard">Difícil</option>
+              </select>
+            </div>
+            <Button type="submit" disabled={generating} className="w-full">
+              {generating ? (
+                <Loader className={styles.spin} />
+              ) : (
+                "Generar con IA"
+              )}
+            </Button>
+          </form>
+        </aside>
+
+        {/* Contenido Principal */}
+        <main className={styles.mainSection}>
+          <header className={styles.mainHeader}>
+            <h1>Mis Exámenes</h1>
+            <p>Pon a prueba tus conocimientos y mide tu progreso.</p>
+          </header>
+
+          <div className={styles.examsGrid}>
             {loading ? (
-              <div className={styles.loadingState}>
-                <Loader className={styles.spin} size={24} />
-              </div>
-            ) : error ? (
-              <div className={styles.errorState}>{error}</div>
-            ) : exams.length === 0 ? (
-              <div className={styles.emptyState}>
-                <BookOpen size={24} />
-                <span>No hay exámenes</span>
+              <div className={styles.loadingBox}>
+                <Loader className={styles.spin} size={40} />
               </div>
             ) : (
               exams.map((exam) => (
                 <div
                   key={exam.id}
-                  className={`${styles.examItem} ${selectedExam?.id === exam.id ? styles.active : ""
-                    }`}
+                  className={`${styles.examCard} ${selectedExam?.id === exam.id ? styles.examCardActive : ""}`}
+                  onClick={() => setSelectedExam(exam)}
                 >
-                  <div onClick={() => setSelectedExam(exam)}>
-                    <p className={styles.examTitle}>{exam.title}</p>
-                    <p className={styles.examMeta}>
-                      {exam.totalQuestions} preguntas • {exam.difficulty}
-                    </p>
+                  <div className={styles.examCardHeader}>
+                    <div className={styles.examIcon}>
+                      <BookOpen size={20} />
+                    </div>
+                    <button
+                      className={styles.btnTrash}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        removeExam(exam.id);
+                      }}
+                    >
+                      <Trash2 size={16} />
+                    </button>
                   </div>
-                  <button
-                    onClick={(e) => handleDeleteExam(exam.id, e)}
-                    className={styles.deleteIcon}
-                  >
-                    <Trash2 size={16} />
-                  </button>
+                  <h3 className={styles.examTitle}>{exam.title}</h3>
+                  <div className={styles.examBadges}>
+                    <span className={styles.badge}>
+                      <Target size={14} /> {exam.totalQuestions} qns
+                    </span>
+                    <span className={styles.badge}>
+                      <BarChart3 size={14} /> {exam.difficulty}
+                    </span>
+                  </div>
+                  {exam.score !== undefined && (
+                    <div className={styles.scoreTag}>
+                      Último puntaje: {Math.round(exam.score)}%
+                    </div>
+                  )}
+                  {selectedExam?.id === exam.id && (
+                    <Button
+                      onClick={() => handleStartTest(exam)}
+                      className="mt-4 w-full"
+                    >
+                      Comenzar
+                    </Button>
+                  )}
                 </div>
               ))
             )}
           </div>
-        </div>
-      </aside>
-
-      <main className={styles.mainContent}>
-        {selectedExam ? (
-          <div className={styles.examDetails}>
-            <h1 className={styles.examTitle}> <MarkdownRenderer content={selectedExam.title} /> </h1>
-            <p className={styles.examDescription}> <MarkdownRenderer content={selectedExam.description ?? ""} /> </p>
-
-            <div className={styles.examStats}>
-              <div className={styles.stat}>
-                <span className={styles.statLabel}>Preguntas</span>
-                <span className={styles.statValue}>{selectedExam.totalQuestions}</span>
-              </div>
-              <div className={styles.stat}>
-                <span className={styles.statLabel}>Dificultad</span>
-                <span className={styles.statValue}>{selectedExam.difficulty}</span>
-              </div>
-              {selectedExam.score !== undefined && (
-                <div className={styles.stat}>
-                  <span className={styles.statLabel}>Puntuación</span>
-                  <span className={styles.statValue}>{Math.round(selectedExam.score)}%</span>
-                </div>
-              )}
-            </div>
-
-            <button
-              onClick={() => handleStartTest(selectedExam)}
-              className={styles.startButton}
-            >
-              <ChevronRight size={20} />
-              Iniciar Examen
-            </button>
-          </div>
-        ) : (
-          <div className={styles.emptyContent}>
-            <BookOpen size={64} />
-            <p>Selecciona o genera un examen para comenzar</p>
-          </div>
-        )}
-      </main>
-    </div>
+        </main>
+      </div>
     </DashboardLayout>
   );
 };

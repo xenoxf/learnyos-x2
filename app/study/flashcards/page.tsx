@@ -3,18 +3,13 @@
 import { useState, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiService } from "@/services/apiService";
-import type {
-  FlashCard,
-  Card,
-  GenerateFlashCardData,
-  GenerateFlashcardsResponse,
-} from "@/types";
+import type { Card, GenerateFlashCardData } from "@/types";
 import { useToast } from "@/hooks/use-toast";
 import styles from "../../styles/flashcards.module.css";
 import DashboardLayout from "../layaut";
 import {
   Loader,
-  Book,
+  BookOpen,
   Sparkles,
   ChevronLeft,
   ChevronRight,
@@ -23,17 +18,16 @@ import {
   FolderOpen,
   Layers,
   Clock,
-  BarChart,
+  CheckCircle2,
   Trash2,
-  X,
+  Brain,
+  Zap,
+  Target,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -56,125 +50,129 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
-// ==================== COMPONENTE PARA MOSTRAR UN MAZO (CARD) ====================
-function CardDeckItem({
+// ─── helpers ──────────────────────────────────────────────────────────────────
+
+function statusOf(deck: Card) {
+  const { reviewedCards, totalCards } = deck;
+  if (!totalCards)
+    return { label: "Sin empezar", color: "hsl(var(--primary))" };
+  if (reviewedCards === totalCards)
+    return { label: "Completado", color: "#22c55e" };
+  if (reviewedCards && reviewedCards > 0)
+    return { label: "En progreso", color: "#f59e0b" };
+  return { label: "Sin empezar", color: "hsl(var(--primary))" };
+}
+
+// ─── DeckCard ─────────────────────────────────────────────────────────────────
+
+function DeckCard({
   deck,
   onClick,
   onDelete,
 }: {
   deck: Card;
   onClick: () => void;
-  onDelete: (e: React.MouseEvent, deckId: number) => void;
+  onDelete: (id: number, e: React.MouseEvent) => void;
 }) {
-  const progress =
+  const pct =
     deck.reviewedCards && deck.totalCards
-      ? (deck.reviewedCards / deck.totalCards) * 100
+      ? Math.round((deck.reviewedCards / deck.totalCards) * 100)
       : 0;
+  const { label, color } = statusOf(deck);
 
   return (
-    <div className={styles.deckCard} onClick={onClick}>
+    <div className={styles.card} onClick={onClick}>
+      {/* delete */}
       <button
-        className={styles.deleteDeckButton}
-        onClick={(e) => onDelete(e, deck.id)}
+        className={styles.cardDelete}
+        onClick={(e) => {
+          e.stopPropagation();
+          onDelete(deck.id, e);
+        }}
         aria-label="Eliminar mazo"
       >
-        <Trash2 size={16} />
+        <Trash2 size={14} />
       </button>
 
-      <div className={styles.deckCardHeader}>
-        <div className={styles.deckIcon}>
-          <Book size={24} />
+      {/* icon + title */}
+      <div className={styles.cardTop}>
+        <div className={styles.cardIcon}>
+          <BookOpen size={20} />
         </div>
-        <div className={styles.deckInfo}>
-          <h3 className={styles.deckTitle}>{deck.title}</h3>
+        <div className={styles.cardInfo}>
+          <h3 className={styles.cardTitle}>{deck.title}</h3>
           {deck.description && (
-            <p className={styles.deckDescription}>{deck.description}</p>
+            <p className={styles.cardDesc}>{deck.description}</p>
           )}
         </div>
       </div>
 
-      <div className={styles.deckStats}>
-        <div className={styles.stat}>
-          <Layers size={14} />
-          <span>{deck.totalCards} tarjetas</span>
-        </div>
+      {/* meta */}
+      <div className={styles.cardMeta}>
+        <span className={styles.cardMetaItem}>
+          <Layers size={13} />
+          {deck.totalCards} tarjetas
+        </span>
         {deck.lastReviewDate && (
-          <div className={styles.stat}>
-            <Clock size={14} />
-            <span>
-              Última revisión:{" "}
-              {new Date(deck.lastReviewDate).toLocaleDateString()}
-            </span>
-          </div>
+          <span className={styles.cardMetaItem}>
+            <Clock size={13} />
+            {new Date(deck.lastReviewDate).toLocaleDateString("es", {
+              day: "numeric",
+              month: "short",
+            })}
+          </span>
         )}
       </div>
 
-      {deck.reviewedCards !== undefined && deck.totalCards > 0 && (
-        <div className={styles.progressSection}>
-          <div className={styles.progressHeader}>
-            <span className={styles.progressLabel}>Progreso</span>
-            <span className={styles.progressValue}>
-              {deck.reviewedCards}/{deck.totalCards}
-            </span>
-          </div>
-          <div className={styles.progressBar}>
+      {/* progress */}
+      {deck.totalCards > 0 && (
+        <div className={styles.cardProgress}>
+          <div className={styles.cardTrack}>
             <div
-              className={styles.progressFill}
-              style={{ width: `${progress}%` }}
+              className={styles.cardFill}
+              style={{ width: `${pct}%`, background: color }}
             />
+          </div>
+          <div className={styles.cardProgressRow}>
+            <span className={styles.cardStatus} style={{ color }}>
+              {label}
+            </span>
+            <span className={styles.cardPct}>{pct}%</span>
           </div>
         </div>
       )}
-
-      <div className={styles.deckCardFooter}>
-        <span
-          className={`${styles.statusBadge} ${
-            deck.reviewedCards === deck.totalCards && deck.totalCards > 0
-              ? styles.statusCompleted
-              : deck.reviewedCards && deck.reviewedCards > 0
-                ? styles.statusProgress
-                : styles.statusNew
-          }`}
-        >
-          {deck.reviewedCards === deck.totalCards && deck.totalCards > 0
-            ? "Completado"
-            : deck.reviewedCards && deck.reviewedCards > 0
-              ? "En progreso"
-              : "Sin empezar"}
-        </span>
-      </div>
     </div>
   );
 }
 
-// ==================== COMPONENTE PARA LA CUADRÍCULA DE MAZOS ====================
+// ─── CardGrid ─────────────────────────────────────────────────────────────────
+
 function CardGrid({
   decks,
   onDeckClick,
   onDeleteDeck,
   isLoading,
+  onNew,
 }: {
   decks: Card[];
   onDeckClick: (deck: Card) => void;
-  onDeleteDeck: (e: React.MouseEvent, deckId: number) => void;
+  onDeleteDeck: (id: number, e: React.MouseEvent) => void;
   isLoading: boolean;
+  onNew: () => void;
 }) {
   if (isLoading) {
     return (
       <div className={styles.grid}>
-        {[1, 2, 3, 4].map((i) => (
-          <div key={i} className={`${styles.deckCard} ${styles.skeleton}`}>
-            <div className={styles.deckCardHeader}>
-              <div className={`${styles.deckIcon} ${styles.skeletonIcon}`} />
-              <div className={styles.deckInfo}>
-                <div
-                  className={`${styles.skeletonText} ${styles.skeletonTitle}`}
-                />
-                <div
-                  className={`${styles.skeletonText} ${styles.skeletonDescription}`}
-                />
+        {[1, 2, 3, 4, 5, 6].map((i) => (
+          <div key={i} className={`${styles.card} ${styles.skelCard}`}>
+            <div className={styles.cardTop}>
+              <div className={`${styles.skel} ${styles.skelIcon}`} />
+              <div style={{ flex: 1 }}>
+                <div className={`${styles.skel} ${styles.skelH}`} />
+                <div className={`${styles.skel} ${styles.skelP}`} />
               </div>
             </div>
+            <div className={`${styles.skel} ${styles.skelBar}`} />
           </div>
         ))}
       </div>
@@ -183,10 +181,17 @@ function CardGrid({
 
   if (decks.length === 0) {
     return (
-      <div className={styles.emptyState}>
-        <FolderOpen size={48} className={styles.emptyIcon} />
-        <h3>No hay mazos</h3>
-        <p>Crea tu primer mazo de flashcards para empezar a estudiar</p>
+      <div className={styles.grid}>
+        <div className={styles.empty}>
+          <div className={styles.emptyIcon}>
+            <FolderOpen size={28} />
+          </div>
+          <h3>Ningún mazo todavía</h3>
+          <p>Genera tu primer mazo con IA para comenzar a estudiar</p>
+          <button className={styles.emptyBtn} onClick={onNew}>
+            <Sparkles size={15} /> Generar con IA
+          </button>
+        </div>
       </div>
     );
   }
@@ -194,7 +199,7 @@ function CardGrid({
   return (
     <div className={styles.grid}>
       {decks.map((deck) => (
-        <CardDeckItem
+        <DeckCard
           key={deck.id}
           deck={deck}
           onClick={() => onDeckClick(deck)}
@@ -205,356 +210,291 @@ function CardGrid({
   );
 }
 
-// ==================== COMPONENTE PARA ESTUDIAR FLASHCARDS ====================
-function FlashcardStudy({ deck, onBack }: { deck: Card; onBack: () => void }) {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [isFlipped, setIsFlipped] = useState(false);
-  const [reviewedCards, setReviewedCards] = useState<Set<number>>(new Set());
+// ─── FlashcardStudy ───────────────────────────────────────────────────────────
 
+function FlashcardStudy({ deck, onBack }: { deck: Card; onBack: () => void }) {
+  const [idx, setIdx] = useState(0);
+  const [flipped, setFlipped] = useState(false);
+  const [reviewed, setReviewed] = useState<Set<number>>(new Set());
   const { toast } = useToast();
 
-  const flashcards = deck.flashcards || [];
-  const currentCard = flashcards[currentIndex];
-  const progress =
-    flashcards.length > 0 ? (reviewedCards.size / flashcards.length) * 100 : 0;
+  const cards = deck.flashcards ?? [];
+  const current = cards[idx];
+  const progress = cards.length ? (reviewed.size / cards.length) * 100 : 0;
 
-  const handleNext = () => {
-    if (currentIndex < flashcards.length - 1) {
-      setCurrentIndex((prev) => prev + 1);
-      setIsFlipped(false);
+  const goNext = () => {
+    if (idx < cards.length - 1) {
+      setIdx((p) => p + 1);
+      setFlipped(false);
     }
   };
 
-  const handlePrevious = () => {
-    if (currentIndex > 0) {
-      setCurrentIndex((prev) => prev - 1);
-      setIsFlipped(false);
+  const goPrev = () => {
+    if (idx > 0) {
+      setIdx((p) => p - 1);
+      setFlipped(false);
     }
   };
 
-  const handleFlip = () => {
-    setIsFlipped((prev) => !prev);
-  };
-
-  const handleReview = () => {
-    if (!currentCard) return;
-
-    setReviewedCards((prev) => new Set(prev).add(currentCard.id));
-
+  const markReviewed = () => {
+    if (!current) return;
+    setReviewed((prev) => new Set(prev).add(current.id));
     toast({
-      title: "¡Buen trabajo!",
+      title: "¡Bien hecho!",
       description: "Tarjeta marcada como revisada",
     });
-
     setTimeout(() => {
-      if (currentIndex < flashcards.length - 1) {
-        handleNext();
-      }
+      if (idx < cards.length - 1) goNext();
     }, 300);
   };
 
-  if (flashcards.length === 0) {
-    return (
-      <div className={styles.studyContainer}>
-        <div className={styles.studyHeader}>
-          <button className={styles.backButton} onClick={onBack}>
-            <ChevronLeft size={20} />
-            Volver a mazos
-          </button>
-        </div>
-        <div className={styles.emptyStudy}>
-          <Book size={48} />
-          <h3>Este mazo está vacío</h3>
-          <p>No hay flashcards para estudiar en este mazo</p>
-        </div>
-      </div>
-    );
-  }
+  const isReviewed = current ? reviewed.has(current.id) : false;
 
   return (
-    <div className={styles.studyContainer}>
-      <div className={styles.studyHeader}>
-        <button className={styles.backButton} onClick={onBack}>
-          <ChevronLeft size={20} />
-          Volver a mazos
+    <div className={styles.study}>
+      {/* Nav */}
+      <div className={styles.studyNav}>
+        <button className={styles.studyBack} onClick={onBack}>
+          <ChevronLeft size={16} /> Mazos
         </button>
-
-        <div className={styles.studyTitle}>
-          <h2>{deck.title}</h2>
-          {deck.description && <p>{deck.description}</p>}
+        <div className={styles.studyNavMid}>
+          <span className={styles.studyNavTitle}>{deck.title}</span>
+          {deck.description && (
+            <span className={styles.studyNavDesc}>{deck.description}</span>
+          )}
         </div>
-
-        <div className={styles.studyProgress}>
-          <div className={styles.progressInfo}>
-            <span>
-              Tarjeta {currentIndex + 1} de {flashcards.length}
-            </span>
-            <span className={styles.reviewedCount}>
-              Revisadas: {reviewedCards.size}
-            </span>
-          </div>
-          <div className={styles.progressBar}>
-            <div
-              className={styles.progressFill}
-              style={{ width: `${progress}%` }}
-            />
-          </div>
+        <div className={styles.studyCounter}>
+          {idx + 1} / {cards.length}
         </div>
       </div>
 
-      <div className={styles.studyContent}>
-        <div className={styles.flashcardContainer}>
+      {/* Progress bar */}
+      <div className={styles.studyBar}>
+        <div
+          className={styles.studyBarFill}
+          style={{ width: `${progress}%` }}
+        />
+      </div>
+
+      {/* Main */}
+      <div className={styles.studyMain}>
+        {/* Flip card */}
+        <div className={styles.flipWrap}>
           <div
-            className={`${styles.flashcard} ${isFlipped ? styles.flipped : ""}`}
-            onClick={handleFlip}
+            className={`${styles.flipCard} ${flipped ? styles.isFlipped : ""}`}
+            onClick={() => setFlipped((p) => !p)}
           >
-            <div className={styles.flashcardFront}>
-              <div className={styles.flashcardContent}>
-                <span className={styles.cardSide}>Frente</span>
-                <div className={styles.markdown}>{currentCard?.front}</div>
-              </div>
+            {/* Front */}
+            <div className={styles.flipFace + " " + styles.flipFront}>
+              <span className={styles.faceTag}>Pregunta</span>
+              <p className={styles.faceText}>{current?.front}</p>
+              <span className={styles.faceHint}>Clic para ver respuesta</span>
             </div>
-            <div className={styles.flashcardBack}>
-              <div className={styles.flashcardContent}>
-                <span className={styles.cardSide}>Dorso</span>
-                <div className={styles.markdown}>{currentCard?.back}</div>
-                {currentCard?.hint && (
-                  <div className={styles.hint}>
-                    <span className={styles.hintLabel}>Pista:</span>
-                    <div className={styles.markdown}>{currentCard.hint}</div>
-                  </div>
-                )}
-              </div>
+            {/* Back */}
+            <div className={`${styles.flipFace} ${styles.flipBack}`}>
+              <span className={`${styles.faceTag} ${styles.faceTagBack}`}>
+                Respuesta
+              </span>
+              <p className={styles.faceText}>{current?.back}</p>
+              {current?.hint && (
+                <div className={styles.faceExtra}>
+                  <Zap size={13} style={{ flexShrink: 0, marginTop: 2 }} />
+                  <span>{current.hint}</span>
+                </div>
+              )}
             </div>
-          </div>
-
-          <div className={styles.flashcardControls}>
-            <button
-              className={styles.controlButton}
-              onClick={handlePrevious}
-              disabled={currentIndex === 0}
-            >
-              <ChevronLeft size={20} />
-              Anterior
-            </button>
-
-            <button
-              className={`${styles.reviewButton} ${
-                reviewedCards.has(currentCard?.id || 0) ? styles.reviewed : ""
-              }`}
-              onClick={handleReview}
-              disabled={reviewedCards.has(currentCard?.id || 0)}
-            >
-              {reviewedCards.has(currentCard?.id || 0)
-                ? "✓ Revisada"
-                : "Marcar como revisada"}
-            </button>
-
-            <button className={styles.controlButton} onClick={handleFlip}>
-              <RotateCcw size={20} />
-              Voltear
-            </button>
-
-            <button
-              className={styles.controlButton}
-              onClick={handleNext}
-              disabled={currentIndex === flashcards.length - 1}
-            >
-              Siguiente
-              <ChevronRight size={20} />
-            </button>
-          </div>
-
-          <div className={styles.thumbnailList}>
-            {flashcards.map((card, index) => (
-              <button
-                key={card.id}
-                className={`${styles.thumbnail} ${index === currentIndex ? styles.thumbnailActive : ""}`}
-                onClick={() => {
-                  setCurrentIndex(index);
-                  setIsFlipped(false);
-                }}
-              >
-                <span className={styles.thumbnailNumber}>{index + 1}</span>
-                {reviewedCards.has(card.id) && (
-                  <span className={styles.thumbnailReviewed}>✓</span>
-                )}
-              </button>
-            ))}
           </div>
         </div>
-      </div>
 
-      <div className={styles.studyFooter}>
-        <div className={styles.stats}>
-          <div className={styles.stat}>
-            <BarChart size={16} />
-            <span>Revisadas: {reviewedCards.size}</span>
-          </div>
-          <div className={styles.stat}>
-            <Layers size={16} />
-            <span>Pendientes: {flashcards.length - reviewedCards.size}</span>
-          </div>
+        {/* Controls */}
+        <div className={styles.controls}>
+          <button
+            className={styles.btnNav}
+            onClick={goPrev}
+            disabled={idx === 0}
+          >
+            <ChevronLeft size={18} />
+          </button>
+
+          <button
+            className={styles.btnFlip}
+            onClick={() => setFlipped((p) => !p)}
+          >
+            <RotateCcw size={15} /> Voltear
+          </button>
+
+          <button
+            className={`${styles.btnCheck} ${isReviewed ? styles.btnCheckDone : ""}`}
+            onClick={markReviewed}
+            disabled={isReviewed}
+          >
+            <CheckCircle2 size={15} />
+            {isReviewed ? "Revisada ✓" : "Marcar revisada"}
+          </button>
+
+          <button
+            className={styles.btnNav}
+            onClick={goNext}
+            disabled={idx === cards.length - 1}
+          >
+            <ChevronRight size={18} />
+          </button>
+        </div>
+
+        {/* Thumbnails */}
+        <div className={styles.thumbs}>
+          {cards.map((card, i) => (
+            <button
+              key={card.id}
+              className={`${styles.thumb} ${i === idx ? styles.thumbActive : ""} ${reviewed.has(card.id) ? styles.thumbDone : ""}`}
+              onClick={() => {
+                setIdx(i);
+                setFlipped(false);
+              }}
+            >
+              {reviewed.has(card.id) ? "✓" : i + 1}
+            </button>
+          ))}
         </div>
       </div>
     </div>
   );
 }
 
-// ==================== MODAL PARA GENERAR FLASHCARDS ====================
-function GenerateFlashcardsDialog({
+// ─── GenerateDialog ───────────────────────────────────────────────────────────
+
+function GenerateDialog({
   open,
   onOpenChange,
   onSuccess,
 }: {
   open: boolean;
-  onOpenChange: (open: boolean) => void;
+  onOpenChange: (v: boolean) => void;
   onSuccess: () => void;
 }) {
   const [topic, setTopic] = useState("");
-  const [referenceText, setReferenceText] = useState("");
+  const [refText, setRefText] = useState("");
   const [quantity, setQuantity] = useState("5");
   const [level, setLevel] = useState("medium");
-  const [generationType, setGenerationType] = useState<"topic" | "reference">(
-    "topic",
-  );
-
+  const [mode, setMode] = useState<"topic" | "reference">("topic");
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const generateMutation = useMutation({
+  const mutation = useMutation({
     mutationFn: (data: GenerateFlashCardData) =>
       apiService.generateFlashcards(data),
-    onSuccess: (response: GenerateFlashcardsResponse) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["decks"] });
       toast({
-        title: "¡Flashcards generadas!",
-        description: `Se crearon ${response.totalCreated} flashcards en "${response.card.title}"`,
+        title: "¡Mazo creado!",
+        description: "Tus flashcards están listas",
       });
       onSuccess();
       onOpenChange(false);
-      resetForm();
+      setTopic("");
+      setRefText("");
+      setQuantity("5");
+      setLevel("medium");
+      setMode("topic");
     },
     onError: () => {
       toast({
         title: "Error",
-        description: "No se pudieron generar las flashcards",
+        description: "No se pudo generar el mazo",
         variant: "destructive",
       });
     },
   });
 
-  const resetForm = () => {
-    setTopic("");
-    setReferenceText("");
-    setQuantity("5");
-    setLevel("medium");
-    setGenerationType("topic");
-  };
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
-    const data: GenerateFlashCardData = {
-      quantity: parseInt(quantity),
-      level,
-    };
-
-    if (generationType === "topic") {
+    const data: GenerateFlashCardData = { quantity: parseInt(quantity), level };
+    if (mode === "topic") {
       if (!topic.trim()) {
-        toast({
-          title: "Campo requerido",
-          description: "Por favor ingresa un tema",
-          variant: "destructive",
-        });
+        toast({ title: "Escribe un tema", variant: "destructive" });
         return;
       }
       data.topic = topic;
     } else {
-      if (!referenceText.trim()) {
+      if (!refText.trim()) {
         toast({
-          title: "Campo requerido",
-          description: "Por favor ingresa un texto de referencia",
+          title: "Escribe el texto de referencia",
           variant: "destructive",
         });
         return;
       }
-      data.referenceText = referenceText;
+      data.referenceText = refText;
     }
-
-    generateMutation.mutate(data);
+    mutation.mutate(data);
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className={styles.dialog}>
+      <DialogContent>
         <DialogHeader>
-          <DialogTitle>Generar Flashcards</DialogTitle>
+          <DialogTitle className={styles.dlgTitle}>
+            <Brain size={20} /> Generar Flashcards con IA
+          </DialogTitle>
           <DialogDescription>
-            Crea nuevas flashcards usando IA basadas en un tema o texto de
-            referencia
+            Crea un mazo completo desde un tema o texto de referencia
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} className={styles.dlgForm}>
           <Tabs
-            value={generationType}
-            onValueChange={(v) => setGenerationType(v as "topic" | "reference")}
-            className={styles.tabs}
+            value={mode}
+            onValueChange={(v) => setMode(v as "topic" | "reference")}
           >
-            <TabsList className={styles.tabsList}>
-              <TabsTrigger value="topic">Por Tema</TabsTrigger>
-              <TabsTrigger value="reference">Por Referencia</TabsTrigger>
+            <TabsList style={{ width: "100%" }}>
+              <TabsTrigger value="topic" style={{ flex: 1 }}>
+                <Target size={14} style={{ marginRight: 6 }} /> Por Tema
+              </TabsTrigger>
+              <TabsTrigger value="reference" style={{ flex: 1 }}>
+                <BookOpen size={14} style={{ marginRight: 6 }} /> Por Texto
+              </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="topic" className={styles.tabContent}>
-              <div className={styles.formGroup}>
-                <label htmlFor="topic">Tema</label>
-                <Input
-                  id="topic"
-                  placeholder="Ej: Programación en React, Historia Universal..."
-                  value={topic}
-                  onChange={(e) => setTopic(e.target.value)}
-                />
-              </div>
+            <TabsContent value="topic" className={styles.dlgTabBody}>
+              <label className={styles.dlgLabel}>Tema</label>
+              <input
+                className={styles.dlgInput}
+                placeholder="Ej: Biología celular, Revolución Francesa..."
+                value={topic}
+                onChange={(e) => setTopic(e.target.value)}
+              />
             </TabsContent>
 
-            <TabsContent value="reference" className={styles.tabContent}>
-              <div className={styles.formGroup}>
-                <label htmlFor="reference">Texto de referencia</label>
-                <textarea
-                  id="reference"
-                  className={styles.textarea}
-                  placeholder="Pega aquí el texto del cual quieres generar flashcards..."
-                  value={referenceText}
-                  onChange={(e) => setReferenceText(e.target.value)}
-                  rows={5}
-                />
-              </div>
+            <TabsContent value="reference" className={styles.dlgTabBody}>
+              <label className={styles.dlgLabel}>Texto de referencia</label>
+              <textarea
+                className={styles.dlgTextarea}
+                placeholder="Pega aquí el texto del que quieres generar flashcards..."
+                value={refText}
+                onChange={(e) => setRefText(e.target.value)}
+              />
             </TabsContent>
           </Tabs>
 
-          <div className={styles.formRow}>
-            <div className={styles.formGroup}>
-              <label htmlFor="quantity">Cantidad</label>
+          <div className={styles.dlgRow}>
+            <div className={styles.dlgField}>
+              <label className={styles.dlgLabel}>Cantidad</label>
               <Select value={quantity} onValueChange={setQuantity}>
-                <SelectTrigger id="quantity">
-                  <SelectValue placeholder="Selecciona cantidad" />
+                <SelectTrigger>
+                  <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="3">3 flashcards</SelectItem>
-                  <SelectItem value="5">5 flashcards</SelectItem>
-                  <SelectItem value="10">10 flashcards</SelectItem>
-                  <SelectItem value="15">15 flashcards</SelectItem>
+                  <SelectItem value="3">3 tarjetas</SelectItem>
+                  <SelectItem value="5">5 tarjetas</SelectItem>
+                  <SelectItem value="10">10 tarjetas</SelectItem>
+                  <SelectItem value="15">15 tarjetas</SelectItem>
                 </SelectContent>
               </Select>
             </div>
-
-            <div className={styles.formGroup}>
-              <label htmlFor="level">Dificultad</label>
+            <div className={styles.dlgField}>
+              <label className={styles.dlgLabel}>Dificultad</label>
               <Select value={level} onValueChange={setLevel}>
-                <SelectTrigger id="level">
-                  <SelectValue placeholder="Selecciona dificultad" />
+                <SelectTrigger>
+                  <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="easy">Fácil</SelectItem>
@@ -565,183 +505,216 @@ function GenerateFlashcardsDialog({
             </div>
           </div>
 
-          <DialogFooter>
+          <div className={styles.dlgFooter}>
             <button
               type="button"
-              className={styles.cancelButton}
+              className={styles.dlgCancel}
               onClick={() => onOpenChange(false)}
             >
               Cancelar
             </button>
             <button
               type="submit"
-              className={styles.generateButton}
-              disabled={generateMutation.isPending}
+              className={styles.dlgSubmit}
+              disabled={mutation.isPending}
             >
-              {generateMutation.isPending ? (
+              {mutation.isPending ? (
                 <>
-                  <Loader className={styles.spin} size={16} />
-                  Generando...
+                  <Loader className={styles.spin} size={15} /> Generando...
                 </>
               ) : (
                 <>
-                  <Sparkles size={16} />
-                  Generar con IA
+                  <Sparkles size={15} /> Generar con IA
                 </>
               )}
             </button>
-          </DialogFooter>
+          </div>
         </form>
       </DialogContent>
     </Dialog>
   );
 }
 
-// ==================== PÁGINA PRINCIPAL ====================
+// ─── FlashcardsPage ───────────────────────────────────────────────────────────
+
 export default function FlashcardsPage() {
   const [selectedDeck, setSelectedDeck] = useState<Card | null>(null);
-  const [showGenerateDialog, setShowGenerateDialog] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [showDeleteDeckDialog, setShowDeleteDeckDialog] = useState(false);
-  const [deckToDelete, setDeckToDelete] = useState<number | null>(null);
-
+  const [showGen, setShowGen] = useState(false);
+  const [search, setSearch] = useState("");
+  const [deletingId, setDeletingId] = useState<number | null>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const { data: decks, isLoading } = useQuery({
+  const { data: decks, isLoading } = useQuery<Card[]>({
     queryKey: ["decks"],
     queryFn: () => apiService.getFlashcards(),
   });
 
-  const deleteDeckMutation = useMutation({
-    mutationFn: (deckId: number) => apiService.deleteCard(deckId),
+  const deleteMutation = useMutation({
+    mutationFn: (id: number) => apiService.deleteCard(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["decks"] });
       toast({
         title: "Mazo eliminado",
-        description: "El mazo se eliminó correctamente",
+        description: "El mazo se ha eliminado correctamente",
       });
-      setShowDeleteDeckDialog(false);
-      setDeckToDelete(null);
+      setDeletingId(null);
     },
-    onError: () => {
+    onError: (error) => {
+      console.error("Error deleting deck:", error);
       toast({
-        title: "Error",
+        title: "Error al eliminar",
         description: "No se pudo eliminar el mazo",
         variant: "destructive",
       });
     },
   });
 
-  const filteredDecks = useMemo(() => {
+  const filtered = useMemo(() => {
     if (!decks) return [];
-    if (!searchTerm) return decks;
-
+    if (!search.trim()) return decks;
+    const q = search.toLowerCase();
     return decks.filter(
-      (deck) =>
-        deck.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        deck.description?.toLowerCase().includes(searchTerm.toLowerCase()),
+      (d) =>
+        d.title.toLowerCase().includes(q) ||
+        d.description?.toLowerCase().includes(q),
     );
-  }, [decks, searchTerm]);
+  }, [decks, search]);
 
-  const handleDeckClick = (deck: Card) => {
-    setSelectedDeck(deck);
-  };
+  const totalCards = decks?.reduce((s, d) => s + d.totalCards, 0) ?? 0;
+  const totalReviewed =
+    decks?.reduce((s, d) => s + (d.reviewedCards ?? 0), 0) ?? 0;
 
-  const handleBackToDecks = () => {
-    setSelectedDeck(null);
-  };
-
-  const handleGenerateSuccess = () => {
-    queryClient.invalidateQueries({ queryKey: ["decks"] });
-  };
-
-  const handleDeleteDeckClick = (e: React.MouseEvent, deckId: number) => {
+  // Manejar clic en eliminar
+  const handleDeleteClick = (id: number, e: React.MouseEvent) => {
     e.stopPropagation();
-    setDeckToDelete(deckId);
-    setShowDeleteDeckDialog(true);
+    setDeletingId(id);
   };
 
-  const confirmDeleteDeck = () => {
-    if (deckToDelete) {
-      deleteDeckMutation.mutate(deckToDelete);
+  // Confirmar eliminación
+  const confirmDelete = () => {
+    if (deletingId) {
+      deleteMutation.mutate(deletingId);
     }
   };
 
+  // ── Study view
   if (selectedDeck) {
     return (
       <DashboardLayout>
-        <FlashcardStudy deck={selectedDeck} onBack={handleBackToDecks} />
+        <FlashcardStudy
+          deck={selectedDeck}
+          onBack={() => setSelectedDeck(null)}
+        />
       </DashboardLayout>
     );
   }
 
   return (
     <DashboardLayout>
-      <div className={styles.container}>
-        <div className={styles.header}>
-          <div className={styles.headerLeft}>
-            <h1 className={styles.title}>Flashcards</h1>
-            <p className={styles.subtitle}>
-              Crea y estudia con tarjetas de aprendizaje inteligentes
-            </p>
+      <div className={styles.page}>
+        {/* ── Banner hero ── */}
+        <div className={styles.banner}>
+          <div className={styles.bannerBg} />
+          <div className={styles.bannerInner}>
+            <div className={styles.bannerText}>
+              <h1 className={styles.bannerTitle}>Flashcards</h1>
+              <p className={styles.bannerSub}>
+                Estudia inteligentemente con IA
+              </p>
+            </div>
+            {decks && decks.length > 0 && (
+              <div className={styles.bannerKpis}>
+                <div className={styles.kpi}>
+                  <span className={styles.kpiNum}>{decks.length}</span>
+                  <span className={styles.kpiLabel}>Mazos</span>
+                </div>
+                <div className={styles.kpi}>
+                  <span className={styles.kpiNum}>{totalCards}</span>
+                  <span className={styles.kpiLabel}>Tarjetas</span>
+                </div>
+                <div className={styles.kpi}>
+                  <span className={styles.kpiNum}>{totalReviewed}</span>
+                  <span className={styles.kpiLabel}>Revisadas</span>
+                </div>
+              </div>
+            )}
           </div>
+        </div>
 
-          <div className={styles.headerRight}>
+        {/* ── Body ── */}
+        <div className={styles.body}>
+          {/* Toolbar */}
+          <div className={styles.toolbar}>
+            <div className={styles.searchWrap}>
+              <span className={styles.searchIcon}>
+                <Search size={16} />
+              </span>
+              <input
+                className={styles.searchInput}
+                placeholder="Buscar mazos por título o descripción..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+            </div>
             <button
-              className={styles.generateButton}
-              onClick={() => setShowGenerateDialog(true)}
+              className={styles.newBtn}
+              onClick={() => setShowGen(true)}
+              type="button"
             >
-              <Sparkles size={16} />
-              Generar con IA
+              <Sparkles size={16} /> Generar con IA
             </button>
           </div>
+
+          {/* Grid */}
+          <CardGrid
+            decks={filtered}
+            onDeckClick={(deck) => setSelectedDeck(deck)}
+            onDeleteDeck={handleDeleteClick}
+            isLoading={isLoading}
+            onNew={() => setShowGen(true)}
+          />
         </div>
 
-        <div className={styles.searchBar}>
-          <div className={styles.searchWrapper}>
-            <Search size={18} className={styles.searchIcon} />
-            <Input
-              placeholder="Buscar mazos por título o descripción..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className={styles.searchInput}
-            />
-          </div>
-        </div>
-
-        <CardGrid
-          decks={filteredDecks || []}
-          onDeckClick={handleDeckClick}
-          onDeleteDeck={handleDeleteDeckClick}
-          isLoading={isLoading}
+        {/* ── Diálogo generar ── */}
+        <GenerateDialog
+          open={showGen}
+          onOpenChange={setShowGen}
+          onSuccess={() => {
+            queryClient.invalidateQueries({ queryKey: ["decks"] });
+          }}
         />
 
-        <GenerateFlashcardsDialog
-          open={showGenerateDialog}
-          onOpenChange={setShowGenerateDialog}
-          onSuccess={handleGenerateSuccess}
-        />
-
+        {/* ── Confirmar eliminación ── */}
         <AlertDialog
-          open={showDeleteDeckDialog}
-          onOpenChange={setShowDeleteDeckDialog}
+          open={deletingId !== null}
+          onOpenChange={(open) => {
+            if (!open) setDeletingId(null);
+          }}
         >
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>¿Eliminar mazo completo?</AlertDialogTitle>
+              <AlertDialogTitle>¿Eliminar este mazo?</AlertDialogTitle>
               <AlertDialogDescription>
-                Esta acción no se puede deshacer. Se eliminarán todas las
-                flashcards de este mazo.
+                Esta acción no se puede deshacer. Se eliminarán permanentemente
+                todas las tarjetas de este mazo.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel>Cancelar</AlertDialogCancel>
-              <AlertDialogAction onClick={confirmDeleteDeck}>
-                {deleteDeckMutation.isPending ? (
-                  <Loader className={styles.spin} size={16} />
+              <AlertDialogCancel onClick={() => setDeletingId(null)}>
+                Cancelar
+              </AlertDialogCancel>
+              <AlertDialogAction
+                onClick={confirmDelete}
+                disabled={deleteMutation.isPending}
+              >
+                {deleteMutation.isPending ? (
+                  <>
+                    <Loader className={styles.spin} size={14} />
+                    Eliminando...
+                  </>
                 ) : (
-                  "Eliminar mazo"
+                  "Eliminar"
                 )}
               </AlertDialogAction>
             </AlertDialogFooter>
