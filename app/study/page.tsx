@@ -26,7 +26,7 @@ const node_env: string = process.env.NODE_ENV;
 export const dynamic = "force-dynamic";
 
 const Dashboard: React.FC = () => {
-  const router = useRouter();
+  /*const router = useRouter();
 
   const primaryTools = useMemo(
     () => [
@@ -97,10 +97,10 @@ const Dashboard: React.FC = () => {
       { label: "Streak", value: "14 días", icon: Rocket, change: "+3" },
     ],
     [],
-  );
+  );*/
 
   return (
-    <DashboardLayout>
+    <>
       <ChatPage />
       {/*<div className={styles.container}>
         {/* Header Section }
@@ -260,7 +260,7 @@ const Dashboard: React.FC = () => {
           </section>
         </main>
         </div>*/}
-    </DashboardLayout>
+    </>
   );
 };
 
