@@ -63,6 +63,12 @@ export interface Exam {
   createdAt: string;
 }
 
+export interface ExamDeck {
+  id: number;
+  title: string;
+  description: string;
+}
+
 export interface GenerateExamData {
   topic?: string;
   reference?: string;
@@ -103,6 +109,11 @@ export interface Card {
   flashcards: FlashCard[];
   userId?: number;
   createdAt: string;
+}
+export interface CardsDeck {
+  id: number;
+  title: string;
+  description: string;
 }
 
 /** Alias para Card cuando se usa en contexto de UI de mazo */

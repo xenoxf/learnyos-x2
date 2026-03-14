@@ -1,7 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useState, useEffect } from "react";
 import { apiService } from "@/services/apiService";
 import type { Card, GenerateFlashCardData } from "@/types";
 import { useToast } from "@/hooks/use-toast";
@@ -15,14 +14,9 @@ import {
   ChevronRight,
   RotateCcw,
   Search,
-  FolderOpen,
   Layers,
-  Clock,
   CheckCircle2,
   Trash2,
-  Brain,
-  Zap,
-  Target,
 } from "lucide-react";
 import {
   Dialog,
@@ -50,450 +44,397 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
-// ─── helpers ──────────────────────────────────────────────────────────────────
-
-function statusOf(deck: Card) {
-  const { reviewedCards, totalCards } = deck;
-  if (!totalCards)
-    return { label: "Sin empezar", color: "hsl(var(--primary))" };
-  if (reviewedCards === totalCards)
-    return { label: "Completado", color: "#22c55e" };
-  if (reviewedCards && reviewedCards > 0)
-    return { label: "En progreso", color: "#f59e0b" };
-  return { label: "Sin empezar", color: "hsl(var(--primary))" };
-}
-
-// ─── DeckCard ─────────────────────────────────────────────────────────────────
-
-function DeckCard({
-  deck,
-  onClick,
-  onDelete,
-}: {
-  deck: Card;
-  onClick: () => void;
-  onDelete: (id: number, e: React.MouseEvent) => void;
-}) {
-  const pct =
-    deck.reviewedCards && deck.totalCards
-      ? Math.round((deck.reviewedCards / deck.totalCards) * 100)
-      : 0;
-  const { label, color } = statusOf(deck);
-
-  return (
-    <div className={styles.card} onClick={onClick}>
-      {/* delete */}
-      <button
-        className={styles.cardDelete}
-        onClick={(e) => {
-          e.stopPropagation();
-          onDelete(deck.id, e);
-        }}
-        aria-label="Eliminar mazo"
-      >
-        <Trash2 size={14} />
-      </button>
-
-      {/* icon + title */}
-      <div className={styles.cardTop}>
-        <div className={styles.cardIcon}>
-          <BookOpen size={20} />
-        </div>
-        <div className={styles.cardInfo}>
-          <h3 className={styles.cardTitle}>{deck.title}</h3>
-          {deck.description && (
-            <p className={styles.cardDesc}>{deck.description}</p>
-          )}
-        </div>
-      </div>
-
-      {/* meta */}
-      <div className={styles.cardMeta}>
-        <span className={styles.cardMetaItem}>
-          <Layers size={13} />
-          {deck.totalCards} tarjetas
-        </span>
-        {deck.lastReviewDate && (
-          <span className={styles.cardMetaItem}>
-            <Clock size={13} />
-            {new Date(deck.lastReviewDate).toLocaleDateString("es", {
-              day: "numeric",
-              month: "short",
-            })}
-          </span>
-        )}
-      </div>
-
-      {/* progress */}
-      {deck.totalCards > 0 && (
-        <div className={styles.cardProgress}>
-          <div className={styles.cardTrack}>
-            <div
-              className={styles.cardFill}
-              style={{ width: `${pct}%`, background: color }}
-            />
-          </div>
-          <div className={styles.cardProgressRow}>
-            <span className={styles.cardStatus} style={{ color }}>
-              {label}
-            </span>
-            <span className={styles.cardPct}>{pct}%</span>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
-// ─── CardGrid ─────────────────────────────────────────────────────────────────
-
-function CardGrid({
-  decks,
-  onDeckClick,
-  onDeleteDeck,
-  isLoading,
-  onNew,
-}: {
-  decks: Card[];
-  onDeckClick: (deck: Card) => void;
-  onDeleteDeck: (id: number, e: React.MouseEvent) => void;
-  isLoading: boolean;
-  onNew: () => void;
-}) {
-  if (isLoading) {
-    return (
-      <div className={styles.grid}>
-        {[1, 2, 3, 4, 5, 6].map((i) => (
-          <div key={i} className={`${styles.card} ${styles.skelCard}`}>
-            <div className={styles.cardTop}>
-              <div className={`${styles.skel} ${styles.skelIcon}`} />
-              <div style={{ flex: 1 }}>
-                <div className={`${styles.skel} ${styles.skelH}`} />
-                <div className={`${styles.skel} ${styles.skelP}`} />
-              </div>
-            </div>
-            <div className={`${styles.skel} ${styles.skelBar}`} />
-          </div>
-        ))}
-      </div>
-    );
-  }
-
-  if (decks.length === 0) {
-    return (
-      <div className={styles.grid}>
-        <div className={styles.empty}>
-          <div className={styles.emptyIcon}>
-            <FolderOpen size={28} />
-          </div>
-          <h3>Ningún mazo todavía</h3>
-          <p>Genera tu primer mazo con IA para comenzar a estudiar</p>
-          <button className={styles.emptyBtn} onClick={onNew}>
-            <Sparkles size={15} /> Generar con IA
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className={styles.grid}>
-      {decks.map((deck) => (
-        <DeckCard
-          key={deck.id}
-          deck={deck}
-          onClick={() => onDeckClick(deck)}
-          onDelete={onDeleteDeck}
-        />
-      ))}
-    </div>
-  );
-}
-
-// ─── FlashcardStudy ───────────────────────────────────────────────────────────
-
-function FlashcardStudy({ deck, onBack }: { deck: Card; onBack: () => void }) {
-  const [idx, setIdx] = useState(0);
-  const [flipped, setFlipped] = useState(false);
-  const [reviewed, setReviewed] = useState<Set<number>>(new Set());
+function FlashCardPage() {
+  const [cards, setCards] = useState<Card[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCard, setSelectedCard] = useState<Card | null>(null);
+  const [currentCardIndex, setCurrentCardIndex] = useState(0);
+  const [isFlipped, setIsFlipped] = useState(false);
+  const [showGenerateDialog, setShowGenerateDialog] = useState(false);
+  const [showDeleteAlert, setShowDeleteAlert] = useState(false);
+  const [cardToDelete, setCardToDelete] = useState<number | null>(null);
+  const [generatingLoading, setGeneratingLoading] = useState(false);
+  const [generateFormData, setGenerateFormData] = useState<GenerateFlashCardData>({
+    quantity: 10,
+    level: "medium",
+  });
   const { toast } = useToast();
 
-  const cards = deck.flashcards ?? [];
-  const current = cards[idx];
-  const progress = cards.length ? (reviewed.size / cards.length) * 100 : 0;
+  // Cargar tarjetas
+  useEffect(() => {
+    const fetchCards = async () => {
+      try {
+        setLoading(true);
+        const data = await apiService.getFlashcards();
+        setCards(data);
+        setError(null);
+      } catch (err) {
+        const message = err instanceof Error ? err.message : "Error al cargar tarjetas";
+        setError(message);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: message,
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const goNext = () => {
-    if (idx < cards.length - 1) {
-      setIdx((p) => p + 1);
-      setFlipped(false);
+    fetchCards();
+  }, [toast]);
+
+  // Filtrar tarjetas por búsqueda
+  const filteredCards = cards.filter((card) =>
+    card.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    card.description?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  // Manejar generación de tarjetas
+  const handleGenerateFlashcards = async () => {
+    try {
+      setGeneratingLoading(true);
+      const newCard = await apiService.generateFlashcards(generateFormData);
+      setCards([...cards, newCard]);
+      setShowGenerateDialog(false);
+      setGenerateFormData({ quantity: 10, level: "medium" });
+      toast({
+        title: "Éxito",
+        description: `${newCard.flashcards?.length || 0} tarjetas generadas`,
+      });
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Error al generar tarjetas";
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: message,
+      });
+    } finally {
+      setGeneratingLoading(false);
     }
   };
 
-  const goPrev = () => {
-    if (idx > 0) {
-      setIdx((p) => p - 1);
-      setFlipped(false);
+  // Manejar eliminación
+  const handleDeleteCard = async () => {
+    if (!cardToDelete) return;
+
+    try {
+      await apiService.deleteCard(cardToDelete);
+      setCards(cards.filter((c) => c.id !== cardToDelete));
+      setShowDeleteAlert(false);
+      setCardToDelete(null);
+      if (selectedCard?.id === cardToDelete) {
+        setSelectedCard(null);
+        setCurrentCardIndex(0);
+      }
+      toast({
+        title: "Éxito",
+        description: "Mazo eliminado correctamente",
+      });
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Error al eliminar mazo";
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: message,
+      });
     }
   };
 
-  const markReviewed = () => {
-    if (!current) return;
-    setReviewed((prev) => new Set(prev).add(current.id));
-    toast({
-      title: "¡Bien hecho!",
-      description: "Tarjeta marcada como revisada",
-    });
-    setTimeout(() => {
-      if (idx < cards.length - 1) goNext();
-    }, 300);
+  // Navegación de tarjetas individuales
+  const currentFlashcards = selectedCard?.flashcards || [];
+  const canGoNext = currentCardIndex < currentFlashcards.length - 1;
+  const canGoPrev = currentCardIndex > 0;
+
+  const goToNextCard = () => {
+    if (canGoNext) {
+      setCurrentCardIndex(currentCardIndex + 1);
+      setIsFlipped(false);
+    }
   };
 
-  const isReviewed = current ? reviewed.has(current.id) : false;
+  const goToPreviousCard = () => {
+    if (canGoPrev) {
+      setCurrentCardIndex(currentCardIndex - 1);
+      setIsFlipped(false);
+    }
+  };
+
+  const resetCards = () => {
+    setCurrentCardIndex(0);
+    setIsFlipped(false);
+  };
+
+  const currentFlashcard = currentFlashcards[currentCardIndex];
 
   return (
-    <div className={styles.study}>
-      {/* Nav */}
-      <div className={styles.studyNav}>
-        <button className={styles.studyBack} onClick={onBack}>
-          <ChevronLeft size={16} /> Mazos
-        </button>
-        <div className={styles.studyNavMid}>
-          <span className={styles.studyNavTitle}>{deck.title}</span>
-          {deck.description && (
-            <span className={styles.studyNavDesc}>{deck.description}</span>
-          )}
-        </div>
-        <div className={styles.studyCounter}>
-          {idx + 1} / {cards.length}
-        </div>
-      </div>
-
-      {/* Progress bar */}
-      <div className={styles.studyBar}>
-        <div
-          className={styles.studyBarFill}
-          style={{ width: `${progress}%` }}
-        />
-      </div>
-
-      {/* Main */}
-      <div className={styles.studyMain}>
-        {/* Flip card */}
-        <div className={styles.flipWrap}>
-          <div
-            className={`${styles.flipCard} ${flipped ? styles.isFlipped : ""}`}
-            onClick={() => setFlipped((p) => !p)}
-          >
-            {/* Front */}
-            <div className={styles.flipFace + " " + styles.flipFront}>
-              <span className={styles.faceTag}>Pregunta</span>
-              <p className={styles.faceText}>{current?.front}</p>
-              <span className={styles.faceHint}>Clic para ver respuesta</span>
+    <DashboardLayout>
+      <div className={styles.container}>
+        {/* Header */}
+        <div className={styles.header}>
+          <div className={styles.titleSection}>
+            <div className={styles.iconWrapper}>
+              <Layers className={styles.icon} />
             </div>
-            {/* Back */}
-            <div className={`${styles.flipFace} ${styles.flipBack}`}>
-              <span className={`${styles.faceTag} ${styles.faceTagBack}`}>
-                Respuesta
-              </span>
-              <p className={styles.faceText}>{current?.back}</p>
-              {current?.hint && (
-                <div className={styles.faceExtra}>
-                  <Zap size={13} style={{ flexShrink: 0, marginTop: 2 }} />
-                  <span>{current.hint}</span>
-                </div>
-              )}
+            <div>
+              <h1 className={styles.title}>Tarjetas Didácticas</h1>
+              <p className={styles.subtitle}>
+                Crea, estudia y domina tus temas con tarjetas interactivas
+              </p>
             </div>
           </div>
         </div>
 
         {/* Controls */}
         <div className={styles.controls}>
-          <button
-            className={styles.btnNav}
-            onClick={goPrev}
-            disabled={idx === 0}
-          >
-            <ChevronLeft size={18} />
-          </button>
+          <div className={styles.searchBox}>
+            <Search size={20} className={styles.searchIcon} />
+            <input
+              type="text"
+              placeholder="Buscar mazos..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className={styles.searchInput}
+            />
+          </div>
 
           <button
-            className={styles.btnFlip}
-            onClick={() => setFlipped((p) => !p)}
+            onClick={() => setShowGenerateDialog(true)}
+            className={styles.generateBtn}
           >
-            <RotateCcw size={15} /> Voltear
-          </button>
-
-          <button
-            className={`${styles.btnCheck} ${isReviewed ? styles.btnCheckDone : ""}`}
-            onClick={markReviewed}
-            disabled={isReviewed}
-          >
-            <CheckCircle2 size={15} />
-            {isReviewed ? "Revisada ✓" : "Marcar revisada"}
-          </button>
-
-          <button
-            className={styles.btnNav}
-            onClick={goNext}
-            disabled={idx === cards.length - 1}
-          >
-            <ChevronRight size={18} />
+            <Sparkles size={18} />
+            Generar Tarjetas
           </button>
         </div>
 
-        {/* Thumbnails */}
-        <div className={styles.thumbs}>
-          {cards.map((card, i) => (
-            <button
-              key={card.id}
-              className={`${styles.thumb} ${i === idx ? styles.thumbActive : ""} ${reviewed.has(card.id) ? styles.thumbDone : ""}`}
-              onClick={() => {
-                setIdx(i);
-                setFlipped(false);
-              }}
-            >
-              {reviewed.has(card.id) ? "✓" : i + 1}
-            </button>
-          ))}
+        {/* Main Content */}
+        <div className={styles.mainContent}>
+          {/* Left Side - Decks List */}
+          <div className={styles.decksList}>
+            <h2 className={styles.decksTitle}>Tus Mazos</h2>
+
+            {loading ? (
+              <div className={styles.loadingState}>
+                <Loader className={styles.spinner} />
+                <p>Cargando mazos...</p>
+              </div>
+            ) : error ? (
+              <div className={styles.errorState}>
+                <p>{error}</p>
+              </div>
+            ) : filteredCards.length === 0 ? (
+              <div className={styles.emptyState}>
+                <BookOpen size={40} />
+                <p>No hay mazos disponibles</p>
+                <p className={styles.emptySubtext}>
+                  Genera tu primer mazo para comenzar
+                </p>
+              </div>
+            ) : (
+              <div className={styles.deckGrid}>
+                {filteredCards.map((card) => (
+                  <div
+                    key={card.id}
+                    className={`${styles.deckItem} ${
+                      selectedCard?.id === card.id ? styles.deckItemActive : ""
+                    }`}
+                    onClick={() => {
+                      setSelectedCard(card);
+                      setCurrentCardIndex(0);
+                      setIsFlipped(false);
+                    }}
+                  >
+                    <div className={styles.deckItemHeader}>
+                      <h3 className={styles.deckItemTitle}>{card.title}</h3>
+                      <button
+                        className={styles.deckDeleteBtn}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setCardToDelete(card.id);
+                          setShowDeleteAlert(true);
+                        }}
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                    <p className={styles.deckItemDesc}>{card.description}</p>
+                    <div className={styles.deckItemStats}>
+                      <span className={styles.cardCount}>
+                        {card.totalCards} tarjetas
+                      </span>
+                      {card.reviewedCards !== undefined && (
+                        <span className={styles.reviewedCount}>
+                          {card.reviewedCards} revisadas
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Right Side - Card Viewer */}
+          <div className={styles.cardViewer}>
+            {selectedCard ? (
+              <>
+                <div className={styles.cardViewerHeader}>
+                  <h2 className={styles.cardViewerTitle}>{selectedCard.title}</h2>
+                  <div className={styles.cardCounter}>
+                    {currentCardIndex + 1} / {currentFlashcards.length}
+                  </div>
+                </div>
+
+                <div className={styles.flipCardContainer}>
+                  <div
+                    className={`${styles.flipCard} ${
+                      isFlipped ? styles.flipCardFlipped : ""
+                    }`}
+                    onClick={() => setIsFlipped(!isFlipped)}
+                  >
+                    <div className={styles.flipCardFront}>
+                      <div className={styles.flipCardContent}>
+                        {currentFlashcard?.front}
+                      </div>
+                      <p className={styles.flipCardHint}>Toca para voltear</p>
+                    </div>
+                    <div className={styles.flipCardBack}>
+                      <div className={styles.flipCardContent}>
+                        {currentFlashcard?.back}
+                      </div>
+                      {currentFlashcard?.hint && (
+                        <div className={styles.flipCardHintBox}>
+                          💡 {currentFlashcard.hint}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Difficulty Badge */}
+                {currentFlashcard?.difficulty && (
+                  <div className={styles.difficultyBadge}>
+                    <span className={styles[`difficulty${currentFlashcard.difficulty}`]}>
+                      {currentFlashcard.difficulty.toUpperCase()}
+                    </span>
+                  </div>
+                )}
+
+                {/* Navigation Controls */}
+                <div className={styles.navigationControls}>
+                  <button
+                    onClick={goToPreviousCard}
+                    disabled={!canGoPrev}
+                    className={styles.navBtn}
+                    title="Tarjeta anterior"
+                  >
+                    <ChevronLeft size={20} />
+                  </button>
+
+                  <button
+                    onClick={resetCards}
+                    className={styles.resetBtn}
+                    title="Reiniciar"
+                  >
+                    <RotateCcw size={20} />
+                  </button>
+
+                  <button
+                    onClick={goToNextCard}
+                    disabled={!canGoNext}
+                    className={styles.navBtn}
+                    title="Siguiente tarjeta"
+                  >
+                    <ChevronRight size={20} />
+                  </button>
+                </div>
+
+                {/* Progress Bar */}
+                <div className={styles.progressBar}>
+                  <div
+                    className={styles.progressFill}
+                    style={{
+                      width: `${((currentCardIndex + 1) / currentFlashcards.length) * 100}%`,
+                    }}
+                  />
+                </div>
+              </>
+            ) : (
+              <div className={styles.emptyCardViewer}>
+                <CheckCircle2 size={64} className={styles.emptyCardIcon} />
+                <p>Selecciona un mazo para comenzar</p>
+              </div>
+            )}
+          </div>
         </div>
-      </div>
-    </div>
-  );
-}
 
-// ─── GenerateDialog ───────────────────────────────────────────────────────────
+        {/* Generate Dialog */}
+        <Dialog open={showGenerateDialog} onOpenChange={setShowGenerateDialog}>
+          <DialogContent className={styles.dialog}>
+            <DialogHeader>
+              <DialogTitle>Generar Tarjetas</DialogTitle>
+              <DialogDescription>
+                Genera tarjetas usando IA basándote en un tema o texto
+              </DialogDescription>
+            </DialogHeader>
 
-function GenerateDialog({
-  open,
-  onOpenChange,
-  onSuccess,
-}: {
-  open: boolean;
-  onOpenChange: (v: boolean) => void;
-  onSuccess: () => void;
-}) {
-  const [topic, setTopic] = useState("");
-  const [refText, setRefText] = useState("");
-  const [quantity, setQuantity] = useState("5");
-  const [level, setLevel] = useState("medium");
-  const [mode, setMode] = useState<"topic" | "reference">("topic");
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
-
-  const mutation = useMutation({
-    mutationFn: (data: GenerateFlashCardData) =>
-      apiService.generateFlashcards(data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["decks"] });
-      toast({
-        title: "¡Mazo creado!",
-        description: "Tus flashcards están listas",
-      });
-      onSuccess();
-      onOpenChange(false);
-      setTopic("");
-      setRefText("");
-      setQuantity("5");
-      setLevel("medium");
-      setMode("topic");
-    },
-    onError: () => {
-      toast({
-        title: "Error",
-        description: "No se pudo generar el mazo",
-        variant: "destructive",
-      });
-    },
-  });
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const data: GenerateFlashCardData = { quantity: parseInt(quantity), level };
-    if (mode === "topic") {
-      if (!topic.trim()) {
-        toast({ title: "Escribe un tema", variant: "destructive" });
-        return;
-      }
-      data.topic = topic;
-    } else {
-      if (!refText.trim()) {
-        toast({
-          title: "Escribe el texto de referencia",
-          variant: "destructive",
-        });
-        return;
-      }
-      data.referenceText = refText;
-    }
-    mutation.mutate(data);
-  };
-
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle className={styles.dlgTitle}>
-            <Brain size={20} /> Generar Flashcards con IA
-          </DialogTitle>
-          <DialogDescription>
-            Crea un mazo completo desde un tema o texto de referencia
-          </DialogDescription>
-        </DialogHeader>
-
-        <form onSubmit={handleSubmit} className={styles.dlgForm}>
-          <Tabs
-            value={mode}
-            onValueChange={(v) => setMode(v as "topic" | "reference")}
-          >
-            <TabsList style={{ width: "100%" }}>
-              <TabsTrigger value="topic" style={{ flex: 1 }}>
-                <Target size={14} style={{ marginRight: 6 }} /> Por Tema
-              </TabsTrigger>
-              <TabsTrigger value="reference" style={{ flex: 1 }}>
-                <BookOpen size={14} style={{ marginRight: 6 }} /> Por Texto
-              </TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="topic" className={styles.dlgTabBody}>
-              <label className={styles.dlgLabel}>Tema</label>
+            <div className={styles.formGroup}>
+              <label className={styles.label}>Tema</label>
               <input
-                className={styles.dlgInput}
-                placeholder="Ej: Biología celular, Revolución Francesa..."
-                value={topic}
-                onChange={(e) => setTopic(e.target.value)}
+                type="text"
+                placeholder="Ej: Biología celular"
+                value={generateFormData.topic || ""}
+                onChange={(e) =>
+                  setGenerateFormData({ ...generateFormData, topic: e.target.value })
+                }
+                className={styles.input}
               />
-            </TabsContent>
-
-            <TabsContent value="reference" className={styles.dlgTabBody}>
-              <label className={styles.dlgLabel}>Texto de referencia</label>
-              <textarea
-                className={styles.dlgTextarea}
-                placeholder="Pega aquí el texto del que quieres generar flashcards..."
-                value={refText}
-                onChange={(e) => setRefText(e.target.value)}
-              />
-            </TabsContent>
-          </Tabs>
-
-          <div className={styles.dlgRow}>
-            <div className={styles.dlgField}>
-              <label className={styles.dlgLabel}>Cantidad</label>
-              <Select value={quantity} onValueChange={setQuantity}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="3">3 tarjetas</SelectItem>
-                  <SelectItem value="5">5 tarjetas</SelectItem>
-                  <SelectItem value="10">10 tarjetas</SelectItem>
-                  <SelectItem value="15">15 tarjetas</SelectItem>
-                </SelectContent>
-              </Select>
             </div>
-            <div className={styles.dlgField}>
-              <label className={styles.dlgLabel}>Dificultad</label>
-              <Select value={level} onValueChange={setLevel}>
-                <SelectTrigger>
+
+            <div className={styles.formGroup}>
+              <label className={styles.label}>O Texto de Referencia</label>
+              <textarea
+                placeholder="Pega el contenido para extraer tarjetas..."
+                value={generateFormData.referenceText || ""}
+                onChange={(e) =>
+                  setGenerateFormData({
+                    ...generateFormData,
+                    referenceText: e.target.value,
+                  })
+                }
+                className={styles.textarea}
+                rows={4}
+              />
+            </div>
+
+            <div className={styles.formGroup}>
+              <label className={styles.label}>Cantidad de Tarjetas</label>
+              <input
+                type="number"
+                min="5"
+                max="50"
+                value={generateFormData.quantity}
+                onChange={(e) =>
+                  setGenerateFormData({
+                    ...generateFormData,
+                    quantity: parseInt(e.target.value),
+                  })
+                }
+                className={styles.input}
+              />
+            </div>
+
+            <div className={styles.formGroup}>
+              <label className={styles.label}>Nivel de Dificultad</label>
+              <Select
+                value={generateFormData.level || "medium"}
+                onValueChange={(value) =>
+                  setGenerateFormData({ ...generateFormData, level: value })
+                }
+              >
+                <SelectTrigger className={styles.selectTrigger}>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -503,219 +444,51 @@ function GenerateDialog({
                 </SelectContent>
               </Select>
             </div>
-          </div>
 
-          <div className={styles.dlgFooter}>
-            <button
-              type="button"
-              className={styles.dlgCancel}
-              onClick={() => onOpenChange(false)}
-            >
-              Cancelar
-            </button>
-            <button
-              type="submit"
-              className={styles.dlgSubmit}
-              disabled={mutation.isPending}
-            >
-              {mutation.isPending ? (
-                <>
-                  <Loader className={styles.spin} size={15} /> Generando...
-                </>
-              ) : (
-                <>
-                  <Sparkles size={15} /> Generar con IA
-                </>
-              )}
-            </button>
-          </div>
-        </form>
-      </DialogContent>
-    </Dialog>
-  );
-}
-
-// ─── FlashcardsPage ───────────────────────────────────────────────────────────
-
-export default function FlashcardsPage() {
-  const [selectedDeck, setSelectedDeck] = useState<Card | null>(null);
-  const [showGen, setShowGen] = useState(false);
-  const [search, setSearch] = useState("");
-  const [deletingId, setDeletingId] = useState<number | null>(null);
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
-
-  const { data: decks, isLoading } = useQuery<Card[]>({
-    queryKey: ["decks"],
-    queryFn: () => apiService.getFlashcards(),
-  });
-
-  const deleteMutation = useMutation({
-    mutationFn: (id: number) => apiService.deleteCard(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["decks"] });
-      toast({
-        title: "Mazo eliminado",
-        description: "El mazo se ha eliminado correctamente",
-      });
-      setDeletingId(null);
-    },
-    onError: (error) => {
-      console.error("Error deleting deck:", error);
-      toast({
-        title: "Error al eliminar",
-        description: "No se pudo eliminar el mazo",
-        variant: "destructive",
-      });
-    },
-  });
-
-  const filtered = useMemo(() => {
-    if (!decks) return [];
-    if (!search.trim()) return decks;
-    const q = search.toLowerCase();
-    return decks.filter(
-      (d) =>
-        d.title.toLowerCase().includes(q) ||
-        d.description?.toLowerCase().includes(q),
-    );
-  }, [decks, search]);
-
-  const totalCards = decks?.reduce((s, d) => s + d.totalCards, 0) ?? 0;
-  const totalReviewed =
-    decks?.reduce((s, d) => s + (d.reviewedCards ?? 0), 0) ?? 0;
-
-  // Manejar clic en eliminar
-  const handleDeleteClick = (id: number, e: React.MouseEvent) => {
-    e.stopPropagation();
-    setDeletingId(id);
-  };
-
-  // Confirmar eliminación
-  const confirmDelete = () => {
-    if (deletingId) {
-      deleteMutation.mutate(deletingId);
-    }
-  };
-
-  // ── Study view
-  if (selectedDeck) {
-    return (
-      <DashboardLayout>
-        <FlashcardStudy
-          deck={selectedDeck}
-          onBack={() => setSelectedDeck(null)}
-        />
-      </DashboardLayout>
-    );
-  }
-
-  return (
-    <DashboardLayout>
-      <div className={styles.page}>
-        {/* ── Banner hero ── */}
-        <div className={styles.banner}>
-          <div className={styles.bannerBg} />
-          <div className={styles.bannerInner}>
-            <div className={styles.bannerText}>
-              <h1 className={styles.bannerTitle}>Flashcards</h1>
-              <p className={styles.bannerSub}>
-                Estudia inteligentemente con IA
-              </p>
+            <div className={styles.dialogActions}>
+              <button
+                onClick={() => setShowGenerateDialog(false)}
+                className={styles.cancelBtn}
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleGenerateFlashcards}
+                disabled={generatingLoading || (!generateFormData.topic && !generateFormData.referenceText)}
+                className={styles.confirmBtn}
+              >
+                {generatingLoading ? (
+                  <>
+                    <Loader size={18} className={styles.spinner} />
+                    Generando...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles size={18} />
+                    Generar
+                  </>
+                )}
+              </button>
             </div>
-            {decks && decks.length > 0 && (
-              <div className={styles.bannerKpis}>
-                <div className={styles.kpi}>
-                  <span className={styles.kpiNum}>{decks.length}</span>
-                  <span className={styles.kpiLabel}>Mazos</span>
-                </div>
-                <div className={styles.kpi}>
-                  <span className={styles.kpiNum}>{totalCards}</span>
-                  <span className={styles.kpiLabel}>Tarjetas</span>
-                </div>
-                <div className={styles.kpi}>
-                  <span className={styles.kpiNum}>{totalReviewed}</span>
-                  <span className={styles.kpiLabel}>Revisadas</span>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
+          </DialogContent>
+        </Dialog>
 
-        {/* ── Body ── */}
-        <div className={styles.body}>
-          {/* Toolbar */}
-          <div className={styles.toolbar}>
-            <div className={styles.searchWrap}>
-              <span className={styles.searchIcon}>
-                <Search size={16} />
-              </span>
-              <input
-                className={styles.searchInput}
-                placeholder="Buscar mazos por título o descripción..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
-            </div>
-            <button
-              className={styles.newBtn}
-              onClick={() => setShowGen(true)}
-              type="button"
-            >
-              <Sparkles size={16} /> Generar con IA
-            </button>
-          </div>
-
-          {/* Grid */}
-          <CardGrid
-            decks={filtered}
-            onDeckClick={(deck) => setSelectedDeck(deck)}
-            onDeleteDeck={handleDeleteClick}
-            isLoading={isLoading}
-            onNew={() => setShowGen(true)}
-          />
-        </div>
-
-        {/* ── Diálogo generar ── */}
-        <GenerateDialog
-          open={showGen}
-          onOpenChange={setShowGen}
-          onSuccess={() => {
-            queryClient.invalidateQueries({ queryKey: ["decks"] });
-          }}
-        />
-
-        {/* ── Confirmar eliminación ── */}
-        <AlertDialog
-          open={deletingId !== null}
-          onOpenChange={(open) => {
-            if (!open) setDeletingId(null);
-          }}
-        >
+        {/* Delete Confirmation Alert */}
+        <AlertDialog open={showDeleteAlert} onOpenChange={setShowDeleteAlert}>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>¿Eliminar este mazo?</AlertDialogTitle>
+              <AlertDialogTitle>¿Eliminar mazo?</AlertDialogTitle>
               <AlertDialogDescription>
-                Esta acción no se puede deshacer. Se eliminarán permanentemente
-                todas las tarjetas de este mazo.
+                Esta acción no se puede deshacer. Se eliminarán todas las tarjetas del mazo.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel onClick={() => setDeletingId(null)}>
-                Cancelar
-              </AlertDialogCancel>
+              <AlertDialogCancel>Cancelar</AlertDialogCancel>
               <AlertDialogAction
-                onClick={confirmDelete}
-                disabled={deleteMutation.isPending}
+                onClick={handleDeleteCard}
+                className={styles.deleteAction}
               >
-                {deleteMutation.isPending ? (
-                  <>
-                    <Loader className={styles.spin} size={14} />
-                    Eliminando...
-                  </>
-                ) : (
-                  "Eliminar"
-                )}
+                Eliminar
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
@@ -724,3 +497,5 @@ export default function FlashcardsPage() {
     </DashboardLayout>
   );
 }
+
+export default FlashCardPage;

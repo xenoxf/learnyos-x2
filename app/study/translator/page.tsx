@@ -5,7 +5,7 @@ import { useToast } from "@/hooks/use-toast";
 import { MarkdownRenderer } from "@/components/MarkdownRenderer";
 import DashboardLayout from "../layaut";
 import styles from "@/styles/translator.module.css";
-
+const nove: string = process.env.NODE_ENV;
 interface TranslationResult {
   original: string;
   translated: string;
@@ -27,13 +27,17 @@ const LANG_CODES: Record<string, string> = {
 
 async function translateWithMyMemory(
   text: string,
-  targetLang: string
+  targetLang: string,
 ): Promise<string> {
   const targetCode = LANG_CODES[targetLang] ?? "es";
   const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=auto|${targetCode}`;
   const res = await fetch(url);
-  if (!res.ok) throw new Error("Error al conectar con el servicio de traducción");
-  const data = (await res.json()) as { responseData?: { translatedText?: string }; responseStatus?: number };
+  if (!res.ok)
+    throw new Error("Error al conectar con el servicio de traducción");
+  const data = (await res.json()) as {
+    responseData?: { translatedText?: string };
+    responseStatus?: number;
+  };
   if (data.responseStatus !== 200 || !data.responseData?.translatedText) {
     throw new Error("No se pudo obtener la traducción");
   }
@@ -41,6 +45,7 @@ async function translateWithMyMemory(
 }
 
 export default function TranslatorPage() {
+  if (nove != "env") return <h3>Espacio clasificado</h3>;
   const { toast } = useToast();
   const [text, setText] = useState("");
   const [targetLanguage, setTargetLanguage] = useState("español");
@@ -73,7 +78,8 @@ export default function TranslatorPage() {
         description: "Texto traducido correctamente",
       });
     } catch (err: unknown) {
-      const errorMsg = err instanceof Error ? err.message : "Error al traducir el texto";
+      const errorMsg =
+        err instanceof Error ? err.message : "Error al traducir el texto";
       toast({
         title: "Error",
         description: errorMsg,

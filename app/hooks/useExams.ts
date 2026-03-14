@@ -31,15 +31,18 @@ export function useExams() {
     setExams((prevExams: Exam[]) => [...prevExams, exam]);
   };
 
-  const removeExam = (examId: number) => {
-    setExams((prevExams: Exam[]) => prevExams.filter((e) => e.id !== examId));
+  const removeExam = async (examId: number) => {
+    apiService.deleteExam(examId);
+    const exams = await apiService.getExams();
+    setExams(exams);
   };
 
-  const updateExam = (examId: number, updatedExam: Partial<Exam>) => {
-    setExams((prevExams: Exam[]) =>
-      prevExams.map((e) => (e.id === examId ? { ...e, ...updatedExam } : e))
-    );
-  };
+  const updateExamScore = async (examId: number, score: number) => {
+    const exams: Exam[] = await apiService.updateExamScore(examId, score);
+    setExams(exams);
+  }
 
-  return { exams, loading, error, addExam, removeExam, updateExam };
+
+
+  return { exams, loading, error, addExam, removeExam, updateExamScore };
 }

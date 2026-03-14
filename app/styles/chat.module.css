@@ -22,7 +22,8 @@
     flex-shrink: 0;
     position: relative;
     z-index: 10;
-    overflow-y: auto; /* Permitir scroll en sidebar si es necesario */
+    overflow-y: auto;
+    /* Permitir scroll en sidebar si es necesario */
 }
 
 .sidebarClosed {
@@ -184,20 +185,24 @@
     background: hsl(var(--background));
     overflow: hidden;
     position: relative;
-    height: 100vh; /* Altura fija */
-    min-height: 0; /* Importante para flexbox */
+    height: 100vh;
+    /* Altura fija */
+    min-height: 0;
+    /* Importante para flexbox */
 }
 
 /* ========== MENSAJES ========== */
 .messages {
-    flex: 1 1 auto; /* Crece pero no se encoge */
+    flex: 1 1 auto;
+    /* Crece pero no se encoge */
     overflow-y: auto;
     padding: 2rem;
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
     scroll-behavior: smooth;
-    min-height: 0; /* Previene el desbordamiento */
+    min-height: 0;
+    /* Previene el desbordamiento */
 }
 
 /* Welcome screen */
@@ -278,6 +283,7 @@
     max-width: 800px;
     margin: 0 auto;
     width: 100%;
+    height: fit-content;
     animation: fadeIn 0.3s ease;
 }
 
@@ -296,8 +302,8 @@
 .userMessage > .messageContent > div {
     border: 2px solid hsl(var(--secondary));
     padding: 0.7rem;
-    background: hsl(var(--primary));
-    color: hsl(var(--background));
+    background: hsl(var(--background) * 0.4);
+    color: hsl(var(--foreground));
     width: fit-content;
     border-radius: 10px;
 }
@@ -382,11 +388,14 @@
 
 /* ========== INPUT AREA ========== */
 .inputArea {
-    padding: 1rem 2rem 1.5rem 2rem; /* Padding inferior consistente */
+    padding: 1rem 2rem 1rem 2rem;
+    /* Padding inferior consistente */
     background: transparent;
-    flex-shrink: 0; /* No se encoge */
+    flex-shrink: 0;
+    /* No se encoge */
     position: relative;
-    border-top: 1px solid transparent; /* Previene margin collapse */
+    border-top: 1px solid transparent;
+    /* Previene margin collapse */
 }
 
 .inputContainer {
@@ -517,6 +526,7 @@
         opacity: 0;
         transform: translateY(10px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -529,6 +539,7 @@
         opacity: 0.4;
         transform: scale(1);
     }
+
     50% {
         opacity: 1;
         transform: scale(1.1);
@@ -543,6 +554,7 @@
     from {
         transform: rotate(0deg);
     }
+
     to {
         transform: rotate(360deg);
     }

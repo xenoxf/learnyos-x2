@@ -1,23 +1,25 @@
 "use client";
 
-import type {
-  AuthResponse,
-  LoginInput,
-  RegisterInput,
-  User,
-  Note,
-  FlashCard,
-  GenerateFlashCardData,
-  Card,
-  Exam,
-  GenerateExamData,
-  Chat,
-  ChatMessage,
-  SendMessageData,
-  SendMessageResponse,
-  GetChatMessagesResponse,
-  GenerateNoteData,
-  GenerateNotesResponse,
+import {
+  type AuthResponse,
+  type LoginInput,
+  type RegisterInput,
+  type User,
+  type Note,
+  type FlashCard,
+  type GenerateFlashCardData,
+  type Card,
+  type Exam,
+  type GenerateExamData,
+  type Chat,
+  type ChatMessage,
+  type SendMessageData,
+  type SendMessageResponse,
+  type GetChatMessagesResponse,
+  type GenerateNoteData,
+  type GenerateNotesResponse,
+  type ExamDeck,
+  CardsDeck,
 } from "@/types";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
@@ -254,6 +256,12 @@ class ApiService {
     });
   }
 
+  async getCardsOnly(): Promise<CardsDeck[]> {
+    return await this.request<CardsDeck[]>("/flash-cards/only", {
+      method: "GET",
+    });
+  }
+
   async deleteFlashcard(id: number): Promise<void> {
     await this.request<void>(`/flash-cards/${id}`, { method: "DELETE" });
   }
@@ -268,6 +276,10 @@ class ApiService {
     return this.request<Exam[]>("/exams", { method: "GET" });
   }
 
+  async getExamsOnly(): Promise<ExamDeck[]> {
+    return this.request<ExamDeck[]>("/exams/deck", { method: "GET" });
+  }
+
   async getExam(id: number): Promise<Exam> {
     return this.request<Exam>(`/exams/${id}`, { method: "GET" });
   }
@@ -279,10 +291,13 @@ class ApiService {
     });
   }
 
-  async updateExam(id: number, data: Partial<Exam>): Promise<Exam> {
-    return this.request<Exam>(`/exams/${id}`, {
-      method: "PUT",
-      body: JSON.stringify(data),
+  async updateExamScore(id: number, score: number): Promise<Exam[]> {
+    const params = new URLSearchParams({
+      id: String(id),
+      score: String(score),
+    });
+    return this.request<Exam[]>(`/exams/score?${params}`, {
+      method: "GET",
     });
   }
 

@@ -27,7 +27,7 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 
 const QuizPage: React.FC = () => {
-  const { exams, loading, error, addExam, removeExam, updateExam } = useExams();
+  const { exams, loading, error, addExam, removeExam, updateExamScore } = useExams();
   const { toast } = useToast();
 
   // Estados de Navegación y Examen
@@ -112,7 +112,7 @@ const QuizPage: React.FC = () => {
     );
 
     const finalScore = (correctCount / selectedExam.questions.length) * 100;
-    updateExam(selectedExam.id, { score: finalScore });
+    updateExamScore(selectedExam.id, finalScore);
     setShowResults(true);
     setTestStarted(false);
   };
@@ -228,7 +228,7 @@ const QuizPage: React.FC = () => {
                   <span className={styles.optLetter}>
                     {String.fromCharCode(65 + i)}
                   </span>
-                  <span className={styles.optText}>{opt.text}</span>
+                  <span className={styles.optText}> <MarkdownRenderer content={opt.text} /> </span>
                 </button>
               ))}
             </div>

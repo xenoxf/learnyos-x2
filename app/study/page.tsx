@@ -20,7 +20,9 @@ import {
 } from "lucide-react";
 import styles from "@/styles/dashboard.module.css";
 import DashboardLayout from "@/study/layaut";
+import ChatPage from "./chat/page";
 
+const node_env: string = process.env.NODE_ENV;
 export const dynamic = "force-dynamic";
 
 const Dashboard: React.FC = () => {
@@ -99,8 +101,9 @@ const Dashboard: React.FC = () => {
 
   return (
     <DashboardLayout>
-      <div className={styles.container}>
-        {/* Header Section */}
+      <ChatPage />
+      {/*<div className={styles.container}>
+        {/* Header Section }
         <header className={styles.header}>
           <div className={styles.headerContent}>
             <h1 className={styles.welcomeTitle}>
@@ -128,14 +131,14 @@ const Dashboard: React.FC = () => {
           </div>
         </header>
 
-        {/* Main Content */}
+        {/* Main Content }
         <main className={styles.main}>
-          {/* Learning Status */}
+          {/* Learning Status }
           <section className={styles.section}>
             <CoreLearningStatus />
           </section>
 
-          {/* Primary Tools */}
+          {/* Primary Tools }
           <section className={styles.section}>
             <div className={styles.sectionHeader}>
               <h2 className={styles.sectionTitle}>
@@ -187,7 +190,7 @@ const Dashboard: React.FC = () => {
             </div>
           </section>
 
-          {/* Secondary Tools */}
+          {/* Secondary Tools }
           <section className={styles.section}>
             <div className={styles.sectionHeader}>
               <h2 className={styles.sectionTitle}>
@@ -235,7 +238,7 @@ const Dashboard: React.FC = () => {
             </div>
           </section>
 
-          {/* Productivity Section */}
+          {/* Productivity Section }
           <section className={styles.section}>
             <div className={styles.sectionHeader}>
               <h2 className={styles.sectionTitle}>
@@ -256,7 +259,7 @@ const Dashboard: React.FC = () => {
             </div>
           </section>
         </main>
-      </div>
+        </div>*/}
     </DashboardLayout>
   );
 };
