@@ -6,6 +6,7 @@ import { MobileNavbar } from "@/components/MobileNavbar";
 import { useRouter } from "next/navigation";
 import { apiService } from "@/services/apiService";
 import styles from "@/styles/layout.module.css";
+const nove: string = process.env.NODE_ENV;
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -71,9 +72,10 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     return null;
   }
 
-  return (
-    <div className={styles.dashboardLayout}>
-      {!isMobile && (
+ return (
+  <div className={styles.dashboardLayout}>
+    {nove === 'dev' ? (
+      !isMobile && (
         <div
           className={`
             ${styles.sidebarWrapper}
@@ -82,21 +84,23 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         >
           <AppSidebar collapsed={isCollapsed} onToggle={handleToggleSidebar} />
         </div>
-      )}
+      )
+    ) : null}
 
-      <div
-        className={`
-          ${styles.mainContent}
-          ${!isMobile && isCollapsed ? styles.mainContentExpanded : ""}
-          ${isMobile ? styles.mainContentMobile : ""}
-        `}
-      >
-        <div className={styles.contentArea}>
-          <div className={styles.contentWrapper}>{children}</div>
-        </div>
+    <div
+      className={`
+        ${styles.mainContent}
+        ${!isMobile && isCollapsed ? styles.mainContentExpanded : ""}
+        ${isMobile ? styles.mainContentMobile : ""}
+      `}
+    >
+      <div className={styles.contentArea}>
+        <div className={styles.contentWrapper}>{children}</div>
       </div>
-
-      {isMobile && <MobileNavbar />}
     </div>
-  );
+
+    {nove === 'dev' ? (isMobile && <MobileNavbar />) : null}
+  </div>
+);
+ 
 }

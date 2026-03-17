@@ -30,7 +30,10 @@ const menuItems = [
 
 if (nove != "dev") {
   menuItems.splice(0, 1);
+  menuItems.splice(1, 1)
   menuItems.splice(4, 1);
+  menuItems.splice(3, 1);
+  menuItems.splice(2, 1)
 }
 
 interface AppSidebarProps {

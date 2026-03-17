@@ -155,6 +155,12 @@ export interface Note {
   createdAt: string;
 }
 
+export interface NoteDeck {
+  id: number;
+  title: string;
+  description: string;
+}
+
 /** Payload para POST /notes/generate/topic_or_reference - alineado con backend */
 export interface GenerateNoteData {
   topic?: string;
