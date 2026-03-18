@@ -241,13 +241,12 @@ class ApiService {
 
   async generateFlashcards(data: GenerateFlashCardData): Promise<Card> {
     const payload: Record<string, unknown> = {
-      topic: data.topic,
-      referenceText: data.referenceText,
+      reference: data.reference,
       quantity: data.quantity,
     };
 
-    if (data.level) {
-      payload.level = data.level;
+    if (data.acceso) {
+      payload.acceso = data.acceso;
     }
 
     return this.request<Card>("/flash-cards/generate/topic_or_reference", {
