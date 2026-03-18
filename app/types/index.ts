@@ -91,10 +91,9 @@ export interface FlashCard {
 }
 
 export interface GenerateFlashCardData {
-  topic?: string;
-  referenceText?: string;
+  reference: string;
   quantity: number;
-  level?: string;
+  acceso?: string;
 }
 
 /** Respuesta del backend POST /flash-cards/generate/topic_or_reference */

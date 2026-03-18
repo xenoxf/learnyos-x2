@@ -56,8 +56,9 @@ export function useFlashCards() {
       setLoading(true);
       setError(null);
       const res: Card = await apiService.generateFlashcards({
-        ...data,
+        reference: data.reference,
         quantity: data.quantity ?? 10,
+        acceso: data.acceso,
       });
       if (res.flashcards?.length) {
         addFlashCards(res.flashcards);

@@ -32,7 +32,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -57,8 +56,8 @@ function FlashCardPage() {
   const [cardToDelete, setCardToDelete] = useState<number | null>(null);
   const [generatingLoading, setGeneratingLoading] = useState(false);
   const [generateFormData, setGenerateFormData] = useState<GenerateFlashCardData>({
+    reference: "",
     quantity: 10,
-    level: "medium",
   });
   const { toast } = useToast();
 
@@ -94,12 +93,25 @@ function FlashCardPage() {
 
   // Manejar generación de tarjetas
   const handleGenerateFlashcards = async () => {
+    if (!generateFormData.reference.trim()) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Por favor, proporciona un texto de referencia",
+      });
+      return;
+    }
+
     try {
       setGeneratingLoading(true);
-      const newCard = await apiService.generateFlashcards(generateFormData);
+      const newCard = await apiService.generateFlashcards({
+        reference: generateFormData.reference,
+        quantity: generateFormData.quantity,
+        acceso: generateFormData.acceso,
+      });
       setCards([...cards, newCard]);
       setShowGenerateDialog(false);
-      setGenerateFormData({ quantity: 10, level: "medium" });
+      setGenerateFormData({ reference: "", quantity: 10 });
       toast({
         title: "Éxito",
         description: `${newCard.flashcards?.length || 0} tarjetas generadas`,
@@ -376,36 +388,23 @@ function FlashCardPage() {
             <DialogHeader>
               <DialogTitle>Generar Tarjetas</DialogTitle>
               <DialogDescription>
-                Genera tarjetas usando IA basándote en un tema o texto
+                Genera tarjetas usando IA basándote en un texto de referencia
               </DialogDescription>
             </DialogHeader>
 
             <div className={styles.formGroup}>
-              <label className={styles.label}>Tema</label>
-              <input
-                type="text"
-                placeholder="Ej: Biología celular"
-                value={generateFormData.topic || ""}
-                onChange={(e) =>
-                  setGenerateFormData({ ...generateFormData, topic: e.target.value })
-                }
-                className={styles.input}
-              />
-            </div>
-
-            <div className={styles.formGroup}>
-              <label className={styles.label}>O Texto de Referencia</label>
+              <label className={styles.label}>Texto de Referencia</label>
               <textarea
                 placeholder="Pega el contenido para extraer tarjetas..."
-                value={generateFormData.referenceText || ""}
+                value={generateFormData.reference}
                 onChange={(e) =>
                   setGenerateFormData({
                     ...generateFormData,
-                    referenceText: e.target.value,
+                    reference: e.target.value,
                   })
                 }
                 className={styles.textarea}
-                rows={4}
+                rows={5}
               />
             </div>
 
@@ -427,20 +426,19 @@ function FlashCardPage() {
             </div>
 
             <div className={styles.formGroup}>
-              <label className={styles.label}>Nivel de Dificultad</label>
+              <label className={styles.label}>Privacidad</label>
               <Select
-                value={generateFormData.level || "medium"}
+                value={generateFormData.acceso || "private"}
                 onValueChange={(value) =>
-                  setGenerateFormData({ ...generateFormData, level: value })
+                  setGenerateFormData({ ...generateFormData, acceso: value })
                 }
               >
                 <SelectTrigger className={styles.selectTrigger}>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="easy">Fácil</SelectItem>
-                  <SelectItem value="medium">Medio</SelectItem>
-                  <SelectItem value="hard">Difícil</SelectItem>
+                  <SelectItem value="private">Privado</SelectItem>
+                  <SelectItem value="public">Público</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -454,7 +452,7 @@ function FlashCardPage() {
               </button>
               <button
                 onClick={handleGenerateFlashcards}
-                disabled={generatingLoading || (!generateFormData.topic && !generateFormData.referenceText)}
+                disabled={generatingLoading || !generateFormData.reference.trim()}
                 className={styles.confirmBtn}
               >
                 {generatingLoading ? (

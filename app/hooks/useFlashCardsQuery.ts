@@ -24,8 +24,9 @@ export function useFlashCardsQuery() {
   const generateMutation = useMutation<Card, Error, GenerateFlashCardData>({
     mutationFn: (input) =>
       apiService.generateFlashcards({
-        ...input,
+        reference: input.reference,
         quantity: input.quantity,
+        acceso: input.acceso,
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["flashcards"] });
