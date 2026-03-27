@@ -1,11 +1,6 @@
-/* ==================== CONTAINER ==================== */
+/* ==================== QUIZ GRID ==================== */
 .container {
-  max-width: 1400px;
-  margin: 0 0;
   padding: 2rem;
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
   width: 100%;
   min-height: 100vh;
   background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
@@ -33,7 +28,7 @@
   position: fixed;
   width: 300px;
   height: 300px;
-  background: radial-gradient(circle, rgba(139, 92, 246, 0.1) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(34, 197, 94, 0.1) 0%, transparent 70%);
   border-radius: 50%;
   bottom: -50px;
   right: -50px;
@@ -51,7 +46,6 @@
   }
 }
 
-/* ==================== HEADER ==================== */
 .header {
   display: flex;
   justify-content: space-between;
@@ -60,14 +54,6 @@
   margin-bottom: 2rem;
   position: relative;
   z-index: 1;
-}
-
-.headerLeft {
-  display: flex;
-  flex-direction: column;
-  gap: 0.85rem;
-  flex: 1;
-  max-width: 560px;
 }
 
 .viewTabs {
@@ -84,21 +70,14 @@
   background: var(--bg-secondary);
   color: var(--text-secondary);
   border-radius: 8px;
-  padding: 0.45rem 0.75rem;
-  font-size: 0.9rem;
-  font-weight: 500;
+  padding: 0.4rem 0.7rem;
+  font-size: 0.88rem;
   transition: all 0.2s ease;
 }
 
-.viewTab:hover {
-  color: var(--text-primary);
-  border-color: var(--primary-accent);
-}
-
 .viewTabActive {
-  color: var(--text-primary);
   border-color: var(--primary-accent);
-  background: color-mix(in oklab, var(--bg-secondary) 78%, var(--primary-accent) 22%);
+  color: var(--text-primary);
 }
 
 .searchSection {
@@ -116,17 +95,12 @@
   border-radius: 8px;
   font-size: 1rem;
   transition: all 0.3s ease;
-  color: var(--text-primary);
 }
 
 .searchInput:focus {
   outline: none;
   border-color: var(--primary-accent);
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-}
-
-.searchInput::placeholder {
-  color: var(--text-tertiary);
 }
 
 .filterBtn,
@@ -171,53 +145,27 @@
   box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
 }
 
-/* ==================== GRID CONTAINER ==================== */
 .gridContainer {
   position: relative;
   z-index: 1;
 }
 
-/* ==================== GRID ==================== */
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 1.5rem;
 }
 
-/* ==================== LOADING STATE ==================== */
-.loadingState {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 3rem;
-  text-align: center;
-  color: var(--text-secondary);
-  font-size: 1.1rem;
-  grid-column: 1 / -1;
-}
-
-/* ==================== EMPTY STATE ==================== */
+.loadingState,
 .emptyState {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  grid-column: 1 / -1;
   padding: 3rem;
   text-align: center;
   color: var(--text-secondary);
   font-size: 1.1rem;
-  grid-column: 1 / -1;
-  background: var(--bg-secondary);
-  border: 2px dashed var(--border-color);
-  border-radius: 12px;
 }
 
 /* ==================== RESPONSIVE ==================== */
-@media (max-width: 1024px) {
-  .grid {
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  }
-}
-
 @media (max-width: 768px) {
   .container {
     padding: 1rem;
@@ -230,11 +178,6 @@
   }
 
   .searchSection {
-    width: 100%;
-    max-width: none;
-  }
-
-  .headerLeft {
     width: 100%;
     max-width: none;
   }

@@ -18,7 +18,6 @@ import Link from "next/link";
 import styles from "../styles/sidebar.module.css";
 import { ThemeToggle } from "./ThemeToggle";
 import { ThemeToggleSidebr } from "./ThemeToogleSidebr";
-const nove: string = process.env.NODE_ENV;
 const menuItems = [
   { title: "Dashboard", url: "/study", icon: LayoutDashboard },
   { title: "Junior IA", url: "/study/chat", icon: MessageSquare },
@@ -27,14 +26,6 @@ const menuItems = [
   { title: "Notas", url: "/study/notes", icon: NotebookPen },
   { title: "Traductor", url: "/study/translator", icon: Languages },
 ];
-
-if (nove != "dev") {
-  menuItems.splice(0, 1);
-  menuItems.splice(1, 1)
-  menuItems.splice(4, 1);
-  menuItems.splice(3, 1);
-  menuItems.splice(2, 1)
-}
 
 interface AppSidebarProps {
   collapsed?: boolean;

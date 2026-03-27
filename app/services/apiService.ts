@@ -1,5 +1,3 @@
-"use client";
-
 import {
   type AuthResponse,
   type LoginInput,
@@ -20,6 +18,7 @@ import {
   type GenerateNotesResponse,
   type ExamDeck,
   CardsDeck,
+  CardKlek,
 } from "@/types";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
@@ -42,6 +41,12 @@ class ApiService {
   }
 
   private getToken(): string | null {
+    if (typeof window !== "undefined") {
+      const storedToken = localStorage.getItem("token");
+      if (storedToken && storedToken !== this.token) {
+        this.token = storedToken;
+      }
+    }
     return this.token;
   }
 
@@ -70,14 +75,42 @@ class ApiService {
 
     if (!response.ok) {
       const error = await response.json().catch(() => ({}));
-      throw new Error(
-        ((error as Record<string, unknown>).message as string) ||
-          `API Error: ${response.statusText}`,
-      );
+      const errorMessage =
+        (error as Record<string, unknown>).message ||
+        (error as Record<string, unknown>).error ||
+        `Error: ${response.status} ${response.statusText}`;
+      throw new Error(String(errorMessage));
+    }
+
+    // Endpoints DELETE/PUT pueden devolver 204 sin body
+    if (response.status === 204) {
+      return undefined as T;
+    }
+
+    const contentType = response.headers.get("content-type") ?? "";
+    if (!contentType.includes("application/json")) {
+      return undefined as T;
     }
 
     // the only cast we keep is here, once, inside request
     return (await response.json()) as T;
+  }
+
+  private async requestWithFallback<T>(
+    endpoints: string[],
+    options: RequestInit = {},
+  ): Promise<T> {
+    let lastError: unknown = null;
+    for (const endpoint of endpoints) {
+      try {
+        return await this.request<T>(endpoint, options);
+      } catch (error) {
+        lastError = error;
+      }
+    }
+    throw lastError instanceof Error
+      ? lastError
+      : new Error("No se pudo completar la solicitud");
   }
 
   // ==================== AUTH ====================
@@ -211,6 +244,14 @@ class ApiService {
     return this.request<Note[]>("/notes", { method: "GET" });
   }
 
+  async getNotesPublic(): Promise<Note[]> {
+    return this.request<Note[]>("/notes/public", { method: "GET" });
+  }
+
+  async getNotesPrivate(): Promise<Note[]> {
+    return this.request<Note[]>("/notes/private", { method: "GET" });
+  }
+
   async getNote(id: number): Promise<Note> {
     return this.request<Note>(`/notes/${id}`, { method: "GET" });
   }
@@ -229,17 +270,46 @@ class ApiService {
     await this.request<void>(`/notes/${id}`, { method: "DELETE" });
   }
 
+  async createNote(data: Partial<Note>): Promise<Note> {
+    return this.requestWithFallback<Note>(["/notes", "/notes/create"], {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateNote(id: number, data: Partial<Note>): Promise<Note> {
+    return this.requestWithFallback<Note>(
+      [`/notes/${id}`, `/notes/update/${id}`],
+      {
+        method: "PUT",
+        body: JSON.stringify(data),
+      },
+    );
+  }
+
   // ==================== FLASHCARDS ====================
 
   async getFlashcards(): Promise<Card[]> {
     return this.request<Card[]>("/flash-cards", { method: "GET" });
   }
 
+  async getFlashcardsPublic(): Promise<Card[]> {
+    return this.request<Card[]>("/flash-cards/public", { method: "GET" });
+  }
+
+  async getFlashcardsPrivate(): Promise<Card[]> {
+    return this.request<Card[]>("/flash-cards/private", { method: "GET" });
+  }
+
   async getFlashcard(id: number): Promise<Card> {
     return this.request<Card>(`/flash-cards/${id}`, { method: "GET" });
   }
 
-  async generateFlashcards(data: GenerateFlashCardData): Promise<Card> {
+  async getCardKlek(id: number): Promise<CardKlek> {
+    return this.request<CardKlek>(`/flash-cards/klek/${id}`, { method: "GET" });
+  }
+
+  async generateFlashcards(data: GenerateFlashCardData): Promise<string[]> {
     const payload: Record<string, unknown> = {
       reference: data.reference,
       quantity: data.quantity,
@@ -249,30 +319,57 @@ class ApiService {
       payload.acceso = data.acceso;
     }
 
-    return this.request<Card>("/flash-cards/generate/topic_or_reference", {
+    return this.request<string[]>("/flash-cards/generate/topic_or_reference", {
       method: "POST",
       body: JSON.stringify(payload),
     });
   }
 
-  async getCardsOnly(): Promise<CardsDeck[]> {
-    return await this.request<CardsDeck[]>("/flash-cards/only", {
+  async getCardsPublic(): Promise<CardsDeck[]> {
+    return await this.request<CardsDeck[]>("/flash-cards/public", {
       method: "GET",
     });
   }
 
-  async deleteFlashcard(id: number): Promise<void> {
-    await this.request<void>(`/flash-cards/${id}`, { method: "DELETE" });
+  async getCardsPrivates(): Promise<CardsDeck[]> {
+    return await this.request<CardsDeck[]>("/flash-cards/private", {
+      method: "GET",
+    });
+  }
+
+  async createCard(data: Partial<Card>): Promise<Card> {
+    return this.requestWithFallback<Card>(["/flash-cards", "/flash-cards/create"], {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateCard(id: number, data: Partial<Card>): Promise<Card> {
+    return this.requestWithFallback<Card>(
+      [`/flash-cards/${id}`, `/flash-cards/update/${id}`],
+      {
+        method: "PUT",
+        body: JSON.stringify(data),
+      },
+    );
   }
 
   async deleteCard(id: number): Promise<void> {
-    await this.request<void>(`/flash-cards/card/${id}`, { method: "DELETE" });
+    await this.request<void>(`/flash-cards/${id}`, { method: "DELETE" });
   }
 
   // ==================== EXAMS ====================
 
   async getExams(): Promise<Exam[]> {
     return this.request<Exam[]>("/exams", { method: "GET" });
+  }
+
+  async getExamsPublic(): Promise<Exam[]> {
+    return this.request<Exam[]>("/exams/public", { method: "GET" });
+  }
+
+  async getExamsPrivate(): Promise<Exam[]> {
+    return this.request<Exam[]>("/exams/private", { method: "GET" });
   }
 
   async getExamsOnly(): Promise<ExamDeck[]> {
@@ -286,6 +383,20 @@ class ApiService {
   async generateExam(data: GenerateExamData): Promise<Exam> {
     return this.request<Exam>("/exams/generate/topic_or_reference", {
       method: "POST",
+      body: JSON.stringify(data),
+    });
+  }
+
+  async createExam(data: Partial<Exam>): Promise<Exam> {
+    return this.requestWithFallback<Exam>(["/exams", "/exams/create"], {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateExam(id: number, data: Partial<Exam>): Promise<Exam> {
+    return this.requestWithFallback<Exam>([`/exams/${id}`, `/exams/update/${id}`], {
+      method: "PUT",
       body: JSON.stringify(data),
     });
   }
@@ -345,6 +456,18 @@ class ApiService {
       method: "POST",
       body: JSON.stringify({ prompt }),
     });
+  }
+
+  // ==================== HELPER METHODS ====================
+
+  private formatDeckWithPermissions(card: Card, userId: number) {
+    return {
+      id: card.id,
+      title: card.title,
+      description: card.description,
+      code: card.code,
+      canDelete: card.userId === userId, // true si es propietario
+    };
   }
 }
 

@@ -13,10 +13,14 @@ export function useFlashCards() {
         setLoading(true);
         setError(null);
         const data = await apiService.getFlashcards();
-        // getFlashcards devuelve Card[], necesitamos extraer todas las FlashCard de todos los Cards
-        const allFlashcards = Array.isArray(data)
-          ? data.flatMap((card: Card) => card.flashcards || [])
+        // El backend devuelve Card[] pero sin flashcards en algunos endpoints
+        // Filtramos solo los que tienen flashcards
+        const cardsWithFlashcards = Array.isArray(data)
+          ? data.filter((card: Card) => card.flashcards && card.flashcards.length > 0)
           : [];
+        const allFlashcards = cardsWithFlashcards.flatMap(
+          (card: Card) => card.flashcards || []
+        );
         setFlashcards(allFlashcards);
       } catch (err: unknown) {
         const errorMessage =
@@ -55,16 +59,22 @@ export function useFlashCards() {
     try {
       setLoading(true);
       setError(null);
-      const res: Card = await apiService.generateFlashcards({
+      // El backend devuelve {message} en éxito pero necesitamos recargar
+      await apiService.generateFlashcards({
         reference: data.reference,
         quantity: data.quantity ?? 10,
         acceso: data.acceso,
       });
-      if (res.flashcards?.length) {
-        addFlashCards(res.flashcards);
-        return res.flashcards;
-      }
-      return null;
+      // Recargar las tarjetas después de generar
+      const updatedData = await apiService.getFlashcards();
+      const cardsWithFlashcards = Array.isArray(updatedData)
+        ? updatedData.filter((card: Card) => card.flashcards && card.flashcards.length > 0)
+        : [];
+      const allFlashcards = cardsWithFlashcards.flatMap(
+        (card: Card) => card.flashcards || []
+      );
+      setFlashcards(allFlashcards);
+      return allFlashcards;
     } catch (err: unknown) {
       const errorMessage =
         err instanceof Error ? err.message : "Error al generar flashcards";

@@ -26,7 +26,7 @@ const node_env: string = process.env.NODE_ENV;
 export const dynamic = "force-dynamic";
 
 const Dashboard: React.FC = () => {
-  /*const router = useRouter();
+  const router = useRouter();
 
   const primaryTools = useMemo(
     () => [
@@ -97,13 +97,11 @@ const Dashboard: React.FC = () => {
       { label: "Streak", value: "14 días", icon: Rocket, change: "+3" },
     ],
     [],
-  );*/
+  );
 
   return (
     <>
-      <ChatPage />
-      {/*<div className={styles.container}>
-        {/* Header Section }
+      <div className={styles.container}>
         <header className={styles.header}>
           <div className={styles.headerContent}>
             <h1 className={styles.welcomeTitle}>
@@ -131,14 +129,11 @@ const Dashboard: React.FC = () => {
           </div>
         </header>
 
-        {/* Main Content }
         <main className={styles.main}>
-          {/* Learning Status }
           <section className={styles.section}>
             <CoreLearningStatus />
           </section>
 
-          {/* Primary Tools }
           <section className={styles.section}>
             <div className={styles.sectionHeader}>
               <h2 className={styles.sectionTitle}>
@@ -190,7 +185,6 @@ const Dashboard: React.FC = () => {
             </div>
           </section>
 
-          {/* Secondary Tools }
           <section className={styles.section}>
             <div className={styles.sectionHeader}>
               <h2 className={styles.sectionTitle}>
@@ -238,7 +232,6 @@ const Dashboard: React.FC = () => {
             </div>
           </section>
 
-          {/* Productivity Section }
           <section className={styles.section}>
             <div className={styles.sectionHeader}>
               <h2 className={styles.sectionTitle}>
@@ -259,7 +252,7 @@ const Dashboard: React.FC = () => {
             </div>
           </section>
         </main>
-        </div>*/}
+      </div>
     </>
   );
 };

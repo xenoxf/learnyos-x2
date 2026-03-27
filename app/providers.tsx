@@ -2,8 +2,7 @@
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider } from "@/contexts/ThemeContext";
-import { Toaster } from "@/components/ui/sonner";
-import { Toaster as ToastToaster } from "@/components/ui/toaster";
+import { Toaster } from "@/components/ui/toaster";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { useState } from "react";
 
@@ -29,7 +28,6 @@ export function Providers({ children }: { children: React.ReactNode }) {
         <ThemeProvider>
           {children}
           <Toaster />
-          <ToastToaster />
         </ThemeProvider>
       </QueryClientProvider>
     </ErrorBoundary>

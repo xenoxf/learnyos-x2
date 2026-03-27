@@ -1,0 +1,17 @@
+/* ==================== NAVBAR BUTTONS CENTER ==================== */
+/* Asegura que los botones de la navbar estén centrados */
+.navButton,
+.navLink,
+[role="button"],
+button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Asegura que los iconos dentro de botones estén centrados */
+svg {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

@@ -23,7 +23,6 @@ import { useToast } from "@/hooks/use-toast";
 import styles from "@/styles/mobileNavbar.module.css";
 import Link from "next/link";
 import { ThemeToggleSidebr } from "./ThemeToogleSidebr";
-const nove: string = process.env.NODE_ENV;
 const SCROLL_THRESHOLD = 10;
 const RESIZE_DEBOUNCE = 100;
 
@@ -42,11 +41,6 @@ const ALL_NAV_ITEMS: MenuItem[] = [
   { title: "Flashcards", url: "/study/flashcards", icon: CreditCard },
   { title: "Traductor", url: "/study/translator", icon: Languages },
 ];
-
-if (nove != "dev") {
-  ALL_NAV_ITEMS.splice(0, 1);
-  ALL_NAV_ITEMS.splice(4, 1);
-}
 
 export function MobileNavbar() {
   const router = useRouter();
@@ -202,9 +196,10 @@ export function MobileNavbar() {
   );
 
   return (
-    <div
-      className={`${styles.container} ${!navVisible ? styles.containerHidden : ""}`}
-    >
+    <>
+      {/*<div
+        className={`${styles.container} ${!navVisible ? styles.containerHidden : ""}`}
+      >*/}
       <nav ref={navRef} className={styles.bottomNav}>
         {visibleItems.map((item) => {
           const Icon = item.icon;
@@ -284,6 +279,6 @@ export function MobileNavbar() {
           </div>
         )}
       </nav>
-    </div>
+    </>
   );
 }

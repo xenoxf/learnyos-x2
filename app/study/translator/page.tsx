@@ -4,8 +4,8 @@ import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { MarkdownRenderer } from "@/components/MarkdownRenderer";
 import DashboardLayout from "../layaut";
+import { apiService } from "@/services/apiService";
 import styles from "@/styles/translator.module.css";
-const nove: string = process.env.NODE_ENV;
 interface TranslationResult {
   original: string;
   translated: string;
@@ -45,12 +45,24 @@ async function translateWithMyMemory(
 }
 
 export default function TranslatorPage() {
-  if (nove != "env") return <h3>Espacio clasificado</h3>;
   const { toast } = useToast();
   const [text, setText] = useState("");
   const [targetLanguage, setTargetLanguage] = useState("español");
   const [result, setResult] = useState<TranslationResult | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+
+  if (!apiService.isAuthenticated()) {
+    return (
+      <div className={styles.translatorContainer}>
+        <div className={styles.header}>
+          <h1>Traductor</h1>
+          <p className={styles.subtitle}>
+            Debes iniciar sesion para usar el traductor.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   const handleTranslate = async () => {
     if (!text.trim()) {
@@ -115,94 +127,92 @@ export default function TranslatorPage() {
   ];
 
   return (
-    <DashboardLayout>
-      <div className={styles.translatorContainer}>
-        <div className={styles.header}>
-          <h1>Traductor</h1>
-          <p className={styles.subtitle}>Traduce textos a diferentes idiomas</p>
-        </div>
+    <div className={styles.translatorContainer}>
+      <div className={styles.header}>
+        <h1>Traductor</h1>
+        <p className={styles.subtitle}>Traduce textos a diferentes idiomas</p>
+      </div>
 
-        <div className={styles.content}>
-          <div className={styles.inputSection}>
-            <div className={styles.inputGroup}>
-              <label htmlFor="text">Texto a traducir</label>
-              <textarea
-                id="text"
-                value={text}
-                onChange={(e) => setText(e.target.value)}
-                placeholder="Ingresa el texto que deseas traducir..."
-                className={styles.textarea}
-                rows={6}
-              />
-              <div className={styles.charCount}>
-                {text.length} / 5000 caracteres
-              </div>
+      <div className={styles.content}>
+        <div className={styles.inputSection}>
+          <div className={styles.inputGroup}>
+            <label htmlFor="text">Texto a traducir</label>
+            <textarea
+              id="text"
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+              placeholder="Ingresa el texto que deseas traducir..."
+              className={styles.textarea}
+              rows={6}
+            />
+            <div className={styles.charCount}>
+              {text.length} / 5000 caracteres
             </div>
-
-            <div className={styles.inputGroup}>
-              <label htmlFor="language">Idioma destino</label>
-              <select
-                id="language"
-                value={targetLanguage}
-                onChange={(e) => setTargetLanguage(e.target.value)}
-                className={styles.select}
-              >
-                {languages.map((lang) => (
-                  <option key={lang} value={lang}>
-                    {lang.charAt(0).toUpperCase() + lang.slice(1)}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <button
-              onClick={handleTranslate}
-              disabled={isLoading || !text.trim()}
-              className={styles.button}
-            >
-              {isLoading ? "Traduciendo..." : "Traducir"}
-            </button>
           </div>
 
-          {result && (
-            <div className={styles.resultSection}>
-              <div className={styles.resultCard}>
-                <div className={styles.resultHeader}>
-                  <h3>Original</h3>
-                  <button
-                    onClick={() => handleCopy(result.original)}
-                    className={styles.copyButton}
-                    title="Copiar"
-                  >
-                    📋
-                  </button>
-                </div>
-                <div className={styles.resultContent}>
-                  <MarkdownRenderer content={result.original} />
-                </div>
+          <div className={styles.inputGroup}>
+            <label htmlFor="language">Idioma destino</label>
+            <select
+              id="language"
+              value={targetLanguage}
+              onChange={(e) => setTargetLanguage(e.target.value)}
+              className={styles.select}
+            >
+              {languages.map((lang) => (
+                <option key={lang} value={lang}>
+                  {lang.charAt(0).toUpperCase() + lang.slice(1)}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <button
+            onClick={handleTranslate}
+            disabled={isLoading || !text.trim()}
+            className={styles.button}
+          >
+            {isLoading ? "Traduciendo..." : "Traducir"}
+          </button>
+        </div>
+
+        {result && (
+          <div className={styles.resultSection}>
+            <div className={styles.resultCard}>
+              <div className={styles.resultHeader}>
+                <h3>Original</h3>
+                <button
+                  onClick={() => handleCopy(result.original)}
+                  className={styles.copyButton}
+                  title="Copiar"
+                >
+                  📋
+                </button>
               </div>
-
-              <div className={styles.arrow}>→</div>
-
-              <div className={styles.resultCard}>
-                <div className={styles.resultHeader}>
-                  <h3>{result.language}</h3>
-                  <button
-                    onClick={() => handleCopy(result.translated)}
-                    className={styles.copyButton}
-                    title="Copiar"
-                  >
-                    📋
-                  </button>
-                </div>
-                <div className={styles.resultContent}>
-                  <MarkdownRenderer content={result.translated} />
-                </div>
+              <div className={styles.resultContent}>
+                <MarkdownRenderer content={result.original} />
               </div>
             </div>
-          )}
-        </div>
+
+            <div className={styles.arrow}>→</div>
+
+            <div className={styles.resultCard}>
+              <div className={styles.resultHeader}>
+                <h3>{result.language}</h3>
+                <button
+                  onClick={() => handleCopy(result.translated)}
+                  className={styles.copyButton}
+                  title="Copiar"
+                >
+                  📋
+                </button>
+              </div>
+              <div className={styles.resultContent}>
+                <MarkdownRenderer content={result.translated} />
+              </div>
+            </div>
+          </div>
+        )}
       </div>
-    </DashboardLayout>
+    </div>
   );
 }

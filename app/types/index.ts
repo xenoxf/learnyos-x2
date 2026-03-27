@@ -55,6 +55,10 @@ export interface Exam {
   title: string;
   description?: string;
   difficulty: DifficultyLevel;
+  acceso?: string;
+  code?: string;
+  area?: string;
+  tema?: string;
   totalQuestions: number;
   questions: ExamQuestion[];
   score?: number;
@@ -74,6 +78,7 @@ export interface GenerateExamData {
   reference?: string;
   numberOfQuestions: number;
   difficulty: string;
+  acceso?: string;
 }
 
 // ==================== FLASHCARDS ====================
@@ -102,6 +107,10 @@ export interface Card {
   id: number;
   title: string;
   description: string;
+  code: string;
+  area: string;
+  acceso?: string;
+  tema?: string;
   totalCards: number;
   reviewedCards?: number;
   lastReviewDate?: string;
@@ -113,10 +122,22 @@ export interface CardsDeck {
   id: number;
   title: string;
   description: string;
+  code: string;
+  area: string;
 }
 
-/** Alias para Card cuando se usa en contexto de UI de mazo */
-export type FlashCardDeck = Card;
+export interface CardKlek {
+  id: number;
+  title: string;
+  area: string;
+  flashCards: FlashCardKlek[];
+}
+
+export interface FlashCardKlek {
+  id: number;
+  front: string;
+  back: string;
+}
 
 /** Mensaje de chat (entidad Message del backend) */
 export interface Message {
@@ -148,6 +169,8 @@ export interface Note {
   id: number;
   title: string;
   description?: string;
+  code?: string;
+  acceso?: string;
   levelOfDetail?: LevelOfDetail;
   noteContents?: NoteContent[];
   userId?: number;
@@ -166,6 +189,7 @@ export interface GenerateNoteData {
   referenceText?: string;
   numberOfNotes: number;
   levelOfDetail: "breve" | "medio" | "detallado";
+  acceso?: string;
 }
 
 /** Respuesta del backend POST /notes/generate/topic_or_reference */
@@ -257,3 +281,8 @@ export interface PomodoroConfig {
   soundEnabled: boolean;
   notificationsEnabled: boolean;
 }
+
+// Analizando backend para seguridad y ownership
+// flash-cards.controller.ts - POST generate devuelve {message}
+// flash-cards.service.ts - remove() valida userId
+// Necesito verificar si getFlashcard() devuelve el userId para validar ownership

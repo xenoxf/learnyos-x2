@@ -1,0 +1,454 @@
+/* ==================== OVERLAY ==================== */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  animation: fadeIn 0.3s ease-out;
+  backdrop-filter: blur(4px);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* ==================== MODAL ==================== */
+.modal {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  width: 90%;
+  max-width: 600px;
+  max-height: 85vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(-50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* ==================== HEADER ==================== */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+  flex-shrink: 0;
+  gap: 1rem;
+}
+
+.headerLeft {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  flex: 1;
+}
+
+.title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.codeSection {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: var(--bg-primary);
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+}
+
+.codeLabel {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.codeValue {
+  font-family: monospace;
+  font-weight: 600;
+  color: var(--primary-accent);
+  font-size: 0.95rem;
+  letter-spacing: 1px;
+}
+
+.copyBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: none;
+  border: none;
+  color: var(--primary-accent);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-radius: 4px;
+}
+
+.copyBtn:hover {
+  background: rgba(59, 130, 246, 0.1);
+  transform: scale(1.1);
+}
+
+.closeBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 1.5rem;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+.closeBtn:hover {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+/* ==================== CARD CONTAINER ==================== */
+.cardContainer {
+  padding: 2rem 1.5rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  overflow-y: auto;
+}
+
+/* ==================== FLASHCARD (3D FLIP) ==================== */
+.flashCard {
+  width: 100%;
+  max-width: 400px;
+  height: 300px;
+  position: relative;
+  cursor: pointer;
+  perspective: 1000px;
+  transition: transform 0.3s ease;
+}
+
+.flashCard:active {
+  transform: scale(0.98);
+}
+
+.flashCard.flipped {
+  transform: rotateY(180deg);
+}
+
+.flashCardFace {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, var(--primary-accent), var(--accent-bright));
+  border: 2px solid var(--primary-accent);
+  border-radius: 12px;
+  padding: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backface-visibility: hidden;
+  box-shadow: 0 8px 24px rgba(59, 130, 246, 0.2);
+}
+
+.flashCardFace:last-child {
+  background: linear-gradient(135deg, var(--accent-bright), var(--primary-accent));
+  transform: rotateY(180deg);
+}
+
+.faceContent {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  width: 100%;
+}
+
+.faceLabel {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.8);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.faceText {
+  font-size: 1.25rem;
+  color: white;
+  margin: 0;
+  word-break: break-word;
+  line-height: 1.5;
+}
+
+.hintBox {
+  margin-top: 1rem;
+  padding: 0.75rem 1rem;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 6px;
+  color: white;
+  font-size: 0.9rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.difficulty {
+  display: inline-block;
+  margin-top: 0.5rem;
+  padding: 0.35rem 0.75rem;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: white;
+  letter-spacing: 0.5px;
+}
+
+/* ==================== FLIP HINT ==================== */
+.flipHint {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  text-align: center;
+  font-style: italic;
+}
+
+/* ==================== PROGRESS BAR ==================== */
+.progressBar {
+  height: 4px;
+  background: var(--bg-primary);
+  border: none;
+}
+
+.progressFill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary-accent), var(--accent-bright));
+  transition: width 0.3s ease;
+}
+
+/* ==================== FOOTER ==================== */
+.footer {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  align-items: center;
+  padding: 1.5rem;
+  border-top: 1px solid var(--border-color);
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+.navBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  background: var(--bg-primary);
+  border: 1.5px solid var(--border-color);
+  border-radius: 8px;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.navBtn:hover:not(:disabled) {
+  border-color: var(--primary-accent);
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(59, 130, 246, 0.05));
+  transform: translateY(-2px);
+}
+
+.navBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.resetBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  background: var(--bg-primary);
+  border: 1.5px solid var(--border-color);
+  border-radius: 8px;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.resetBtn:hover {
+  border-color: var(--primary-accent);
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(59, 130, 246, 0.05));
+  transform: rotate(-15deg);
+}
+
+.counter {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 1rem;
+  min-width: 60px;
+  justify-content: center;
+}
+
+/* ==================== EMPTY STATE ==================== */
+.emptyContent {
+  padding: 3rem 1.5rem;
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 1rem;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ==================== RESPONSIVE ==================== */
+@media (max-width: 768px) {
+  .modal {
+    width: 95%;
+    max-height: 90vh;
+  }
+
+  .header {
+    padding: 1.25rem;
+  }
+
+  .title {
+    font-size: 1.25rem;
+  }
+
+  .codeSection {
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+  }
+
+  .cardContainer {
+    padding: 1.5rem 1rem;
+    gap: 1rem;
+  }
+
+  .flashCard {
+    height: 250px;
+  }
+
+  .faceText {
+    font-size: 1.1rem;
+  }
+
+  .footer {
+    padding: 1.25rem;
+    gap: 0.75rem;
+  }
+
+  .navBtn,
+  .resetBtn {
+    width: 40px;
+    height: 40px;
+  }
+
+  .counter {
+    font-size: 0.95rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .modal {
+    width: 100%;
+    max-height: 100vh;
+    border-radius: 12px;
+  }
+
+  .header {
+    padding: 1rem;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .title {
+    font-size: 1.1rem;
+  }
+
+  .codeSection {
+    width: 100%;
+    font-size: 0.85rem;
+  }
+
+  .closeBtn {
+    width: 36px;
+    height: 36px;
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+  }
+
+  .cardContainer {
+    padding: 1rem;
+    gap: 0.75rem;
+  }
+
+  .flashCard {
+    max-width: 100%;
+    height: 220px;
+  }
+
+  .faceText {
+    font-size: 1rem;
+  }
+
+  .flipHint {
+    font-size: 0.85rem;
+  }
+
+  .footer {
+    padding: 1rem;
+    gap: 0.5rem;
+  }
+
+  .navBtn,
+  .resetBtn {
+    width: 38px;
+    height: 38px;
+    font-size: 0.9rem;
+  }
+
+  .counter {
+    font-size: 0.9rem;
+  }
+}

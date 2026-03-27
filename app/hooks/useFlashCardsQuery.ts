@@ -21,20 +21,21 @@ export function useFlashCardsQuery() {
     (card: Card) => card.flashcards || [],
   );
 
-  const generateMutation = useMutation<Card, Error, GenerateFlashCardData>({
-    mutationFn: (input) =>
-      apiService.generateFlashcards({
+  const generateMutation = useMutation<void, Error, GenerateFlashCardData>({
+    mutationFn: async (input) => {
+      await apiService.generateFlashcards({
         reference: input.reference,
         quantity: input.quantity,
         acceso: input.acceso,
-      }),
+      });
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["flashcards"] });
     },
   });
 
   const deleteMutation = useMutation<void, unknown, number>({
-    mutationFn: (cardId: number) => apiService.deleteFlashcard(cardId),
+    mutationFn: (cardId: number) => apiService.deleteCard(cardId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["flashcards"] });
     },
