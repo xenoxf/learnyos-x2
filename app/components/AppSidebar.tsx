@@ -24,7 +24,6 @@ const menuItems = [
   { title: "Quiz", url: "/study/quiz", icon: Brain },
   { title: "Flashcards", url: "/study/flashcards", icon: CreditCard },
   { title: "Notas", url: "/study/notes", icon: NotebookPen },
-  { title: "Traductor", url: "/study/translator", icon: Languages },
 ];
 
 interface AppSidebarProps {

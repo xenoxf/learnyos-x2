@@ -39,7 +39,6 @@ const ALL_NAV_ITEMS: MenuItem[] = [
   { title: "Quiz", url: "/study/quiz", icon: Brain },
   { title: "Notas", url: "/study/notes", icon: NotebookPen },
   { title: "Flashcards", url: "/study/flashcards", icon: CreditCard },
-  { title: "Traductor", url: "/study/translator", icon: Languages },
 ];
 
 export function MobileNavbar() {
