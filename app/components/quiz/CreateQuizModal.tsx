@@ -16,6 +16,7 @@ export default function CreateQuizModal({
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<GenerateExamData>({
+    reference: '',
     numberOfQuestions: 10,
     difficulty: "medium",
     acceso: "private",
@@ -23,12 +24,12 @@ export default function CreateQuizModal({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!formData.topic && !formData.reference) {
+
+    if (!formData.reference || formData.reference.length < 3) {
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Debes proporcionar un tema o una referencia",
+        description: "Debes proporcionar un texto con mas de 3 caracteres",
       });
       return;
     }
@@ -66,25 +67,13 @@ export default function CreateQuizModal({
         </div>
 
         <form className={styles.form} onSubmit={handleSubmit}>
-          <div className={styles.formGroup}>
-            <label className={styles.label}>Tema</label>
-            <input
-              type="text"
-              className={styles.input}
-              placeholder="Ej: Historia de España"
-              value={formData.topic || ""}
-              onChange={(e) =>
-                setFormData({ ...formData, topic: e.target.value })
-              }
-            />
-          </div>
 
           <div className={styles.formGroup}>
-            <label className={styles.label}>Referencia (opcional)</label>
+            <label className={styles.label}>Referencia</label>
             <textarea
               className={styles.textarea}
-              placeholder="Pega aquí tu texto de referencia"
-              value={formData.reference || ""}
+              placeholder="¿Que quieres?"
+              value={formData.reference}
               onChange={(e) =>
                 setFormData({ ...formData, reference: e.target.value })
               }

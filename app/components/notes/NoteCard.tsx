@@ -107,7 +107,9 @@ export default function NoteCard({
 
       <div className={styles.cardFooter}>
         <span className={styles.cardHint}>Abrir nota</span>
-        <span className={styles.noteCode}>#{note.id}</span>
+        <span className={styles.noteCode}>
+          {note.code ? note.code : `#${note.id}`}
+        </span>
       </div>
     </div>
   );

@@ -80,6 +80,18 @@
   --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
   --transition-base: 200ms cubic-bezier(0.4, 0, 0.2, 1);
   --transition-slow: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Superficies y alias (usar como hsl(var(--bg-primary)), etc.) */
+  --bg-primary: var(--background);
+  --bg-secondary: var(--secondary);
+  --text-primary: var(--foreground);
+  --text-secondary: var(--muted-foreground);
+  --border-color: var(--border);
+  --primary-accent: var(--primary);
+
+  /* Acentos semánticos opcionales (derivados del tema) */
+  --success: 142 76% 36%;
+  --success-foreground: 0 0% 98%;
 }
 
 /* ============================================

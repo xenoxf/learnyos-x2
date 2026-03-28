@@ -257,13 +257,35 @@ class ApiService {
   }
 
   async generateNote(data: GenerateNoteData): Promise<GenerateNotesResponse> {
-    return this.request<GenerateNotesResponse>(
-      "/notes/generate/topic_or_reference",
-      {
-        method: "POST",
-        body: JSON.stringify(data),
-      },
-    );
+    const reference =
+      [data.reference, data.referenceText, data.topic]
+        .map((s) => (typeof s === "string" ? s.trim() : ""))
+        .find((s) => s.length > 0) ?? "";
+    if (!reference) {
+      throw new Error("Debes enviar reference, referenceText o topic");
+    }
+    const payload = {
+      reference,
+      numberOfNotes: data.numberOfNotes,
+      levelOfDetail: data.levelOfDetail,
+      acceso: data.acceso,
+    };
+    const raw = await this.request<{
+      success?: boolean;
+      notes?: Note[];
+      data?: Note[];
+      message?: string;
+    }>("/notes/generate/topic_or_reference", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    });
+    const notes = raw.notes ?? raw.data ?? [];
+    return {
+      success: raw.success ?? true,
+      notes,
+      message: raw.message,
+      data: raw.data,
+    };
   }
 
   async deleteNote(id: number): Promise<void> {

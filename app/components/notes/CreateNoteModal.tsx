@@ -18,15 +18,16 @@ export default function CreateNoteModal({
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<GenerateNoteData>({
+    reference: '',
     numberOfNotes: 3,
     levelOfDetail: "medio",
-    acceso: "private",
+    acceso: "public",
   });
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (!formData.topic && !formData.referenceText) {
+    if (!formData.reference) {
       toast({
         variant: "destructive",
         title: "Error",
@@ -73,33 +74,18 @@ export default function CreateNoteModal({
         </div>
 
         <form className={styles.form} onSubmit={handleSubmit}>
-          <div className={styles.formGroup}>
-            <label className={styles.label} htmlFor="topic">
-              Tema
-            </label>
-            <input
-              id="topic"
-              type="text"
-              className={styles.input}
-              placeholder="Ej: Revolución Francesa"
-              value={formData.topic || ""}
-              onChange={(e) =>
-                setFormData({ ...formData, topic: e.target.value })
-              }
-            />
-          </div>
 
           <div className={styles.formGroup}>
             <label className={styles.label} htmlFor="reference">
-              Referencia (opcional)
+              Referencia
             </label>
             <textarea
               id="reference"
               className={styles.textarea}
               placeholder="Pega aquí tu texto de referencia"
-              value={formData.referenceText || ""}
+              value={formData.reference || ""}
               onChange={(e) =>
-                setFormData({ ...formData, referenceText: e.target.value })
+                setFormData({ ...formData, reference: e.target.value })
               }
               rows={4}
             />

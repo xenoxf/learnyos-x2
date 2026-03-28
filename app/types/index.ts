@@ -74,8 +74,7 @@ export interface ExamDeck {
 }
 
 export interface GenerateExamData {
-  topic?: string;
-  reference?: string;
+  reference: string;
   numberOfQuestions: number;
   difficulty: string;
   acceso?: string;
@@ -157,11 +156,13 @@ export type LevelOfDetail = "breve" | "medio" | "detallado" | "alto";
 export interface NoteContent {
   id: number;
   noteId: number;
+  /** Encabezado de bloque (columna `tema` en backend) */
+  tema?: string;
   title?: string;
   content: string;
-  order: number;
+  order?: number;
   userId?: number;
-  createdAt: string;
+  createdAt?: string;
 }
 
 /** Entidad Note del backend */
@@ -171,6 +172,8 @@ export interface Note {
   description?: string;
   code?: string;
   acceso?: string;
+  area?: string;
+  tema?: string;
   levelOfDetail?: LevelOfDetail;
   noteContents?: NoteContent[];
   userId?: number;
@@ -185,6 +188,8 @@ export interface NoteDeck {
 
 /** Payload para POST /notes/generate/topic_or_reference - alineado con backend */
 export interface GenerateNoteData {
+  /** Texto de referencia (prioritario si viene) */
+  reference?: string;
   topic?: string;
   referenceText?: string;
   numberOfNotes: number;
@@ -196,6 +201,8 @@ export interface GenerateNoteData {
 export interface GenerateNotesResponse {
   success: boolean;
   notes: Note[];
+  message?: string;
+  data?: Note[];
 }
 
 // ==================== CHAT & MESSAGES ====================

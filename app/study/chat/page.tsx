@@ -294,213 +294,209 @@ export default function ChatPage() {
 
   // ==================== RENDER ====================
   return (
-    <DashboardLayout>
-      <div className={styles.container}>
-        {/* SIDEBAR INTEGRADO (NO FIXED) */}
-        <aside
-          className={`${styles.sidebar} ${
-            !isSidebarOpen ? styles.sidebarClosed : ""
+
+    <div className={styles.container}>
+      {/* SIDEBAR INTEGRADO (NO FIXED) */}
+      <aside
+        className={`${styles.sidebar} ${!isSidebarOpen ? styles.sidebarClosed : ""
           } ${isMobile && isSidebarOpen ? styles.sidebarOpen : ""}`}
-        >
-          <div className={styles.sidebarHeader}>
-            <h2 className={styles.sidebarTitle}>Conversaciones</h2>
-            <button className={styles.newChatButton} onClick={handleNewChat}>
-              <Plus size={18} />
-              Nuevo chat
-            </button>
-          </div>
+      >
+        <div className={styles.sidebarHeader}>
+          <h2 className={styles.sidebarTitle}>Conversaciones</h2>
+          <button className={styles.newChatButton} onClick={handleNewChat}>
+            <Plus size={18} />
+            Nuevo chat
+          </button>
+        </div>
 
-          <div className={styles.chatList}>
-            {chats.length === 0 ? (
-              <div className={styles.emptyChats}>
-                <MessageSquare size={40} />
-                <p>No hay conversaciones</p>
-                <span>Crea un nuevo chat para empezar</span>
-              </div>
-            ) : (
-              chats.map((chat) => (
-                <div
-                  key={chat.id}
-                  className={`${styles.chatItem} ${
-                    currentChat?.id === chat.id ? styles.active : ""
-                  }`}
-                  onClick={() => handleSelectChat(chat)}
-                >
-                  <MessageSquare size={18} />
-                  <div className={styles.chatInfo}>
-                    <span className={styles.chatTitle}>
-                      {chat.title || `Chat ${chat.id}`}
-                    </span>
-                  </div>
-                  <button
-                    className={styles.deleteButton}
-                    onClick={(e) => handleDeleteChat(chat.id, e)}
-                    aria-label="Eliminar chat"
-                  >
-                    <Trash2 size={16} />
-                  </button>
-                </div>
-              ))
-            )}
-          </div>
-        </aside>
-
-        {/* BOTÓN TOGGLE MEJORADO */}
-        <button
-          className={`${styles.toggleButton} ${
-            !isSidebarOpen ? styles.toggleButtonClosed : ""
-          }`}
-          onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-          aria-label={isSidebarOpen ? "Ocultar historial" : "Mostrar historial"}
-        >
-          {isSidebarOpen ? (
-            <PanelLeftClose size={18} />
+        <div className={styles.chatList}>
+          {chats.length === 0 ? (
+            <div className={styles.emptyChats}>
+              <MessageSquare size={40} />
+              <p>No hay conversaciones</p>
+              <span>Crea un nuevo chat para empezar</span>
+            </div>
           ) : (
-            <PanelLeft size={18} />
-          )}
-        </button>
-
-        {/* MAIN CONTENT */}
-        <main className={styles.main}>
-          {/* MESSAGES ESTILO LIBRO */}
-          <div className={styles.messages}>
-            {messages.length === 0 ? (
-              <div className={styles.welcome}>
-                <div className={styles.welcomeIcon}>
-                  <Bot size={48} />
+            chats.map((chat) => (
+              <div
+                key={chat.id}
+                className={`${styles.chatItem} ${currentChat?.id === chat.id ? styles.active : ""
+                  }`}
+                onClick={() => handleSelectChat(chat)}
+              >
+                <MessageSquare size={18} />
+                <div className={styles.chatInfo}>
+                  <span className={styles.chatTitle}>
+                    {chat.title || `Chat ${chat.id}`}
+                  </span>
                 </div>
-                <h1>¡Hola! Soy Junior</h1>
-                <p>¿Qué te gustaría preguntar hoy?</p>
-                <div className={styles.suggestions}>
-                  {suggestions.map((suggestion, index) => (
-                    <button
-                      key={index}
-                      className={styles.suggestionCard}
-                      onClick={() => setInputValue(suggestion.text)}
-                    >
-                      <span className={styles.suggestionIcon}>
-                        {suggestion.icon}
-                      </span>
-                      <div className={styles.suggestionContent}>
-                        <span className={styles.suggestionTitle}>
-                          {suggestion.title}
-                        </span>
-                        <span className={styles.suggestionText}>
-                          {suggestion.text}
-                        </span>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            ) : (
-              <>
-                {messages.map((msg) => (
-                  <div
-                    key={msg.id}
-                    className={`${styles.message} ${
-                      msg.role === "user"
-                        ? styles.userMessage
-                        : styles.botMessage
-                    }`}
-                  >
-                    {/*}<div className={styles.messageAvatar}>
-                      {msg.role === "user" ? <User size={18} /> : <Bot size={18} />}
-                    </div>*/}
-                    {msg.role === "user" ? (
-                      <div className={styles.messageAvatar}>
-                        <User size={18} />{" "}
-                      </div>
-                    ) : null}
-                    <div className={styles.messageContent}>
-                      <div>
-                        {msg.role === "assistant" ? (
-                          <MarkdownRenderer content={msg.content} />
-                        ) : (
-                          msg.content
-                        )}
-                      </div>
-                      {msg.role === "assistant" && (
-                        <button
-                          className={styles.copyButton}
-                          onClick={() => handleCopyMessage(msg.content, msg.id)}
-                          title="Copiar respuesta"
-                        >
-                          {copiedId === msg.id ? (
-                            <Check size={14} />
-                          ) : (
-                            <Copy size={14} />
-                          )}
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                ))}
-
-                {isLoading && (
-                  <div className={`${styles.message} ${styles.botMessage}`}>
-                    <div className={styles.messageAvatar}>
-                      <Bot size={18} />
-                    </div>
-                    <div className={styles.typing}>
-                      <span></span>
-                      <span></span>
-                      <span></span>
-                    </div>
-                  </div>
-                )}
-
-                <div ref={messagesEndRef} />
-              </>
-            )}
-          </div>
-
-          {/* INPUT CIRCULAR Y FLOTANTE (COMO TU PAGE) */}
-          <div className={styles.inputArea}>
-            <div className={styles.inputContainer}>
-              <div className={styles.inputWrapper}>
-                <textarea
-                  ref={textareaRef}
-                  className={styles.textarea}
-                  placeholder="Envía un mensaje..."
-                  value={inputValue}
-                  onChange={(e) => {
-                    setInputValue(e.target.value);
-                    adjustTextareaHeight();
-                  }}
-                  onKeyDown={handleKeyDown}
-                  rows={1}
-                  disabled={isLoading}
-                />
                 <button
-                  className={styles.sendButton}
-                  onClick={handleSendMessage}
-                  disabled={!inputValue.trim() || isLoading}
+                  className={styles.deleteButton}
+                  onClick={(e) => handleDeleteChat(chat.id, e)}
+                  aria-label="Eliminar chat"
                 >
-                  {isLoading ? (
-                    <Loader size={18} className={styles.spin} />
-                  ) : (
-                    <Send size={18} />
-                  )}
+                  <Trash2 size={16} />
                 </button>
               </div>
-            </div>
-            <p className={styles.disclaimer}>
-              Junior puede cometer errores. Considera verificar información
-              importante.
-            </p>
-          </div>
-        </main>
+            ))
+          )}
+        </div>
+      </aside>
 
-        {/* OVERLAY PARA MÓVIL */}
-        {isMobile && isSidebarOpen && (
-          <div
-            className={styles.overlay}
-            onClick={() => setIsSidebarOpen(false)}
-            aria-hidden="true"
-          />
+      {/* BOTÓN TOGGLE MEJORADO */}
+      <button
+        className={`${styles.toggleButton} ${!isSidebarOpen ? styles.toggleButtonClosed : ""
+          }`}
+        onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+        aria-label={isSidebarOpen ? "Ocultar historial" : "Mostrar historial"}
+      >
+        {isSidebarOpen ? (
+          <PanelLeftClose size={18} />
+        ) : (
+          <PanelLeft size={18} />
         )}
-      </div>
-    </DashboardLayout>
+      </button>
+
+      {/* MAIN CONTENT */}
+      <main className={styles.main}>
+        {/* MESSAGES ESTILO LIBRO */}
+        <div className={styles.messages}>
+          {messages.length === 0 ? (
+            <div className={styles.welcome}>
+              <div className={styles.welcomeIcon}>
+                <Bot size={48} />
+              </div>
+              <h1>¡Hola! Soy Junior</h1>
+              <p>¿Qué te gustaría preguntar hoy?</p>
+              <div className={styles.suggestions}>
+                {suggestions.map((suggestion, index) => (
+                  <button
+                    key={index}
+                    className={styles.suggestionCard}
+                    onClick={() => setInputValue(suggestion.text)}
+                  >
+                    <span className={styles.suggestionIcon}>
+                      {suggestion.icon}
+                    </span>
+                    <div className={styles.suggestionContent}>
+                      <span className={styles.suggestionTitle}>
+                        {suggestion.title}
+                      </span>
+                      <span className={styles.suggestionText}>
+                        {suggestion.text}
+                      </span>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <>
+              {messages.map((msg) => (
+                <div
+                  key={msg.id}
+                  className={`${styles.message} ${msg.role === "user"
+                      ? styles.userMessage
+                      : styles.botMessage
+                    }`}
+                >
+                  {/*}<div className={styles.messageAvatar}>
+                      {msg.role === "user" ? <User size={18} /> : <Bot size={18} />}
+                    </div>*/}
+                  {msg.role === "user" ? (
+                    <div className={styles.messageAvatar}>
+                      <User size={18} />{" "}
+                    </div>
+                  ) : null}
+                  <div className={styles.messageContent}>
+                    <div>
+                      {msg.role === "assistant" ? (
+                        <MarkdownRenderer content={msg.content} />
+                      ) : (
+                        msg.content
+                      )}
+                    </div>
+                    {msg.role === "assistant" && (
+                      <button
+                        className={styles.copyButton}
+                        onClick={() => handleCopyMessage(msg.content, msg.id)}
+                        title="Copiar respuesta"
+                      >
+                        {copiedId === msg.id ? (
+                          <Check size={14} />
+                        ) : (
+                          <Copy size={14} />
+                        )}
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ))}
+
+              {isLoading && (
+                <div className={`${styles.message} ${styles.botMessage}`}>
+                  <div className={styles.messageAvatar}>
+                    <Bot size={18} />
+                  </div>
+                  <div className={styles.typing}>
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                  </div>
+                </div>
+              )}
+
+              <div ref={messagesEndRef} />
+            </>
+          )}
+        </div>
+
+        {/* INPUT CIRCULAR Y FLOTANTE (COMO TU PAGE) */}
+        <div className={styles.inputArea}>
+          <div className={styles.inputContainer}>
+            <div className={styles.inputWrapper}>
+              <textarea
+                ref={textareaRef}
+                className={styles.textarea}
+                placeholder="Envía un mensaje..."
+                value={inputValue}
+                onChange={(e) => {
+                  setInputValue(e.target.value);
+                  adjustTextareaHeight();
+                }}
+                onKeyDown={handleKeyDown}
+                rows={1}
+                disabled={isLoading}
+              />
+              <button
+                className={styles.sendButton}
+                onClick={handleSendMessage}
+                disabled={!inputValue.trim() || isLoading}
+              >
+                {isLoading ? (
+                  <Loader size={18} className={styles.spin} />
+                ) : (
+                  <Send size={18} />
+                )}
+              </button>
+            </div>
+          </div>
+          <p className={styles.disclaimer}>
+            Junior puede cometer errores. Considera verificar información
+            importante.
+          </p>
+        </div>
+      </main>
+
+      {/* OVERLAY PARA MÓVIL */}
+      {isMobile && isSidebarOpen && (
+        <div
+          className={styles.overlay}
+          onClick={() => setIsSidebarOpen(false)}
+          aria-hidden="true"
+        />
+      )}
+    </div>
+
   );
 }
