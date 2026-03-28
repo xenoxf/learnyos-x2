@@ -17,21 +17,23 @@ interface NotesGridProps {
 export default function NotesGrid({ onNoteOpen }: NotesGridProps) {
   const [searchValue, setSearchValue] = useState("");
   const [notes, setNotes] = useState<(Note & { canDelete?: boolean })[]>([]);
-  const [allNotes, setAllNotes] = useState<(Note & { canDelete?: boolean })[]>([]);
+  const [allNotes, setAllNotes] = useState<(Note & { canDelete?: boolean })[]>(
+    [],
+  );
   const [showCreate, setShowCreate] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [viewMode, setViewMode] = useState<"private" | "public">("private");
+  const [viewMode, setViewMode] = useState<"private" | "public">("public");
 
   const filterNotes = useCallback(
     (notesToFilter: (Note & { canDelete?: boolean })[], term: string) => {
       const filtered = notesToFilter.filter(
         (note) =>
           note.title.toLowerCase().includes(term.toLowerCase()) ||
-          note.description?.toLowerCase().includes(term.toLowerCase())
+          note.description?.toLowerCase().includes(term.toLowerCase()),
       );
       setNotes(filtered);
     },
-    []
+    [],
   );
 
   const loadNotes = useCallback(async () => {
@@ -42,10 +44,14 @@ export default function NotesGrid({ onNoteOpen }: NotesGridProps) {
         viewMode === "private"
           ? await apiService.getNotesPrivate()
           : await apiService.getNotesPublic();
-      const typedData = (data as (Note & { canDelete?: boolean })[]).map((note) => ({
-        ...note,
-        canDelete: Boolean(currentUserId && note.userId && currentUserId === note.userId),
-      }));
+      const typedData = (data as (Note & { canDelete?: boolean })[]).map(
+        (note) => ({
+          ...note,
+          canDelete: Boolean(
+            currentUserId && note.userId && currentUserId === note.userId,
+          ),
+        }),
+      );
       setAllNotes(typedData);
       filterNotes(typedData, searchValue);
     } catch (err) {
@@ -105,16 +111,16 @@ export default function NotesGrid({ onNoteOpen }: NotesGridProps) {
               onChange={(e) => setSearchValue(e.target.value)}
               aria-label="Buscar notas"
             />
-            <button 
-              className={styles.filterBtn} 
+            <button
+              className={styles.filterBtn}
               title="Filtrar"
               type="button"
               aria-label="Filtrar"
             >
               <Filter size={20} />
             </button>
-            <button 
-              className={styles.sortBtn} 
+            <button
+              className={styles.sortBtn}
               title="Ordenar"
               type="button"
               aria-label="Ordenar"
