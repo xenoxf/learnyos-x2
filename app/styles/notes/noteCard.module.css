@@ -1,19 +1,30 @@
-/* ==================== NOTE CARD ==================== */
+/* ==================== NOTE CARD - MEJORADO ==================== */
 .card {
   background: hsl(var(--card));
   border: 1px solid hsl(var(--border));
-  border-radius: 12px;
+  border-radius: 14px;
   padding: 1.5rem;
   cursor: pointer;
-  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  transition: all 0.2s ease;
   position: relative;
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-  min-height: 280px;
+  gap: 0.875rem;
+  min-height: 260px;
 }
 
+.card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, hsl(var(--primary)), hsl(var(--accent)));
+  transform: scaleX(0);
+  transition: transform 0.2s ease;
+}
 
 .card:hover::before {
   transform: scaleX(1);
@@ -21,65 +32,64 @@
 
 .card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 12px 24px hsl(var(--foreground) / 0.06);
+  border-color: hsl(var(--primary));
+  box-shadow: 0 12px 24px hsl(var(--foreground) / 0.08);
 }
 
 .cardHeader {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  gap: 1rem;
+  gap: 0.75rem;
 }
 
 .titleSection {
   display: flex;
   align-items: flex-start;
-  gap: 0.75rem;
+  gap: 0.625rem;
   flex: 1;
 }
 
 .icon {
-  color: hsl(var(--secondary-foreground));
+  color: hsl(var(--primary));
   margin-top: 2px;
   flex-shrink: 0;
 }
 
 .cardTitle {
-  font-size: 1.25rem;
+  font-size: 1.15rem;
   font-weight: 700;
   color: hsl(var(--foreground));
   margin: 0;
   flex: 1;
   line-height: 1.4;
+  word-break: break-word;
 }
 
 .deleteBtn {
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg,
-      rgba(255, 59, 48, 0.1),
-      rgba(255, 59, 48, 0.05));
-  border: 1px solid rgba(255, 59, 48, 0.2);
-  border-radius: 6px;
-  color: #ff3b30;
+  background: hsl(var(--destructive) / 0.1);
+  border: 1px solid hsl(var(--destructive) / 0.3);
+  border-radius: 8px;
+  color: hsl(var(--destructive));
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.15s ease;
   flex-shrink: 0;
 }
 
 .deleteBtn:hover {
-  background: linear-gradient(135deg,
-      rgba(255, 59, 48, 0.2),
-      rgba(255, 59, 48, 0.1));
-  border-color: #ff3b30;
-  transform: scale(1.1);
+  background: hsl(var(--destructive));
+  border-color: hsl(var(--destructive));
+  color: hsl(var(--destructive-foreground));
+  transform: scale(1.05);
 }
 
 .cardDescription {
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   color: hsl(var(--muted-foreground));
   margin: 0;
   line-height: 1.6;
@@ -89,34 +99,37 @@
   -webkit-box-orient: vertical;
   line-clamp: 3;
   overflow: hidden;
+  word-break: break-word;
 }
 
 .cardMeta {
   display: flex;
-  gap: 1rem;
-  padding-top: 1rem;
+  gap: 0.75rem;
+  padding-top: 0.75rem;
   border-top: 1px solid hsl(var(--border));
   margin-top: auto;
+  flex-wrap: wrap;
 }
 
 .metaItem {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   color: hsl(var(--muted-foreground));
 }
 
 .levelBadge {
   display: inline-block;
-  padding: 0.35rem 0.75rem;
-  background: hsl(var(--accent) / 0.35);
+  padding: 0.25rem 0.625rem;
+  background: hsl(var(--accent) / 0.4);
   border: 1px solid hsl(var(--border));
   border-radius: 6px;
-  font-size: 0.85rem;
+  font-size: 0.75rem;
   font-weight: 600;
   color: hsl(var(--foreground));
   text-transform: capitalize;
+  white-space: nowrap;
 }
 
 .cardFooter {
@@ -128,8 +141,8 @@
 }
 
 .cardHint {
-  font-size: 0.85rem;
-  color: var(--text-tertiary);
+  font-size: 0.8rem;
+  color: hsl(var(--muted-foreground));
   font-style: italic;
 }
 
@@ -141,32 +154,58 @@
   color: hsl(var(--foreground));
   font-size: 0.75rem;
   font-family: monospace;
+  letter-spacing: 0.5px;
 }
 
 /* ==================== RESPONSIVE ==================== */
-@media (max-width: 480px) {
+@media (max-width: 768px) {
   .card {
-    padding: 1rem;
-    min-height: auto;
+    padding: 1.25rem;
+    min-height: 240px;
     gap: 0.75rem;
   }
 
   .cardTitle {
-    font-size: 1.1rem;
+    font-size: 1.05rem;
   }
 
   .cardDescription {
-    font-size: 0.9rem;
+    font-size: 0.875rem;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+  }
+}
+
+@media (max-width: 480px) {
+  .card {
+    padding: 1rem;
+    min-height: auto;
+    gap: 0.625rem;
+  }
+
+  .cardTitle {
+    font-size: 1rem;
+  }
+
+  .cardDescription {
+    font-size: 0.85rem;
     -webkit-line-clamp: 2;
     line-clamp: 2;
   }
 
   .cardMeta {
-    padding-top: 0.75rem;
+    padding-top: 0.625rem;
     gap: 0.5rem;
   }
 
-  .cardHint {
-    font-size: 0.8rem;
+  .cardFooter {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .deleteBtn {
+    width: 28px;
+    height: 28px;
   }
 }

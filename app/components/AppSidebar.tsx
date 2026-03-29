@@ -20,7 +20,7 @@ import { ThemeToggle } from "./ThemeToggle";
 import { ThemeToggleSidebr } from "./ThemeToogleSidebr";
 const menuItems = [
   { title: "Klerk", url: "/study", icon: LayoutDashboard },
-  { title: "Junior IA", url: "/study/chat", icon: MessageSquare },
+  { title: "KlerkOS", url: "/study/klerkos", icon: MessageSquare },
   { title: "Quiz", url: "/study/quiz", icon: Brain },
   { title: "Flashcards", url: "/study/flashcards", icon: CreditCard },
   { title: "Notas", url: "/study/notes", icon: NotebookPen },

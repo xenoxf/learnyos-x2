@@ -49,7 +49,7 @@ export interface StudyGridProps<T extends StudyGridBaseItem> {
   createModal?: React.ReactNode;
 }
 
-export function useStudyGrid<T extends StudyGridBaseItem>({
+export function useStudyGrid<T extends StudyGridBaseItem & { code?: string | null }>({
   actions,
   config,
   defaultViewMode = "public",
@@ -64,6 +64,8 @@ export function useStudyGrid<T extends StudyGridBaseItem>({
   const [loading, setLoading] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>(defaultViewMode);
   const [showCreate, setShowCreate] = useState(false);
+  const [codeSearchResult, setCodeSearchResult] = useState<T | null>(null);
+  const [isCodeSearch, setIsCodeSearch] = useState(false);
   const viewModeRef = useRef(viewMode);
 
   // Keep ref updated
@@ -83,6 +85,18 @@ export function useStudyGrid<T extends StudyGridBaseItem>({
 
   const filterItems = useCallback(
     (itemsToFilter: (T & { canDelete?: boolean })[], term: string) => {
+      // Si el término parece un código (5 caracteres alfanuméricos), buscar por código
+      const isCodePattern = /^[A-Z0-9]{5}$/i.test(term.trim());
+      
+      if (isCodePattern && term.trim().length === 5) {
+        // Búsqueda por código - se hace en backend
+        setIsCodeSearch(true);
+        return; // Se maneja en loadCodeSearch
+      }
+      
+      // Búsqueda normal por texto - frontend filter
+      setIsCodeSearch(false);
+      setCodeSearchResult(null);
       const filtered = itemsToFilter.filter(
         (item) =>
           item.title.toLowerCase().includes(term.toLowerCase()) ||
@@ -92,6 +106,29 @@ export function useStudyGrid<T extends StudyGridBaseItem>({
     },
     [],
   );
+
+  const loadCodeSearch = useCallback(async (code: string) => {
+    try {
+      setLoading(true);
+      // Aquí se haría la petición al backend para buscar por código
+      // Por ahora, filtramos en frontend por el code
+      const found = allItems.find(
+        (item) => item.code?.toUpperCase() === code.toUpperCase()
+      );
+      if (found) {
+        setCodeSearchResult(found);
+        setItems([found]);
+      } else {
+        setCodeSearchResult(null);
+        setItems([]);
+      }
+    } catch (err) {
+      console.error("Error searching by code:", err);
+      setItems([]);
+    } finally {
+      setLoading(false);
+    }
+  }, [allItems]);
 
   const loadItems = useCallback(async () => {
     try {
@@ -104,7 +141,20 @@ export function useStudyGrid<T extends StudyGridBaseItem>({
         ),
       }));
       setAllItems(typedData);
-      filterItems(typedData, searchValue);
+      
+      // Si hay búsqueda por código activa, mantenerla
+      if (isCodeSearch && searchValue) {
+        loadCodeSearch(searchValue);
+      } else {
+        // Filtrado normal por texto
+        const filtered = typedData.filter(
+          (item) =>
+            searchValue === "" ||
+            item.title.toLowerCase().includes(searchValue.toLowerCase()) ||
+            item.description?.toLowerCase().includes(searchValue.toLowerCase()),
+        );
+        setItems(filtered);
+      }
     } catch (err) {
       console.error(`Error loading ${config.entityPlural}:`, err);
       setAllItems([]);
@@ -112,7 +162,7 @@ export function useStudyGrid<T extends StudyGridBaseItem>({
     } finally {
       setLoading(false);
     }
-  }, [actions.onLoad, currentUserId, searchValue, filterItems, config.entityPlural]);
+  }, [actions.onLoad, currentUserId, searchValue, isCodeSearch, loadCodeSearch, config.entityPlural]);
 
   // Load items on mount and when viewMode changes
   useEffect(() => {
@@ -120,10 +170,19 @@ export function useStudyGrid<T extends StudyGridBaseItem>({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [viewMode]);
 
-  // Filter when search changes
+  // Handle search input changes
   useEffect(() => {
-    filterItems(allItems, searchValue);
-  }, [searchValue, allItems, filterItems]);
+    if (searchValue.trim().length === 0) {
+      // Resetear a todos los items si búsqueda vacía
+      setIsCodeSearch(false);
+      setCodeSearchResult(null);
+      setItems(allItems);
+    } else if (!isCodeSearch) {
+      // Filtrado por texto en frontend
+      filterItems(allItems, searchValue);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchValue]);
 
   const handleCreateClick = useCallback(() => {
     if (actions.onCreateClick) {
@@ -146,13 +205,18 @@ export function useStudyGrid<T extends StudyGridBaseItem>({
   }, [actions.onItemDeleted, loadItems]);
 
   const resultText = useMemo(() => {
+    if (isCodeSearch && searchValue) {
+      return codeSearchResult
+        ? `Código "${searchValue}" encontrado`
+        : `No se encontró ningún ${config.entitySingular} con el código "${searchValue}"`;
+    }
     if (allItems.length === 0) {
       return viewMode === "private"
         ? config.emptyPrivateText
         : config.emptyPublicText;
     }
-    return config.emptySearchText;
-  }, [allItems.length, viewMode, config]);
+    return items.length === 0 ? config.emptySearchText : "";
+  }, [allItems.length, items.length, viewMode, config, isCodeSearch, searchValue, codeSearchResult]);
 
   return {
     searchValue,
@@ -169,6 +233,8 @@ export function useStudyGrid<T extends StudyGridBaseItem>({
     handleCloseModal,
     handleItemDeleted,
     loadItems,
+    isCodeSearch,
+    codeSearchResult,
   };
 }
 

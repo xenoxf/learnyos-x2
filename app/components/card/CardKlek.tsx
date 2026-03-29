@@ -129,13 +129,13 @@ const CardKlekComponent: React.FC<CardKlekProps> = ({ cardId, onClose }) => {
         <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
           <div className={styles.header}>
             <h2 className={styles.title}>Error</h2>
-            <button className={styles.closeBtn} onClick={onClose}>
+            <button className={styles.closeBtn} onClick={onClose} type="button">
               ✕
             </button>
           </div>
           <div className={styles.emptyContent}>
             <p>{error || "No se pudo cargar el mazo"}</p>
-            <button className={styles.retryBtn} onClick={loadCard}>
+            <button className={styles.retryBtn} onClick={loadCard} type="button">
               Reintentar
             </button>
           </div>
@@ -154,7 +154,7 @@ const CardKlekComponent: React.FC<CardKlekProps> = ({ cardId, onClose }) => {
         <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
           <div className={styles.header}>
             <h2 className={styles.title}>{card.title}</h2>
-            <button className={styles.closeBtn} onClick={onClose}>
+            <button className={styles.closeBtn} onClick={onClose} type="button">
               ✕
             </button>
           </div>
@@ -178,6 +178,7 @@ const CardKlekComponent: React.FC<CardKlekProps> = ({ cardId, onClose }) => {
             className={styles.closeBtn}
             onClick={onClose}
             aria-label="Cerrar"
+            type="button"
           >
             ✕
           </button>
@@ -243,6 +244,7 @@ const CardKlekComponent: React.FC<CardKlekProps> = ({ cardId, onClose }) => {
             disabled={totalCards <= 1}
             title="Anterior"
             aria-label="Anterior"
+            type="button"
           >
             <ChevronLeft size={20} />
           </button>
@@ -252,6 +254,7 @@ const CardKlekComponent: React.FC<CardKlekProps> = ({ cardId, onClose }) => {
             onClick={handleReset}
             title="Reiniciar"
             aria-label="Reiniciar"
+            type="button"
           >
             <RotateCcw size={20} />
           </button>
@@ -268,6 +271,7 @@ const CardKlekComponent: React.FC<CardKlekProps> = ({ cardId, onClose }) => {
             disabled={totalCards <= 1}
             title="Siguiente"
             aria-label="Siguiente"
+            type="button"
           >
             <ChevronRight size={20} />
           </button>
