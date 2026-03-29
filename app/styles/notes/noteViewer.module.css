@@ -1,17 +1,17 @@
-/* ==================== NOTE VIEWER ==================== */
+/* ==================== NOTE VIEWER - PANTALLA COMPLETA ==================== */
 .overlay {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: hsl(var(--muted));
+  background: hsl(var(--muted) / 0.5);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 100;
-  animation: fadeIn var(--transition-base) ease-out;
-  backdrop-filter: blur(5px);
+  animation: fadeIn 0.15s ease-out;
+  backdrop-filter: blur(4px);
 }
 
 @keyframes fadeIn {
@@ -25,22 +25,23 @@
 }
 
 .modal {
-  background: hsl(var(--secondary));
+  background: hsl(var(--background));
   border: 1px solid hsl(var(--border));
-  border-radius: 16px;
-  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
-  width: 90%;
-  max-width: 700px;
-  max-height: 85vh;
+  border-radius: 12px;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+  width: calc(100% - 280px);
+  height: calc(100vh - 2rem);
+  max-width: none;
+  max-height: none;
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  animation: slideIn var(--transition-base) ease-out;
+  animation: slideIn 0.2s ease-out;
 }
 
 @keyframes slideIn {
   from {
-    transform: translateY(-50px);
+    transform: translateY(-20px);
     opacity: 0;
   }
 
@@ -54,163 +55,197 @@
 .header {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
-  padding: 1.5rem;
+  align-items: center;
+  padding: 1.25rem 1.5rem;
   border-bottom: 1px solid hsl(var(--border));
   flex-shrink: 0;
   gap: 1rem;
+  background: hsl(var(--secondary));
 }
 
 .headerLeft {
   flex: 1;
+  min-width: 0;
 }
 
 .title {
-  font-size: 1.5rem;
+  font-size: 1.35rem;
   font-weight: 700;
   color: hsl(var(--foreground));
-  margin: 0 0 0.5rem 0;
+  margin: 0 0 0.25rem 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .description {
-  font-size: 0.95rem;
+  font-size: 0.875rem;
   color: hsl(var(--muted-foreground));
   margin: 0;
-  line-height: 1.5;
+  line-height: 1.4;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .closeBtn {
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: none;
+  background: hsl(var(--accent));
   border: none;
-  color: hsl(var(--muted-foreground));
+  color: hsl(var(--foreground));
   cursor: pointer;
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   border-radius: 8px;
-  transition: background var(--transition-fast), color var(--transition-fast);
+  transition: all 0.15s ease;
   flex-shrink: 0;
 }
 
 .closeBtn:hover {
-  background: hsl(var(--accent));
-  color: hsl(var(--accent-foreground));
+  background: hsl(var(--destructive));
+  color: hsl(var(--destructive-foreground));
+  transform: scale(1.05);
 }
 
 /* ==================== CONTENT CONTAINER ==================== */
 .contentContainer {
   flex: 1;
   overflow-y: auto;
-  padding: 2rem;
+  padding: 1.5rem;
+  background: hsl(var(--background));
 }
 
 .contentList {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 0.75rem;
+  max-width: 900px;
+  margin: 0 auto;
 }
 
 .contentItem {
-  background: hsl(var(--bg-primary));
-  border: 1px solid hsl(var(--border-color));
-  border-radius: 8px;
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  border-radius: 10px;
   overflow: hidden;
-  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+  transition: all 0.15s ease;
 }
 
 .contentItem:hover {
   border-color: hsl(var(--primary));
-  box-shadow: 0 4px 12px hsl(var(--foreground) / 0.08);
+  box-shadow: 0 4px 12px hsl(var(--foreground) / 0.1);
 }
 
 .contentHeader {
   width: 100%;
-  padding: 1rem;
-  background: linear-gradient(
-    135deg,
-    hsl(var(--accent) / 0.25),
-    transparent
-  );
+  padding: 0.875rem 1rem;
+  background: transparent;
   border: none;
   cursor: pointer;
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 1rem;
-  transition: background var(--transition-fast);
+  transition: all 0.15s ease;
 }
 
 .contentHeader:hover {
-  background: linear-gradient(
-    135deg,
-    hsl(var(--accent) / 0.4),
-    transparent
-  );
+  background: hsl(var(--accent) / 0.5);
 }
 
 .contentTitle {
   font-weight: 600;
-  color: hsl(var(--text-primary));
+  color: hsl(var(--foreground));
   text-align: left;
   flex: 1;
+  font-size: 1rem;
 }
 
 .contentBody {
-  padding: 1rem;
-  border-top: 1px solid hsl(var(--border-color));
-  background: hsl(var(--bg-secondary));
-  animation: slideDown var(--transition-base) ease-out;
+  padding: 1rem 1.25rem;
+  border-top: 1px solid hsl(var(--border));
+  background: hsl(var(--secondary) / 0.3);
+  animation: slideDown 0.2s ease-out;
 }
 
 @keyframes slideDown {
   from {
     opacity: 0;
-    max-height: 0;
+    transform: translateY(-8px);
   }
 
   to {
     opacity: 1;
-    max-height: 1000px;
+    transform: translateY(0);
   }
 }
 
 .contentMd {
-  color: hsl(var(--text-secondary));
-  line-height: 1.65;
+  color: hsl(var(--foreground));
+  line-height: 1.6;
   margin: 0;
   word-break: break-word;
-  font-size: 0.95rem;
+  font-size: 0.925rem;
 }
 
 .contentMd :global(p) {
-  margin: 0 0 0.75rem;
+  margin: 0 0 0.875rem;
 }
 
 .contentMd :global(ul),
 .contentMd :global(ol) {
-  margin: 0 0 0.75rem;
-  padding-left: 1.25rem;
+  margin: 0 0 0.875rem;
+  padding-left: 1.5rem;
 }
 
 .contentMd :global(pre) {
   overflow-x: auto;
-  padding: 0.75rem;
+  padding: 1rem;
   border-radius: 8px;
   background: hsl(var(--muted));
   font-size: 0.85rem;
+  margin: 0.75rem 0;
 }
 
 .contentMd :global(code) {
-  font-size: 0.88em;
+  font-size: 0.875em;
+  background: hsl(var(--muted) / 0.5);
+  padding: 0.125rem 0.375rem;
+  border-radius: 4px;
+}
+
+.contentMd :global(pre code) {
+  background: transparent;
+  padding: 0;
+}
+
+.contentMd :global(h1),
+.contentMd :global(h2),
+.contentMd :global(h3) {
+  margin: 1.25rem 0 0.75rem;
+  font-weight: 600;
+  color: hsl(var(--foreground));
+}
+
+.contentMd :global(h1) {
+  font-size: 1.5rem;
+}
+
+.contentMd :global(h2) {
+  font-size: 1.25rem;
+}
+
+.contentMd :global(h3) {
+  font-size: 1.1rem;
 }
 
 .emptyContent {
-  padding: 2rem;
+  padding: 3rem;
   text-align: center;
-  color: hsl(var(--text-secondary));
+  color: hsl(var(--muted-foreground));
   font-size: 1rem;
 }
 
@@ -219,104 +254,96 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1.5rem;
-  border-top: 1px solid hsl(var(--border-color));
+  padding: 1rem 1.5rem;
+  border-top: 1px solid hsl(var(--border));
   flex-shrink: 0;
   gap: 1rem;
+  background: hsl(var(--secondary));
 }
 
 .levelInfo {
-  font-size: 0.95rem;
-  color: hsl(var(--text-secondary));
+  font-size: 0.875rem;
+  color: hsl(var(--muted-foreground));
   font-weight: 500;
 }
 
 .closeFooterBtn {
-  padding: 0.75rem 1.5rem;
+  padding: 0.625rem 1.25rem;
   background: hsl(var(--primary));
   color: hsl(var(--primary-foreground));
   border: none;
   border-radius: 8px;
   cursor: pointer;
   font-weight: 600;
-  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  font-size: 0.875rem;
+  transition: all 0.15s ease;
 }
 
 .closeFooterBtn:hover {
   transform: translateY(-1px);
-  box-shadow: 0 6px 16px hsl(var(--foreground) / 0.12);
+  box-shadow: 0 4px 12px hsl(var(--foreground) / 0.15);
 }
 
 .loadingContent {
-  padding: 2rem;
+  padding: 3rem;
   text-align: center;
-  color: hsl(var(--text-secondary));
+  color: hsl(var(--muted-foreground));
 }
 
 /* ==================== RESPONSIVE ==================== */
+@media (max-width: 1024px) {
+  .modal {
+    width: calc(100% - 80px);
+  }
+}
+
 @media (max-width: 768px) {
   .modal {
-    width: 95%;
-    max-height: 90vh;
+    width: calc(100% - 1rem);
+    height: calc(100vh - 1rem);
+    border-radius: 10px;
   }
 
   .header {
-    padding: 1.25rem;
+    padding: 1rem;
   }
 
   .title {
-    font-size: 1.25rem;
+    font-size: 1.125rem;
   }
 
   .contentContainer {
-    padding: 1.5rem;
-  }
-
-  .contentHeader {
-    padding: 0.75rem;
-  }
-
-  .contentBody {
-    padding: 0.75rem;
+    padding: 1rem;
   }
 }
 
 @media (max-width: 480px) {
   .modal {
     width: 100%;
-    max-height: 100vh;
-    border-radius: 12px;
+    height: 100vh;
+    border-radius: 0;
   }
 
   .header {
-    padding: 1rem;
-    flex-direction: column;
+    padding: 0.875rem;
   }
 
   .closeBtn {
     position: absolute;
-    top: 1rem;
-    right: 1rem;
+    top: 0.75rem;
+    right: 0.75rem;
   }
 
   .title {
-    font-size: 1.1rem;
-  }
-
-  .description {
-    font-size: 0.9rem;
+    font-size: 1rem;
+    padding-right: 2rem;
   }
 
   .contentContainer {
-    padding: 1rem;
+    padding: 0.75rem;
   }
 
   .footer {
-    padding: 1rem;
-    flex-direction: column-reverse;
-  }
-
-  .closeFooterBtn {
-    width: 100%;
+    padding: 0.875rem;
   }
 }

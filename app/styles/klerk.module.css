@@ -1,0 +1,261 @@
+/* ==================== KLERK PAGE - DARK GRIS THEME ==================== */
+/* Esta página usa su propio tema dark gris, independiente de los temas globales */
+
+.container {
+  width: 100%;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 50%, #1f1f1f 100%);
+  color: #e5e5e5;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ==================== HEADER ==================== */
+.header {
+  padding: 2rem;
+  border-bottom: 1px solid #333;
+  background: rgba(26, 26, 26, 0.8);
+  backdrop-filter: blur(10px);
+}
+
+.headerContent {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0 0 0.5rem 0;
+}
+
+.titleIcon {
+  color: #a8a8a8;
+}
+
+.subtitle {
+  font-size: 1rem;
+  color: #999;
+  margin: 0;
+}
+
+/* ==================== MAIN ==================== */
+.main {
+  flex: 1;
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.section {
+  margin-bottom: 3rem;
+}
+
+.sectionTitle {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0 0 1.5rem 0;
+}
+
+.sectionIcon {
+  color: #a8a8a8;
+}
+
+/* ==================== DAILY PHRASE ==================== */
+.dailyPhrase {
+  margin-bottom: 3rem;
+}
+
+.phraseCard {
+  background: linear-gradient(135deg, #2a2a2a 0%, #333 100%);
+  border: 1px solid #404040;
+  border-radius: 16px;
+  padding: 2.5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.phraseCard::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #666 0%, #999 50%, #666 100%);
+}
+
+.phraseCategory {
+  display: inline-block;
+  background: #404040;
+  color: #ccc;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 1rem;
+}
+
+.phraseText {
+  font-size: 1.5rem;
+  line-height: 1.6;
+  color: #ffffff;
+  font-style: italic;
+  margin: 0 0 1rem 0;
+  font-weight: 300;
+}
+
+.phraseAuthor {
+  display: block;
+  color: #888;
+  font-size: 1rem;
+  font-style: normal;
+}
+
+/* ==================== TRICKS GRID ==================== */
+.tricksGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1.5rem;
+}
+
+.trickCard {
+  background: #2a2a2a;
+  border: 1px solid #404040;
+  border-radius: 12px;
+  padding: 1.5rem;
+  transition: all 0.2s ease;
+}
+
+.trickCard:hover {
+  border-color: #666;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+.trickIcon {
+  width: 48px;
+  height: 48px;
+  background: #333;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #a8a8a8;
+  margin-bottom: 1rem;
+}
+
+.trickTitle {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0 0 0.5rem 0;
+}
+
+.trickDescription {
+  font-size: 0.875rem;
+  color: #999;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* ==================== PHRASES GRID ==================== */
+.phrasesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.25rem;
+}
+
+.phraseCardSmall {
+  background: #2a2a2a;
+  border: 1px solid #404040;
+  border-radius: 12px;
+  padding: 1.25rem;
+  transition: all 0.2s ease;
+}
+
+.phraseCardSmall:hover {
+  border-color: #666;
+  background: #2f2f2f;
+}
+
+.phraseCategorySmall {
+  display: inline-block;
+  background: #404040;
+  color: #ccc;
+  padding: 0.2rem 0.6rem;
+  border-radius: 12px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.75rem;
+}
+
+.phraseTextSmall {
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: #e5e5e5;
+  font-style: italic;
+  margin: 0 0 0.75rem 0;
+}
+
+.phraseAuthorSmall {
+  display: block;
+  color: #777;
+  font-size: 0.875rem;
+  font-style: normal;
+}
+
+/* ==================== RESPONSIVE ==================== */
+@media (max-width: 768px) {
+  .header {
+    padding: 1.5rem;
+  }
+
+  .main {
+    padding: 1.5rem;
+  }
+
+  .title {
+    font-size: 1.5rem;
+  }
+
+  .phraseText {
+    font-size: 1.25rem;
+  }
+
+  .tricksGrid,
+  .phrasesGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .header {
+    padding: 1rem;
+  }
+
+  .main {
+    padding: 1rem;
+  }
+
+  .phraseCard {
+    padding: 1.5rem;
+  }
+
+  .phraseText {
+    font-size: 1.125rem;
+  }
+}

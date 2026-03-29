@@ -19,7 +19,7 @@ import styles from "../styles/sidebar.module.css";
 import { ThemeToggle } from "./ThemeToggle";
 import { ThemeToggleSidebr } from "./ThemeToogleSidebr";
 const menuItems = [
-  { title: "Dashboard", url: "/study", icon: LayoutDashboard },
+  { title: "Klerk", url: "/study", icon: LayoutDashboard },
   { title: "Junior IA", url: "/study/chat", icon: MessageSquare },
   { title: "Quiz", url: "/study/quiz", icon: Brain },
   { title: "Flashcards", url: "/study/flashcards", icon: CreditCard },
