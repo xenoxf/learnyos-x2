@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Trash2, FileText } from "lucide-react";
+import { Trash2, FileText, Tag, BookOpen } from "lucide-react";
 import { apiService } from "@/services/apiService";
 import { useToast } from "@/hooks/use-toast";
 import styles from "@/styles/notes/noteCard.module.css";
@@ -65,6 +65,9 @@ export default function NoteCard({
     }
   };
 
+  // Contar contenidos de la nota
+  const contentsCount = note.noteContents?.length ?? 0;
+
   return (
     <div
       className={styles.card}
@@ -95,21 +98,39 @@ export default function NoteCard({
         )}
       </div>
 
-      <p className={styles.cardDescription}>{note.description || ""}</p>
+      <p className={styles.cardDescription}>
+        {note.description || "Sin descripción"}
+      </p>
 
+      {/* Información de la nota (no los contenidos) */}
       <div className={styles.cardMeta}>
+        {note.area && (
+          <div className={styles.metaItem}>
+            <Tag size={14} />
+            <span>{note.area}</span>
+          </div>
+        )}
+        {note.tema && (
+          <div className={styles.metaItem}>
+            <BookOpen size={14} />
+            <span>{note.tema}</span>
+          </div>
+        )}
         <div className={styles.metaItem}>
           <span className={styles.levelBadge}>
-            {note.levelOfDetail || "breve"}
+            {contentsCount} sección{contentsCount !== 1 ? 'es' : ''}
           </span>
         </div>
       </div>
 
       <div className={styles.cardFooter}>
-        <span className={styles.cardHint}>Abrir nota</span>
-        <span className={styles.noteCode}>
-          {note.code ? note.code : `#${note.id}`}
+        <span className={styles.cardHint}>
+          Nivel: {note.levelOfDetail || "breve"}
         </span>
+        {/* Solo mostrar el code si es el dueño */}
+        {isOwner && note.code ? (
+          <span className={styles.noteCode}>{note.code}</span>
+        ) : null}
       </div>
     </div>
   );

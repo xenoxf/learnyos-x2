@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Trash2 } from "lucide-react";
+import { Trash2, Tag, BookOpen } from "lucide-react";
 import { apiService } from "@/services/apiService";
 import { useToast } from "@/hooks/use-toast";
 import styles from "@/styles/flashCards/card.module.css";
@@ -91,17 +91,38 @@ const CardContent: React.FC<CardProps> = ({
             }}
             title="Eliminar mazo"
             aria-label="Eliminar mazo"
+            type="button"
           >
             <Trash2 size={18} />
           </button>
         )}
       </div>
-      <p className={styles.cardDescription}>{card.description}</p>
+      <p className={styles.cardDescription}>{card.description || "Sin descripción"}</p>
+      
+      {/* Información del mazo */}
       <div className={styles.cardMeta}>
+        {card.area && (
+          <span className={styles.cardHint}>
+            <Tag size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />
+            {card.area}
+          </span>
+        )}
+        {card.tema && (
+          <span className={styles.cardHint}>
+            <BookOpen size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />
+            {card.tema}
+          </span>
+        )}
         <span className={styles.cardHint}>
-          {card.totalCards ? `${card.totalCards} tarjetas` : "Abrir mazo"}
+          {card.totalCards ?? 0} tarjetas
         </span>
-        {card.code ? <span className={styles.cardCode}>{card.code}</span> : null}
+      </div>
+      
+      {/* Solo mostrar el code si es el dueño */}
+      <div className={styles.cardFooter}>
+        {isOwner && card.code ? (
+          <span className={styles.cardCode}>{card.code}</span>
+        ) : null}
       </div>
     </div>
   );

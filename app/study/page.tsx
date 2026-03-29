@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from "react";
 import { Sparkles, Zap, Target, Clock, Brain, TrendingUp } from "lucide-react";
-import { GlobalChatWidget } from "@/components/study/GlobalChatWidget";
 import styles from "@/styles/klerk.module.css";
 
 const MOTIVATIONAL_PHRASES = [
@@ -218,9 +217,6 @@ export default function KlerkPage() {
           </div>
         </section>
       </main>
-
-      {/* Widget de Chat Global */}
-      <GlobalChatWidget />
     </div>
   );
 }

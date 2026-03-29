@@ -1,5 +1,5 @@
 import React from "react";
-import { Trash2, HelpCircle, Clock } from "lucide-react";
+import { Trash2, HelpCircle, Clock, Tag } from "lucide-react";
 import { apiService } from "@/services/apiService";
 import { useToast } from "@/hooks/use-toast";
 import styles from "@/styles/quiz/quizCard.module.css";
@@ -78,13 +78,14 @@ export default function QuizCard({
             }}
             title="Eliminar quiz"
             aria-label="Eliminar quiz"
+            type="button"
           >
             <Trash2 size={18} />
           </button>
         )}
       </div>
 
-      <p className={styles.cardDescription}>{quiz.description}</p>
+      <p className={styles.cardDescription}>{quiz.description || "Sin descripción"}</p>
 
       <div className={styles.cardMeta}>
         <div className={styles.metaItem}>
@@ -93,14 +94,23 @@ export default function QuizCard({
         </div>
         <div className={styles.metaItem}>
           <Clock size={16} />
-          <span>{quiz.difficulty}</span>
+          <span className={styles.difficultyBadge}>{quiz.difficulty}</span>
         </div>
+        {quiz.area && (
+          <div className={styles.metaItem}>
+            <Tag size={16} />
+            <span>{quiz.area}</span>
+          </div>
+        )}
       </div>
 
       <div className={styles.cardFooter}>
-        <span className={styles.cardHint}>Abrir quiz</span>
-        {"code" in quiz && typeof (quiz as any).code === "string" ? (
-          <span className={styles.cardCode}>{String((quiz as any).code)}</span>
+        <span className={styles.cardHint}>
+          {quiz.estimatedTime || "Sin límite de tiempo"}
+        </span>
+        {/* Solo mostrar el code si es el dueño */}
+        {isOwner && quiz.code ? (
+          <span className={styles.cardCode}>{quiz.code}</span>
         ) : null}
       </div>
     </div>

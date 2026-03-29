@@ -111,6 +111,17 @@
   flex-shrink: 0;
 }
 
+.difficultyBadge {
+  display: inline-block;
+  padding: 0.125rem 0.5rem;
+  background: hsl(var(--primary) / 0.15);
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: capitalize;
+  color: hsl(var(--primary));
+}
+
 .cardFooter {
   display: flex;
   align-items: center;
