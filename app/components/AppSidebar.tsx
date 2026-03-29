@@ -10,6 +10,7 @@ import {
   LogOut,
   Settings,
   ChevronLeft,
+  WholeWordIcon
 } from "lucide-react";
 import { apiService } from "@/services/apiService";
 import { useToast } from "@/hooks/use-toast";
@@ -20,10 +21,11 @@ import { ThemeToggle } from "./ThemeToggle";
 import { ThemeToggleSidebr } from "./ThemeToogleSidebr";
 const menuItems = [
   { title: "Klerk", url: "/study", icon: LayoutDashboard },
-  { title: "KlerkOS", url: "/study/klerkos", icon: MessageSquare },
+  { title: "Junior IA", url: "/study/chat", icon: MessageSquare },
   { title: "Quiz", url: "/study/quiz", icon: Brain },
   { title: "Flashcards", url: "/study/flashcards", icon: CreditCard },
   { title: "Notas", url: "/study/notes", icon: NotebookPen },
+  { title: 'KlerkOS', url: '/study/klerkos', icon: WholeWordIcon }
 ];
 
 interface AppSidebarProps {
