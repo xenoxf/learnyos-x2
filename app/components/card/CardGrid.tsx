@@ -60,7 +60,7 @@ export default function CardGrid({ onCardSelect }: CardGridProps) {
       onItemOpen: (card) => onCardSelect?.(card.id),
     },
     config: CARDS_CONFIG,
-    defaultViewMode: "private",
+    defaultViewMode: "public",
   });
 
   return (

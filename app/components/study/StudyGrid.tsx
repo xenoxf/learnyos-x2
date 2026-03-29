@@ -5,8 +5,8 @@
 
 "use client";
 
-import React, { useState, useCallback, useMemo, useEffect } from "react";
-import { Filter, Pyramid, Plus, Globe, Lock, Search } from "lucide-react";
+import React, { useState, useCallback, useMemo, useEffect, useRef } from "react";
+import { Plus, Globe, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import styles from "@/styles/components/studyGrid.module.css";
@@ -52,7 +52,7 @@ export interface StudyGridProps<T extends StudyGridBaseItem> {
 export function useStudyGrid<T extends StudyGridBaseItem>({
   actions,
   config,
-  defaultViewMode = "private",
+  defaultViewMode = "public",
 }: {
   actions: StudyGridActions<T>;
   config: StudyGridConfig;
@@ -64,6 +64,12 @@ export function useStudyGrid<T extends StudyGridBaseItem>({
   const [loading, setLoading] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>(defaultViewMode);
   const [showCreate, setShowCreate] = useState(false);
+  const viewModeRef = useRef(viewMode);
+
+  // Keep ref updated
+  useEffect(() => {
+    viewModeRef.current = viewMode;
+  }, [viewMode]);
 
   const currentUserId = useMemo(() => {
     if (typeof window === "undefined") return null;
@@ -106,12 +112,15 @@ export function useStudyGrid<T extends StudyGridBaseItem>({
     } finally {
       setLoading(false);
     }
-  }, [searchValue, filterItems, viewMode, actions, config.entityPlural, currentUserId]);
+  }, [actions.onLoad, currentUserId, searchValue, filterItems, config.entityPlural]);
 
+  // Load items on mount and when viewMode changes
   useEffect(() => {
     loadItems();
-  }, [loadItems]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [viewMode]);
 
+  // Filter when search changes
   useEffect(() => {
     filterItems(allItems, searchValue);
   }, [searchValue, allItems, filterItems]);

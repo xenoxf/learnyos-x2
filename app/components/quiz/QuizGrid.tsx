@@ -57,7 +57,7 @@ export default function QuizGrid({ onQuizOpen }: QuizGridProps) {
       onItemOpen: (quiz) => onQuizOpen?.(quiz.id),
     },
     config: QUIZ_CONFIG,
-    defaultViewMode: "private",
+    defaultViewMode: "public",
   });
 
   return (

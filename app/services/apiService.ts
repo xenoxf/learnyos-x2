@@ -480,6 +480,26 @@ class ApiService {
     });
   }
 
+  // ==================== GLOBAL CHAT ====================
+
+  async getGlobalChatMessages(limit?: number): Promise<import("@/types/globalChat").GlobalChatMessage[]> {
+    const url = limit ? `/global-chat/messages?limit=${limit}` : '/global-chat/messages';
+    return this.request<import("@/types/globalChat").GlobalChatMessage[]>(url, {
+      method: "GET",
+    });
+  }
+
+  async sendGlobalChatMessage(content: string): Promise<import("@/types/globalChat").GlobalChatMessage> {
+    return this.request<import("@/types/globalChat").GlobalChatMessage>("/global-chat/message", {
+      method: "POST",
+      body: JSON.stringify({ content }),
+    });
+  }
+
+  async deleteGlobalChatMessage(id: number): Promise<void> {
+    await this.request<void>(`/global-chat/message/${id}`, { method: "DELETE" });
+  }
+
   // ==================== HELPER METHODS ====================
 
   private formatDeckWithPermissions(card: Card, userId: number) {
