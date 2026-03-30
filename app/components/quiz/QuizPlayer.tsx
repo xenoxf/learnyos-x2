@@ -20,21 +20,29 @@ export default function QuizPlayer({
   const [selectedAnswers, setSelectedAnswers] = useState<Record<number, number>>({});
   const [showResults, setShowResults] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const loadQuiz = async () => {
       try {
+        setError(null);
         const data = await apiService.getExam(quizId);
+        
+        // Validate exam data
+        if (!data || !data.questions || data.questions.length === 0) {
+          throw new Error('El quiz no tiene preguntas o no está disponible');
+        }
+        
         setQuiz(data);
-      } catch (err) {
-        const message =
-          err instanceof Error ? err.message : "Error al cargar quiz";
+      } catch (err: any) {
+        const message = err instanceof Error ? err.message : "Error al cargar quiz";
+        setError(message);
         toast({
           variant: "destructive",
-          title: "Error",
+          title: "Error al cargar",
           description: message,
         });
-        onClose();
+        // Don't close immediately, let user see the error
       } finally {
         setLoading(false);
       }
@@ -54,11 +62,44 @@ export default function QuizPlayer({
     );
   }
 
-  if (!quiz) return null;
+  if (error || !quiz) {
+    return (
+      <div className={styles.overlay} onClick={onClose}>
+        <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+          <div className={styles.loadingContent}>
+            <p className="text-destructive font-semibold mb-2">Error al cargar el quiz</p>
+            <p className="text-sm text-muted-foreground mb-4">{error || 'No se encontró el quiz'}</p>
+            <button
+              onClick={onClose}
+              className="px-4 py-2 bg-primary text-primary-foreground rounded hover:bg-primary/90"
+            >
+              Cerrar
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const questions = quiz.questions || [];
   const currentQuestion = questions[currentIndex];
   const totalQuestions = questions.length;
+
+  // Validate current question
+  if (!currentQuestion) {
+    return (
+      <div className={styles.overlay} onClick={onClose}>
+        <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+          <div className={styles.loadingContent}>
+            <p className="text-destructive">Error: Pregunta no encontrada</p>
+            <button onClick={onClose} className="mt-4 px-4 py-2 bg-primary rounded">
+              Cerrar
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const handleSelectAnswer = (optionId: number) => {
     if (!showResults) {

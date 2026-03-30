@@ -21,6 +21,10 @@ import {
   TrendingUp,
   CheckCircle2,
   ArrowRight,
+  GraduationCap,
+  Award,
+  BookOpen,
+  Lightbulb,
 } from "lucide-react";
 
 export const LandingPage: React.FC = () => {
@@ -65,42 +69,42 @@ export const LandingPage: React.FC = () => {
         icon: Brain,
         title: "Chatbot IA Avanzado",
         description:
-          "Obtén respuestas instantáneas y explicaciones personalizadas adaptadas a tu nivel.",
+          "Obtén respuestas instantáneas y explicaciones personalizadas adaptadas a tu nivel de aprendizaje.",
         gradient: "gradientBlue",
       },
       {
         icon: FileText,
-        title: "Generador de Quiz",
+        title: "Exámenes y Quizzes",
         description:
-          "Crea cuestionarios adaptados a tu nivel de estudio con retroalimentación inmediata.",
+          "Crea y responde cuestionarios adaptados a tu nivel con retroalimentación inmediata y explicaciones detalladas.",
         gradient: "gradientGreen",
       },
       {
         icon: Layers,
         title: "Flashcards Inteligentes",
         description:
-          "Sistema de repetición espaciada basado en evidencia científica para mejor retención.",
+          "Sistema de repetición espaciada basado en evidencia científica para maximizar tu retención.",
         gradient: "gradientPurple",
       },
       {
         icon: Sparkles,
-        title: "Generador de Notas",
+        title: "Notas Automáticas",
         description:
-          "Transforma cualquier contenido en notas estructuradas y fáciles de estudiar.",
+          "Transforma cualquier contenido en notas estructuradas, técnicas y fáciles de estudiar con IA.",
         gradient: "gradientOrange",
       },
       {
         icon: Languages,
         title: "Traductor IA",
         description:
-          "Traduce textos técnicos manteniendo el contexto y precisión académica.",
+          "Traduce textos técnicos manteniendo el contexto académico y la precisión terminológica.",
         gradient: "gradientIndigo",
       },
       {
         icon: Target,
-        title: "Aprendizaje Personalizado",
+        title: "Aprendizaje Adaptativo",
         description:
-          "Contenido que se adapta automáticamente a tu ritmo y estilo de aprendizaje.",
+          "Contenido que se ajusta automáticamente a tu ritmo, nivel y estilo de aprendizaje único.",
         gradient: "gradientYellow",
       },
     ],
@@ -122,19 +126,19 @@ export const LandingPage: React.FC = () => {
       {
         title: "Aprende 3x más rápido",
         description:
-          "Nuestra IA identifica tus fortalezas y debilidades para optimizar cada sesión.",
+          "Nuestra IA identifica tus fortalezas y debilidades para optimizar cada sesión de estudio.",
         icon: Zap,
       },
       {
         title: "Retención comprobada",
         description:
-          "Técnicas de active recall y spaced repetition validadas científicamente.",
+          "Técnicas de active recall y spaced repetition validadas científicamente para mayor retención.",
         icon: CheckCircle2,
       },
       {
-        title: "Sin límites de estudio",
+        title: "Contenido ilimitado",
         description:
-          "Genera contenido ilimitado adaptado a cualquier materia o tema.",
+          "Genera quizzes, flashcards y notas ilimitadas adaptadas a cualquier materia o tema.",
         icon: Sparkles,
       },
     ],
@@ -183,16 +187,14 @@ export const LandingPage: React.FC = () => {
                   role="complementary"
                   aria-label="Tag promocional"
                 >
-                  🚀 Revolución en el Aprendizaje con IA
+                  🚀 Domina Cualquier Tema con IA
                 </div>
                 <h1 id="hero-title" className={styles.heroTitle}>
-                  Aprende más rápido con{" "}
+                  Estudia Más Inteligente con{" "}
                   <span className={styles.heroTitleGradient}>LearnyOS</span>
                 </h1>
                 <p className={styles.heroDescription}>
-                  La plataforma de estudio más avanzada que combina inteligencia
-                  artificial y metodologías probadas para maximizar tu
-                  aprendizaje.
+                  La plataforma que combina inteligencia artificial avanzada con técnicas de aprendizaje probadas científicamente. Crea quizzes, flashcards y notas al instante.
                 </p>
               </div>
               <div className={styles.heroCTA}>
@@ -372,11 +374,10 @@ export const LandingPage: React.FC = () => {
         <section className={styles.ctaSection} aria-labelledby="cta-title">
           <div className={styles.ctaContent}>
             <h2 id="cta-title" className={styles.ctaTitle}>
-              Comienza tu viaje de aprendizaje hoy
+              Comienza a Estudiar Más Inteligente Hoy
             </h2>
             <p className={styles.ctaDescription}>
-              Únete a miles de estudiantes que ya están aprendiendo más rápido
-              con LearnYos
+              Únete a miles de estudiantes que ya están dominando sus materias con LearnyOS
             </p>
             <Button
               className={styles.ctaButton}
@@ -384,7 +385,7 @@ export const LandingPage: React.FC = () => {
               size="lg"
               aria-label="Comenzar gratis ahora"
             >
-              Comenzar Gratis
+              Comenzar Gratis - Sin tarjeta requerida
               <ArrowRight size={18} />
             </Button>
           </div>
