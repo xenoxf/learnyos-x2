@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback, useMemo } from "react";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronDown, ChevronUp, FileText } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import styles from "@/styles/notes/noteViewer.module.css";
@@ -22,9 +22,7 @@ export default function NoteViewer({ noteId, onClose }: NoteViewerProps) {
   const { toast } = useToast();
   const [note, setNote] = useState<Note | null>(null);
   const [loading, setLoading] = useState(true);
-  const [expandedContent, setExpandedContent] = useState<Record<string, boolean>>(
-    {},
-  );
+  const [expandedSections, setExpandedSections] = useState<Record<number, boolean>>({});
 
   useEffect(() => {
     let cancelled = false;
@@ -52,8 +50,8 @@ export default function NoteViewer({ noteId, onClose }: NoteViewerProps) {
     };
   }, [noteId, onClose, toast]);
 
-  const toggleContent = useCallback((key: string) => {
-    setExpandedContent((prev) => ({ ...prev, [key]: !prev[key] }));
+  const toggleSection = useCallback((index: number) => {
+    setExpandedSections((prev) => ({ ...prev, [index]: !prev[index] }));
   }, []);
 
   const sections = useMemo(() => {
@@ -63,19 +61,21 @@ export default function NoteViewer({ noteId, onClose }: NoteViewerProps) {
     );
   }, [note]);
 
+  // Expand first 2 sections by default
   useEffect(() => {
-    const next: Record<string, boolean> = {};
-    sections.forEach((c, i) => {
-      next[`${c.id}-${i}`] = i < 2;
+    const initialExpanded: Record<number, boolean> = {};
+    sections.forEach((_, index) => {
+      initialExpanded[index] = index < 2;
     });
-    setExpandedContent(next);
-  }, [noteId, sections]);
+    setExpandedSections(initialExpanded);
+  }, [sections.length]);
 
   if (loading) {
     return (
       <div className={styles.overlay} onClick={onClose}>
         <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
           <div className={styles.loadingContent}>
+            <div className={styles.loadingSpinner} aria-hidden="true" />
             <p>Cargando nota...</p>
           </div>
         </div>
@@ -89,10 +89,10 @@ export default function NoteViewer({ noteId, onClose }: NoteViewerProps) {
 
   return (
     <div className={styles.overlay} onClick={onClose}>
-      <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+      <div className={styles.modal} onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true" aria-labelledby="note-title">
         <div className={styles.header}>
           <div className={styles.headerLeft}>
-            <h2 className={styles.title}>{note.title}</h2>
+            <h2 id="note-title" className={styles.title}>{note.title}</h2>
             {note.description ? (
               <p className={styles.description}>{note.description}</p>
             ) : null}
@@ -110,13 +110,13 @@ export default function NoteViewer({ noteId, onClose }: NoteViewerProps) {
         <div className={styles.contentContainer}>
           {sections.length === 0 ? (
             <div className={styles.emptyContent}>
+              <FileText size={48} className={styles.emptyIcon} aria-hidden="true" />
               <p>No hay contenido en esta nota</p>
             </div>
           ) : (
             <div className={styles.contentList}>
               {sections.map((content, index) => {
-                const key = `${content.id}-${index}`;
-                const open = expandedContent[key] ?? index < 2;
+                const isExpanded = expandedSections[index] ?? index < 2;
                 const heading = noteSectionHeading(
                   content.tema,
                   content.title,
@@ -125,16 +125,41 @@ export default function NoteViewer({ noteId, onClose }: NoteViewerProps) {
                 const md = normalizeNoteContentBody(content.content);
 
                 return (
-                  <div key={key} className={styles.contentItem}>
-                    <div className={styles.contentBody}>
+                  <article key={content.id} className={styles.contentItem}>
+                    <button
+                      className={styles.contentHeader}
+                      onClick={() => toggleSection(index)}
+                      type="button"
+                      aria-expanded={isExpanded}
+                      aria-controls={`content-${content.id}`}
+                    >
+                      <div className={styles.contentHeaderLeft}>
+                        <div className={styles.sectionNumber}>{index + 1}</div>
+                        <h3 className={styles.contentTitle}>{heading}</h3>
+                      </div>
+                      {sections.length > 1 && (
+                        <div className={styles.expandIcon}>
+                          {isExpanded ? (
+                            <ChevronUp size={20} aria-hidden="true" />
+                          ) : (
+                            <ChevronDown size={20} aria-hidden="true" />
+                          )}
+                        </div>
+                      )}
+                    </button>
+                    
+                    <div
+                      id={`content-${content.id}`}
+                      className={`${styles.contentBody} ${isExpanded ? styles.contentBodyExpanded : styles.contentBodyCollapsed}`}
+                      role="region"
+                    >
                       <div className={styles.contentMd}>
                         <ReactMarkdown remarkPlugins={[remarkGfm]}>
                           {md}
                         </ReactMarkdown>
                       </div>
                     </div>
-
-                  </div>
+                  </article>
                 );
               })}
             </div>
@@ -142,9 +167,8 @@ export default function NoteViewer({ noteId, onClose }: NoteViewerProps) {
         </div>
 
         <div className={styles.footer}>
-          <span className={styles.levelInfo}>
-            Nivel: {note.levelOfDetail || "breve"}
-            {note.code ? ` · Código ${note.code}` : ""}
+          <span className={styles.footerInfo}>
+            {sections.length} secci{sections.length !== 1 ? 'ones' : 'ón'}
           </span>
           <button
             className={styles.closeFooterBtn}

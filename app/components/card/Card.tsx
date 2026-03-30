@@ -11,11 +11,7 @@ interface CardProps {
   onOpen: () => void;
 }
 
-const CardContent: React.FC<CardProps> = ({
-  card,
-  onCardDeleted,
-  onOpen,
-}) => {
+const CardContent: React.FC<CardProps> = ({ card, onCardDeleted, onOpen }) => {
   const { toast } = useToast();
 
   const isOwner = card.canDelete ?? false;
@@ -97,27 +93,33 @@ const CardContent: React.FC<CardProps> = ({
           </button>
         )}
       </div>
-      <p className={styles.cardDescription}>{card.description || "Sin descripción"}</p>
-      
+      <p className={styles.cardDescription}>
+        {card.description || "Sin descripción"}
+      </p>
+
       {/* Información del mazo */}
       <div className={styles.cardMeta}>
         {card.area && (
           <span className={styles.cardHint}>
-            <Tag size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />
+            <Tag
+              size={14}
+              style={{ marginRight: "4px", verticalAlign: "middle" }}
+            />
             {card.area}
           </span>
         )}
         {card.tema && (
           <span className={styles.cardHint}>
-            <BookOpen size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />
+            <BookOpen
+              size={14}
+              style={{ marginRight: "4px", verticalAlign: "middle" }}
+            />
             {card.tema}
           </span>
         )}
-        <span className={styles.cardHint}>
-          {card.totalCards ?? 0} tarjetas
-        </span>
+        <span className={styles.cardHint}>{card.totalCards} tarjetas</span>
       </div>
-      
+
       {/* Solo mostrar el code si es el dueño */}
       <div className={styles.cardFooter}>
         {isOwner && card.code ? (

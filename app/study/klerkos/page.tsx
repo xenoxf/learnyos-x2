@@ -1,236 +1,402 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
-import { Send, User, Trash2, MessageSquare } from "lucide-react";
-import { apiService } from "@/services/apiService";
-import { useToast } from "@/hooks/use-toast";
-import styles from "@/styles/klerkos.module.css";
-import type { GlobalChatMessage } from "@/types/globalChat";
+import React, { useState, useEffect, useMemo } from "react";
+import {
+  Sparkles,
+  Zap,
+  Target,
+  Clock,
+  Brain,
+  TrendingUp,
+  Flame,
+  Award,
+  Shield,
+  Mountain,
+  Lightbulb,
+  Rocket,
+  Heart,
+  Star,
+  Trophy,
+  ArrowUp,
+  BookOpen,
+  Focus,
+} from "lucide-react";
+import styles from "@/styles/klerk.module.css";
 
-export default function KlerkOSPage() {
-  const { toast } = useToast();
-  const [messages, setMessages] = useState<GlobalChatMessage[]>([]);
-  const [newMessage, setNewMessage] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [sending, setSending] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+const MOTIVATIONAL_PHRASES = [
+  {
+    category: "disciplina",
+    text: "La disciplina supera a la motivación",
+    subtext: "No esperes tener ganas. Solo hazlo.",
+    icon: Target,
+    color: "var(--chart-1)",
+  },
+  {
+    category: "consistencia",
+    text: "Pequeños avances diarios = grandes resultados",
+    subtext: "1% mejor cada día es 37x mejor en un año",
+    icon: TrendingUp,
+    color: "var(--chart-2)",
+  },
+  {
+    category: "enfoque",
+    text: "Haz lo que tienes que hacer, incluso cuando no quieras",
+    subtext: "Esa es la verdadera disciplina",
+    icon: Zap,
+    color: "var(--chart-3)",
+  },
+  {
+    category: "persistencia",
+    text: "El éxito es la suma de pequeños esfuerzos repetidos",
+    subtext: "La consistencia es tu superpoder",
+    icon: Clock,
+    color: "var(--chart-4)",
+  },
+  {
+    category: "mentalidad",
+    text: "Tu único límite es tu mente",
+    subtext: "Cree en tu capacidad de aprender",
+    icon: Brain,
+    color: "var(--chart-5)",
+  },
+  {
+    category: "acción",
+    text: "El momento perfecto es ahora",
+    subtext: "No esperes el momento ideal, créalo",
+    icon: Sparkles,
+    color: "var(--chart-1)",
+  },
+  {
+    category: "resiliencia",
+    text: "Cada error es una oportunidad de aprendizaje",
+    subtext: "Los fracasos son lecciones disfrazadas",
+    icon: Mountain,
+    color: "var(--chart-2)",
+  },
+  {
+    category: "crecimiento",
+    text: "Sal de tu zona de confort",
+    subtext: "El crecimiento comienza donde termina la comodidad",
+    icon: Rocket,
+    color: "var(--chart-3)",
+  },
+  {
+    category: "pasión",
+    text: "Encuentra propósito en lo que haces",
+    subtext: "La pasión transforma el trabajo en placer",
+    icon: Flame,
+    color: "var(--chart-4)",
+  },
+  {
+    category: "excelencia",
+    text: "Busca la excelencia, no la perfección",
+    subtext: "La perfección paraliza, la excelencia impulsa",
+    icon: Award,
+    color: "var(--chart-5)",
+  },
+  {
+    category: "coraje",
+    text: "Atraviesa el miedo con acción",
+    subtext: "El coraje no es ausencia de miedo, es actuar a pesar de él",
+    icon: Shield,
+    color: "var(--chart-1)",
+  },
+  {
+    category: "sabiduría",
+    text: "Aprende como si fueras a vivir para siempre",
+    subtext: "El conocimiento es la única inversión que nunca quiebra",
+    icon: Lightbulb,
+    color: "var(--chart-2)",
+  },
+  {
+    category: "determinación",
+    text: "Cuando quieras rendirte, recuerda por qué empezaste",
+    subtext: "Tu 'por qué' es tu combustible",
+    icon: Heart,
+    color: "var(--chart-3)",
+  },
+  {
+    category: "visión",
+    text: "Mantén la vista en el premio",
+    subtext: "La visión clara del objetivo mantiene la motivación alta",
+    icon: Star,
+    color: "var(--chart-4)",
+  },
+  {
+    category: "victoria",
+    text: "Gánate a ti mismo primero",
+    subtext: "La única competencia real es contra quien eras ayer",
+    icon: Trophy,
+    color: "var(--chart-5)",
+  },
+];
 
-  const loadMessages = async () => {
-    try {
-      setLoading(true);
-      const data = await apiService.getGlobalChatMessages(100);
-      setMessages(data.reverse());
-    } catch (error) {
-      console.error("Error loading global chat:", error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "No se pudieron cargar los mensajes",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
+const STUDY_TIPS = [
+  {
+    title: "Técnica Pomodoro",
+    description:
+      "25 min de enfoque total + 5 min de descanso. Repite 4 veces y toma un descanso largo.",
+    icon: Clock,
+    color: "var(--chart-1)",
+    tip: "Ideal para tareas que requieren concentración sostenida",
+  },
+  {
+    title: "Active Recall",
+    description:
+      "Ponte a prueba en lugar de solo releer. La recuperación activa fortalece las conexiones neuronales.",
+    icon: Brain,
+    color: "var(--chart-2)",
+    tip: "Usa flashcards o auto-exámenes para maximizar la retención",
+  },
+  {
+    title: "Spaced Repetition",
+    description:
+      "Repasa en intervalos: 1 día, 3 días, 1 semana, 1 mes. El cerebro recuerda mejor con espaciado.",
+    icon: TrendingUp,
+    color: "var(--chart-3)",
+    tip: "La curva del olvido se combate con repasos estratégicos",
+  },
+  {
+    title: "Técnica Feynman",
+    description:
+      "Si no puedes explicárselo a un niño de 5 años, no lo entiendes bien. Simplifica para comprender.",
+    icon: Zap,
+    color: "var(--chart-4)",
+    tip: "Enseñar es la mejor forma de aprender",
+  },
+  {
+    title: "Interleaving",
+    description:
+      "Alterna entre diferentes temas o tipos de problemas en una misma sesión.",
+    icon: ArrowUp,
+    color: "var(--chart-5)",
+    tip: "Mejora la capacidad de distinguir entre conceptos",
+  },
+  {
+    title: "Deep Work",
+    description:
+      "Bloques de trabajo sin distracciones. Elimina notificaciones y enfócate completamente.",
+    icon: Focus,
+    color: "var(--chart-1)",
+    tip: "La calidad del enfoque determina la calidad del aprendizaje",
+  },
+];
+
+export default function KlerkPage() {
+  const [currentPhraseIndex, setCurrentPhraseIndex] = useState(0);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    loadMessages();
-    // Polling cada 3 segundos para tiempo real
-    const interval = setInterval(loadMessages, 3000);
+    setMounted(true);
+    // Rotar frases cada 10 segundos para dar tiempo a leer
+    const interval = setInterval(() => {
+      setCurrentPhraseIndex((prev) => (prev + 1) % MOTIVATIONAL_PHRASES.length);
+    }, 10000);
     return () => clearInterval(interval);
   }, []);
 
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+  const currentPhrase = useMemo(
+    () => MOTIVATIONAL_PHRASES[currentPhraseIndex],
+    [currentPhraseIndex]
+  );
+  const IconComponent = currentPhrase.icon;
 
-  const handleSend = async () => {
-    if (!newMessage.trim() || sending) return;
-
-    try {
-      setSending(true);
-      await apiService.sendGlobalChatMessage(newMessage.trim());
-      setNewMessage("");
-      await loadMessages();
-    } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "No se pudo enviar el mensaje",
-      });
-    } finally {
-      setSending(false);
-    }
-  };
-
-  const handleDelete = async (id: number) => {
-    try {
-      await apiService.deleteGlobalChatMessage(id);
-      await loadMessages();
-      toast({
-        title: "Mensaje eliminado",
-      });
-    } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "No se pudo eliminar el mensaje",
-      });
-    }
-  };
-
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      handleSend();
-    }
-  };
-
-  const formatTime = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleTimeString("es-CO", {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
-
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    const today = new Date();
-    const yesterday = new Date(today);
-    yesterday.setDate(yesterday.getDate() - 1);
-
-    if (date.toDateString() === today.toDateString()) {
-      return "Hoy";
-    } else if (date.toDateString() === yesterday.toDateString()) {
-      return "Ayer";
-    } else {
-      return date.toLocaleDateString("es-CO", {
-        weekday: "long",
-        day: "numeric",
-        month: "short",
-      });
-    }
-  };
-
-  const getInitials = (name: string) => {
-    return name
-      .split(" ")
-      .map((n) => n[0])
-      .join("")
-      .toUpperCase()
-      .slice(0, 2);
-  };
-
-  const groupMessagesByDate = () => {
-    const groups: Record<string, GlobalChatMessage[]> = {};
-    messages.forEach((msg) => {
-      const dateKey = new Date(msg.createdAt).toDateString();
-      if (!groups[dateKey]) {
-        groups[dateKey] = [];
-      }
-      groups[dateKey].push(msg);
-    });
-    return groups;
-  };
-
-  const currentUser = apiService.getUser();
-  const messageGroups = groupMessagesByDate();
+  if (!mounted) {
+    return (
+      <div className={styles.container}>
+        <div className={styles.loadingState}>Cargando inspiración...</div>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.container}>
-      <main className={styles.main}>
-        <div className={styles.messagesContainer}>
-          {loading && messages.length === 0 ? (
-            <div className={styles.loadingState}>
-              <div className={styles.loadingSpinner} />
-              <p>Cargando mensajes...</p>
-            </div>
-          ) : messages.length === 0 ? (
-            <div className={styles.emptyState}>
-              <MessageSquare size={64} />
-              <h3>Sé el primero en saludar</h3>
-              <p>Este es el inicio de la conversación global</p>
-            </div>
-          ) : (
-            Object.entries(messageGroups).map(([dateKey, groupMessages]) => (
-              <div key={dateKey} className={styles.messageGroup}>
-                <div className={styles.dateSeparator}>
-                  {formatDate(groupMessages[0].createdAt)}
-                </div>
-                {groupMessages.map((msg) => {
-                  const isOwnMessage = currentUser?.id === msg.userId;
+      {/* Fondo dinámico con partículas */}
+      <div className={styles.backgroundEffects} aria-hidden="true">
+        <div className={styles.particle} style={{ top: "10%", left: "20%" }} />
+        <div className={styles.particle} style={{ top: "60%", left: "80%" }} />
+        <div className={styles.particle} style={{ top: "80%", left: "30%" }} />
+        <div className={styles.glowOrb} style={{ top: "0%", right: "0%" }} />
+        <div className={styles.glowOrb} style={{ bottom: "0%", left: "0%" }} />
+      </div>
 
-                  return (
-                    <div
-                      key={msg.id}
-                      className={`${styles.message} ${isOwnMessage ? styles.ownMessage : ""}`}
-                    >
-                      <div className={styles.messageAvatar}>
-                        {msg.user.picture ? (
-                          <img
-                            src={msg.user.picture}
-                            alt={msg.user.name}
-                            className={styles.avatarImage}
-                          />
-                        ) : (
-                          <span className={styles.avatarInitials}>
-                            {getInitials(msg.user.name || "U")}
-                          </span>
-                        )}
-                      </div>
-                      <div className={styles.messageContent}>
-                        <div className={styles.messageHeader}>
-                          <span className={styles.messageAuthor}>
-                            {msg.user.name || "Usuario"}
-                          </span>
-                          <span className={styles.messageTime}>
-                            {formatTime(msg.createdAt)}
-                          </span>
-                          {isOwnMessage && (
-                            <button
-                              className={styles.deleteButton}
-                              onClick={() => handleDelete(msg.id)}
-                              type="button"
-                              aria-label="Eliminar mensaje"
-                            >
-                              <Trash2 size={14} />
-                            </button>
-                          )}
-                        </div>
-                        <p className={styles.messageText}>{msg.content}</p>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            ))
-          )}
-          <div ref={messagesEndRef} />
-        </div>
-
-        <div className={styles.inputContainer}>
-          <div className={styles.inputWrapper}>
-            <textarea
-              className={styles.input}
-              placeholder="Escribe un mensaje para la comunidad..."
-              value={newMessage}
-              onChange={(e) => setNewMessage(e.target.value)}
-              onKeyPress={handleKeyPress}
-              rows={1}
-              disabled={sending}
-              style={{ minHeight: "48px", maxHeight: "120px" }}
-            />
-            <button
-              className={styles.sendButton}
-              onClick={handleSend}
-              disabled={sending || !newMessage.trim()}
-              type="button"
-              aria-label="Enviar mensaje"
-            >
-              <Send size={20} />
-            </button>
+      <header className={styles.header} role="banner">
+        <div className={styles.headerContent}>
+          <div className={styles.titleSection}>
+            <Sparkles className={styles.titleIcon} aria-hidden="true" />
+            <h1 className={styles.title}>Klerk</h1>
           </div>
+          <p className={styles.subtitle}>
+            Tu espacio de disciplina y enfoque mental
+          </p>
         </div>
+      </header>
+
+      <main className={styles.main} role="main">
+        {/* Frase principal rotativa */}
+        <section
+          className={styles.heroSection}
+          aria-labelledby="hero-phrase-title"
+        >
+          <div className={styles.heroCard}>
+            <div
+              className={styles.heroIcon}
+              style={{
+                background: `hsl(${currentPhrase.color} / 0.15)`,
+              }}
+            >
+              <IconComponent
+                size={32}
+                style={{ color: `hsl(${currentPhrase.color})` }}
+              />
+            </div>
+            <div className={styles.heroCategory}>{currentPhrase.category}</div>
+            <h2 id="hero-phrase-title" className={styles.heroPhrase}>
+              {currentPhrase.text}
+            </h2>
+            <p className={styles.heroSubtext}>{currentPhrase.subtext}</p>
+            <div
+              className={styles.progressDots}
+              role="tablist"
+              aria-label="Frases motivacionales"
+            >
+              {MOTIVATIONAL_PHRASES.map((_, index) => (
+                <button
+                  key={index}
+                  className={`${styles.dot} ${
+                    index === currentPhraseIndex ? styles.activeDot : ""
+                  }`}
+                  onClick={() => setCurrentPhraseIndex(index)}
+                  aria-label={`Ver frase ${index + 1}`}
+                  aria-selected={index === currentPhraseIndex}
+                  role="tab"
+                  type="button"
+                />
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Trucos de estudio */}
+        <section className={styles.section} aria-labelledby="study-tips-title">
+          <h2 id="study-tips-title" className={styles.sectionTitle}>
+            <Brain className={styles.sectionIcon} aria-hidden="true" />
+            Técnicas de Estudio Comprobadas
+          </h2>
+          <div className={styles.tipsGrid} role="list">
+            {STUDY_TIPS.map((tip, index) => {
+              const TipIcon = tip.icon;
+              return (
+                <article
+                  key={tip.title}
+                  className={styles.tipCard}
+                  role="listitem"
+                >
+                  <div
+                    className={styles.tipIcon}
+                    style={{ background: `hsl(${tip.color} / 0.15)` }}
+                  >
+                    <TipIcon
+                      size={24}
+                      style={{ color: `hsl(${tip.color})` }}
+                      aria-hidden="true"
+                    />
+                  </div>
+                  <h3 className={styles.tipTitle}>{tip.title}</h3>
+                  <p className={styles.tipDescription}>{tip.description}</p>
+                  <div className={styles.tipExtra}>{tip.tip}</div>
+                </article>
+              );
+            })}
+          </div>
+        </section>
+
+        {/* Stats motivacionales */}
+        <section className={styles.section} aria-labelledby="stats-title">
+          <h2 id="stats-title" className={styles.sectionTitle}>
+            <Target className={styles.sectionIcon} aria-hidden="true" />
+            Tu Progreso Importa
+          </h2>
+          <div className={styles.statsRow} role="list">
+            <div className={styles.statCard} role="listitem">
+              <div className={styles.statValue}>1%</div>
+              <div className={styles.statLabel}>Mejora diaria</div>
+              <div className={styles.statDescription}>
+                Comprométete a mejorar solo 1% cada día
+              </div>
+            </div>
+            <div className={styles.statCard} role="listitem">
+              <div className={styles.statValue}>37x</div>
+              <div className={styles.statLabel}>En un año</div>
+              <div className={styles.statDescription}>
+                El poder del interés compuesto en aprendizaje
+              </div>
+            </div>
+            <div className={styles.statCard} role="listitem">
+              <div className={styles.statValue}>∞</div>
+              <div className={styles.statLabel}>Potencial</div>
+              <div className={styles.statDescription}>
+                Tu único límite es tu dedicación
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Frases adicionales en grid */}
+        <section
+          className={styles.section}
+          aria-labelledby="daily-wisdom-title"
+        >
+          <h2 id="daily-wisdom-title" className={styles.sectionTitle}>
+            <Sparkles className={styles.sectionIcon} aria-hidden="true" />
+            Sabiduría Diaria
+          </h2>
+          <div className={styles.phrasesGrid} role="list">
+            {MOTIVATIONAL_PHRASES.map((phrase, index) => {
+              const PhraseIcon = phrase.icon;
+              return (
+                <button
+                  key={index}
+                  className={`${styles.phraseCardSmall} ${
+                    index === currentPhraseIndex ? styles.activePhraseCard : ""
+                  }`}
+                  onClick={() => setCurrentPhraseIndex(index)}
+                  role="listitem"
+                  type="button"
+                  aria-label={`Ver frase: ${phrase.text}`}
+                >
+                  <div className={styles.phraseCardHeader}>
+                    <PhraseIcon
+                      size={18}
+                      style={{ color: `hsl(${phrase.color})` }}
+                      aria-hidden="true"
+                    />
+                    <span
+                      className={styles.phraseCategorySmall}
+                      style={{ color: `hsl(${phrase.color})` }}
+                    >
+                      {phrase.category}
+                    </span>
+                  </div>
+                  <p className={styles.phraseTextSmall}>{phrase.text}</p>
+                </button>
+              );
+            })}
+          </div>
+        </section>
+
+        {/* Call to action */}
+        <section className={styles.ctaSection} aria-labelledby="cta-title">
+          <div className={styles.ctaContent}>
+            <BookOpen className={styles.ctaIcon} aria-hidden="true" />
+            <h2 id="cta-title" className={styles.ctaTitle}>
+              ¿Listo para ponerlo en práctica?
+            </h2>
+            <p className={styles.ctaText}>
+              El conocimiento sin acción es solo información. ¡Actúa ahora!
+            </p>
+          </div>
+        </section>
       </main>
     </div>
   );

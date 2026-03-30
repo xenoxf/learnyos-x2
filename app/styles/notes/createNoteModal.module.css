@@ -5,7 +5,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: transparent;
+  background: hsl(var(--muted) / 0.5);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -26,23 +26,26 @@
 
 .modal {
   background: hsl(var(--background));
-  border: 1px solid hsl(var(--primary));
+  border: 1px solid hsl(var(--border));
   border-radius: 16px;
   width: 90%;
-  max-width: 900px;
+  max-width: 700px;
   max-height: 85vh;
-  overflow-y: auto;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
   animation: slideIn 0.3s ease-out;
+  box-shadow: 0 25px 50px -12px hsl(var(--foreground) / 0.25);
 }
 
 @keyframes slideIn {
   from {
-    transform: translateY(-50px);
+    transform: translateY(-50px) scale(0.95);
     opacity: 0;
   }
 
   to {
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
     opacity: 1;
   }
 }
@@ -54,13 +57,41 @@
   align-items: center;
   padding: 1.5rem;
   border-bottom: 1px solid hsl(var(--border));
+  background: hsl(var(--secondary) / 0.5);
+}
+
+.headerLeft {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.headerIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary) / 0.8));
+  color: hsl(var(--primary-foreground));
+  flex-shrink: 0;
 }
 
 .title {
-  font-size: 1.5rem;
+  font-size: 1.35rem;
   font-weight: 700;
   color: hsl(var(--foreground));
   margin: 0;
+  line-height: 1.2;
+}
+
+.subtitle {
+  font-size: 0.875rem;
+  color: hsl(var(--muted-foreground));
+  margin: 0.25rem 0 0 0;
 }
 
 .closeBtn {
@@ -69,28 +100,70 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: none;
+  background: hsl(var(--accent));
   border: none;
-  color: hsl(var(--secondary-foreground));
+  color: hsl(var(--foreground));
   cursor: pointer;
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   border-radius: 8px;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
 }
 
 .closeBtn:hover {
-  background: hsl(var(--primary));
-  color: hsl(var(--primary-foreground));
+  background: hsl(var(--destructive));
+  color: hsl(var(--destructive-foreground));
+  transform: rotate(90deg);
 }
 
-/* ==================== FORM ==================== */
+.closeBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ==================== FORM CONTENT ==================== */
 .form {
-  padding: 2rem;
+  padding: 0;
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.formContent {
+  padding: 1.5rem;
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
 }
 
+/* Sections */
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid hsl(var(--border));
+}
+
+.sectionIcon {
+  color: hsl(var(--primary));
+}
+
+.sectionTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  color: hsl(var(--foreground));
+  margin: 0;
+}
+
+/* Form Groups */
 .formGroup {
   display: flex;
   flex-direction: column;
@@ -98,103 +171,223 @@
 }
 
 .label {
+  font-size: 0.875rem;
   font-weight: 600;
-  color: hsl(var(--primary-foreground));
-  font-size: 0.95rem;
+  color: hsl(var(--foreground));
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
-.input,
-.textarea,
-.select {
-  padding: 0.75rem 1rem;
-  background: hsl(var(--primary));
-  border: 1px solid hsl(var(--border));
-  border-radius: 8px;
-  color: hsl(var(--primary-foreground));
-  font-size: 1rem;
-  font-family: inherit;
-  transition: all 0.3s ease;
-}
-
-.input:focus,
-.textarea:focus,
-.select:focus {
-  outline: none;
-  border-color: hsl(var(--secondary));
-  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
+.labelIcon {
+  color: hsl(var(--primary));
 }
 
 .textarea {
+  width: 100%;
+  padding: 0.875rem;
+  border: 1px solid hsl(var(--border));
+  border-radius: 8px;
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
+  font-size: 0.9375rem;
   resize: vertical;
+  transition: all 0.2s ease;
+  font-family: inherit;
 }
 
+.textarea:focus {
+  outline: none;
+  border-color: hsl(var(--primary));
+  box-shadow: 0 0 0 3px hsl(var(--primary) / 0.1);
+}
+
+.textarea:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.helperText {
+  font-size: 0.75rem;
+  color: hsl(var(--muted-foreground));
+  margin: 0;
+}
+
+/* Input and Select */
+.input,
+.select {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid hsl(var(--border));
+  border-radius: 8px;
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
+  font-size: 0.9375rem;
+  transition: all 0.2s ease;
+}
+
+.input:focus,
+.select:focus {
+  outline: none;
+  border-color: hsl(var(--primary));
+  box-shadow: 0 0 0 3px hsl(var(--primary) / 0.1);
+}
+
+.input:disabled,
+.select:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Form Row */
 .formRow {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1rem;
 }
 
+/* Access Options */
+.accessOptions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.accessOption {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  border: 1px solid hsl(var(--border));
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.accessOption:hover {
+  border-color: hsl(var(--primary));
+  background: hsl(var(--primary) / 0.05);
+}
+
+.accessOption:has(input:checked) {
+  border-color: hsl(var(--primary));
+  background: hsl(var(--primary) / 0.1);
+}
+
+.accessOption input[type="radio"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.accessLabel {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: hsl(var(--foreground));
+  cursor: pointer;
+  flex: 1;
+}
+
+.accessIcon {
+  font-size: 1rem;
+}
+
 /* ==================== ACTIONS ==================== */
 .actions {
   display: flex;
-  gap: 1rem;
-  margin-top: 1rem;
+  gap: 0.75rem;
+  padding: 1.5rem;
+  border-top: 1px solid hsl(var(--border));
+  background: hsl(var(--secondary) / 0.5);
 }
 
 .cancelBtn,
 .submitBtn {
   flex: 1;
-  padding: 0.75rem;
-  border: none;
+  padding: 0.875rem 1.5rem;
   border-radius: 8px;
+  font-size: 0.9375rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
-  font-size: 1rem;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border: none;
 }
 
 .cancelBtn {
-  background: hsl(var(--primary));
-  color: hsl(var(--primary-foreground));
-  border: 1px solid hsl(var(--border));
+  background: hsl(var(--secondary));
+  color: hsl(var(--secondary-foreground));
 }
 
-.cancelBtn:hover:not(:disabled) {
-  border-color: hsl(var(--muted-foreground));
-  background: hsl(var(--secondary));
+.cancelBtn:hover {
+  background: hsl(var(--secondary) / 0.8);
 }
 
 .submitBtn {
-  background: linear-gradient(135deg, #22c55e, #16a34a);
-  color: white;
+  background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary) / 0.9));
+  color: hsl(var(--primary-foreground));
 }
 
 .submitBtn:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(34, 197, 94, 0.3);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px hsl(var(--primary) / 0.3);
 }
 
-.cancelBtn:disabled,
+.submitBtn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
 .submitBtn:disabled {
-  opacity: 0.6;
+  opacity: 0.7;
   cursor: not-allowed;
 }
 
+.loadingSpinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid hsl(var(--primary-foreground) / 0.3);
+  border-top-color: hsl(var(--primary-foreground));
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 /* ==================== RESPONSIVE ==================== */
-@media (max-width: 480px) {
+@media (max-width: 640px) {
   .modal {
     width: 95%;
+    max-height: 90vh;
   }
 
-  .form {
-    padding: 1.5rem;
+  .header {
+    padding: 1rem;
+  }
+
+  .formContent {
+    padding: 1rem;
+  }
+
+  .actions {
+    padding: 1rem;
+    flex-direction: column;
   }
 
   .formRow {
     grid-template-columns: 1fr;
   }
 
-  .actions {
+  .accessOptions {
     flex-direction: column;
   }
 }

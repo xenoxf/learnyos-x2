@@ -6,26 +6,26 @@ import {
   Brain,
   CreditCard,
   NotebookPen,
-  Languages,
   LogOut,
-  Settings,
   ChevronLeft,
-  WholeWordIcon
+  Map,
+  Users,
+  Sparkles,
 } from "lucide-react";
 import { apiService } from "@/services/apiService";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import styles from "../styles/sidebar.module.css";
-import { ThemeToggle } from "./ThemeToggle";
 import { ThemeToggleSidebr } from "./ThemeToogleSidebr";
+
 const menuItems = [
-  { title: "Klerk", url: "/study", icon: LayoutDashboard },
-  { title: "Junior IA", url: "/study/chat", icon: MessageSquare },
-  { title: "Quiz", url: "/study/quiz", icon: Brain },
-  { title: "Flashcards", url: "/study/flashcards", icon: CreditCard },
-  { title: "Notas", url: "/study/notes", icon: NotebookPen },
-  { title: 'KlerkOS', url: '/study/klerkos', icon: WholeWordIcon }
+  { title: "Klerk", url: "/study", icon: LayoutDashboard, description: "Dashboard" },
+  { title: "Junior IA", url: "/study/chat", icon: MessageSquare, description: "Chat con IA" },
+  { title: "Quiz", url: "/study/quiz", icon: Brain, description: "Exámenes" },
+  { title: "Flashcards", url: "/study/flashcards", icon: CreditCard, description: "Tarjetas" },
+  { title: "Notas", url: "/study/notes", icon: NotebookPen, description: "Apuntes" },
+  { title: "KlerkOS", url: "/study/klerkos", icon: Map, description: "Comunidad" },
 ];
 
 interface AppSidebarProps {
@@ -106,7 +106,7 @@ export function AppSidebar({
       <div className={styles.header} onClick={toggleSidebar}>
         <div className={styles.headerContent}>
           <div className={styles.logo} aria-hidden="true">
-            L
+            <Sparkles size={20} />
           </div>
           {!sidebarClosed && <span className={styles.logoText}>LearnYos</span>}
         </div>
@@ -145,11 +145,13 @@ export function AppSidebar({
                 title={item.title}
                 aria-label={item.title}
               >
-                <Icon
-                  size={20}
-                  className={styles.navItemIcon}
-                  aria-hidden="true"
-                />
+                <div className={styles.navItemIconWrapper}>
+                  <Icon
+                    size={20}
+                    className={styles.navItemIcon}
+                    aria-hidden="true"
+                  />
+                </div>
                 {!sidebarClosed && (
                   <span className={styles.navItemText}>{item.title}</span>
                 )}
@@ -168,7 +170,15 @@ export function AppSidebar({
           `}
         >
           <div className={styles.userAvatar} aria-hidden="true">
-            {user?.name?.[0]?.toUpperCase() || "U"}
+            {user?.picture ? (
+              <img
+                src={user.picture}
+                alt={user.name || "User"}
+                className={styles.userAvatarImage}
+              />
+            ) : (
+              <span>{user?.name?.[0]?.toUpperCase() || "U"}</span>
+            )}
           </div>
           {!sidebarClosed && (
             <div className={styles.userDetails}>
@@ -195,7 +205,9 @@ export function AppSidebar({
             aria-label="Cerrar sesión"
             type="button"
           >
-            <LogOut size={14} aria-hidden="true" />
+            <div className={styles.actionButtonIconWrapper}>
+              <LogOut size={16} aria-hidden="true" />
+            </div>
             {!sidebarClosed && <span>Salir</span>}
           </button>
         </div>

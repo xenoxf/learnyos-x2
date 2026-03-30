@@ -30,7 +30,7 @@ export default function QuizCard({
     }
 
     const confirm = window.confirm(
-      "¿Estás seguro de que deseas eliminar este quiz?"
+      "¿Estás seguro de que deseas eliminar este quiz?",
     );
     if (confirm) {
       try {
@@ -85,12 +85,14 @@ export default function QuizCard({
         )}
       </div>
 
-      <p className={styles.cardDescription}>{quiz.description || "Sin descripción"}</p>
+      <p className={styles.cardDescription}>
+        {quiz.description || "Sin descripción"}
+      </p>
 
       <div className={styles.cardMeta}>
         <div className={styles.metaItem}>
           <HelpCircle size={16} />
-          <span>{quiz.totalQuestions || 0} preguntas</span>
+          <span>{quiz.totalQuestions} preguntas</span>
         </div>
         <div className={styles.metaItem}>
           <Clock size={16} />

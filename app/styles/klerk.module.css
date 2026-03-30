@@ -404,6 +404,64 @@
   margin: 0;
 }
 
+/* ==================== CTA SECTION ==================== */
+.ctaSection {
+  margin-top: var(--spacing-2xl);
+  padding: var(--spacing-2xl);
+  background: linear-gradient(135deg, hsl(var(--primary) / 0.1), hsl(var(--secondary) / 0.1));
+  border-radius: 1.5rem;
+  border: 1px solid hsl(var(--border));
+  text-align: center;
+}
+
+.ctaContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-lg);
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.ctaIcon {
+  color: hsl(var(--primary));
+  opacity: 0.8;
+}
+
+.ctaTitle {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: hsl(var(--foreground));
+  margin: 0;
+}
+
+.ctaText {
+  font-size: 1.125rem;
+  color: hsl(var(--muted-foreground));
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* ==================== LOADING STATE ==================== */
+.loadingState {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  font-size: 1.125rem;
+  color: hsl(var(--muted-foreground));
+}
+
+/* ==================== TIP EXTRA ==================== */
+.tipExtra {
+  margin-top: var(--spacing-md);
+  padding-top: var(--spacing-md);
+  border-top: 1px solid hsl(var(--border) / 0.5);
+  font-size: 0.875rem;
+  color: hsl(var(--muted-foreground));
+  font-style: italic;
+}
+
 /* ==================== RESPONSIVE ==================== */
 @media (max-width: 768px) {
   .header {
