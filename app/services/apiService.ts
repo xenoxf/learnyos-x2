@@ -152,15 +152,19 @@ class ApiService {
   }
 
   async updateUser(data: Partial<User>): Promise<User> {
-    const response = await this.request<User>("/users", {
-      method: "PUT",
-      body: JSON.stringify(data),
-    });
-
-    if (typeof window !== "undefined") {
-      localStorage.setItem("user", JSON.stringify(response));
+    // Backend only supports updating name via /users/name endpoint
+    if (data.name) {
+      const response = await this.request<User>("/users/name", {
+        method: "PUT",
+        body: JSON.stringify(data.name),
+      });
+      if (typeof window !== "undefined") {
+        localStorage.setItem("user", JSON.stringify(response));
+      }
+      return response;
     }
-    return response;
+    // If no name provided, return current user without making API call
+    return this.getUser() as User;
   }
 
   async logout(): Promise<void> {
@@ -303,7 +307,7 @@ class ApiService {
     return this.requestWithFallback<Note>(
       [`/notes/${id}`, `/notes/update/${id}`],
       {
-        method: "PUT",
+        method: 'PATCH',
         body: JSON.stringify(data),
       },
     );
@@ -370,7 +374,7 @@ class ApiService {
     return this.requestWithFallback<Card>(
       [`/flash-cards/${id}`, `/flash-cards/update/${id}`],
       {
-        method: "PUT",
+        method: 'PATCH',
         body: JSON.stringify(data),
       },
     );
@@ -400,6 +404,14 @@ class ApiService {
 
   async getExam(id: number): Promise<Exam> {
     return this.request<Exam>(`/exams/${id}`, { method: "GET" });
+  }
+
+  /**
+   * Get exam for playing (klek format) - includes questions
+   * Use this when opening a quiz to play, not for deck listing
+   */
+  async getExamForPlay(id: number): Promise<Exam> {
+    return this.request<Exam>(`/exams/play/${id}`, { method: "GET" });
   }
 
   async generateExam(data: GenerateExamData): Promise<Exam> {

@@ -122,8 +122,7 @@ export function useStudyGrid<T extends StudyGridBaseItem & { code?: string | nul
         setCodeSearchResult(null);
         setItems([]);
       }
-    } catch (err) {
-      console.error("Error searching by code:", err);
+    } catch {
       setItems([]);
     } finally {
       setLoading(false);
@@ -141,7 +140,7 @@ export function useStudyGrid<T extends StudyGridBaseItem & { code?: string | nul
         ),
       }));
       setAllItems(typedData);
-      
+
       // Si hay búsqueda por código activa, mantenerla
       if (isCodeSearch && searchValue) {
         loadCodeSearch(searchValue);
@@ -155,8 +154,7 @@ export function useStudyGrid<T extends StudyGridBaseItem & { code?: string | nul
         );
         setItems(filtered);
       }
-    } catch (err) {
-      console.error(`Error loading ${config.entityPlural}:`, err);
+    } catch {
       setAllItems([]);
       setItems([]);
     } finally {
@@ -167,8 +165,7 @@ export function useStudyGrid<T extends StudyGridBaseItem & { code?: string | nul
   // Load items on mount and when viewMode changes
   useEffect(() => {
     loadItems();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [viewMode]);
+  }, [viewMode, loadItems]);
 
   // Handle search input changes
   useEffect(() => {
@@ -181,8 +178,7 @@ export function useStudyGrid<T extends StudyGridBaseItem & { code?: string | nul
       // Filtrado por texto en frontend
       filterItems(allItems, searchValue);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchValue]);
+  }, [searchValue, allItems, isCodeSearch, filterItems]);
 
   const handleCreateClick = useCallback(() => {
     if (actions.onCreateClick) {

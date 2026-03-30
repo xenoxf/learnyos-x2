@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Send, Trash2, MessageSquare } from "lucide-react";
+import Image from "next/image";
 import { apiService } from "@/services/apiService";
 import { useToast } from "@/hooks/use-toast";
 import styles from "@/styles/klerkos.module.css";
@@ -15,13 +16,12 @@ export default function KlerkOSPage() {
   const [sending, setSending] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const loadMessages = async () => {
+  const loadMessages = useCallback(async () => {
     try {
       setLoading(true);
       const data = await apiService.getGlobalChatMessages(100);
       setMessages(data.reverse());
-    } catch (error) {
-      console.error("Error loading global chat:", error);
+    } catch {
       toast({
         variant: "destructive",
         title: "Error",
@@ -30,13 +30,13 @@ export default function KlerkOSPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [toast]);
 
   useEffect(() => {
     loadMessages();
     const interval = setInterval(loadMessages, 3000);
     return () => clearInterval(interval);
-  }, []);
+  }, [loadMessages]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -154,9 +154,11 @@ export default function KlerkOSPage() {
                 >
                   <div className={styles.messageAvatar}>
                     {msg.user.picture ? (
-                      <img
+                      <Image
                         src={msg.user.picture}
-                        alt={msg.user.name}
+                        alt={msg.user.name || "Usuario"}
+                        width={32}
+                        height={32}
                         className={styles.avatarImage}
                       />
                     ) : (

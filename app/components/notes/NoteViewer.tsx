@@ -68,7 +68,7 @@ export default function NoteViewer({ noteId, onClose }: NoteViewerProps) {
       initialExpanded[index] = index < 2;
     });
     setExpandedSections(initialExpanded);
-  }, [sections.length]);
+  }, [sections]);
 
   if (loading) {
     return (

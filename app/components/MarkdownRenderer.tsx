@@ -33,8 +33,8 @@ const CodeBlock = React.memo(
     const language = className?.replace(/language-/, "") || "text";
 
     const handleCopy = useCallback(() => {
-      navigator.clipboard.writeText(code).catch((err) => {
-        console.error("Error al copiar:", err);
+      navigator.clipboard.writeText(code).catch(() => {
+        // Silently handle copy error
       });
       setCopied(true);
       const timer = setTimeout(() => setCopied(false), 2000);

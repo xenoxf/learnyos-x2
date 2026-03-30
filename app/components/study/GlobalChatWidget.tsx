@@ -6,6 +6,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
+import Image from "next/image";
 import { MessageSquare, X, Send, User } from "lucide-react";
 import { apiService } from "@/services/apiService";
 import { useToast } from "@/hooks/use-toast";
@@ -146,9 +147,11 @@ export function GlobalChatWidget() {
                   >
                     <div className={styles.messageAvatar}>
                       {msg.user.picture ? (
-                        <img
+                        <Image
                           src={msg.user.picture}
-                          alt={msg.user.name}
+                          alt={msg.user.name || "Usuario"}
+                          width={32}
+                          height={32}
                           className={styles.avatarImage}
                         />
                       ) : (

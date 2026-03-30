@@ -19,7 +19,7 @@ import {
   X,
 } from "lucide-react";
 import styles from "@/styles/chat.module.css";
-import DashboardLayout from "../layaut";
+import DashboardLayout from "../layout";
 import type { ChatMessage, Chat } from "@/types";
 import { MarkdownRenderer } from "@/components/MarkdownRenderer";
 
@@ -72,28 +72,28 @@ export default function ChatPage() {
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
-  // ==================== CARGAR DATOS REALES ====================
-  useEffect(() => {
-    loadChats();
-  }, []);
-
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
-
   // ==================== FUNCIONES API REALES ====================
-  const loadChats = async () => {
+  const loadChats = useCallback(async () => {
     try {
       const response = await apiService.getChats();
       setChats(Array.isArray(response) ? response : []);
-    } catch (error) {
+    } catch {
       toast({
         title: "Error",
         description: "No se pudieron cargar los chats",
         variant: "destructive",
       });
     }
-  };
+  }, [toast]);
+
+  // ==================== CARGAR DATOS REALES ====================
+  useEffect(() => {
+    loadChats();
+  }, [loadChats]);
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
 
   const loadChatMessages = async (chatId: number) => {
     try {

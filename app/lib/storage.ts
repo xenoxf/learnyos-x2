@@ -10,9 +10,9 @@ export const StorageManager = {
   setToken(token: string): void {
     if (typeof window === 'undefined') return;
     try {
-      localStorage.setItem('auth_token', token);
-    } catch (error) {
-      console.error('Error al guardar token:', error);
+      localStorage.setItem('token', token);
+    } catch {
+      // Silently handle storage errors
     }
   },
 
@@ -22,9 +22,8 @@ export const StorageManager = {
   getToken(): string | null {
     if (typeof window === 'undefined') return null;
     try {
-      return localStorage.getItem('auth_token');
-    } catch (error) {
-      console.error('Error al obtener token:', error);
+      return localStorage.getItem('token');
+    } catch {
       return null;
     }
   },
@@ -35,7 +34,7 @@ export const StorageManager = {
   hasToken(): boolean {
     if (typeof window === 'undefined') return false;
     try {
-      const token = localStorage.getItem('auth_token');
+      const token = localStorage.getItem('token');
       return !!token && token.length > 0;
     } catch {
       return false;
@@ -48,9 +47,9 @@ export const StorageManager = {
   removeToken(): void {
     if (typeof window === 'undefined') return;
     try {
-      localStorage.removeItem('auth_token');
-    } catch (error) {
-      console.error('Error al eliminar token:', error);
+      localStorage.removeItem('token');
+    } catch {
+      // Silently handle storage errors
     }
   },
 
@@ -63,9 +62,9 @@ export const StorageManager = {
   setUser(user: any): void {
     if (typeof window === 'undefined') return;
     try {
-      localStorage.setItem('auth_user', JSON.stringify(user));
-    } catch (error) {
-      console.error('Error al guardar usuario:', error);
+      localStorage.setItem('user', JSON.stringify(user));
+    } catch {
+      // Silently handle storage errors
     }
   },
 
@@ -75,10 +74,9 @@ export const StorageManager = {
   getUser(): any {
     if (typeof window === 'undefined') return null;
     try {
-      const user = localStorage.getItem('auth_user');
+      const user = localStorage.getItem('user');
       return user ? JSON.parse(user) : null;
-    } catch (error) {
-      console.error('Error al obtener usuario:', error);
+    } catch {
       return null;
     }
   },
@@ -94,8 +92,8 @@ export const StorageManager = {
         const updatedUser = { ...currentUser, ...updates };
         StorageManager.setUser(updatedUser);
       }
-    } catch (error) {
-      console.error('Error al actualizar usuario:', error);
+    } catch {
+      // Silently handle storage errors
     }
   },
 
@@ -105,7 +103,7 @@ export const StorageManager = {
   hasUser(): boolean {
     if (typeof window === 'undefined') return false;
     try {
-      const user = localStorage.getItem('auth_user');
+      const user = localStorage.getItem('user');
       if (!user) return false;
       const parsedUser = JSON.parse(user);
       return !!parsedUser && !!parsedUser.id && !!parsedUser.email;
@@ -144,9 +142,9 @@ export const StorageManager = {
   removeUser(): void {
     if (typeof window === 'undefined') return;
     try {
-      localStorage.removeItem('auth_user');
-    } catch (error) {
-      console.error('Error al eliminar usuario:', error);
+      localStorage.removeItem('user');
+    } catch {
+      // Silently handle storage errors
     }
   },
 
@@ -161,8 +159,8 @@ export const StorageManager = {
     try {
       StorageManager.setToken(token);
       StorageManager.setUser(user);
-    } catch (error) {
-      console.error('Error al guardar autenticación:', error);
+    } catch {
+      // Silently handle storage errors
     }
   },
 
@@ -190,8 +188,8 @@ export const StorageManager = {
     try {
       StorageManager.removeToken();
       StorageManager.removeUser();
-    } catch (error) {
-      console.error('Error al limpiar autenticación:', error);
+    } catch {
+      // Silently handle storage errors
     }
   },
 
@@ -204,8 +202,8 @@ export const StorageManager = {
     if (typeof window === 'undefined') return;
     try {
       localStorage.clear();
-    } catch (error) {
-      console.error('Error al limpiar localStorage:', error);
+    } catch {
+      // Silently handle storage errors
     }
   },
 

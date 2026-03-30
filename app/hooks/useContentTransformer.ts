@@ -27,7 +27,6 @@ export function useContentTransformer() {
       setError(null);
       return contentTransformer.transformExam(examData);
     } catch (error) {
-      console.error('Error transformando examen:', error);
       setError('Error transformando examen');
       return '';
     } finally {
@@ -44,7 +43,6 @@ export function useContentTransformer() {
       setError(null);
       return contentTransformer.transformFlashcards(flashcardData);
     } catch (error) {
-      console.error('Error transformando flashcards:', error);
       setError('Error transformando flashcards');
       return '';
     } finally {
@@ -61,7 +59,6 @@ export function useContentTransformer() {
       setError(null);
       return contentTransformer.transformNotes(noteData);
     } catch (error) {
-      console.error('Error transformando notas:', error);
       setError('Error transformando notas');
       return '';
     } finally {
@@ -79,7 +76,6 @@ export function useContentTransformer() {
         setError(null);
         return contentTransformer.transformToMarkdown(data, type);
       } catch (error) {
-        console.error('Error transformando contenido:', error);
         setError('Error transformando contenido');
         return '';
       } finally {
@@ -96,7 +92,7 @@ export function useContentTransformer() {
     try {
       contentTransformer.exportToFile(markdown, filename);
     } catch (error) {
-      console.error('Error exportando archivo:', error);
+      // Silently handle export errors
     }
   }, []);
 
@@ -108,7 +104,6 @@ export function useContentTransformer() {
       try {
         return await contentTransformer.copyToClipboard(markdown);
       } catch (error) {
-        console.error('Error copiando:', error);
         return false;
       }
     },
@@ -126,7 +121,6 @@ export function useContentTransformer() {
         }
         return contentTransformer.transformToMarkdown(data, type);
       } catch (error) {
-        console.error('Error transformando a markdown:', error);
         return typeof data === 'string' ? data : JSON.stringify(data);
       }
     },

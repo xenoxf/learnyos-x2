@@ -26,7 +26,8 @@ export default function QuizPlayer({
     const loadQuiz = async () => {
       try {
         setError(null);
-        const data = await apiService.getExam(quizId);
+        // Use getExamForPlay (klek format) instead of getExam (deck format)
+        const data = await apiService.getExamForPlay(quizId);
         
         // Validate exam data
         if (!data || !data.questions || data.questions.length === 0) {

@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
+import Image from "next/image";
 import {
   LayoutDashboard,
   MessageSquare,
@@ -63,8 +64,8 @@ export function AppSidebar({
     if (userData) {
       try {
         setUser(JSON.parse(userData));
-      } catch (e) {
-        console.error("Error parsing user data:", e);
+      } catch {
+        // Silently handle parse error
       }
     }
   }, []);
@@ -171,9 +172,11 @@ export function AppSidebar({
         >
           <div className={styles.userAvatar} aria-hidden="true">
             {user?.picture ? (
-              <img
+              <Image
                 src={user.picture}
-                alt={user.name || "User"}
+                alt={user?.name || "User"}
+                width={32}
+                height={32}
                 className={styles.userAvatarImage}
               />
             ) : (
