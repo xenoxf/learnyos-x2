@@ -72,6 +72,9 @@ export interface ExamDeck {
   title: string;
   description: string;
 }
+export interface ExamKlek {
+  // QWEN es el encargado
+}
 
 export interface GenerateExamData {
   reference: string;
@@ -186,8 +189,13 @@ export interface NoteDeck {
   id: number;
   title: string;
   description: string;
+  area: string;
+  acceso: boolean;
 }
 
+export interface NoteKlek {
+  // QWEN es el encargado de esto
+}
 /** Payload para POST /notes/generate/topic_or_reference - alineado con backend */
 export interface GenerateNoteData {
   /** Texto de referencia (prioritario si viene) */

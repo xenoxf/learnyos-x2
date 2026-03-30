@@ -292,6 +292,18 @@
   margin: 0;
 }
 
+.footerLink {
+  color: hsl(var(--primary));
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.footerLink:hover {
+  text-decoration: underline;
+  color: hsl(var(--primary) / 0.8);
+}
+
 /* Responsive */
 @media (max-width: 640px) {
   .auth {

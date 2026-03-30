@@ -26,24 +26,30 @@ export default function QuizPlayer({
     const loadQuiz = async () => {
       try {
         setError(null);
+        console.log('Loading quiz with ID:', quizId);
         // Use getExamForPlay (klek format) instead of getExam (deck format)
         const data = await apiService.getExamForPlay(quizId);
+        console.log('Quiz data received:', data);
         
         // Validate exam data
-        if (!data || !data.questions || data.questions.length === 0) {
-          throw new Error('El quiz no tiene preguntas o no está disponible');
+        if (!data) {
+          throw new Error('El quiz no existe o no está disponible');
+        }
+        
+        if (!data.questions || data.questions.length === 0) {
+          throw new Error(`El quiz "${data.title}" no tiene preguntas. Total: ${data.totalQuestions || 0}`);
         }
         
         setQuiz(data);
       } catch (err: any) {
         const message = err instanceof Error ? err.message : "Error al cargar quiz";
+        console.error('Quiz loading error:', err);
         setError(message);
         toast({
           variant: "destructive",
           title: "Error al cargar",
           description: message,
         });
-        // Don't close immediately, let user see the error
       } finally {
         setLoading(false);
       }

@@ -911,6 +911,25 @@
   color: hsl(var(--muted-foreground));
 }
 
+.footerLinks {
+  display: flex;
+  gap: var(--spacing-md);
+  margin: var(--spacing-xs) 0;
+}
+
+.footerLink {
+  font-size: 0.75rem;
+  color: hsl(var(--primary));
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.footerLink:hover {
+  text-decoration: underline;
+  color: hsl(var(--primary) / 0.8);
+}
+
 /* ============================================
    UTILITIES
    ============================================ */

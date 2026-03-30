@@ -301,7 +301,25 @@
   font-size: 0.875rem;
   color: hsl(var(--muted-foreground));
   line-height: 1.6;
-  margin: 0;
+  margin: 0 0 1rem 0;
+}
+
+.tipAction {
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  border: none;
+  padding: 0.625rem 1.25rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: auto;
+}
+
+.tipAction:hover {
+  background: hsl(var(--primary) / 0.9);
+  transform: translateY(-2px);
 }
 
 /* ==================== STATS ROW ==================== */
@@ -464,34 +482,70 @@
 
 /* ==================== RESPONSIVE ==================== */
 @media (max-width: 768px) {
+  .container {
+    padding-bottom: 80px; /* Space for mobile navbar */
+  }
+
   .header {
-    padding: 1.5rem;
+    padding: 1.5rem 1rem;
   }
 
   .main {
-    padding: 1.5rem;
+    padding: 1.5rem 1rem;
   }
 
   .title {
     font-size: 1.5rem;
   }
 
+  .subtitle {
+    font-size: 0.9375rem;
+  }
+
   .heroCard {
-    padding: 2rem 1.5rem;
+    padding: 2rem 1.25rem;
+  }
+
+  .heroIcon {
+    width: 48px;
+    height: 48px;
   }
 
   .heroPhrase {
-    font-size: 1.5rem;
+    font-size: 1.25rem;
   }
 
   .heroSubtext {
-    font-size: 1rem;
+    font-size: 0.9375rem;
+  }
+
+  .sectionTitle {
+    font-size: 1.125rem;
   }
 
   .tipsGrid,
   .statsRow,
   .phrasesGrid {
     grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .tipCard,
+  .statCard,
+  .phraseCard {
+    padding: 1.25rem;
+  }
+
+  .ctaSection {
+    padding: 1.5rem 1rem;
+  }
+
+  .ctaTitle {
+    font-size: 1.25rem;
+  }
+
+  .ctaText {
+    font-size: 1rem;
   }
 }
 
@@ -501,18 +555,96 @@
   }
 
   .main {
-    padding: 1rem;
+    padding: 1rem 0.75rem;
+  }
+
+  .title {
+    font-size: 1.25rem;
+  }
+
+  .subtitle {
+    font-size: 0.875rem;
   }
 
   .heroCard {
     padding: 1.5rem 1rem;
   }
 
+  .heroIcon {
+    width: 40px;
+    height: 40px;
+  }
+
   .heroPhrase {
-    font-size: 1.25rem;
+    font-size: 1.125rem;
+  }
+
+  .heroSubtext {
+    font-size: 0.875rem;
+  }
+
+  .heroCategory {
+    font-size: 0.6875rem;
+    padding: 0.25rem 0.75rem;
   }
 
   .sectionTitle {
-    font-size: 1.25rem;
+    font-size: 1rem;
+  }
+
+  .tipCard,
+  .statCard,
+  .phraseCard {
+    padding: 1rem;
+  }
+
+  .tipTitle,
+  .statValue,
+  .phraseText {
+    font-size: 1rem;
+  }
+
+  .tipDescription,
+  .statLabel,
+  .statDescription {
+    font-size: 0.8125rem;
+  }
+
+  .progressDots {
+    gap: 0.375rem;
+  }
+
+  .dot {
+    width: 6px;
+    height: 6px;
+  }
+}
+
+/* Tablet optimization */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .tipsGrid,
+  .phrasesGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .statsRow {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Desktop */
+@media (min-width: 1025px) {
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .tipsGrid,
+  .phrasesGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .statsRow {
+    grid-template-columns: repeat(3, 1fr);
   }
 }

@@ -6,6 +6,7 @@ import { apiService } from "@/services/apiService";
 import { Sparkles, FileText, Settings, Eye } from "lucide-react";
 import styles from "@/styles/notes/createNoteModal.module.css";
 import type { GenerateNoteData } from "@/types";
+import { useRouter } from "next/navigation";
 
 interface CreateNoteModalProps {
   onClose: () => void;
@@ -24,6 +25,7 @@ export default function CreateNoteModal({
     levelOfDetail: "medio",
     acceso: "public",
   });
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -45,6 +47,7 @@ export default function CreateNoteModal({
         description: "Notas creadas correctamente",
       });
       onNoteCreated();
+      router.refresh();
       onClose();
     } catch (err) {
       const message =

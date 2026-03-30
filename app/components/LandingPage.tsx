@@ -400,9 +400,13 @@ export const LandingPage: React.FC = () => {
               </div>
               <span className={styles.footerBrandName}>LearnyOS</span>
             </div>
+            <div className={styles.footerLinks}>
+              <a href="/terms.html" target="_blank" rel="noopener noreferrer" className={styles.footerLink}>
+                Términos y Condiciones
+              </a>
+            </div>
             <p className={styles.footerCopy}>
-              © {new Date().getFullYear()} LearnYos. Todos los derechos
-              reservados.
+              © {new Date().getFullYear()} LearnyOS. Todos los derechos reservados.
             </p>
           </div>
         </footer>

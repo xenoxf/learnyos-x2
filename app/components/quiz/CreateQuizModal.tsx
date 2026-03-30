@@ -3,6 +3,7 @@ import { useToast } from "@/hooks/use-toast";
 import { apiService } from "@/services/apiService";
 import styles from "@/styles/quiz/createQuizModal.module.css";
 import type { GenerateExamData } from "@/types";
+import { useRouter } from "next/navigation";
 
 interface CreateQuizModalProps {
   onClose: () => void;
@@ -19,8 +20,9 @@ export default function CreateQuizModal({
     reference: '',
     numberOfQuestions: 10,
     difficulty: "medium",
-    acceso: "private",
+    acceso: "public",
   });
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,6 +44,7 @@ export default function CreateQuizModal({
         description: "Quiz creado correctamente",
       });
       onQuizCreated();
+      router.refresh();
       onClose();
     } catch (err) {
       const message =

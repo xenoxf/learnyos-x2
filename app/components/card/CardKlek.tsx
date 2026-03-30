@@ -8,6 +8,7 @@ import {
 import styles from "@/styles/flashCards/CardKlek.module.css";
 import { useToast } from "@/hooks/use-toast";
 import { apiService } from "@/services/apiService";
+import MarkdownRenderer from "../MarkdownRenderer";
 
 interface CardKlekProps {
   cardId: number;
@@ -165,7 +166,7 @@ const CardKlekComponent: React.FC<CardKlekProps> = ({ cardId, onClose }) => {
             <div className={styles.flashCardFace}>
               <div className={styles.faceContent}>
                 <span className={styles.faceLabel}>Pregunta</span>
-                <p className={styles.faceText}>{currentCard.front}</p>
+                <p className={styles.faceText}> <MarkdownRenderer content={currentCard.front} /></p>
               </div>
             </div>
 
@@ -173,7 +174,7 @@ const CardKlekComponent: React.FC<CardKlekProps> = ({ cardId, onClose }) => {
             <div className={styles.flashCardFace}>
               <div className={styles.faceContent}>
                 <span className={styles.faceLabel}>Respuesta</span>
-                <p className={styles.faceText}>{currentCard.back}</p>
+                <p className={styles.faceText}><MarkdownRenderer content={currentCard.back} /></p>
               </div>
             </div>
           </div>

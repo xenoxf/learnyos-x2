@@ -18,6 +18,7 @@ import {
   LogOut,
   MoreHorizontal,
   MapIcon,
+  Settings,
 } from "lucide-react";
 import { apiService } from "@/services/apiService";
 import { useToast } from "@/hooks/use-toast";
@@ -50,7 +51,6 @@ export function MobileNavbar() {
 
   const [visibleCount, setVisibleCount] = useState(ALL_NAV_ITEMS.length);
   const [showMoreMenu, setShowMoreMenu] = useState(false);
-  const [navVisible, setNavVisible] = useState(true);
   const [isMeasuring, setIsMeasuring] = useState(false);
   const [windowWidth, setWindowWidth] = useState(0);
 
@@ -118,26 +118,6 @@ export function MobileNavbar() {
     return () => window.removeEventListener("resize", handleResize);
   }, [measureItems, computeVisibleCount]);
 
-  useEffect(() => {
-    const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-      const scrollingDown =
-        currentScrollY > lastScrollY.current &&
-        currentScrollY > SCROLL_THRESHOLD;
-      const scrollingUp = currentScrollY < lastScrollY.current;
-
-      if (scrollingDown && navVisible) {
-        setNavVisible(false);
-        setShowMoreMenu(false);
-      } else if (scrollingUp && !navVisible) {
-        setNavVisible(true);
-      }
-      lastScrollY.current = currentScrollY;
-    };
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [navVisible]);
-
   // --- CORRECCIÓN AQUÍ: Manejo de click outside más robusto ---
   useEffect(() => {
     if (!showMoreMenu) return;
@@ -197,30 +177,26 @@ export function MobileNavbar() {
   );
 
   return (
-    <>
-      {/*<div
-        className={`${styles.container} ${!navVisible ? styles.containerHidden : ""}`}
-      >*/}
-      <nav ref={navRef} className={styles.bottomNav}>
-        {visibleItems.map((item) => {
-          const Icon = item.icon;
-          return (
-            <Link
-              key={item.url}
-              href={item.url}
-              className={`${styles.navItem} ${isActive(item.url) ? styles.navItemActive : ""}`}
-              onClick={() => setShowMoreMenu(false)}
-            >
-              <div className={styles.navIconWrapper}>
-                <Icon size={22} />
-                {item.badge && (
-                  <span className={styles.badge}>{item.badge}</span>
-                )}
-              </div>
-              <span className={styles.navLabel}>{item.title}</span>
-            </Link>
-          );
-        })}
+    <nav ref={navRef} className={styles.bottomNav}>
+      {visibleItems.map((item) => {
+        const Icon = item.icon;
+        return (
+          <Link
+            key={item.url}
+            href={item.url}
+            className={`${styles.navItem} ${isActive(item.url) ? styles.navItemActive : ""}`}
+            onClick={() => setShowMoreMenu(false)}
+          >
+            <div className={styles.navIconWrapper}>
+              <Icon size={22} />
+              {item.badge && (
+                <span className={styles.badge}>{item.badge}</span>
+              )}
+            </div>
+            <span className={styles.navLabel}>{item.title}</span>
+          </Link>
+        );
+      })}
 
         <button
           ref={moreButtonRef}
@@ -272,14 +248,20 @@ export function MobileNavbar() {
                 <ThemeToggleSidebr />
               </div>
 
-              <button className={styles.moreMenuItem} onClick={handleLogout}>
-                <LogOut size={18} />
-                <span>Cerrar sesión</span>
+              <button
+                className={styles.moreMenuItem}
+                onClick={() => {
+                  router.push("/study/settings");
+                  setShowMoreMenu(false);
+                }}
+              >
+                <Settings size={18} />
+                <span>Configuración</span>
               </button>
+
             </div>
           </div>
         )}
       </nav>
-    </>
   );
 }

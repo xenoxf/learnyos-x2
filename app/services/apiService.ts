@@ -420,21 +420,6 @@ class ApiService {
       body: JSON.stringify(data),
     });
   }
-
-  async createExam(data: Partial<Exam>): Promise<Exam> {
-    return this.requestWithFallback<Exam>(["/exams", "/exams/create"], {
-      method: "POST",
-      body: JSON.stringify(data),
-    });
-  }
-
-  async updateExam(id: number, data: Partial<Exam>): Promise<Exam> {
-    return this.requestWithFallback<Exam>([`/exams/${id}`, `/exams/update/${id}`], {
-      method: "PUT",
-      body: JSON.stringify(data),
-    });
-  }
-
   async updateExamScore(id: number, score: number): Promise<Exam[]> {
     const params = new URLSearchParams({
       id: String(id),

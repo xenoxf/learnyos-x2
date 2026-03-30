@@ -12,6 +12,7 @@ import {
   Map,
   Users,
   Sparkles,
+  Settings,
 } from "lucide-react";
 import { apiService } from "@/services/apiService";
 import { useToast } from "@/hooks/use-toast";
@@ -19,6 +20,7 @@ import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import styles from "../styles/sidebar.module.css";
 import { ThemeToggleSidebr } from "./ThemeToogleSidebr";
+import { SettingsModal } from "./SettingsModal";
 
 const menuItems = [
   { title: "Klerk", url: "/study", icon: LayoutDashboard, description: "Dashboard" },
@@ -103,118 +105,118 @@ export function AppSidebar({
       `}
       aria-label="Menú principal de navegación"
     >
-      {/* Header */}
-      <div className={styles.header} onClick={toggleSidebar}>
-        <div className={styles.headerContent}>
-          <div className={styles.logo} aria-hidden="true">
-            <Sparkles size={20} />
-          </div>
-          {!sidebarClosed && <span className={styles.logoText}>LearnYos</span>}
-        </div>
-        {!sidebarClosed && (
-          <button
-            className={styles.closeButton}
-            aria-label="Contraer sidebar"
-            type="button"
-          >
-            <ChevronLeft size={20} />
-          </button>
-        )}
-      </div>
-
-      {/* Navigation */}
-      <nav className={styles.nav} aria-label="Herramientas de estudio">
-        <div className={styles.navList}>
-          {!sidebarClosed && (
-            <div className={styles.navLabel} aria-hidden="true">
-              HERRAMIENTAS
+        {/* Header */}
+        <div className={styles.header} onClick={toggleSidebar}>
+          <div className={styles.headerContent}>
+            <div className={styles.logo} aria-hidden="true">
+              <Sparkles size={20} />
             </div>
+            {!sidebarClosed && <span className={styles.logoText}>LearnYos</span>}
+          </div>
+          {!sidebarClosed && (
+            <button
+              className={styles.closeButton}
+              aria-label="Contraer sidebar"
+              type="button"
+            >
+              <ChevronLeft size={20} />
+            </button>
           )}
-          {menuItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = isActiveRoute(item.url);
+        </div>
 
-            return (
-              <Link
-                key={item.url}
-                href={item.url}
-                className={`
+        {/* Navigation */}
+        <nav className={styles.nav} aria-label="Herramientas de estudio">
+          <div className={styles.navList}>
+            {!sidebarClosed && (
+              <div className={styles.navLabel} aria-hidden="true">
+                HERRAMIENTAS
+              </div>
+            )}
+            {menuItems.map((item) => {
+              const Icon = item.icon;
+              const isActive = isActiveRoute(item.url);
+
+              return (
+                <Link
+                  key={item.url}
+                  href={item.url}
+                  className={`
                   ${styles.navItem}
                   ${isActive ? styles.navItemActive : styles.navItemInactive}
                   ${sidebarClosed ? styles.navItemCollapsed : styles.navItemExpanded}
                 `}
-                title={item.title}
-                aria-label={item.title}
-              >
-                <div className={styles.navItemIconWrapper}>
-                  <Icon
-                    size={20}
-                    className={styles.navItemIcon}
-                    aria-hidden="true"
-                  />
-                </div>
-                {!sidebarClosed && (
-                  <span className={styles.navItemText}>{item.title}</span>
-                )}
-              </Link>
-            );
-          })}
-        </div>
-      </nav>
+                  title={item.title}
+                  aria-label={item.title}
+                >
+                  <div className={styles.navItemIconWrapper}>
+                    <Icon
+                      size={20}
+                      className={styles.navItemIcon}
+                      aria-hidden="true"
+                    />
+                  </div>
+                  {!sidebarClosed && (
+                    <span className={styles.navItemText}>{item.title}</span>
+                  )}
+                </Link>
+              );
+            })}
+          </div>
+        </nav>
 
-      {/* Footer - User Info & Actions */}
-      <div className={styles.footer}>
-        <div
-          className={`
+        {/* Footer - User Info & Actions */}
+        <div className={styles.footer}>
+          <div
+            className={`
             ${styles.userInfo}
             ${sidebarClosed ? styles.userInfoCollapsed : styles.userInfoExpanded}
           `}
-        >
-          <div className={styles.userAvatar} aria-hidden="true">
-            {user?.picture ? (
-              <Image
-                src={user.picture}
-                alt={user?.name || "User"}
-                width={32}
-                height={32}
-                className={styles.userAvatarImage}
-              />
-            ) : (
-              <span>{user?.name?.[0]?.toUpperCase() || "U"}</span>
+          >
+            <div className={styles.userAvatar} aria-hidden="true">
+              {user?.picture ? (
+                <Image
+                  src={user.picture}
+                  alt={user?.name || "User"}
+                  width={32}
+                  height={32}
+                  className={styles.userAvatarImage}
+                />
+              ) : (
+                <span>{user?.name?.[0]?.toUpperCase() || "U"}</span>
+              )}
+            </div>
+            {!sidebarClosed && (
+              <div className={styles.userDetails}>
+                <div className={styles.userName} aria-label="Nombre de usuario">
+                  {user?.name}
+                </div>
+                <div className={styles.userEmail} aria-label="Email del usuario">
+                  {user?.email}
+                </div>
+              </div>
             )}
           </div>
-          {!sidebarClosed && (
-            <div className={styles.userDetails}>
-              <div className={styles.userName} aria-label="Nombre de usuario">
-                {user?.name}
-              </div>
-              <div className={styles.userEmail} aria-label="Email del usuario">
-                {user?.email}
-              </div>
-            </div>
-          )}
-        </div>
-        <div
-          className={`${sidebarClosed ? styles.actionsCollapsed : styles.actions}`}
-        >
-          <ThemeToggleSidebr isCollapse={collapsed} />
-          <button
-            onClick={handleLogout}
-            className={`
+          <div
+            className={`${sidebarClosed ? styles.actionsCollapsed : styles.actions}`}
+          >
+            <ThemeToggleSidebr isCollapse={collapsed} />
+            <button
+              onClick={() => navigate.push("/study/settings")}
+              className={`
               ${styles.actionButton}
               ${sidebarClosed ? styles.actionButtonCollapsed : styles.actionButtonExpanded}
             `}
-            title="Cerrar sesión"
-            aria-label="Cerrar sesión"
-            type="button"
-          >
-            <div className={styles.actionButtonIconWrapper}>
-              <LogOut size={16} aria-hidden="true" />
-            </div>
-            {!sidebarClosed && <span>Salir</span>}
-          </button>
+              title="Configuración"
+              aria-label="Configuración"
+              type="button"
+            >
+              <div className={styles.actionButtonIconWrapper}>
+                <Settings size={16} aria-hidden="true" />
+              </div>
+              {!sidebarClosed && <span>Configuración</span>}
+            </button>
+          </div>
         </div>
-      </div>
-    </aside>
+      </aside>
   );
 }

@@ -130,6 +130,9 @@ export function useStudyGrid<T extends StudyGridBaseItem & { code?: string | nul
   }, [allItems]);
 
   const loadItems = useCallback(async () => {
+    // Prevenir múltiples peticiones simultáneas
+    if (loading) return;
+    
     try {
       setLoading(true);
       const data = await actions.onLoad();
@@ -160,12 +163,13 @@ export function useStudyGrid<T extends StudyGridBaseItem & { code?: string | nul
     } finally {
       setLoading(false);
     }
-  }, [actions.onLoad, currentUserId, searchValue, isCodeSearch, loadCodeSearch, config.entityPlural]);
+  }, [actions.onLoad, currentUserId, searchValue, isCodeSearch, loadCodeSearch, config.entityPlural, loading]);
 
   // Load items on mount and when viewMode changes
   useEffect(() => {
     loadItems();
-  }, [viewMode, loadItems]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [viewMode]);
 
   // Handle search input changes
   useEffect(() => {

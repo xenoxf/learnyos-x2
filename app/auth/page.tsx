@@ -288,7 +288,14 @@ function AuthContent() {
 
         <div className={styles.footer}>
           <p>
-            Al continuar, aceptas nuestros términos y política de privacidad
+            Al continuar, aceptas nuestros{' '}
+            <a href="/terms.html" target="_blank" rel="noopener noreferrer" className={styles.footerLink}>
+              Términos y Condiciones
+            </a>
+            {' '}y{' '}
+            <a href="/terms.html" target="_blank" rel="noopener noreferrer" className={styles.footerLink}>
+              Política de Privacidad
+            </a>
           </p>
         </div>
       </div>

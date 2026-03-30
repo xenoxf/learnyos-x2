@@ -21,24 +21,19 @@
 /* Navbar pill */
 .bottomNav {
   background: hsl(var(--card) / 0.95);
-
   border: 1px solid hsl(var(--border) / 0.8);
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 4px;
-  padding: 6px 8px;
+  justify-content: space-evenly;
+  gap: 2px;
+  padding: 10px 8px;
   width: 100%;
   box-shadow:
-    0 4px 24px rgba(0, 0, 0, 0.12),
-    0 1px 4px rgba(0, 0, 0, 0.06);
+    0 -4px 12px rgba(0, 0, 0, 0.08);
   pointer-events: auto;
-  position: relative;
-  overflow: visible;
-  flex-shrink: 0;
-  transition:
-    background-color 0.2s ease,
-    border-color 0.2s ease;
+  z-index: 50;
+  border-radius: 20px 20px 0 0;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
 }
 
 /* Items de navegación */
@@ -47,12 +42,13 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 7px 11px;
+  padding: 4px 6px;
   border: none;
   background: transparent;
   cursor: pointer;
-  border-radius: 20px;
-  flex-shrink: 0;
+  border-radius: 10px;
+  flex: 1;
+  max-width: 70px;
   white-space: nowrap;
   color: hsl(var(--muted-foreground));
   text-decoration: none;
@@ -62,7 +58,7 @@
     transform 0.1s ease;
   outline: none;
   position: relative;
-  min-width: 60px;
+  min-width: 0;
 }
 
 .navItem:hover {

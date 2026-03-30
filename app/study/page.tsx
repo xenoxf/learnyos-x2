@@ -43,30 +43,34 @@ const MOTIVATIONAL_PHRASES = [
   },
 ];
 
-const STUDY_TIPS = [
+const STUDY_RESOURCES = [
   {
-    title: "Técnica Pomodoro",
-    description: "25 min de enfoque total + 5 min de descanso. Repite 4 veces.",
-    icon: Clock,
-    color: "var(--chart-1)",
-  },
-  {
-    title: "Active Recall",
-    description: "Ponte a prueba en lugar de solo releer. La recuperación activa fortalece la memoria.",
+    title: "📚 Biblioteca de Recursos",
+    description: "Accede a quizzes, flashcards y notas creadas por la comunidad. Aprende de otros estudiantes.",
     icon: Brain,
-    color: "var(--chart-2)",
+    color: "221 83% 53%",
+    action: "Explorar Recursos",
   },
   {
-    title: "Spaced Repetition",
-    description: "Repasa en intervalos: 1 día, 3 días, 1 semana, 1 mes.",
-    icon: TrendingUp,
-    color: "var(--chart-3)",
-  },
-  {
-    title: "Feynman",
-    description: "Si no puedes explicárselo a un niño, no lo entiendes bien.",
+    title: "⚡ Sesiones de Estudio",
+    description: "Temporizador Pomodoro integrado. 25 minutos de enfoque total, 5 de descanso.",
     icon: Zap,
-    color: "var(--chart-4)",
+    color: "27 87% 67%",
+    action: "Iniciar Sesión",
+  },
+  {
+    title: "🎯 Metas Diarias",
+    description: "Establece objetivos de estudio y sigue tu progreso. La consistencia es clave.",
+    icon: Target,
+    color: "142 76% 36%",
+    action: "Ver Metas",
+  },
+  {
+    title: "🏆 Logros y Recompensas",
+    description: "Gana insignias por tu dedicación. Celebra cada victoria, por pequeña que sea.",
+    icon: Sparkles,
+    color: "280 65% 60%",
+    action: "Ver Logros",
   },
 ];
 
@@ -134,25 +138,26 @@ export default function KlerkPage() {
           </div>
         </section>
 
-        {/* Trucos de estudio */}
+        {/* Recursos de estudio */}
         <section className={styles.section}>
           <h2 className={styles.sectionTitle}>
             <Brain className={styles.sectionIcon} />
-            Técnicas de Estudio Comprobadas
+            Recursos para tu Éxito
           </h2>
           <div className={styles.tipsGrid}>
-            {STUDY_TIPS.map((tip) => {
-              const TipIcon = tip.icon;
+            {STUDY_RESOURCES.map((resource) => {
+              const ResourceIcon = resource.icon;
               return (
-                <div key={tip.title} className={styles.tipCard}>
+                <div key={resource.title} className={styles.tipCard}>
                   <div
                     className={styles.tipIcon}
-                    style={{ background: `hsl(${tip.color} / 0.15)` }}
+                    style={{ background: `hsl(${resource.color} / 0.15)` }}
                   >
-                    <TipIcon size={24} style={{ color: `hsl(${tip.color})` }} />
+                    <ResourceIcon size={24} style={{ color: `hsl(${resource.color})` }} />
                   </div>
-                  <h3 className={styles.tipTitle}>{tip.title}</h3>
-                  <p className={styles.tipDescription}>{tip.description}</p>
+                  <h3 className={styles.tipTitle}>{resource.title}</h3>
+                  <p className={styles.tipDescription}>{resource.description}</p>
+                  <button className={styles.tipAction}>{resource.action}</button>
                 </div>
               );
             })}

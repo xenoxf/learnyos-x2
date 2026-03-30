@@ -3,6 +3,7 @@ import { apiService } from "@/services/apiService";
 import styles from "@/styles/flashCards/crearCard.module.css";
 import { X, Loader, Sparkles } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import { useRouter } from "next/navigation";
 
 interface CrearCardProps {
   onClose: () => void;
@@ -12,8 +13,9 @@ interface CrearCardProps {
 export default function CrearCard({ onClose, onCardCreated }: CrearCardProps) {
   const [reference, setReference] = useState("");
   const [quantity, setQuantity] = useState(3);
-  const [acceso, setAcceso] = useState("private");
+  const [acceso, setAcceso] = useState("public");
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
   const handleCreate = async () => {
     if (!reference.trim()) {
@@ -49,6 +51,7 @@ export default function CrearCard({ onClose, onCardCreated }: CrearCardProps) {
       setQuantity(10);
       setAcceso("private");
       onCardCreated();
+      router.refresh();
       onClose();
     } catch (err) {
       const errorMessage =
