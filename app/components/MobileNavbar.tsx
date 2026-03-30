@@ -17,6 +17,7 @@ import {
   Languages,
   LogOut,
   MoreHorizontal,
+  MapIcon,
 } from "lucide-react";
 import { apiService } from "@/services/apiService";
 import { useToast } from "@/hooks/use-toast";
@@ -35,11 +36,12 @@ interface MenuItem {
 }
 
 const ALL_NAV_ITEMS: MenuItem[] = [
-  { title: "Inicio", url: "/study", icon: LayoutDashboard },
+  { title: "Klerk", url: "/study", icon: LayoutDashboard },
   { title: "Chat", url: "/study/chat", icon: MessageSquare, badge: 3 },
   { title: "Quiz", url: "/study/quiz", icon: Brain },
   { title: "Notas", url: "/study/notes", icon: NotebookPen },
   { title: "Flashcards", url: "/study/flashcards", icon: CreditCard },
+  { title: "KlerkOS", url: "/study/klerkos", icon: MapIcon },
 ];
 
 export function MobileNavbar() {

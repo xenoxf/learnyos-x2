@@ -138,18 +138,6 @@ export default function KlerkOSPage() {
 
   return (
     <div className={styles.container}>
-      <header className={styles.header}>
-        <div className={styles.headerContent}>
-          <div className={styles.titleSection}>
-            <MessageSquare className={styles.titleIcon} />
-            <h1 className={styles.title}>KlerkOS</h1>
-          </div>
-          <p className={styles.subtitle}>
-            Chat global de la comunidad
-          </p>
-        </div>
-      </header>
-
       <main className={styles.main}>
         <div className={styles.messagesContainer}>
           {loading && messages.length === 0 ? (
