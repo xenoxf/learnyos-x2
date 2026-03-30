@@ -24,7 +24,6 @@ import { useToast } from "@/hooks/use-toast";
 import styles from "@/styles/mobileNavbar.module.css";
 import Link from "next/link";
 import { ThemeToggleSidebr } from "./ThemeToogleSidebr";
-import { ThemeToggle } from "./ThemeToggle";
 const SCROLL_THRESHOLD = 10;
 const RESIZE_DEBOUNCE = 100;
 
@@ -270,7 +269,7 @@ export function MobileNavbar() {
                 className={styles.themeToggleWrapper}
                 onClick={(e) => e.stopPropagation()}
               >
-                <ThemeToggle />
+                <ThemeToggleSidebr />
               </div>
 
               <button className={styles.moreMenuItem} onClick={handleLogout}>

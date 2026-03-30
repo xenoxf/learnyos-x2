@@ -74,8 +74,6 @@ export const ThemeToggleSidebr: React.FC<ThemeToggleSidebrProps> = ({
               d="M19 9l-7 7-7-7"
             />
           </svg>
-
-          <p>Selecione los temas</p>
         </Button>
       </DropdownMenuTrigger>
 

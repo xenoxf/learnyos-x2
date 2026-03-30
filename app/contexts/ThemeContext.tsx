@@ -97,7 +97,7 @@ export const useTheme = (): ThemeContextValue => {
   if (ctx) return ctx;
 
   return {
-    theme: "dark",
+    theme: "sakura",
     setTheme: () => {},
     toggleTheme: () => {},
   };
