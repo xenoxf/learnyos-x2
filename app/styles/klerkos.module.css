@@ -1,4 +1,4 @@
-/* ==================== KLERKOS - GLOBAL CHAT PAGE ==================== */
+/* ==================== KLERKOS - GLOBAL CHAT PAGE (SIMPLIFIED) ==================== */
 
 .container {
   width: 100%;
@@ -11,10 +11,9 @@
 
 /* ==================== HEADER ==================== */
 .header {
-  padding: 1.5rem 2rem;
+  padding: 1rem 2rem;
   border-bottom: 1px solid hsl(var(--border));
-  background: hsl(var(--background) / 0.8);
-  backdrop-filter: blur(12px);
+  background: hsl(var(--background));
   position: sticky;
   top: 0;
   z-index: 10;
@@ -28,7 +27,7 @@
 .titleSection {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.5rem;
   margin-bottom: 0.25rem;
 }
 
@@ -37,14 +36,14 @@
 }
 
 .title {
-  font-size: 1.75rem;
+  font-size: 1.5rem;
   font-weight: 700;
   color: hsl(var(--foreground));
   margin: 0;
 }
 
 .subtitle {
-  font-size: 0.95rem;
+  font-size: 0.875rem;
   color: hsl(var(--muted-foreground));
   margin: 0;
 }
@@ -54,11 +53,11 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  max-width: 900px;
+  max-width: 800px;
   margin: 0 auto;
   width: 100%;
-  padding: 1.5rem;
-  gap: 1.5rem;
+  padding: 1rem;
+  gap: 1rem;
 }
 
 /* ==================== MESSAGES CONTAINER ==================== */
@@ -67,13 +66,13 @@
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 0.75rem;
   padding: 1rem;
   background: hsl(var(--card));
   border: 1px solid hsl(var(--border));
-  border-radius: 16px;
+  border-radius: 8px;
   min-height: 400px;
-  max-height: calc(100vh - 250px);
+  max-height: calc(100vh - 200px);
 }
 
 .loadingState,
@@ -86,13 +85,13 @@
   color: hsl(var(--muted-foreground));
   gap: 1rem;
   text-align: center;
-  padding: 3rem;
+  padding: 2rem;
 }
 
 .loadingSpinner {
-  width: 40px;
-  height: 40px;
-  border: 3px solid hsl(var(--border));
+  width: 32px;
+  height: 32px;
+  border: 2px solid hsl(var(--border));
   border-top-color: hsl(var(--primary));
   border-radius: 50%;
   animation: spin 1s linear infinite;
@@ -105,13 +104,13 @@
 }
 
 .emptyState h3 {
-  font-size: 1.25rem;
+  font-size: 1.125rem;
   color: hsl(var(--foreground));
   margin: 0;
 }
 
 .emptyState p {
-  font-size: 0.95rem;
+  font-size: 0.875rem;
   margin: 0;
 }
 
@@ -119,7 +118,7 @@
 .messageGroup {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.5rem;
 }
 
 .dateSeparator {
@@ -127,7 +126,7 @@
   align-items: center;
   justify-content: center;
   gap: 1rem;
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   font-weight: 600;
   color: hsl(var(--muted-foreground));
   text-transform: uppercase;
@@ -146,27 +145,10 @@
 /* ==================== MESSAGE ==================== */
 .message {
   display: flex;
-  gap: 0.75rem;
+  gap: 0.5rem;
   align-items: flex-start;
-  animation: fadeIn 0.2s ease-out;
   padding: 0.5rem;
-  border-radius: 12px;
-  transition: background 0.15s ease;
-}
-
-.message:hover {
-  background: hsl(var(--accent) / 0.3);
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  border-radius: 8px;
 }
 
 .ownMessage {
@@ -174,8 +156,8 @@
 }
 
 .messageAvatar {
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)));
   display: flex;
@@ -192,7 +174,7 @@
 }
 
 .avatarInitials {
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   font-weight: 600;
   color: hsl(var(--primary-foreground));
 }
@@ -213,7 +195,7 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   flex-wrap: wrap;
 }
 
@@ -224,7 +206,7 @@
 
 .messageTime {
   color: hsl(var(--muted-foreground));
-  font-size: 0.75rem;
+  font-size: 0.7rem;
 }
 
 .deleteButton {
@@ -242,17 +224,17 @@
 }
 
 .deleteButton:hover {
-  background: hsl(var(--destructive));
-  color: hsl(var(--destructive-foreground));
+  background: hsl(var(--destructive) / 0.1);
+  color: hsl(var(--destructive));
 }
 
 .messageText {
   margin: 0;
-  padding: 0.75rem 1rem;
+  padding: 0.625rem 0.875rem;
   background: hsl(var(--secondary));
-  border-radius: 12px;
-  font-size: 0.95rem;
-  line-height: 1.5;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  line-height: 1.4;
   color: hsl(var(--foreground));
   word-break: break-word;
   max-width: 100%;
@@ -269,35 +251,35 @@
   position: sticky;
   bottom: 0;
   background: hsl(var(--background));
-  padding: 1rem 0;
+  padding: 0.75rem 0;
   border-top: 1px solid hsl(var(--border));
 }
 
 .inputWrapper {
   display: flex;
-  gap: 0.75rem;
+  gap: 0.5rem;
   align-items: flex-end;
   max-width: 100%;
 }
 
 .input {
   flex: 1;
-  padding: 0.875rem 1rem;
+  padding: 0.75rem 1rem;
   background: hsl(var(--card));
   border: 1px solid hsl(var(--border));
-  border-radius: 12px;
-  font-size: 0.95rem;
+  border-radius: 8px;
+  font-size: 0.875rem;
   color: hsl(var(--foreground));
   resize: none;
   font-family: inherit;
   transition: all 0.15s ease;
-  min-height: 48px;
+  min-height: 40px;
 }
 
 .input:focus {
   outline: none;
   border-color: hsl(var(--primary));
-  box-shadow: 0 0 0 2px hsl(var(--ring) / 0.2);
+  box-shadow: 0 0 0 2px hsl(var(--ring) / 0.1);
 }
 
 .input::placeholder {
@@ -310,23 +292,22 @@
 }
 
 .sendButton {
-  width: 48px;
-  height: 48px;
+  width: 40px;
+  height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
   background: hsl(var(--primary));
   color: hsl(var(--primary-foreground));
   border: none;
-  border-radius: 12px;
+  border-radius: 8px;
   cursor: pointer;
   transition: all 0.15s ease;
   flex-shrink: 0;
 }
 
 .sendButton:hover:not(:disabled) {
-  transform: scale(1.05);
-  box-shadow: 0 4px 12px hsl(var(--foreground) / 0.2);
+  opacity: 0.9;
 }
 
 .sendButton:disabled {
@@ -337,66 +318,17 @@
 /* ==================== RESPONSIVE ==================== */
 @media (max-width: 768px) {
   .header {
-    padding: 1.25rem 1.5rem;
+    padding: 0.875rem 1rem;
   }
 
   .main {
-    padding: 1rem;
-    gap: 1rem;
+    padding: 0.75rem;
   }
 
   .messagesContainer {
     min-height: 300px;
-    max-height: calc(100vh - 200px);
-    border-radius: 12px;
-  }
-
-  .messageAvatar {
-    width: 36px;
-    height: 36px;
-  }
-
-  .messageText {
-    font-size: 0.9rem;
-    padding: 0.625rem 0.875rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .header {
-    padding: 1rem;
-  }
-
-  .title {
-    font-size: 1.5rem;
-  }
-
-  .main {
-    padding: 0.75rem;
-  }
-
-  .messagesContainer {
-    min-height: 250px;
     max-height: calc(100vh - 180px);
-    padding: 0.75rem;
-  }
-
-  .inputWrapper {
-    gap: 0.5rem;
-  }
-
-  .input {
-    font-size: 0.9rem;
-    padding: 0.75rem 0.875rem;
-  }
-
-  .sendButton {
-    width: 44px;
-    height: 44px;
-  }
-
-  .message {
-    gap: 0.5rem;
+    border-radius: 8px;
   }
 
   .messageAvatar {
@@ -404,7 +336,55 @@
     height: 32px;
   }
 
+  .messageText {
+    font-size: 0.8125rem;
+    padding: 0.5rem 0.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .header {
+    padding: 0.75rem;
+  }
+
+  .title {
+    font-size: 1.25rem;
+  }
+
+  .main {
+    padding: 0.5rem;
+  }
+
+  .messagesContainer {
+    min-height: 250px;
+    max-height: calc(100vh - 160px);
+    padding: 0.5rem;
+  }
+
+  .inputWrapper {
+    gap: 0.5rem;
+  }
+
+  .input {
+    font-size: 0.8125rem;
+    padding: 0.625rem 0.75rem;
+  }
+
+  .sendButton {
+    width: 40px;
+    height: 40px;
+  }
+
+  .message {
+    gap: 0.5rem;
+  }
+
+  .messageAvatar {
+    width: 28px;
+    height: 28px;
+  }
+
   .avatarInitials {
-    font-size: 0.75rem;
+    font-size: 0.6875rem;
   }
 }

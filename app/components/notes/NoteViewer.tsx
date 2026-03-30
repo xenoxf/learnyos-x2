@@ -126,24 +126,14 @@ export default function NoteViewer({ noteId, onClose }: NoteViewerProps) {
 
                 return (
                   <div key={key} className={styles.contentItem}>
-                    <button
-                      className={styles.contentHeader}
-                      onClick={() => toggleContent(key)}
-                      type="button"
-                    >
-                      <span className={styles.contentTitle}>{heading}</span>
-                      {open ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
-                    </button>
-
-                    {open ? (
-                      <div className={styles.contentBody}>
-                        <div className={styles.contentMd}>
-                          <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                            {md}
-                          </ReactMarkdown>
-                        </div>
+                    <div className={styles.contentBody}>
+                      <div className={styles.contentMd}>
+                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                          {md}
+                        </ReactMarkdown>
                       </div>
-                    ) : null}
+                    </div>
+
                   </div>
                 );
               })}

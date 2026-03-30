@@ -4,6 +4,7 @@ import styles from "@/styles/quiz/quizPlayer.module.css";
 import { useToast } from "@/hooks/use-toast";
 import { apiService } from "@/services/apiService";
 import type { Exam } from "@/types";
+import MarkdownRenderer from "../MarkdownRenderer";
 
 interface QuizPlayerProps {
   quizId: number;
@@ -165,7 +166,7 @@ export default function QuizPlayer({
           </div>
 
           <div className={styles.questionContent}>
-            <h3 className={styles.questionText}>{currentQuestion.question}</h3>
+            <h3 className={styles.questionText}><MarkdownRenderer content={currentQuestion.question} /></h3>
 
             <div className={styles.optionsContainer}>
               {currentQuestion.options.map((option) => {
@@ -178,15 +179,13 @@ export default function QuizPlayer({
                 return (
                   <button
                     key={option.id}
-                    className={`${styles.optionBtn} ${
-                      isSelected ? styles.selected : ""
-                    } ${showCorrect ? styles.correct : ""} ${
-                      showWrong ? styles.incorrect : ""
-                    }`}
+                    className={`${styles.optionBtn} ${isSelected ? styles.selected : ""
+                      } ${showCorrect ? styles.correct : ""} ${showWrong ? styles.incorrect : ""
+                      }`}
                     onClick={() => handleSelectAnswer(option.id)}
                     disabled={showResults}
                   >
-                    <span className={styles.optionText}>{option.text}</span>
+                    <span className={styles.optionText}><MarkdownRenderer content={option.text} /> </span>
                     {showCorrect && <Check size={20} />}
                     {showWrong && <X size={20} />}
                   </button>
@@ -198,7 +197,7 @@ export default function QuizPlayer({
               <div className={styles.explanation}>
                 <h4 className={styles.explanationTitle}>Explicación:</h4>
                 <p className={styles.explanationText}>
-                  {currentQuestion.explanation}
+                  <MarkdownRenderer content={currentQuestion.explanation} />
                 </p>
               </div>
             )}
