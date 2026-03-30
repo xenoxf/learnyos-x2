@@ -81,14 +81,6 @@
   --transition-base: 200ms cubic-bezier(0.4, 0, 0.2, 1);
   --transition-slow: 300ms cubic-bezier(0.4, 0, 0.2, 1);
 
-  /* Superficies y alias (usar como hsl(var(--bg-primary)), etc.) */
-  --bg-primary: var(--background);
-  --bg-secondary: var(--secondary);
-  --text-primary: var(--foreground);
-  --text-secondary: var(--muted-foreground);
-  --border-color: var(--border);
-  --primary-accent: var(--primary);
-
   /* Acentos semánticos opcionales (derivados del tema) */
   --success: 142 76% 36%;
   --success-foreground: 0 0% 98%;
@@ -1408,6 +1400,8 @@ body,
 /* ============================================
    RESPONSIVE DESIGN
    ============================================ */
+
+/* Mobile first - breakpoints adicionales */
 @media (min-width: 640px) {
   .sm\:grid-cols-2 {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1499,6 +1493,22 @@ body,
   .sm\:h-14 {
     height: 3.5rem;
   }
+
+  .sm\:flex-1 {
+    flex: 1;
+  }
+
+  .sm\:justify-start {
+    justify-content: flex-start;
+  }
+
+  .sm\:justify-center {
+    justify-content: center;
+  }
+
+  .sm\:justify-end {
+    justify-content: flex-end;
+  }
 }
 
 @media (min-width: 768px) {
@@ -1506,13 +1516,58 @@ body,
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  .md\:grid-cols-3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .md\:grid-cols-4 {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .md\:flex-row {
+    flex-direction: row;
+  }
+
   .md\:text-sm {
     font-size: 0.875rem;
     line-height: 1.25rem;
   }
 
+  .md\:text-base {
+    font-size: 1rem;
+    line-height: 1.5rem;
+  }
+
+  .md\:text-lg {
+    font-size: 1.125rem;
+    line-height: 1.75rem;
+  }
+
+  .md\:text-xl {
+    font-size: 1.25rem;
+    line-height: 1.75rem;
+  }
+
   .md\:p-6 {
     padding: 1.5rem;
+  }
+
+  .md\:px-6 {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+
+  .md\:py-8 {
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+  }
+
+  .md\:gap-6 {
+    gap: 1.5rem;
+  }
+
+  .md\:gap-8 {
+    gap: 2rem;
   }
 }
 
@@ -1537,6 +1592,14 @@ body,
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 
+  .lg\:grid-cols-5 {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+
+  .lg\:grid-cols-6 {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+
   .lg\:flex-row {
     flex-direction: row;
   }
@@ -1555,6 +1618,11 @@ body,
     line-height: 1;
   }
 
+  .lg\:text-6xl {
+    font-size: 3.75rem;
+    line-height: 1;
+  }
+
   .lg\:gap-12 {
     gap: 3rem;
   }
@@ -1568,6 +1636,11 @@ body,
     padding: 2rem;
   }
 
+  .lg\:px-8 {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+
   .lg\:sticky {
     position: sticky;
   }
@@ -1575,11 +1648,42 @@ body,
   .lg\:top-0 {
     top: 0;
   }
+
+  .lg\:w-auto {
+    width: auto;
+  }
+
+  .lg\:flex-1 {
+    flex: 1;
+  }
 }
 
 @media (min-width: 1280px) {
+  .xl\:grid-cols-4 {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
   .xl\:text-6xl {
     font-size: 3.75rem;
+    line-height: 1;
+  }
+
+  .xl\:gap-16 {
+    gap: 4rem;
+  }
+
+  .xl\:p-12 {
+    padding: 3rem;
+  }
+}
+
+@media (min-width: 1536px) {
+  .\32xl\:grid-cols-6 {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+
+  .\32xl\:text-7xl {
+    font-size: 4.5rem;
     line-height: 1;
   }
 }
@@ -1919,20 +2023,90 @@ html {
   }
 }
 
-/* Responsive improvements */
+/* ============================================
+   RESPONSIVE DESIGN - MAX WIDTH (MOBILE FIRST)
+   ============================================ */
+
+/* Mobile max-width utilities */
 @media (max-width: 640px) {
-  .sm\:hidden {
+  .max-sm\:hidden {
     display: none !important;
   }
 
-  .sm\:block {
+  .max-sm\:block {
     display: block !important;
+  }
+
+  .max-sm\:flex {
+    display: flex !important;
+  }
+
+  .max-sm\:grid-cols-1 {
+    grid-template-columns: 1fr !important;
+  }
+
+  .max-sm\:text-sm {
+    font-size: 0.875rem !important;
+  }
+
+  .max-sm\:px-4 {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
   }
 
   .container {
     padding-left: 1rem;
     padding-right: 1rem;
   }
+}
+
+@media (max-width: 768px) {
+  .max-md\:hidden {
+    display: none !important;
+  }
+
+  .max-md\:block {
+    display: block !important;
+  }
+
+  .max-md\:flex {
+    display: flex !important;
+  }
+
+  .max-md\:grid-cols-1 {
+    grid-template-columns: 1fr !important;
+  }
+
+  .max-md\:flex-col {
+    flex-direction: column !important;
+  }
+
+  .max-md\:text-base {
+    font-size: 1rem !important;
+  }
+}
+
+@media (max-width: 1024px) {
+  .max-lg\:hidden {
+    display: none !important;
+  }
+
+  .max-lg\:block {
+    display: block !important;
+  }
+
+  .max-lg\:grid-cols-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+/* Responsive improvements */
+.sm\:hidden {
+  display: none !important;
+}
+
+.sm\:block {
+  display: block !important;
 }
 
 /* Loading skeleton */
@@ -1955,4 +2129,187 @@ html {
   animation: skeleton-loading 1.5s infinite;
 }
 
-/* Necesito ver globals.css */
+/* ============================================
+   OPTIMIZACIONES DE RENDIMIENTO
+   ============================================ */
+
+/* GPU acceleration for animations */
+.will-change-transform {
+  will-change: transform;
+}
+
+.will-change-opacity {
+  will-change: opacity;
+}
+
+.will-change-auto {
+  will-change: auto;
+}
+
+/* Contain para mejor rendimiento de layout */
+.contain-layout {
+  contain: layout;
+}
+
+.contain-paint {
+  contain: paint;
+}
+
+.contain-strict {
+  contain: content;
+}
+
+/* Hardware acceleration para elementos animados */
+.hardware-accel {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* Optimización de scroll */
+.scroll-smooth {
+  scroll-behavior: smooth;
+}
+
+.scroll-auto {
+  scroll-behavior: auto;
+}
+
+/* Prevent layout shift */
+.aspect-square {
+  aspect-ratio: 1 / 1;
+}
+
+.aspect-video {
+  aspect-ratio: 16 / 9;
+}
+
+.aspect-w-16.aspect-h-9 {
+  position: relative;
+  padding-bottom: 56.25%;
+}
+
+.aspect-w-16.aspect-h-9 > * {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* Image optimization helpers */
+.object-cover {
+  object-fit: cover;
+}
+
+.object-contain {
+  object-fit: contain;
+}
+
+.object-fill {
+  object-fit: fill;
+}
+
+.object-scale-down {
+  object-fit: scale-down;
+}
+
+/* Lazy loading placeholder */
+.lazy-load {
+  background: hsl(var(--muted) / 0.3);
+  transition: opacity 0.3s ease;
+}
+
+.lazy-load.loaded {
+  opacity: 1;
+}
+
+/* ============================================
+   ACCESSIBILIDAD MEJORADA
+   ============================================ */
+
+/* Focus visible mejorado */
+.focus-visible-ring {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
+}
+
+.focus-visible-ring-primary {
+  outline: 2px solid hsl(var(--primary));
+  outline-offset: 2px;
+}
+
+/* Skip link para accesibilidad */
+.skip-link {
+  position: absolute;
+  top: -9999px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  z-index: 9999;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.skip-link:focus {
+  top: 1rem;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  :root {
+    --border: 0 0% 20%;
+    --muted-foreground: 0 0% 30%;
+  }
+
+  .dark {
+    --border: 0 0% 80%;
+    --muted-foreground: 0 0% 70%;
+  }
+}
+
+/* Dark mode preference */
+@media (prefers-color-scheme: dark) {
+  .system-dark {
+    --background: 0 0% 3.9%;
+    --foreground: 0 0% 98%;
+    --border: 0 0% 14.9%;
+  }
+}
+
+/* No animation preference */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Print styles */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  body {
+    background: white;
+    color: black;
+  }
+
+  a {
+    text-decoration: underline;
+  }
+
+  a[href]::after {
+    content: " (" attr(href) ")";
+  }
+}

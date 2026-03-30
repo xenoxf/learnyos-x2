@@ -4,5 +4,5 @@
   height: 100%;
   display: flex;
   flex-direction: column;
-  background: hsl(var(--bg-primary));
+  background: hsl(var(--background));
 }

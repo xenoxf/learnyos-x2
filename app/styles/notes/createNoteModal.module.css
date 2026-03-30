@@ -99,7 +99,7 @@
 
 .label {
   font-weight: 600;
-  color: var(--primary-foreground);
+  color: hsl(var(--primary-foreground));
   font-size: 0.95rem;
 }
 
@@ -120,7 +120,7 @@
 .textarea:focus,
 .select:focus {
   outline: none;
-  border-color: hsl(--secondary);
+  border-color: hsl(var(--secondary));
   box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
 }
 
@@ -154,14 +154,14 @@
 }
 
 .cancelBtn {
-  background: var(--primary);
-  color: var(--primary-foreground);
-  border: 1px solid var(--border);
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  border: 1px solid hsl(var(--border));
 }
 
 .cancelBtn:hover:not(:disabled) {
-  border-color: var(--text-secondary);
-  background: var(--secondary);
+  border-color: hsl(var(--muted-foreground));
+  background: hsl(var(--secondary));
 }
 
 .submitBtn {

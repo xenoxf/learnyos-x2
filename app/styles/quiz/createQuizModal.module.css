@@ -18,14 +18,15 @@
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
 }
 
 .modal {
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
+  background: hsl(var(--secondary));
+  border: 1px solid hsl(var(--border));
   border-radius: 16px;
   box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
   width: 90%;
@@ -40,6 +41,7 @@
     transform: translateY(-50px);
     opacity: 0;
   }
+
   to {
     transform: translateY(0);
     opacity: 1;
@@ -52,13 +54,13 @@
   justify-content: space-between;
   align-items: center;
   padding: 1.5rem;
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 1px solid hsl(var(--border));
 }
 
 .title {
   font-size: 1.5rem;
   font-weight: 700;
-  color: var(--text-primary);
+  color: hsl(var(--foreground));
   margin: 0;
 }
 
@@ -70,7 +72,7 @@
   justify-content: center;
   background: none;
   border: none;
-  color: var(--text-secondary);
+  color: hsl(var(--muted-foreground));
   cursor: pointer;
   font-size: 1.5rem;
   border-radius: 8px;
@@ -78,8 +80,8 @@
 }
 
 .closeBtn:hover {
-  background: var(--bg-primary);
-  color: var(--text-primary);
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
 }
 
 /* ==================== FORM ==================== */
@@ -98,7 +100,7 @@
 
 .label {
   font-weight: 600;
-  color: var(--text-primary);
+  color: hsl(var(--foreground));
   font-size: 0.95rem;
 }
 
@@ -106,10 +108,10 @@
 .textarea,
 .select {
   padding: 0.75rem 1rem;
-  background: var(--bg-primary);
-  border: 1px solid var(--border-color);
+  background: hsl(var(--background));
+  border: 1px solid hsl(var(--border));
   border-radius: 8px;
-  color: var(--text-primary);
+  color: hsl(var(--foreground));
   font-size: 1rem;
   font-family: inherit;
   transition: all 0.3s ease;
@@ -119,7 +121,7 @@
 .textarea:focus,
 .select:focus {
   outline: none;
-  border-color: var(--primary-accent);
+  border-color: hsl(var(--primary));
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
@@ -153,18 +155,18 @@
 }
 
 .cancelBtn {
-  background: var(--bg-primary);
-  color: var(--text-primary);
-  border: 1px solid var(--border-color);
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
+  border: 1px solid hsl(var(--border));
 }
 
 .cancelBtn:hover:not(:disabled) {
-  border-color: var(--text-secondary);
-  background: var(--bg-secondary);
+  border-color: hsl(var(--muted-foreground));
+  background: hsl(var(--secondary));
 }
 
 .submitBtn {
-  background: linear-gradient(135deg, var(--primary-accent), var(--accent-bright));
+  background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)));
   color: white;
 }
 

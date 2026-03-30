@@ -57,7 +57,7 @@
 /* ==================== MODAL ==================== */
 .modal {
   background: hsl(var(--background));
-  border: 1px solid var(--border-color);
+  border: 1px solid hsl(var(--border));
   border-radius: 16px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
   max-width: 500px;
@@ -87,14 +87,14 @@
   justify-content: space-between;
   align-items: center;
   padding: 1rem;
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 1px solid hsl(var(--border));
   flex-shrink: 0;
 }
 
 .title {
   font-size: 1.5rem;
   font-weight: 700;
-  color: var(--text-primary);
+  color: hsl(var(--foreground));
   margin: 0;
 }
 
@@ -106,15 +106,15 @@
   height: 40px;
   background: none;
   border: none;
-  color: var(--text-secondary);
+  color: hsl(var(--muted-foreground));
   cursor: pointer;
   border-radius: 8px;
   transition: all 0.3s ease;
 }
 
 .closeBtn:hover {
-  background: red;
-  color: var(--bg-primary);
+  background: hsl(var(--destructive));
+  color: hsl(var(--destructive-foreground));
 }
 
 .closeBtn:active {
@@ -130,7 +130,7 @@
 
 .description {
   font-size: 0.95rem;
-  color: var(--text-secondary);
+  color: hsl(var(--muted-foreground));
   margin: 0 0 1.5rem 0;
   line-height: 1.5;
 }
@@ -146,16 +146,16 @@
 .label {
   font-size: 0.95rem;
   font-weight: 600;
-  color: var(--text-primary);
+  color: hsl(var(--foreground));
 
 }
 
 .textarea {
   padding: 0.75rem 1rem;
-  background: var(--bg-primary);
+  background: hsl(var(--background));
   border: 1.5px solid hsl(var(--border));
   border-radius: 8px;
-  color: var(--text-primary);
+  color: hsl(var(--foreground));
   font-size: 0.95rem;
   font-family: inherit;
   transition: all 0.3s ease;
@@ -165,7 +165,7 @@
 
 .textarea:focus {
   outline: none;
-  border-color: var(--primary-accent);
+  border-color: hsl(var(--primary));
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
@@ -188,10 +188,10 @@
 .input,
 .select {
   padding: 0.75rem 1rem;
-  background: var(--bg-primary);
+  background: hsl(var(--background));
   border: 1.5px solid hsl(var(--border));
   border-radius: 8px;
-  color: var(--text-primary);
+  color: hsl(var(--foreground));
   font-size: 0.95rem;
   font-family: inherit;
   transition: all 0.3s ease;
@@ -200,7 +200,7 @@
 .input:focus,
 .select:focus {
   outline: none;
-  border-color: var(--primary-accent);
+  border-color: hsl(var(--primary));
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
@@ -211,7 +211,7 @@
 }
 
 .input::placeholder {
-  color: var(--text-tertiary);
+  color: hsl(var(--muted-foreground));
 }
 
 .select {
@@ -219,8 +219,8 @@
 }
 
 .select option {
-  background: var(--bg-secondary);
-  color: var(--text-primary);
+  background: hsl(var(--secondary));
+  color: hsl(var(--foreground));
 }
 
 /* ==================== FOOTER ==================== */
@@ -228,7 +228,7 @@
   display: flex;
   gap: 1rem;
   padding: 1.5rem;
-  border-top: 1px solid var(--border-color);
+  border-top: 1px solid hsl(var(--border));
   flex-shrink: 0;
 }
 
@@ -249,20 +249,20 @@
 }
 
 .cancelBtn {
-  background: var(--bg-primary);
-  color: var(--primary-foreground);
-  border: 1.5px solid var(--border-color);
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
+  border: 1.5px solid hsl(var(--border));
 }
 
 .cancelBtn:hover:not(:disabled) {
-  border-color: var(--text-secondary);
-  background: var(--bg-secondary);
+  border-color: hsl(var(--muted-foreground));
+  background: hsl(var(--secondary));
 }
 
 
 .confirmBtn {
   background: hsl(var(--primary));
-  color: hsl(var(--text-primary));
+  color: hsl(var(--primary-foreground));
 }
 
 

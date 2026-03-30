@@ -26,11 +26,11 @@
   border: none;
   cursor: pointer;
   transition: background-color 0.2s ease;
-  color: var(--text-primary);
+  color: hsl(var(--foreground));
 }
 
 .trigger:hover {
-  background-color: var(--muted);
+  background-color: hsl(var(--muted));
 }
 
 .trigger span {
@@ -47,8 +47,8 @@
   top: 100%;
   margin-top: 0.25rem;
   width: 12rem;
-  background-color: var(--card);
-  border: 1px solid var(--border);
+  background-color: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
   border-radius: 0.5rem;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
   z-index: 50;
@@ -78,7 +78,7 @@
   text-align: left;
   padding: 0.5rem 0.75rem;
   border-radius: 0.375rem;
-  background-color: var(--primary);
+  background-color: hsl(var(--primary));
   color: black;
   border: none;
   cursor: pointer;
@@ -87,6 +87,6 @@
 }
 
 .themeButton:hover {
-  background-color: var(--muted);
-  color: var(--text-primary);
+  background-color: hsl(var(--muted));
+  color: hsl(var(--foreground));
 }

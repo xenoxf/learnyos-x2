@@ -20,7 +20,7 @@
         rgba(var(--primary-rgb), 0.05),
         rgba(var(--accent-rgb), 0.05)
     );
-    border: 1px solid var(--border-color);
+    border: 1px solid hsl(var(--border));
     border-radius: 16px;
     backdrop-filter: blur(10px);
 }
@@ -40,8 +40,8 @@
     border-radius: 12px;
     background: linear-gradient(
         135deg,
-        var(--primary-accent),
-        var(--accent-bright)
+        hsl(var(--primary)),
+        hsl(var(--accent))
     );
 }
 
@@ -54,12 +54,12 @@
 .title {
     font-size: 2.5rem;
     font-weight: 700;
-    color: var(--text-primary);
+    color: hsl(var(--foreground));
     margin: 0;
     background: linear-gradient(
         135deg,
-        var(--accent-bright),
-        var(--primary-accent)
+        hsl(var(--accent)),
+        hsl(var(--primary))
     );
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -68,7 +68,7 @@
 
 .subtitle {
     font-size: 1rem;
-    color: var(--text-secondary);
+    color: hsl(var(--muted-foreground));
     margin: 0.5rem 0 0 0;
 }
 
@@ -80,8 +80,8 @@
     justify-content: space-between;
     flex-wrap: wrap;
     padding: 1.5rem;
-    background: var(--bg-secondary);
-    border: 1px solid var(--border-color);
+    background: hsl(var(--secondary));
+    border: 1px solid hsl(var(--border));
     border-radius: 12px;
 }
 
@@ -92,19 +92,19 @@
     flex: 1;
     min-width: 250px;
     padding: 0.75rem 1rem;
-    background: var(--bg-primary);
-    border: 1.5px solid var(--border-color);
+    background: hsl(var(--background));
+    border: 1.5px solid hsl(var(--border));
     border-radius: 8px;
     transition: all 0.3s ease;
 }
 
 .searchBox:focus-within {
-    border-color: var(--primary-accent);
+    border-color: hsl(var(--primary));
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
 .searchIcon {
-    color: var(--text-secondary);
+    color: hsl(var(--muted-foreground));
     flex-shrink: 0;
 }
 
@@ -113,12 +113,12 @@
     background: transparent;
     border: none;
     outline: none;
-    color: var(--text-primary);
+    color: hsl(var(--foreground));
     font-size: 1rem;
 }
 
 .searchInput::placeholder {
-    color: var(--text-tertiary);
+    color: hsl(var(--muted-foreground));
 }
 
 .generateBtn {
@@ -128,8 +128,8 @@
     padding: 0.75rem 1.5rem;
     background: linear-gradient(
         135deg,
-        var(--primary-accent),
-        var(--accent-bright)
+        hsl(var(--primary)),
+        hsl(var(--accent))
     );
     color: white;
     border: none;
@@ -164,8 +164,8 @@
     flex-direction: column;
     gap: 1.5rem;
     padding: 2rem;
-    background: var(--bg-secondary);
-    border: 1px solid var(--border-color);
+    background: hsl(var(--secondary));
+    border: 1px solid hsl(var(--border));
     border-radius: 12px;
     max-height: 800px;
     overflow-y: auto;
@@ -174,10 +174,10 @@
 .decksTitle {
     font-size: 1.5rem;
     font-weight: 600;
-    color: var(--text-primary);
+    color: hsl(var(--foreground));
     margin: 0;
     padding-bottom: 1rem;
-    border-bottom: 2px solid var(--border-color);
+    border-bottom: 2px solid hsl(var(--border));
 }
 
 .deckGrid {
@@ -188,15 +188,15 @@
 
 .deckItem {
     padding: 1.25rem;
-    background: var(--bg-primary);
-    border: 2px solid var(--border-color);
+    background: hsl(var(--background));
+    border: 2px solid hsl(var(--border));
     border-radius: 10px;
     cursor: pointer;
     transition: all 0.3s ease;
 }
 
 .deckItem:hover {
-    border-color: var(--primary-accent);
+    border-color: hsl(var(--primary));
     background: linear-gradient(
         135deg,
         rgba(var(--primary-rgb), 0.03),
@@ -205,7 +205,7 @@
 }
 
 .deckItemActive {
-    border-color: var(--accent-bright);
+    border-color: hsl(var(--accent));
     background: linear-gradient(
         135deg,
         rgba(var(--primary-rgb), 0.1),
@@ -225,7 +225,7 @@
 .deckItemTitle {
     font-size: 1.1rem;
     font-weight: 600;
-    color: var(--text-primary);
+    color: hsl(var(--foreground));
     margin: 0;
 }
 
@@ -251,7 +251,7 @@
 
 .deckItemDesc {
     font-size: 0.95rem;
-    color: var(--text-secondary);
+    color: hsl(var(--muted-foreground));
     margin: 0 0 0.75rem 0;
     display: -webkit-box;
     -webkit-line-clamp: 2;
@@ -273,7 +273,7 @@
     padding: 0.35rem 0.75rem;
     background: rgba(59, 130, 246, 0.1);
     border-radius: 6px;
-    color: var(--primary-accent);
+    color: hsl(var(--primary));
     font-weight: 500;
 }
 
@@ -298,14 +298,14 @@
     gap: 1rem;
     padding: 3rem 1.5rem;
     text-align: center;
-    color: var(--text-secondary);
+    color: hsl(var(--muted-foreground));
 }
 
 .spinner {
     width: 48px;
     height: 48px;
-    border: 3px solid var(--border-color);
-    border-top-color: var(--accent-bright);
+    border: 3px solid hsl(var(--border));
+    border-top-color: hsl(var(--accent));
     border-radius: 50%;
     animation: spin 1s linear infinite;
 }
@@ -318,7 +318,7 @@
 
 .emptySubtext {
     font-size: 0.9rem;
-    color: var(--text-tertiary);
+    color: hsl(var(--muted-foreground));
 }
 
 /* ==================== CARD VIEWER SECTION ==================== */
@@ -327,8 +327,8 @@
     flex-direction: column;
     gap: 1.5rem;
     padding: 2rem;
-    background: var(--bg-secondary);
-    border: 1px solid var(--border-color);
+    background: hsl(var(--secondary));
+    border: 1px solid hsl(var(--border));
     border-radius: 12px;
 }
 
@@ -337,13 +337,13 @@
     justify-content: space-between;
     align-items: center;
     padding-bottom: 1rem;
-    border-bottom: 2px solid var(--border-color);
+    border-bottom: 2px solid hsl(var(--border));
 }
 
 .cardViewerTitle {
     font-size: 1.5rem;
     font-weight: 600;
-    color: var(--text-primary);
+    color: hsl(var(--foreground));
     margin: 0;
 }
 
@@ -354,8 +354,8 @@
     padding: 0.5rem 1rem;
     background: linear-gradient(
         135deg,
-        var(--primary-accent),
-        var(--accent-bright)
+        hsl(var(--primary)),
+        hsl(var(--accent))
     );
     color: white;
     border-radius: 6px;
@@ -397,7 +397,7 @@
     justify-content: center;
     padding: 2rem;
     border-radius: 12px;
-    border: 2px solid var(--border-color);
+    border: 2px solid hsl(var(--border));
 }
 
 .flipCardFront {
@@ -411,8 +411,8 @@
 .flipCardBack {
     background: linear-gradient(
         135deg,
-        var(--primary-accent),
-        var(--accent-bright)
+        hsl(var(--primary)),
+        hsl(var(--accent))
     );
     transform: rotateY(180deg);
 }
@@ -421,7 +421,7 @@
     font-size: 1.5rem;
     font-weight: 600;
     text-align: center;
-    color: var(--text-primary);
+    color: hsl(var(--foreground));
     line-height: 1.6;
     word-break: break-word;
 }
@@ -434,7 +434,7 @@
     position: absolute;
     bottom: 1rem;
     font-size: 0.85rem;
-    color: var(--text-tertiary);
+    color: hsl(var(--muted-foreground));
     margin: 0;
 }
 
@@ -502,10 +502,10 @@
     justify-content: center;
     width: 44px;
     height: 44px;
-    background: var(--bg-primary);
-    border: 2px solid var(--border-color);
+    background: hsl(var(--background));
+    border: 2px solid hsl(var(--border));
     border-radius: 8px;
-    color: var(--text-primary);
+    color: hsl(var(--foreground));
     cursor: pointer;
     transition: all 0.3s ease;
     font-weight: 600;
@@ -513,7 +513,7 @@
 
 .navBtn:hover:not(:disabled),
 .resetBtn:hover {
-    border-color: var(--primary-accent);
+    border-color: hsl(var(--primary));
     background: linear-gradient(
         135deg,
         rgba(var(--primary-rgb), 0.1),
@@ -530,8 +530,8 @@
 .resetBtn {
     background: linear-gradient(
         135deg,
-        var(--primary-accent),
-        var(--accent-bright)
+        hsl(var(--primary)),
+        hsl(var(--accent))
     );
     color: white;
     border: none;
@@ -545,18 +545,18 @@
 .progressBar {
     width: 100%;
     height: 8px;
-    background: var(--bg-primary);
+    background: hsl(var(--background));
     border-radius: 4px;
     overflow: hidden;
-    border: 1px solid var(--border-color);
+    border: 1px solid hsl(var(--border));
 }
 
 .progressFill {
     height: 100%;
     background: linear-gradient(
         90deg,
-        var(--primary-accent),
-        var(--accent-bright)
+        hsl(var(--primary)),
+        hsl(var(--accent))
     );
     transition: width 0.3s ease;
 }
@@ -569,19 +569,19 @@
     justify-content: center;
     gap: 1.5rem;
     padding: 4rem 2rem;
-    color: var(--text-secondary);
+    color: hsl(var(--muted-foreground));
     text-align: center;
 }
 
 .emptyCardIcon {
-    color: var(--text-tertiary);
+    color: hsl(var(--muted-foreground));
     opacity: 0.5;
 }
 
 /* ==================== DIALOG STYLES ==================== */
 .dialog {
-    background: var(--bg-secondary) !important;
-    border: 1px solid var(--border-color) !important;
+    background: hsl(var(--secondary)) !important;
+    border: 1px solid hsl(var(--border)) !important;
 }
 
 .formGroup {
@@ -594,16 +594,16 @@
 .label {
     font-size: 0.95rem;
     font-weight: 600;
-    color: var(--text-primary);
+    color: hsl(var(--foreground));
 }
 
 .input,
 .textarea {
     padding: 0.75rem 1rem;
-    background: var(--bg-primary);
-    border: 1.5px solid var(--border-color);
+    background: hsl(var(--background));
+    border: 1.5px solid hsl(var(--border));
     border-radius: 8px;
-    color: var(--text-primary);
+    color: hsl(var(--foreground));
     font-size: 1rem;
     transition: all 0.3s ease;
     font-family: inherit;
@@ -612,7 +612,7 @@
 .input:focus,
 .textarea:focus {
     outline: none;
-    border-color: var(--primary-accent);
+    border-color: hsl(var(--primary));
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
@@ -621,9 +621,9 @@
 }
 
 .selectTrigger {
-    background: var(--bg-primary) !important;
-    border: 1.5px solid var(--border-color) !important;
-    color: var(--text-primary) !important;
+    background: hsl(var(--background)) !important;
+    border: 1.5px solid hsl(var(--border)) !important;
+    color: hsl(var(--foreground)) !important;
 }
 
 .dialogActions {
@@ -649,21 +649,21 @@
 }
 
 .cancelBtn {
-    background: var(--bg-primary);
-    color: var(--text-primary);
-    border: 1.5px solid var(--border-color);
+    background: hsl(var(--background));
+    color: hsl(var(--foreground));
+    border: 1.5px solid hsl(var(--border));
 }
 
 .cancelBtn:hover {
-    border-color: var(--text-secondary);
-    background: var(--bg-secondary);
+    border-color: hsl(var(--muted-foreground));
+    background: hsl(var(--secondary));
 }
 
 .confirmBtn {
     background: linear-gradient(
         135deg,
-        var(--primary-accent),
-        var(--accent-bright)
+        hsl(var(--primary)),
+        hsl(var(--accent))
     );
     color: white;
 }

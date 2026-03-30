@@ -140,7 +140,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--bg-primary, white);
+  background: hsl(var(--background));
   z-index: 1000;
 }
 
@@ -153,8 +153,8 @@
   display: inline-block;
   width: 2.5rem;
   height: 2.5rem;
-  border: 3px solid var(--border-color, #e5e7eb);
-  border-top-color: var(--primary, #3b82f6);
+  border: 3px solid hsl(var(--border));
+  border-top-color: hsl(var(--primary));
   border-radius: 50%;
   animation: spin 1s linear infinite;
   margin-bottom: 1rem;
@@ -168,6 +168,6 @@
 
 .spinner p {
   margin: 0;
-  color: var(--text-primary, #000);
+  color: hsl(var(--foreground));
   font-size: 0.95rem;
 }
