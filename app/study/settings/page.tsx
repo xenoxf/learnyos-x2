@@ -472,10 +472,10 @@ export default function SettingsPage() {
             </div>
           )}
 
-          {(activeTab === "notes" || activeTab === "cards" || activeTab === "quizzes") && (
+          {activeTab === "notes" && (
             <div className={styles.manageTab}>
               <div className={styles.tabHeader}>
-                <h2 className={styles.tabTitle}>Gestionar {getSectionName()}</h2>
+                <h2 className={styles.tabTitle}>Gestionar notas</h2>
                 {items.length > 0 && (
                   <button
                     className={styles.deleteAllBtn}
@@ -491,11 +491,11 @@ export default function SettingsPage() {
               {loading ? (
                 <div className={styles.loading}>
                   <div className={styles.spinner} />
-                  <p>Cargando elementos...</p>
+                  <p>Cargando notas...</p>
                 </div>
               ) : items.length === 0 ? (
                 <div className={styles.empty}>
-                  <p>No tienes {getSectionName()} para mostrar</p>
+                  <p>No tienes notas para mostrar</p>
                 </div>
               ) : (
                 <div className={styles.list}>
@@ -507,12 +507,12 @@ export default function SettingsPage() {
                           {item.acceso && (
                             <span
                               className={`${styles.accessBadge} ${
-                                item.acceso === "public" || item.acceso === "publico"
+                                item.acceso === "public"
                                   ? styles.accessPublic
                                   : styles.accessPrivate
                               }`}
                             >
-                              {item.acceso === "public" || item.acceso === "publico" ? (
+                              {item.acceso === "public" ? (
                                 <>
                                   <Globe size={12} /> Público
                                 </>
@@ -546,6 +546,120 @@ export default function SettingsPage() {
                           <Trash2 size={18} />
                         )}
                       </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {activeTab === "cards" && (
+            <div className={styles.manageTab}>
+              <div className={styles.tabHeader}>
+                <h2 className={styles.tabTitle}>Gestionar flashcards</h2>
+                {items.length > 0 && (
+                  <button
+                    className={styles.deleteAllBtn}
+                    onClick={handleDeleteAll}
+                    type="button"
+                  >
+                    <AlertTriangle size={18} />
+                    <span>Eliminar todo ({items.length})</span>
+                  </button>
+                )}
+              </div>
+
+              {loading ? (
+                <div className={styles.loading}>
+                  <div className={styles.spinner} />
+                  <p>Cargando flashcards...</p>
+                </div>
+              ) : items.length === 0 ? (
+                <div className={styles.empty}>
+                  <p>No tienes flashcards para mostrar</p>
+                </div>
+              ) : (
+                <div className={styles.list}>
+                  {items.map((item) => (
+                    <div key={item.id} className={styles.listItem}>
+                      <div className={styles.listItemContent}>
+                        <div className={styles.listItemHeader}>
+                          <h3 className={styles.listItemTitle}>{item.title}</h3>
+                          {item.description && (
+                            <p className={styles.listItemDescription}>{item.description}</p>
+                          )}
+                        </div>
+                        <button
+                          className={`${styles.deleteBtn} ${deletingId === item.id ? styles.deleting : ""}`}
+                          onClick={() => handleDelete(item.id, item.title)}
+                          disabled={deletingId === item.id}
+                          type="button"
+                          aria-label={`Eliminar ${item.title}`}
+                        >
+                          {deletingId === item.id ? (
+                            <span className={styles.deleteSpinner} />
+                          ) : (
+                            <Trash2 size={18} />
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {activeTab === "quizzes" && (
+            <div className={styles.manageTab}>
+              <div className={styles.tabHeader}>
+                <h2 className={styles.tabTitle}>Gestionar quizzes</h2>
+                {items.length > 0 && (
+                  <button
+                    className={styles.deleteAllBtn}
+                    onClick={handleDeleteAll}
+                    type="button"
+                  >
+                    <AlertTriangle size={18} />
+                    <span>Eliminar todo ({items.length})</span>
+                  </button>
+                )}
+              </div>
+
+              {loading ? (
+                <div className={styles.loading}>
+                  <div className={styles.spinner} />
+                  <p>Cargando quizzes...</p>
+                </div>
+              ) : items.length === 0 ? (
+                <div className={styles.empty}>
+                  <p>No tienes quizzes para mostrar</p>
+                </div>
+              ) : (
+                <div className={styles.list}>
+                  {items.map((item) => (
+                    <div key={item.id} className={styles.listItem}>
+                      <div className={styles.listItemContent}>
+                        <div className={styles.listItemHeader}>
+                          <h3 className={styles.listItemTitle}>{item.title}</h3>
+                          {item.description && (
+                            <p className={styles.listItemDescription}>{item.description}</p>
+                          )}
+                        </div>
+                        <button
+                          className={`${styles.deleteBtn} ${deletingId === item.id ? styles.deleting : ""}`}
+                          onClick={() => handleDelete(item.id, item.title)}
+                          disabled={deletingId === item.id}
+                          type="button"
+                          aria-label={`Eliminar ${item.title}`}
+                        >
+                          {deletingId === item.id ? (
+                            <span className={styles.deleteSpinner} />
+                          ) : (
+                            <Trash2 size={18} />
+                          )}
+                        </button>
+                      </div>
                     </div>
                   ))}
                 </div>
