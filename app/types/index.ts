@@ -129,7 +129,9 @@ export interface CardKlek {
   id: number;
   title: string;
   area: string;
-  flashCards: FlashCardKlek[];
+  description?: string;
+  tema?: string;
+  flashcards: FlashCardKlek[];
 }
 
 export interface FlashCardKlek {

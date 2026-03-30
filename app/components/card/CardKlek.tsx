@@ -1,16 +1,13 @@
-import type { Card } from "@/types";
+import type { CardKlek } from "@/types";
 import React, { useState, useEffect, useCallback } from "react";
 import {
   ChevronLeft,
   ChevronRight,
   RotateCcw,
-  Copy,
-  Check,
 } from "lucide-react";
 import styles from "@/styles/flashCards/CardKlek.module.css";
 import { useToast } from "@/hooks/use-toast";
 import { apiService } from "@/services/apiService";
-import MarkdownRenderer from "../MarkdownRenderer";
 
 interface CardKlekProps {
   cardId: number;
@@ -19,31 +16,18 @@ interface CardKlekProps {
 
 const CardKlekComponent: React.FC<CardKlekProps> = ({ cardId, onClose }) => {
   const { toast } = useToast();
-  const [card, setCard] = useState<(Card & { canDelete?: boolean }) | null>(
-    null,
-  );
+  const [card, setCard] = useState<CardKlek | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
-  const [copiedCode, setCopiedCode] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    let timeoutId: NodeJS.Timeout;
-    if (copiedCode) {
-      timeoutId = setTimeout(() => setCopiedCode(false), 2000);
-    }
-    return () => {
-      if (timeoutId) clearTimeout(timeoutId);
-    };
-  }, [copiedCode]);
 
   const loadCard = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
-      const data = await apiService.getFlashcard(cardId);
-      setCard(data as Card & { canDelete?: boolean });
+      const data = await apiService.getCardKlek(cardId);
+      setCard(data);
     } catch (err) {
       const message =
         err instanceof Error ? err.message : "Error al cargar mazo";
@@ -93,24 +77,6 @@ const CardKlekComponent: React.FC<CardKlekProps> = ({ cardId, onClose }) => {
   const handleFlip = useCallback(() => {
     setIsFlipped((prev) => !prev);
   }, []);
-
-  const handleCopyCode = useCallback(async () => {
-    if (!card?.code) return;
-    try {
-      await navigator.clipboard.writeText(String(card.code));
-      setCopiedCode(true);
-      toast({
-        title: "Código copiado",
-        description: `Código "${String(card.code)}" copiado al portapapeles`,
-      });
-    } catch (err) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "No se pudo copiar el código",
-      });
-    }
-  }, [card, toast]);
 
   if (loading) {
     return (
@@ -199,7 +165,7 @@ const CardKlekComponent: React.FC<CardKlekProps> = ({ cardId, onClose }) => {
             <div className={styles.flashCardFace}>
               <div className={styles.faceContent}>
                 <span className={styles.faceLabel}>Pregunta</span>
-                <p className={styles.faceText}><MarkdownRenderer content={currentCard.front} /></p>
+                <p className={styles.faceText}>{currentCard.front}</p>
               </div>
             </div>
 
@@ -207,7 +173,7 @@ const CardKlekComponent: React.FC<CardKlekProps> = ({ cardId, onClose }) => {
             <div className={styles.flashCardFace}>
               <div className={styles.faceContent}>
                 <span className={styles.faceLabel}>Respuesta</span>
-                <p className={styles.faceText}><MarkdownRenderer content={currentCard.back} /></p>
+                <p className={styles.faceText}>{currentCard.back}</p>
               </div>
             </div>
           </div>
