@@ -10,7 +10,7 @@ import {
   type StudyGridBaseItem,
   type ViewMode,
 } from "@/components/study/StudyGrid";
-import type { Exam } from "@/types";
+import type { ExamDeck } from "@/types";
 import { apiService } from "@/services/apiService";
 
 interface QuizGridProps {
@@ -45,14 +45,14 @@ export default function QuizGrid({ onQuizOpen }: QuizGridProps) {
     handleCreateClick,
     handleCloseModal,
     handleItemDeleted,
-  } = useStudyGrid<Exam & StudyGridBaseItem>({
+  } = useStudyGrid<ExamDeck & StudyGridBaseItem>({
     actions: {
       onLoad: async () => {
         const data =
           viewMode === "private"
             ? await apiService.getExamsPrivate()
             : await apiService.getExamsPublic();
-        return data as (Exam & StudyGridBaseItem)[];
+        return data as (ExamDeck & StudyGridBaseItem)[];
       },
       onItemOpen: (quiz) => onQuizOpen?.(quiz.id),
     },

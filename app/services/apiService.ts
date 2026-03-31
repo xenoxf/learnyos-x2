@@ -3,12 +3,14 @@ import {
   type LoginInput,
   type RegisterInput,
   type User,
-  type Note,
-  type FlashCard,
-  type GenerateFlashCardData,
-  type Card,
-  type Exam,
+  type NoteDeck,
+  type NoteKlek,
+  type CardsDeck,
+  type CardKlek,
+  type ExamDeck,
+  type ExamKlek,
   type GenerateExamData,
+  type GenerateFlashCardData,
   type Chat,
   type ChatMessage,
   type SendMessageData,
@@ -16,9 +18,6 @@ import {
   type GetChatMessagesResponse,
   type GenerateNoteData,
   type GenerateNotesResponse,
-  type ExamDeck,
-  CardsDeck,
-  CardKlek,
 } from "@/types";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
@@ -244,20 +243,20 @@ class ApiService {
 
   // ==================== NOTES ====================
 
-  async getNotes(): Promise<Note[]> {
-    return this.request<Note[]>("/notes", { method: "GET" });
+  async getNotes(): Promise<NoteDeck[]> {
+    return this.request<NoteDeck[]>("/notes", { method: "GET" });
   }
 
-  async getNotesPublic(): Promise<Note[]> {
-    return this.request<Note[]>("/notes/public", { method: "GET" });
+  async getNotesPublic(): Promise<NoteDeck[]> {
+    return this.request<NoteDeck[]>("/notes/public", { method: "GET" });
   }
 
-  async getNotesPrivate(): Promise<Note[]> {
-    return this.request<Note[]>("/notes/private", { method: "GET" });
+  async getNotesPrivate(): Promise<NoteDeck[]> {
+    return this.request<NoteDeck[]>("/notes/private", { method: "GET" });
   }
 
-  async getNote(id: number): Promise<Note> {
-    return this.request<Note>(`/notes/${id}`, { method: "GET" });
+  async getNote(id: number): Promise<NoteKlek> {
+    return this.request<NoteKlek>(`/notes/${id}`, { method: "GET" });
   }
 
   async generateNote(data: GenerateNoteData): Promise<GenerateNotesResponse> {
@@ -276,8 +275,8 @@ class ApiService {
     };
     const raw = await this.request<{
       success?: boolean;
-      notes?: Note[];
-      data?: Note[];
+      notes?: NoteDeck[];
+      data?: NoteDeck[];
       message?: string;
     }>("/notes/generate/topic_or_reference", {
       method: "POST",
@@ -296,15 +295,15 @@ class ApiService {
     await this.request<void>(`/notes/${id}`, { method: "DELETE" });
   }
 
-  async createNote(data: Partial<Note>): Promise<Note> {
-    return this.requestWithFallback<Note>(["/notes", "/notes/create"], {
+  async createNote(data: Partial<NoteKlek>): Promise<NoteKlek> {
+    return this.requestWithFallback<NoteKlek>(["/notes", "/notes/create"], {
       method: "POST",
       body: JSON.stringify(data),
     });
   }
 
-  async updateNote(id: number, data: Partial<Note>): Promise<Note> {
-    return this.requestWithFallback<Note>(
+  async updateNote(id: number, data: Partial<NoteKlek>): Promise<NoteKlek> {
+    return this.requestWithFallback<NoteKlek>(
       [`/notes/${id}`, `/notes/update/${id}`],
       {
         method: 'PATCH',
@@ -315,20 +314,20 @@ class ApiService {
 
   // ==================== FLASHCARDS ====================
 
-  async getFlashcards(): Promise<Card[]> {
-    return this.request<Card[]>("/flash-cards", { method: "GET" });
+  async getFlashcards(): Promise<CardsDeck[]> {
+    return this.request<CardsDeck[]>("/flash-cards", { method: "GET" });
   }
 
-  async getFlashcardsPublic(): Promise<Card[]> {
-    return this.request<Card[]>("/flash-cards/public", { method: "GET" });
+  async getFlashcardsPublic(): Promise<CardsDeck[]> {
+    return this.request<CardsDeck[]>("/flash-cards/public", { method: "GET" });
   }
 
-  async getFlashcardsPrivate(): Promise<Card[]> {
-    return this.request<Card[]>("/flash-cards/private", { method: "GET" });
+  async getFlashcardsPrivate(): Promise<CardsDeck[]> {
+    return this.request<CardsDeck[]>("/flash-cards/private", { method: "GET" });
   }
 
-  async getFlashcard(id: number): Promise<Card> {
-    return this.request<Card>(`/flash-cards/${id}`, { method: "GET" });
+  async getFlashcard(id: number): Promise<CardKlek> {
+    return this.request<CardKlek>(`/flash-cards/${id}`, { method: "GET" });
   }
 
   async getCardKlek(id: number): Promise<CardKlek> {
@@ -363,15 +362,15 @@ class ApiService {
     });
   }
 
-  async createCard(data: Partial<Card>): Promise<Card> {
-    return this.requestWithFallback<Card>(["/flash-cards", "/flash-cards/create"], {
+  async createCard(data: Partial<CardKlek>): Promise<CardKlek> {
+    return this.requestWithFallback<CardKlek>(["/flash-cards", "/flash-cards/create"], {
       method: "POST",
       body: JSON.stringify(data),
     });
   }
 
-  async updateCard(id: number, data: Partial<Card>): Promise<Card> {
-    return this.requestWithFallback<Card>(
+  async updateCard(id: number, data: Partial<CardKlek>): Promise<CardKlek> {
+    return this.requestWithFallback<CardKlek>(
       [`/flash-cards/${id}`, `/flash-cards/update/${id}`],
       {
         method: 'PATCH',
@@ -386,46 +385,46 @@ class ApiService {
 
   // ==================== EXAMS ====================
 
-  async getExams(): Promise<Exam[]> {
-    return this.request<Exam[]>("/exams", { method: "GET" });
+  async getExams(): Promise<ExamDeck[]> {
+    return this.request<ExamDeck[]>("/exams", { method: "GET" });
   }
 
-  async getExamsPublic(): Promise<Exam[]> {
-    return this.request<Exam[]>("/exams/public", { method: "GET" });
+  async getExamsPublic(): Promise<ExamDeck[]> {
+    return this.request<ExamDeck[]>("/exams/public", { method: "GET" });
   }
 
-  async getExamsPrivate(): Promise<Exam[]> {
-    return this.request<Exam[]>("/exams/private", { method: "GET" });
+  async getExamsPrivate(): Promise<ExamDeck[]> {
+    return this.request<ExamDeck[]>("/exams/private", { method: "GET" });
   }
 
   async getExamsOnly(): Promise<ExamDeck[]> {
     return this.request<ExamDeck[]>("/exams/deck", { method: "GET" });
   }
 
-  async getExam(id: number): Promise<Exam> {
-    return this.request<Exam>(`/exams/${id}`, { method: "GET" });
+  async getExam(id: number): Promise<ExamKlek> {
+    return this.request<ExamKlek>(`/exams/${id}`, { method: "GET" });
   }
 
   /**
    * Get exam for playing (klek format) - includes questions
    * Use this when opening a quiz to play, not for deck listing
    */
-  async getExamForPlay(id: number): Promise<Exam> {
-    return this.request<Exam>(`/exams/play/${id}`, { method: "GET" });
+  async getExamForPlay(id: number): Promise<ExamKlek> {
+    return this.request<ExamKlek>(`/exams/play/${id}`, { method: "GET" });
   }
 
-  async generateExam(data: GenerateExamData): Promise<Exam> {
-    return this.request<Exam>("/exams/generate/topic_or_reference", {
+  async generateExam(data: GenerateExamData): Promise<ExamKlek> {
+    return this.request<ExamKlek>("/exams/generate/topic_or_reference", {
       method: "POST",
       body: JSON.stringify(data),
     });
   }
-  async updateExamScore(id: number, score: number): Promise<Exam[]> {
+  async updateExamScore(id: number, score: number): Promise<ExamDeck[]> {
     const params = new URLSearchParams({
       id: String(id),
       score: String(score),
     });
-    return this.request<Exam[]>(`/exams/score?${params}`, {
+    return this.request<ExamDeck[]>(`/exams/score?${params}`, {
       method: "GET",
     });
   }
@@ -498,16 +497,6 @@ class ApiService {
   }
 
   // ==================== HELPER METHODS ====================
-
-  private formatDeckWithPermissions(card: Card, userId: number) {
-    return {
-      id: card.id,
-      title: card.title,
-      description: card.description,
-      code: card.code,
-      canDelete: card.userId === userId, // true si es propietario
-    };
-  }
 }
 
 export const apiService = new ApiService();

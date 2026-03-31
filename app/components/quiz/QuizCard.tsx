@@ -3,10 +3,10 @@ import { Trash2, HelpCircle, Clock, Tag } from "lucide-react";
 import { apiService } from "@/services/apiService";
 import { useToast } from "@/hooks/use-toast";
 import styles from "@/styles/quiz/quizCard.module.css";
-import type { Exam } from "@/types";
+import type { ExamDeck } from "@/types";
 
 interface QuizCardProps {
-  quiz: Exam & { canDelete?: boolean };
+  quiz: ExamDeck & { canDelete?: boolean };
   onQuizDeleted?: () => void;
   onQuizOpen?: (quizId: number) => void;
 }

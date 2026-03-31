@@ -5,10 +5,10 @@ import { Trash2, FileText, Tag, BookOpen } from "lucide-react";
 import { apiService } from "@/services/apiService";
 import { useToast } from "@/hooks/use-toast";
 import styles from "@/styles/notes/noteCard.module.css";
-import type { Note } from "@/types";
+import type { NoteDeck } from "@/types";
 
 interface NoteCardProps {
-  note: Note & { canDelete?: boolean };
+  note: NoteDeck & { canDelete?: boolean };
   onNoteOpen?: (noteId: number) => void;
   onNoteDeleted?: () => void;
 }
@@ -66,7 +66,7 @@ export default function NoteCard({
   };
 
   // Contar contenidos de la nota
-  const contentsCount = note.noteContents?.length ?? 0;
+  const contentsCount = note.contentsCount ?? 0;
 
   return (
     <div
@@ -125,7 +125,7 @@ export default function NoteCard({
 
       <div className={styles.cardFooter}>
         <span className={styles.cardHint}>
-          Nivel: {note.levelOfDetail || "breve"}
+          {contentsCount} sección{contentsCount !== 1 ? 'es' : ''}
         </span>
         {/* Solo mostrar el code si es el dueño */}
         {isOwner && note.code ? (

@@ -10,7 +10,7 @@ import {
   type StudyGridBaseItem,
   type ViewMode,
 } from "@/components/study/StudyGrid";
-import type { Card } from "@/types";
+import type { CardsDeck } from "@/types";
 import { apiService } from "@/services/apiService";
 
 interface CardGridProps {
@@ -45,7 +45,7 @@ export default function CardGrid({ onCardSelect }: CardGridProps) {
     handleCreateClick,
     handleCloseModal,
     handleItemDeleted,
-  } = useStudyGrid<Card & StudyGridBaseItem>({
+  } = useStudyGrid<CardsDeck & StudyGridBaseItem>({
     actions: {
       onLoad: async () => {
         const data =
@@ -54,7 +54,7 @@ export default function CardGrid({ onCardSelect }: CardGridProps) {
             : await apiService.getFlashcardsPublic();
         const validCards = (data || []).filter(
           (card: any) => card.id && card.title,
-        ) as (Card & StudyGridBaseItem)[];
+        ) as (CardsDeck & StudyGridBaseItem)[];
         return validCards;
       },
       onItemOpen: (card) => onCardSelect?.(card.id),

@@ -2,10 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { apiService } from "@/services/apiService";
-import type { Note } from "@/types";
+import type { NoteDeck } from "@/types";
 
 export function useNotes() {
-  const [notes, setNotes] = useState<Note[]>([]);
+  const [notes, setNotes] = useState<NoteDeck[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -27,16 +27,16 @@ export function useNotes() {
     fetchNotes();
   }, []);
 
-  const addNote = (note: Note) => {
-    setNotes((prev: Note[]) => [...prev, note]);
+  const addNote = (note: NoteDeck) => {
+    setNotes((prev: NoteDeck[]) => [...prev, note]);
   };
 
   const removeNote = (noteId: number) => {
-    setNotes((prev: Note[]) => prev.filter((n) => n.id !== noteId));
+    setNotes((prev: NoteDeck[]) => prev.filter((n) => n.id !== noteId));
   };
 
-  const updateNote = (noteId: number, updated: Partial<Note>) => {
-    setNotes((prev: Note[]) =>
+  const updateNote = (noteId: number, updated: Partial<NoteDeck>) => {
+    setNotes((prev: NoteDeck[]) =>
       prev.map((n) => (n.id === noteId ? { ...n, ...updated } : n)),
     );
   };

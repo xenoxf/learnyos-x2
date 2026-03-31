@@ -20,7 +20,6 @@ import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import styles from "../styles/sidebar.module.css";
 import { ThemeToggleSidebr } from "./ThemeToogleSidebr";
-import { SettingsModal } from "./SettingsModal";
 
 const menuItems = [
   { title: "Klerk", url: "/study", icon: LayoutDashboard, description: "Dashboard" },

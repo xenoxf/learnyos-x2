@@ -1,15 +1,30 @@
 "use client";
 
-import React, { useState, useCallback, useEffect } from "react";
-import { X, Trash2, Lock, Globe, User, FileText, LogOut, Shield, AlertTriangle, Settings, ArrowLeft } from "lucide-react";
+import React, { useState, useEffect, useCallback } from "react";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import {
+  Settings,
+  ArrowLeft,
+  User,
+  Mail,
+  LogOut,
+  Shield,
+  FileText,
+  Brain,
+  CreditCard,
+  Trash2,
+  AlertTriangle,
+  Globe,
+  Lock,
+} from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiService } from "@/services/apiService";
-import { useRouter } from "next/navigation";
 import { useCustomAlert } from "@/hooks/useCustomAlert";
 import { CustomAlert } from "@/components/CustomAlert";
-import styles from "@/styles/settingsPage.module.css";
+import styles from "@/styles/settings-new.module.css";
 
-type TabType = "general" | "notes" | "cards" | "quizzes" | "terms";
+type TabType = "general" | "notes" | "flashcards" | "quizzes" | "terms";
 
 interface ManageItem {
   id: number;
@@ -24,10 +39,12 @@ export default function SettingsPage() {
   const { toast } = useToast();
   const router = useRouter();
   const { alert, alertState, handleClose, handleConfirm } = useCustomAlert();
+  
   const [activeTab, setActiveTab] = useState<TabType>("general");
   const [items, setItems] = useState<ManageItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [deletingAll, setDeletingAll] = useState(false);
   const [user, setUser] = useState<any>(null);
 
   useEffect(() => {
@@ -60,7 +77,7 @@ export default function SettingsPage() {
           acceso: n.acceso === "public" || n.acceso === "publico" ? "public" : "private",
           canDelete: true,
         }));
-      } else if (activeTab === "cards") {
+      } else if (activeTab === "flashcards") {
         const cards = await apiService.getCardsPrivates();
         data = cards.map((c: any) => ({
           id: c.id,
@@ -108,10 +125,10 @@ export default function SettingsPage() {
 
     try {
       setDeletingId(id);
-      
+
       if (activeTab === "notes") {
         await apiService.deleteNote(id);
-      } else if (activeTab === "cards") {
+      } else if (activeTab === "flashcards") {
         await apiService.deleteCard(id);
       } else if (activeTab === "quizzes") {
         await apiService.deleteExam(id);
@@ -137,7 +154,7 @@ export default function SettingsPage() {
   const handleDeleteAll = async () => {
     const confirmed = await alert.show({
       title: "Eliminar todo",
-      message: `¿Estás seguro de eliminar TODOS tus ${getSectionName()}? Esta acción no se puede deshacer y eliminará permanentemente todos los elementos.`,
+      message: `¿Estás seguro de eliminar TODOS tus ${getSectionName()}? Esta acción no se puede deshacer.`,
       type: "warning",
       confirmText: "Eliminar todo",
       cancelText: "Cancelar",
@@ -147,14 +164,14 @@ export default function SettingsPage() {
     if (!confirmed) return;
 
     try {
-      setLoading(true);
+      setDeletingAll(true);
       let deletedCount = 0;
 
       for (const item of items) {
         try {
           if (activeTab === "notes") {
             await apiService.deleteNote(item.id);
-          } else if (activeTab === "cards") {
+          } else if (activeTab === "flashcards") {
             await apiService.deleteCard(item.id);
           } else if (activeTab === "quizzes") {
             await apiService.deleteExam(item.id);
@@ -178,7 +195,7 @@ export default function SettingsPage() {
         description: "Error al eliminar los elementos",
       });
     } finally {
-      setLoading(false);
+      setDeletingAll(false);
     }
   };
 
@@ -186,7 +203,7 @@ export default function SettingsPage() {
     switch (activeTab) {
       case "notes":
         return "notas";
-      case "cards":
+      case "flashcards":
         return "flashcards";
       case "quizzes":
         return "quizzes";
@@ -225,7 +242,7 @@ export default function SettingsPage() {
 
   const formatDate = (dateString?: string) => {
     if (!dateString) return "";
-    return new Date(dateString).toLocaleDateString("es-ES", {
+    return new Date(dateString).toLocaleDateString("es-CO", {
       year: "numeric",
       month: "short",
       day: "numeric",
@@ -235,8 +252,8 @@ export default function SettingsPage() {
   const tabs = [
     { id: "general" as TabType, label: "General", icon: Settings },
     { id: "notes" as TabType, label: "Mis Notas", icon: FileText },
-    { id: "cards" as TabType, label: "Mis Flashcards", icon: User },
-    { id: "quizzes" as TabType, label: "Mis Quizzes", icon: User },
+    { id: "flashcards" as TabType, label: "Mis Flashcards", icon: CreditCard },
+    { id: "quizzes" as TabType, label: "Mis Quizzes", icon: Brain },
     { id: "terms" as TabType, label: "Términos", icon: Shield },
   ];
 
@@ -253,11 +270,16 @@ export default function SettingsPage() {
         cancelText={alertState.cancelText}
         showCancel={alertState.showCancel}
       />
-      
+
       {/* Header */}
       <header className={styles.header}>
         <div className={styles.headerLeft}>
-          <button onClick={() => router.back()} className={styles.backBtn} type="button" aria-label="Volver">
+          <button 
+            onClick={() => router.back()} 
+            className={styles.backBtn} 
+            type="button" 
+            aria-label="Volver"
+          >
             <ArrowLeft size={24} />
           </button>
           <div className={styles.headerIcon}>
@@ -267,7 +289,13 @@ export default function SettingsPage() {
         </div>
         <div className={styles.userInfo}>
           {user?.picture ? (
-            <img src={user.picture} alt={user.name || "User"} className={styles.userAvatar} />
+            <Image
+              src={user.picture}
+              alt={user.name || "Usuario"}
+              width={36}
+              height={36}
+              className={styles.userAvatar}
+            />
           ) : (
             <div className={styles.userAvatarPlaceholder}>
               {user?.name?.[0]?.toUpperCase() || "U"}
@@ -279,7 +307,7 @@ export default function SettingsPage() {
 
       <div className={styles.content}>
         {/* Tabs Navigation */}
-        <nav className={styles.tabsNav}>
+        <aside className={styles.tabsNav}>
           {tabs.map((tab) => {
             const Icon = tab.icon;
             return (
@@ -289,30 +317,36 @@ export default function SettingsPage() {
                 onClick={() => setActiveTab(tab.id)}
                 type="button"
               >
-                <Icon size={18} />
+                <Icon size={20} />
                 <span>{tab.label}</span>
               </button>
             );
           })}
-        </nav>
+        </aside>
 
         {/* Tab Content */}
-        <div className={styles.tabContent}>
+        <main className={styles.tabContent}>
           {activeTab === "general" && (
             <div className={styles.generalTab}>
               <section className={styles.section}>
                 <h2 className={styles.sectionTitle}>Cuenta</h2>
                 <div className={styles.sectionContent}>
-                  <div className={styles.settingItem}>
-                    <div className={styles.settingInfo}>
-                      <strong className={styles.settingLabel}>Nombre</strong>
-                      <span className={styles.settingValue}>{user?.name || "No disponible"}</span>
+                  <div className={styles.infoCard}>
+                    <div className={styles.infoIcon}>
+                      <User size={20} />
+                    </div>
+                    <div className={styles.infoContent}>
+                      <span className={styles.infoLabel}>Nombre</span>
+                      <span className={styles.infoValue}>{user?.name || "No disponible"}</span>
                     </div>
                   </div>
-                  <div className={styles.settingItem}>
-                    <div className={styles.settingInfo}>
-                      <strong className={styles.settingLabel}>Email</strong>
-                      <span className={styles.settingValue}>{user?.email || "No disponible"}</span>
+                  <div className={styles.infoCard}>
+                    <div className={styles.infoIcon}>
+                      <Mail size={20} />
+                    </div>
+                    <div className={styles.infoContent}>
+                      <span className={styles.infoLabel}>Email</span>
+                      <span className={styles.infoValue}>{user?.email || "No disponible"}</span>
                     </div>
                   </div>
                 </div>
@@ -322,7 +356,7 @@ export default function SettingsPage() {
                 <h2 className={styles.sectionTitle}>Acciones</h2>
                 <div className={styles.sectionContent}>
                   <button
-                    className={`${styles.actionBtn} ${styles.actionBtnDanger}`}
+                    className={styles.actionBtnDanger}
                     onClick={handleLogout}
                     type="button"
                   >
@@ -350,10 +384,10 @@ export default function SettingsPage() {
               <section className={styles.section}>
                 <h2 className={styles.sectionTitle}>Acerca de</h2>
                 <div className={styles.sectionContent}>
-                  <div className={styles.settingItem}>
-                    <div className={styles.settingInfo}>
-                      <strong className={styles.settingLabel}>Versión</strong>
-                      <span className={styles.settingValue}>1.0.0</span>
+                  <div className={styles.infoCard}>
+                    <div className={styles.infoContent}>
+                      <span className={styles.infoLabel}>Versión</span>
+                      <span className={styles.infoValue}>1.0.0</span>
                     </div>
                   </div>
                 </div>
@@ -365,54 +399,58 @@ export default function SettingsPage() {
             <div className={styles.termsTab}>
               <div className={styles.termsContent}>
                 <h2 className={styles.termsTitle}>Términos y Condiciones de Uso</h2>
-                <p className={styles.termsSubtitle}>Última actualización: {new Date().toLocaleDateString("es-ES")}</p>
-                
+                <p className={styles.termsSubtitle}>
+                  Última actualización: {new Date().toLocaleDateString("es-CO")}
+                </p>
+
                 <div className={styles.termsBody}>
                   <section>
                     <h3>1. Aceptación de los Términos</h3>
                     <p>
-                      Al acceder y utilizar LearnyOS, aceptas estar legalmente vinculado por estos Términos y Condiciones de Uso. 
-                      Si no estás de acuerdo con alguno de estos términos, te pedimos que no utilices nuestra plataforma.
+                      Al acceder y utilizar LearnyOS, aceptas estar legalmente vinculado por estos 
+                      Términos y Condiciones de Uso. Si no estás de acuerdo con alguno de estos 
+                      términos, te pedimos que no utilices nuestra plataforma.
                     </p>
                   </section>
 
                   <section>
                     <h3>2. Descripción del Servicio</h3>
                     <p>
-                      LearnyOS es una plataforma educativa impulsada por inteligencia artificial que proporciona herramientas 
-                      para la creación y gestión de contenido educativo, incluyendo quizzes, flashcards y notas de estudio.
+                      LearnyOS es una plataforma educativa impulsada por inteligencia artificial 
+                      que proporciona herramientas para la creación y gestión de contenido educativo, 
+                      incluyendo quizzes, flashcards y notas de estudio.
                     </p>
                   </section>
 
                   <section>
                     <h3>3. Cuenta de Usuario</h3>
                     <p>
-                      Para acceder a ciertas funcionalidades, debes crear una cuenta. Eres responsable de mantener la 
-                      confidencialidad de tu cuenta y de todas las actividades que ocurran bajo tu cuenta.
+                      Para acceder a ciertas funcionalidades, debes crear una cuenta. Eres responsable 
+                      de mantener la confidencialidad de tu cuenta y de todas las actividades que 
+                      ocurran bajo tu cuenta.
                     </p>
                   </section>
 
                   <section>
                     <h3>4. Contenido Generado</h3>
                     <p>
-                      Eres responsable del contenido que creas en la plataforma. El contenido generado por IA es una 
-                      herramienta de apoyo y debe ser verificado por el usuario.
+                      Eres responsable del contenido que creas en la plataforma. El contenido generado 
+                      por IA es una herramienta de apoyo y debe ser verificado por el usuario.
                     </p>
                   </section>
 
                   <section>
                     <h3>5. Privacidad</h3>
                     <p>
-                      Tu privacidad es importante para nosotros. Los datos personales son tratados conforme a nuestra 
-                      Política de Privacidad. El contenido privado solo es visible para ti, a menos que decidas hacerlo público.
+                      Tu privacidad es importante para nosotros. Los datos personales son tratados 
+                      conforme a nuestra Política de Privacidad. El contenido privado solo es visible 
+                      para ti, a menos que decidas hacerlo público.
                     </p>
                   </section>
 
                   <section>
                     <h3>6. Uso Aceptable</h3>
-                    <p>
-                      Te comprometes a no utilizar la plataforma para:
-                    </p>
+                    <p>Te comprometes a no utilizar la plataforma para:</p>
                     <ul>
                       <li>Generar contenido ilegal, ofensivo o dañino</li>
                       <li>Violar derechos de propiedad intelectual</li>
@@ -424,47 +462,52 @@ export default function SettingsPage() {
                   <section>
                     <h3>7. Propiedad Intelectual</h3>
                     <p>
-                      La plataforma y su contenido original (excluyendo el contenido generado por usuarios) son propiedad 
-                      de LearnyOS y están protegidos por leyes de derechos de autor.
+                      La plataforma y su contenido original (excluyendo el contenido generado por 
+                      usuarios) son propiedad de LearnyOS y están protegidos por leyes de derechos 
+                      de autor.
                     </p>
                   </section>
 
                   <section>
                     <h3>8. Limitación de Responsabilidad</h3>
                     <p>
-                      LearnyOS se proporciona &quot;tal cual&quot; sin garantías de ningún tipo. No nos hacemos responsables de 
-                      daños directos, indirectos o consecuentes derivados del uso de la plataforma.
+                      LearnyOS se proporciona &quot;tal cual&quot; sin garantías de ningún tipo. No nos 
+                      hacemos responsables de daños directos, indirectos o consecuentes derivados 
+                      del uso de la plataforma.
                     </p>
                   </section>
 
                   <section>
                     <h3>9. Modificaciones</h3>
                     <p>
-                      Nos reservamos el derecho de modificar estos términos en cualquier momento. Los cambios entrarán 
-                      en vigor inmediatamente después de su publicación en la plataforma.
+                      Nos reservamos el derecho de modificar estos términos en cualquier momento. 
+                      Los cambios entrarán en vigor inmediatamente después de su publicación en 
+                      la plataforma.
                     </p>
                   </section>
 
                   <section>
                     <h3>10. Terminación</h3>
                     <p>
-                      Podemos suspender o terminar tu acceso a la plataforma por cualquier motivo, incluyendo violaciones 
-                      de estos términos, sin previo aviso.
+                      Podemos suspender o terminar tu acceso a la plataforma por cualquier motivo, 
+                      incluyendo violaciones de estos términos, sin previo aviso.
                     </p>
                   </section>
 
                   <section>
                     <h3>11. Ley Aplicable</h3>
                     <p>
-                      Estos términos se rigen por las leyes de Colombia. Cualquier disputa relacionada con estos términos 
-                      se someterá a la jurisdicción exclusiva de los tribunales de Colombia.
+                      Estos términos se rigen por las leyes de Colombia. Cualquier disputa relacionada 
+                      con estos términos se someterá a la jurisdicción exclusiva de los tribunales 
+                      de Colombia.
                     </p>
                   </section>
 
                   <section>
                     <h3>12. Contacto</h3>
                     <p>
-                      Para preguntas sobre estos Términos y Condiciones, puedes contactarnos a través de la plataforma.
+                      Para preguntas sobre estos Términos y Condiciones, puedes contactarnos a 
+                      través de la plataforma.
                     </p>
                   </section>
                 </div>
@@ -472,18 +515,22 @@ export default function SettingsPage() {
             </div>
           )}
 
-          {activeTab === "notes" && (
+          {/* Tabs para Notes, Flashcards y Quizzes */}
+          {(activeTab === "notes" || activeTab === "flashcards" || activeTab === "quizzes") && (
             <div className={styles.manageTab}>
               <div className={styles.tabHeader}>
-                <h2 className={styles.tabTitle}>Gestionar notas</h2>
+                <h2 className={styles.tabTitle}>
+                  Gestionar {activeTab === "notes" ? "notas" : activeTab === "flashcards" ? "flashcards" : "quizzes"}
+                </h2>
                 {items.length > 0 && (
                   <button
                     className={styles.deleteAllBtn}
                     onClick={handleDeleteAll}
+                    disabled={deletingAll}
                     type="button"
                   >
                     <AlertTriangle size={18} />
-                    <span>Eliminar todo ({items.length})</span>
+                    <span>{deletingAll ? "Eliminando..." : `Eliminar todo (${items.length})`}</span>
                   </button>
                 )}
               </div>
@@ -491,11 +538,20 @@ export default function SettingsPage() {
               {loading ? (
                 <div className={styles.loading}>
                   <div className={styles.spinner} />
-                  <p>Cargando notas...</p>
+                  <p>Cargando {activeTab === "notes" ? "notas" : activeTab === "flashcards" ? "flashcards" : "quizzes"}...</p>
                 </div>
               ) : items.length === 0 ? (
                 <div className={styles.empty}>
-                  <p>No tienes notas para mostrar</p>
+                  <div className={styles.emptyIcon}>
+                    {activeTab === "notes" ? (
+                      <FileText size={48} />
+                    ) : activeTab === "flashcards" ? (
+                      <CreditCard size={48} />
+                    ) : (
+                      <Brain size={48} />
+                    )}
+                  </div>
+                  <p>No tienes {activeTab === "notes" ? "notas" : activeTab === "flashcards" ? "flashcards" : "quizzes"} para mostrar</p>
                 </div>
               ) : (
                 <div className={styles.list}>
@@ -552,121 +608,7 @@ export default function SettingsPage() {
               )}
             </div>
           )}
-
-          {activeTab === "cards" && (
-            <div className={styles.manageTab}>
-              <div className={styles.tabHeader}>
-                <h2 className={styles.tabTitle}>Gestionar flashcards</h2>
-                {items.length > 0 && (
-                  <button
-                    className={styles.deleteAllBtn}
-                    onClick={handleDeleteAll}
-                    type="button"
-                  >
-                    <AlertTriangle size={18} />
-                    <span>Eliminar todo ({items.length})</span>
-                  </button>
-                )}
-              </div>
-
-              {loading ? (
-                <div className={styles.loading}>
-                  <div className={styles.spinner} />
-                  <p>Cargando flashcards...</p>
-                </div>
-              ) : items.length === 0 ? (
-                <div className={styles.empty}>
-                  <p>No tienes flashcards para mostrar</p>
-                </div>
-              ) : (
-                <div className={styles.list}>
-                  {items.map((item) => (
-                    <div key={item.id} className={styles.listItem}>
-                      <div className={styles.listItemContent}>
-                        <div className={styles.listItemHeader}>
-                          <h3 className={styles.listItemTitle}>{item.title}</h3>
-                          {item.description && (
-                            <p className={styles.listItemDescription}>{item.description}</p>
-                          )}
-                        </div>
-                        <button
-                          className={`${styles.deleteBtn} ${deletingId === item.id ? styles.deleting : ""}`}
-                          onClick={() => handleDelete(item.id, item.title)}
-                          disabled={deletingId === item.id}
-                          type="button"
-                          aria-label={`Eliminar ${item.title}`}
-                        >
-                          {deletingId === item.id ? (
-                            <span className={styles.deleteSpinner} />
-                          ) : (
-                            <Trash2 size={18} />
-                          )}
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
-
-          {activeTab === "quizzes" && (
-            <div className={styles.manageTab}>
-              <div className={styles.tabHeader}>
-                <h2 className={styles.tabTitle}>Gestionar quizzes</h2>
-                {items.length > 0 && (
-                  <button
-                    className={styles.deleteAllBtn}
-                    onClick={handleDeleteAll}
-                    type="button"
-                  >
-                    <AlertTriangle size={18} />
-                    <span>Eliminar todo ({items.length})</span>
-                  </button>
-                )}
-              </div>
-
-              {loading ? (
-                <div className={styles.loading}>
-                  <div className={styles.spinner} />
-                  <p>Cargando quizzes...</p>
-                </div>
-              ) : items.length === 0 ? (
-                <div className={styles.empty}>
-                  <p>No tienes quizzes para mostrar</p>
-                </div>
-              ) : (
-                <div className={styles.list}>
-                  {items.map((item) => (
-                    <div key={item.id} className={styles.listItem}>
-                      <div className={styles.listItemContent}>
-                        <div className={styles.listItemHeader}>
-                          <h3 className={styles.listItemTitle}>{item.title}</h3>
-                          {item.description && (
-                            <p className={styles.listItemDescription}>{item.description}</p>
-                          )}
-                        </div>
-                        <button
-                          className={`${styles.deleteBtn} ${deletingId === item.id ? styles.deleting : ""}`}
-                          onClick={() => handleDelete(item.id, item.title)}
-                          disabled={deletingId === item.id}
-                          type="button"
-                          aria-label={`Eliminar ${item.title}`}
-                        >
-                          {deletingId === item.id ? (
-                            <span className={styles.deleteSpinner} />
-                          ) : (
-                            <Trash2 size={18} />
-                          )}
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
-        </div>
+        </main>
       </div>
     </div>
   );

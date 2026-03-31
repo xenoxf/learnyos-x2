@@ -7,7 +7,7 @@ import remarkGfm from "remark-gfm";
 import styles from "@/styles/notes/noteViewer.module.css";
 import { useToast } from "@/hooks/use-toast";
 import { apiService } from "@/services/apiService";
-import type { Note } from "@/types";
+import type { NoteKlek } from "@/types";
 import {
   normalizeNoteContentBody,
   noteSectionHeading,
@@ -20,7 +20,7 @@ interface NoteViewerProps {
 
 export default function NoteViewer({ noteId, onClose }: NoteViewerProps) {
   const { toast } = useToast();
-  const [note, setNote] = useState<Note | null>(null);
+  const [note, setNote] = useState<NoteKlek | null>(null);
   const [loading, setLoading] = useState(true);
   const [expandedSections, setExpandedSections] = useState<Record<number, boolean>>({});
 

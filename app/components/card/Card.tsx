@@ -3,10 +3,10 @@ import { Trash2, Tag, BookOpen } from "lucide-react";
 import { apiService } from "@/services/apiService";
 import { useToast } from "@/hooks/use-toast";
 import styles from "@/styles/flashCards/card.module.css";
-import type { Card } from "@/types";
+import type { CardsDeck } from "@/types";
 
 interface CardProps {
-  card: Card & { canDelete?: boolean };
+  card: CardsDeck & { canDelete?: boolean };
   onCardDeleted?: () => void;
   onOpen: () => void;
 }

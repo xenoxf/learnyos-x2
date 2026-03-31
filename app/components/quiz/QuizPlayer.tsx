@@ -3,7 +3,7 @@ import { ChevronLeft, ChevronRight, RotateCcw, Check, X } from "lucide-react";
 import styles from "@/styles/quiz/quizPlayer.module.css";
 import { useToast } from "@/hooks/use-toast";
 import { apiService } from "@/services/apiService";
-import type { Exam } from "@/types";
+import type { ExamKlek } from "@/types";
 
 interface QuizPlayerProps {
   quizId: number;
@@ -15,7 +15,7 @@ export default function QuizPlayer({
   onClose,
 }: QuizPlayerProps) {
   const { toast } = useToast();
-  const [quiz, setQuiz] = useState<Exam | null>(null);
+  const [quiz, setQuiz] = useState<ExamKlek | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedAnswers, setSelectedAnswers] = useState<Record<number, number>>({});
   const [showResults, setShowResults] = useState(false);

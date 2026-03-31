@@ -1,9 +1,11 @@
+"use client";
+
 import { useState, useEffect } from "react";
 import { apiService } from "@/services/apiService";
-import type { FlashCard, Card, GenerateFlashCardData } from "@/types";
+import type { FlashCardKlek, CardsDeck, GenerateFlashCardData } from "@/types";
 
 export function useFlashCards() {
-  const [flashcards, setFlashcards] = useState<FlashCard[]>([]);
+  const [flashcards, setFlashcards] = useState<FlashCardKlek[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -13,19 +15,16 @@ export function useFlashCards() {
         setLoading(true);
         setError(null);
         const data = await apiService.getFlashcards();
-        // El backend devuelve Card[] pero sin flashcards en algunos endpoints
         // Filtramos solo los que tienen flashcards
         const cardsWithFlashcards = Array.isArray(data)
-          ? data.filter((card: Card) => card.flashcards && card.flashcards.length > 0)
+          ? data.filter((card: CardsDeck) => card.flashcards && card.flashcards.length > 0)
           : [];
         const allFlashcards = cardsWithFlashcards.flatMap(
-          (card: Card) => card.flashcards || []
+          (card: CardsDeck) => card.flashcards || []
         );
-        setFlashcards(allFlashcards);
-      } catch (err: unknown) {
-        const errorMessage =
-          err instanceof Error ? err.message : "Error al cargar flashcards";
-        setError(errorMessage);
+        setFlashcards(Array.isArray(allFlashcards) ? allFlashcards : []);
+      } catch (err: any) {
+        setError(err.message || "Error al cargar flashcards");
         setFlashcards([]);
       } finally {
         setLoading(false);
@@ -35,64 +34,13 @@ export function useFlashCards() {
     fetchFlashcards();
   }, []);
 
-  const addFlashCard = (card: FlashCard) => {
-    setFlashcards((prev: FlashCard[]) => [...prev, card]);
+  const addFlashcard = (flashcard: FlashCardKlek) => {
+    setFlashcards((prev) => [...prev, flashcard]);
   };
 
-  const addFlashCards = (cards: FlashCard[]) => {
-    setFlashcards((prev: FlashCard[]) => [...prev, ...cards]);
+  const removeFlashcard = (flashcardId: number) => {
+    setFlashcards((prev) => prev.filter((f) => f.id !== flashcardId));
   };
 
-  const removeFlashCard = (cardId: number) => {
-    setFlashcards((prev: FlashCard[]) => prev.filter((c) => c.id !== cardId));
-  };
-
-  const updateFlashCard = (cardId: number, updated: Partial<FlashCard>) => {
-    setFlashcards((prev: FlashCard[]) =>
-      prev.map((c) => (c.id === cardId ? { ...c, ...updated } : c)),
-    );
-  };
-
-  const generateFlashCards = async (
-    data: GenerateFlashCardData,
-  ): Promise<FlashCard[] | null> => {
-    try {
-      setLoading(true);
-      setError(null);
-      // El backend devuelve {message} en éxito pero necesitamos recargar
-      await apiService.generateFlashcards({
-        reference: data.reference,
-        quantity: data.quantity ?? 10,
-        acceso: data.acceso,
-      });
-      // Recargar las tarjetas después de generar
-      const updatedData = await apiService.getFlashcards();
-      const cardsWithFlashcards = Array.isArray(updatedData)
-        ? updatedData.filter((card: Card) => card.flashcards && card.flashcards.length > 0)
-        : [];
-      const allFlashcards = cardsWithFlashcards.flatMap(
-        (card: Card) => card.flashcards || []
-      );
-      setFlashcards(allFlashcards);
-      return allFlashcards;
-    } catch (err: unknown) {
-      const errorMessage =
-        err instanceof Error ? err.message : "Error al generar flashcards";
-      setError(errorMessage);
-      return null;
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return {
-    flashcards,
-    loading,
-    error,
-    addFlashCard,
-    addFlashCards,
-    removeFlashCard,
-    updateFlashCard,
-    generateFlashCards,
-  };
+  return { flashcards, loading, error, addFlashcard, removeFlashcard };
 }

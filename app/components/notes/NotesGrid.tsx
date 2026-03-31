@@ -10,7 +10,7 @@ import {
   type StudyGridBaseItem,
   type ViewMode,
 } from "@/components/study/StudyGrid";
-import type { Note } from "@/types";
+import type { NoteDeck } from "@/types";
 import { apiService } from "@/services/apiService";
 
 interface NotesGridProps {
@@ -45,14 +45,14 @@ export default function NotesGrid({ onNoteOpen }: NotesGridProps) {
     handleCreateClick,
     handleCloseModal,
     handleItemDeleted,
-  } = useStudyGrid<Note & StudyGridBaseItem>({
+  } = useStudyGrid<NoteDeck & StudyGridBaseItem>({
     actions: {
       onLoad: async () => {
         const data =
           viewMode === "private"
             ? await apiService.getNotesPrivate()
             : await apiService.getNotesPublic();
-        return data as (Note & StudyGridBaseItem)[];
+        return data as (NoteDeck & StudyGridBaseItem)[];
       },
       onItemOpen: (note) => onNoteOpen?.(note.id),
     },

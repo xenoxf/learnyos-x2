@@ -2,7 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiService } from "@/services/apiService";
-import type { FlashCard, Card, GenerateFlashCardData } from "@/types";
+import type { FlashCardKlek, CardsDeck, GenerateFlashCardData } from "@/types";
 
 export function useFlashCardsQuery() {
   const queryClient = useQueryClient();
@@ -11,14 +11,14 @@ export function useFlashCardsQuery() {
     data: cards = [],
     isLoading,
     error,
-  } = useQuery<Card[]>({
+  } = useQuery<CardsDeck[]>({
     queryKey: ["flashcards"],
     queryFn: () => apiService.getFlashcards(),
   });
 
   // Extraer todas las flashcards de todos los cards
-  const flashcards: FlashCard[] = cards.flatMap(
-    (card: Card) => card.flashcards || [],
+  const flashcards: FlashCardKlek[] = cards.flatMap(
+    (card: CardsDeck) => card.flashcards || [],
   );
 
   const generateMutation = useMutation<void, Error, GenerateFlashCardData>({

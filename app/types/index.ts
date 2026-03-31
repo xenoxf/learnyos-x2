@@ -50,30 +50,37 @@ export interface ExamQuestion {
   correctAnswer?: string;
 }
 
-export interface Exam {
-  id: number;
-  title: string;
-  description?: string;
-  difficulty: DifficultyLevel;
-  acceso?: string;
-  code?: string;
-  area?: string;
-  tema?: string;
-  totalQuestions: number;
-  questions: ExamQuestion[];
-  score?: number;
-  estimatedTime?: string;
-  userId?: number;
-  createdAt: string;
-}
-
+/** 
+ * Exam DECK - Solo metadata para listar en grids
+ * NO incluye: questions, code, userId, score, createdAt
+ */
 export interface ExamDeck {
   id: number;
   title: string;
   description: string;
+  area?: string;
+  tema?: string;
+  difficulty?: string;
+  totalQuestions: number;
+  estimatedTime?: string;
+  code?: string;
+  canDelete?: boolean;
 }
+
+/** 
+ * Exam KLEK - Datos completos para jugar/responder
+ * NO incluye: code, userId, score (datos internos)
+ */
 export interface ExamKlek {
-  // QWEN es el encargado
+  id: number;
+  title: string;
+  description?: string;
+  area?: string;
+  tema?: string;
+  difficulty: DifficultyLevel;
+  totalQuestions: number;
+  questions: ExamQuestion[];
+  canDelete?: boolean;
 }
 
 export interface GenerateExamData {
@@ -85,62 +92,46 @@ export interface GenerateExamData {
 
 // ==================== FLASHCARDS ====================
 
-export interface FlashCard {
+export interface FlashCardKlek {
   id: number;
   front: string;
   back: string;
-  difficulty?: DifficultyLevel;
   hint?: string;
-  reviewDate?: string;
-  cardId?: number;
-  userId?: number;
-  createdAt?: string;
+}
+
+/** 
+ * FlashCard DECK - Solo metadata para listar en grids
+ * NO incluye: code, userId, createdAt
+ */
+export interface CardsDeck {
+  id: number;
+  title: string;
+  description: string;
+  code?: string;
+  area?: string;
+  tema?: string;
+  totalCards?: number;
+  flashcards?: FlashCardKlek[];
+  canDelete?: boolean;
+}
+
+/** 
+ * FlashCard KLEK - Datos completos para estudiar
+ * NO incluye: code, userId, createdAt (datos internos)
+ */
+export interface CardKlek {
+  id: number;
+  title: string;
+  area?: string;
+  description?: string;
+  tema?: string;
+  flashcards: FlashCardKlek[];
 }
 
 export interface GenerateFlashCardData {
   reference: string;
   quantity: number;
   acceso?: string;
-}
-
-/** Respuesta del backend POST /flash-cards/generate/topic_or_reference */
-/** Mazo (entidad Card del backend) para validación */
-export interface Card {
-  id: number;
-  title: string;
-  description: string;
-  code: string;
-  area: string;
-  acceso?: string;
-  tema?: string;
-  totalCards: number;
-  reviewedCards?: number;
-  lastReviewDate?: string;
-  flashcards: FlashCard[];
-  userId?: number;
-  createdAt: string;
-}
-export interface CardsDeck {
-  id: number;
-  title: string;
-  description: string;
-  code: string;
-  area: string;
-}
-
-export interface CardKlek {
-  id: number;
-  title: string;
-  area: string;
-  description?: string;
-  tema?: string;
-  flashcards: FlashCardKlek[];
-}
-
-export interface FlashCardKlek {
-  id: number;
-  front: string;
-  back: string;
 }
 
 /** Mensaje de chat (entidad Message del backend) */
@@ -157,44 +148,56 @@ export interface Message {
 
 export type LevelOfDetail = "breve" | "medio" | "detallado" | "alto";
 
-/** Contenido de nota (entidad note_contents del backend) */
-export interface NoteContent {
+/** 
+ * Contenido de nota DECK - Solo metadata
+ * NO incluye: content completo, userId
+ */
+export interface NoteContentDeck {
   id: number;
-  noteId: number;
-  /** Encabezado de bloque (columna `tema` en backend) */
+  tema?: string;
+}
+
+/** 
+ * Contenido de nota KLEK - Contenido completo para leer
+ * NO incluye: userId (datos internos)
+ */
+export interface NoteContentKlek {
+  id: number;
   tema?: string;
   title?: string;
   content: string;
   order?: number;
-  userId?: number;
-  createdAt?: string;
 }
 
-/** Entidad Note del backend */
-export interface Note {
-  id: number;
-  title: string;
-  description?: string;
-  code?: string;
-  acceso?: string;
-  area?: string;
-  tema?: string;
-  levelOfDetail?: LevelOfDetail;
-  noteContents?: NoteContent[];
-  userId?: number;
-  createdAt: string;
-}
-
+/** 
+ * Note DECK - Solo metadata para listar en grids
+ * NO incluye: noteContents completo, userId, levelOfDetail, createdAt
+ */
 export interface NoteDeck {
   id: number;
   title: string;
   description: string;
-  area: string;
-  acceso: boolean;
+  area?: string;
+  tema?: string;
+  acceso?: string;
+  code?: string;
+  contentsCount?: number;
+  canDelete?: boolean;
 }
 
+/** 
+ * Note KLEK - Contenido completo para leer
+ * NO incluye: code, userId, levelOfDetail (datos internos)
+ */
 export interface NoteKlek {
-  // QWEN es el encargado de esto
+  id: number;
+  title: string;
+  description?: string;
+  area?: string;
+  tema?: string;
+  acceso?: string;
+  noteContents: NoteContentKlek[];
+  canDelete?: boolean;
 }
 /** Payload para POST /notes/generate/topic_or_reference - alineado con backend */
 export interface GenerateNoteData {
@@ -210,9 +213,9 @@ export interface GenerateNoteData {
 /** Respuesta del backend POST /notes/generate/topic_or_reference */
 export interface GenerateNotesResponse {
   success: boolean;
-  notes: Note[];
+  notes: NoteDeck[];
   message?: string;
-  data?: Note[];
+  data?: NoteDeck[];
 }
 
 // ==================== CHAT & MESSAGES ====================
