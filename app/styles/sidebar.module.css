@@ -420,8 +420,8 @@
    RESPONSIVE DESIGN - MOBILE FIRST
    ============================================ */
 
-/* Pantallas pequeñas (móviles) - hasta 768px */
-@media screen and (max-width: 768px) {
+/* Pantallas pequeñas (móviles) - hasta 640px */
+@media screen and (max-width: 640px) {
     .sidebar {
         width: 240px;
         height: 100vh;
@@ -498,14 +498,62 @@
     }
 }
 
-/* Tablet pequeña (769px - 1023px) */
-@media screen and (min-width: 769px) and (max-width: 1023px) {
+/* Tablet pequeña (641px - 1023px) - Sidebar siempre visible */
+@media screen and (min-width: 641px) and (max-width: 1023px) {
+    .sidebar {
+        position: relative;
+        transform: none !important;
+    }
+
     .sidebarExpanded {
         width: 200px;
     }
-    
+
     .sidebarCollapsed {
         width: 70px;
+    }
+
+    .header {
+        min-height: 70px;
+        padding: 1rem;
+    }
+
+    .logo {
+        width: 36px;
+        height: 36px;
+    }
+
+    .logoText {
+        font-size: 0.875rem;
+    }
+
+    .navItemExpanded {
+        padding: 0.625rem 0.5rem;
+        font-size: 0.8125rem;
+    }
+
+    .navItemIcon {
+        width: 20px;
+        height: 20px;
+    }
+
+    .userAvatar {
+        width: 32px;
+        height: 32px;
+        font-size: 0.8125rem;
+    }
+
+    .userName {
+        font-size: 0.75rem;
+    }
+
+    .actionButton {
+        padding: 0.5rem;
+        font-size: 0.75rem;
+    }
+
+    .actionButtonExpanded {
+        padding: 0.5rem 0.625rem;
     }
 }
 
@@ -528,6 +576,10 @@
 @media screen and (min-width: 1280px) {
     .sidebarExpanded {
         width: clamp(220px, 12vw, 260px);
+    }
+
+    .sidebarCollapsed {
+        width: 80px;
     }
 
     .userAvatar {

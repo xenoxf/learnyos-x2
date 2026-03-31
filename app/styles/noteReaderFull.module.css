@@ -1,0 +1,367 @@
+/* ==================== NOTE READER FULL PAGE ==================== */
+.fullPageContainer {
+  width: 100%;
+  min-height: 100vh;
+  background: hsl(var(--background));
+  display: flex;
+  flex-direction: column;
+}
+
+/* ==================== LOADING & ERROR STATES ==================== */
+.loadingState,
+.errorState {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  padding: 2rem;
+}
+
+.loadingSpinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid hsl(var(--muted));
+  border-top-color: hsl(var(--primary));
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.errorTitle {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: hsl(var(--destructive));
+  margin: 0;
+  text-align: center;
+}
+
+.errorMessage {
+  font-size: 0.95rem;
+  color: hsl(var(--muted-foreground));
+  margin: 0;
+  text-align: center;
+  max-width: 400px;
+}
+
+.backButton {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: all 0.15s ease;
+}
+
+.backButton:hover {
+  background: hsl(var(--primary) / 0.9);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px hsl(var(--foreground) / 0.15);
+}
+
+/* ==================== NOTE PAGE LAYOUT ==================== */
+.notePage {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  max-width: 900px;
+  margin: 0 auto;
+  width: 100%;
+  padding: 1rem;
+  gap: 1rem;
+}
+
+@media (min-width: 768px) {
+  .notePage {
+    padding: 1.5rem;
+    gap: 1.25rem;
+  }
+}
+
+/* ==================== PAGE HEADER ==================== */
+.pageHeader {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid hsl(var(--border));
+}
+
+.backButtonSmall {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.5rem 0.625rem;
+  background: hsl(var(--secondary));
+  color: hsl(var(--foreground));
+  border: 1px solid hsl(var(--border));
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 0.875rem;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+  margin-top: 0.125rem;
+}
+
+.backButtonSmall:hover {
+  background: hsl(var(--accent));
+  transform: translateX(-2px);
+}
+
+.backButtonText {
+  display: none;
+}
+
+@media (min-width: 640px) {
+  .backButtonText {
+    display: inline;
+  }
+}
+
+.headerInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.pageTitle {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: hsl(var(--foreground));
+  margin: 0 0 0.25rem 0;
+  line-height: 1.3;
+}
+
+@media (min-width: 640px) {
+  .pageTitle {
+    font-size: 1.5rem;
+  }
+}
+
+.pageDescription {
+  font-size: 0.875rem;
+  color: hsl(var(--muted-foreground));
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* ==================== MAIN CONTENT ==================== */
+.mainContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 0.5rem 0;
+}
+
+/* Empty State */
+.emptyContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  text-align: center;
+  color: hsl(var(--muted-foreground));
+}
+
+.emptyIcon {
+  margin-bottom: 1rem;
+  opacity: 0.5;
+}
+
+.emptyContent p {
+  font-size: 1rem;
+  margin: 0;
+}
+
+/* Content List */
+.contentList {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.contentItem {
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.contentHeading {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: hsl(var(--foreground));
+  margin: 0;
+  padding: 1rem 1.25rem;
+  background: hsl(var(--secondary) / 0.5);
+  border-bottom: 1px solid hsl(var(--border));
+}
+
+@media (min-width: 640px) {
+  .contentHeading {
+    font-size: 1.25rem;
+    padding: 1.25rem 1.5rem;
+  }
+}
+
+.contentBody {
+  padding: 1.25rem;
+  font-size: 0.9375rem;
+  line-height: 1.7;
+  color: hsl(var(--foreground));
+}
+
+@media (min-width: 640px) {
+  .contentBody {
+    padding: 1.5rem;
+    font-size: 1rem;
+  }
+}
+
+.contentBody :first-child {
+  margin-top: 0;
+}
+
+.contentBody :last-child {
+  margin-bottom: 0;
+}
+
+/* Markdown styles */
+.contentBody h1,
+.contentBody h2,
+.contentBody h3,
+.contentBody h4,
+.contentBody h5,
+.contentBody h6 {
+  margin-top: 1.5em;
+  margin-bottom: 0.75em;
+  font-weight: 600;
+  color: hsl(var(--foreground));
+}
+
+.contentBody h1 {
+  font-size: 1.5em;
+}
+
+.contentBody h2 {
+  font-size: 1.25em;
+}
+
+.contentBody h3 {
+  font-size: 1.125em;
+}
+
+.contentBody p {
+  margin-bottom: 1em;
+}
+
+.contentBody ul,
+.contentBody ol {
+  margin-bottom: 1em;
+  padding-left: 1.5em;
+}
+
+.contentBody li {
+  margin-bottom: 0.5em;
+}
+
+.contentBody code {
+  background: hsl(var(--muted));
+  padding: 0.125em 0.375em;
+  border-radius: 4px;
+  font-size: 0.875em;
+}
+
+.contentBody pre {
+  background: hsl(var(--muted));
+  padding: 1rem;
+  border-radius: 8px;
+  overflow-x: auto;
+  margin-bottom: 1em;
+}
+
+.contentBody pre code {
+  background: transparent;
+  padding: 0;
+}
+
+.contentBody blockquote {
+  border-left: 3px solid hsl(var(--primary));
+  padding-left: 1rem;
+  margin: 1em 0;
+  color: hsl(var(--muted-foreground));
+}
+
+.contentBody table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1em;
+}
+
+.contentBody th,
+.contentBody td {
+  border: 1px solid hsl(var(--border));
+  padding: 0.75rem;
+  text-align: left;
+}
+
+.contentBody th {
+  background: hsl(var(--secondary));
+  font-weight: 600;
+}
+
+/* ==================== RESPONSIVE ==================== */
+@media (max-width: 768px) {
+  .notePage {
+    padding: 0.875rem;
+    gap: 0.875rem;
+  }
+
+  .pageTitle {
+    font-size: 1.125rem;
+  }
+
+  .contentBody {
+    padding: 1rem;
+    font-size: 0.90625rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .notePage {
+    padding: 0.75rem;
+  }
+
+  .pageTitle {
+    font-size: 1.0625rem;
+  }
+
+  .contentHeading {
+    padding: 0.875rem 1rem;
+    font-size: 1rem;
+  }
+
+  .contentBody {
+    padding: 0.875rem;
+    font-size: 0.875rem;
+  }
+
+  .emptyContent {
+    padding: 3rem 1rem;
+  }
+}

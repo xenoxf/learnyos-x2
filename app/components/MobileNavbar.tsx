@@ -9,13 +9,10 @@ import React, {
 } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import {
-  LayoutDashboard,
   MessageSquare,
   Brain,
   CreditCard,
   NotebookPen,
-  Languages,
-  LogOut,
   MoreHorizontal,
   Settings2,
   Book,
@@ -25,7 +22,7 @@ import { useToast } from "@/hooks/use-toast";
 import styles from "@/styles/mobileNavbar.module.css";
 import Link from "next/link";
 import { ThemeToggleSidebr } from "./ThemeToogleSidebr";
-const SCROLL_THRESHOLD = 10;
+
 const RESIZE_DEBOUNCE = 100;
 
 interface MenuItem {
@@ -50,11 +47,8 @@ export function MobileNavbar() {
 
   const [visibleCount, setVisibleCount] = useState(ALL_NAV_ITEMS.length);
   const [showMoreMenu, setShowMoreMenu] = useState(false);
-  const [navVisible, setNavVisible] = useState(true);
   const [isMeasuring, setIsMeasuring] = useState(false);
-  const [windowWidth, setWindowWidth] = useState(0);
 
-  const lastScrollY = useRef(0);
   const navRef = useRef<HTMLElement>(null);
   const moreButtonRef = useRef<HTMLButtonElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -107,7 +101,6 @@ export function MobileNavbar() {
 
   useEffect(() => {
     const handleResize = () => {
-      setWindowWidth(window.innerWidth);
       if (resizeTimeoutRef.current) clearTimeout(resizeTimeoutRef.current);
       resizeTimeoutRef.current = setTimeout(() => {
         measureItems();
@@ -118,33 +111,12 @@ export function MobileNavbar() {
     return () => window.removeEventListener("resize", handleResize);
   }, [measureItems, computeVisibleCount]);
 
-  useEffect(() => {
-    const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-      const scrollingDown =
-        currentScrollY > lastScrollY.current &&
-        currentScrollY > SCROLL_THRESHOLD;
-      const scrollingUp = currentScrollY < lastScrollY.current;
-
-      if (scrollingDown && navVisible) {
-        setNavVisible(false);
-        setShowMoreMenu(false);
-      } else if (scrollingUp && !navVisible) {
-        setNavVisible(true);
-      }
-      lastScrollY.current = currentScrollY;
-    };
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [navVisible]);
-
-  // --- CORRECCIÓN AQUÍ: Manejo de click outside más robusto ---
+  // Manejo de click outside para cerrar el menú
   useEffect(() => {
     if (!showMoreMenu) return;
 
     const handleClickOutside = (e: MouseEvent) => {
       const target = e.target as Node;
-      // Verificamos si el clic fue dentro del menú o en el botón "Más"
       if (
         menuRef.current?.contains(target) ||
         moreButtonRef.current?.contains(target)
@@ -154,7 +126,6 @@ export function MobileNavbar() {
       setShowMoreMenu(false);
     };
 
-    // Usar 'click' en lugar de 'mousedown' para evitar conflictos con botones internos
     document.addEventListener("click", handleClickOutside);
     return () => document.removeEventListener("click", handleClickOutside);
   }, [showMoreMenu]);
@@ -197,89 +168,85 @@ export function MobileNavbar() {
   );
 
   return (
-    <>
-      {/*<div
-        className={`${styles.container} ${!navVisible ? styles.containerHidden : ""}`}
-      >*/}
-      <nav ref={navRef} className={styles.bottomNav}>
-        {visibleItems.map((item) => {
-          const Icon = item.icon;
-          return (
+    <nav ref={navRef} className={styles.bottomNav}>
+      {visibleItems.map((item) => {
+        const Icon = item.icon;
+        return (
+          <Link
+            key={item.url}
+            href={item.url}
+            className={`${styles.navItem} ${isActive(item.url) ? styles.navItemActive : ""}`}
+            onClick={() => setShowMoreMenu(false)}
+          >
+            <div className={styles.navIconWrapper}>
+              <Icon size={22} />
+              {item.badge && <span className={styles.badge}>{item.badge}</span>}
+            </div>
+            <span className={styles.navLabel}>{item.title}</span>
+          </Link>
+        );
+      })}
+
+      <button
+        ref={moreButtonRef}
+        className={`${styles.moreButton} ${showMoreMenu ? styles.moreButtonActive : ""}`}
+        onClick={(e) => {
+          e.stopPropagation();
+          setShowMoreMenu((prev) => !prev);
+        }}
+        aria-expanded={showMoreMenu}
+      >
+        <MoreHorizontal size={22} />
+        <span className={styles.navLabel}>Más</span>
+        {hasActiveHidden && <span className={styles.moreActiveDot} />}
+      </button>
+
+      {showMoreMenu && (
+        <div ref={menuRef} className={styles.moreMenu}>
+          {hiddenItems.length > 0 && (
+            <>
+              <div className={styles.moreMenuSection}>
+                {hiddenItems.map((item) => {
+                  const Icon = item.icon;
+                  return (
+                    <Link
+                      key={item.url}
+                      href={item.url}
+                      className={`${styles.moreMenuItem} ${isActive(item.url) ? styles.moreMenuItemActive : ""}`}
+                      onClick={() => setShowMoreMenu(false)}
+                    >
+                      <Icon size={18} />
+                      <span>{item.title}</span>
+                      {item.badge && (
+                        <span className={styles.menuBadge}>{item.badge}</span>
+                      )}
+                    </Link>
+                  );
+                })}
+              </div>
+              <div className={styles.moreMenuDivider} />
+            </>
+          )}
+
+          <div className={styles.moreMenuSection}>
+            <div
+              className={styles.themeToggleWrapper}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <ThemeToggleSidebr isCollapse={false} />
+            </div>
+
             <Link
-              key={item.url}
-              href={item.url}
-              className={`${styles.navItem} ${isActive(item.url) ? styles.navItemActive : ""}`}
+              className={styles.moreMenuItem}
+              href="/study/settings"
               onClick={() => setShowMoreMenu(false)}
             >
-              <div className={styles.navIconWrapper}>
-                <Icon size={22} />
-                {item.badge && (
-                  <span className={styles.badge}>{item.badge}</span>
-                )}
-              </div>
-              <span className={styles.navLabel}>{item.title}</span>
+              <Settings2 size={18} />
+              <span>Configuración</span>
             </Link>
-          );
-        })}
-
-        <button
-          ref={moreButtonRef}
-          className={`${styles.moreButton} ${showMoreMenu ? styles.moreButtonActive : ""}`}
-          onClick={(e) => {
-            e.stopPropagation(); // Evita que el clic se propague
-            setShowMoreMenu((prev) => !prev);
-          }}
-          aria-expanded={showMoreMenu}
-        >
-          <MoreHorizontal size={22} />
-          <span className={styles.navLabel}>Más</span>
-          {hasActiveHidden && <span className={styles.moreActiveDot} />}
-        </button>
-
-        {showMoreMenu && (
-          <div ref={menuRef} className={styles.moreMenu}>
-            {hiddenItems.length > 0 && (
-              <>
-                <div className={styles.moreMenuSection}>
-                  {hiddenItems.map((item) => {
-                    const Icon = item.icon;
-                    return (
-                      <Link
-                        key={item.url}
-                        href={item.url}
-                        className={`${styles.moreMenuItem} ${isActive(item.url) ? styles.moreMenuItemActive : ""}`}
-                        onClick={() => setShowMoreMenu(false)}
-                      >
-                        <Icon size={18} />
-                        <span>{item.title}</span>
-                        {item.badge && (
-                          <span className={styles.menuBadge}>{item.badge}</span>
-                        )}
-                      </Link>
-                    );
-                  })}
-                </div>
-                <div className={styles.moreMenuDivider} />
-              </>
-            )}
-
-            <div className={styles.moreMenuSection}>
-              {/* CORRECCIÓN: Wrapper con stopPropagation para asegurar el clic en el tema */}
-              <div
-                className={styles.themeToggleWrapper}
-                onClick={(e) => e.stopPropagation()}
-              >
-                <ThemeToggleSidebr />
-              </div>
-
-              <Link className={styles.moreMenuItem} href='/study/settings' >
-                <Settings2 size={18} />
-                <span>Configuracion</span>
-              </Link>
-            </div>
           </div>
-        )}
-      </nav>
-    </>
+        </div>
+      )}
+    </nav>
   );
 }

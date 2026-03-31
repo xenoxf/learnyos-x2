@@ -14,7 +14,6 @@ import type { NoteDeck } from "@/types";
 import { apiService } from "@/services/apiService";
 
 interface NotesGridProps {
-  onNoteOpen?: (noteId: number) => void;
 }
 
 const NOTES_CONFIG = {
@@ -31,7 +30,7 @@ const NOTES_CONFIG = {
   loadingText: "Cargando notas...",
 };
 
-export default function NotesGrid({ onNoteOpen }: NotesGridProps) {
+export default function NotesGrid({}: NotesGridProps) {
   const {
     searchValue,
     setSearchValue,
@@ -54,7 +53,7 @@ export default function NotesGrid({ onNoteOpen }: NotesGridProps) {
             : await apiService.getNotesPublic();
         return data as (NoteDeck & StudyGridBaseItem)[];
       },
-      onItemOpen: (note) => onNoteOpen?.(note.id),
+      onItemOpen: () => {}, // Now handled by NoteCard navigation
     },
     config: NOTES_CONFIG,
     defaultViewMode: "public",
@@ -82,7 +81,6 @@ export default function NotesGrid({ onNoteOpen }: NotesGridProps) {
             <NoteCard
               key={note.id}
               note={note}
-              onNoteOpen={onNoteOpen}
               onNoteDeleted={handleItemDeleted}
             />
           )}

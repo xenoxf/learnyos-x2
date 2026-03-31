@@ -14,7 +14,6 @@ import type { ExamDeck } from "@/types";
 import { apiService } from "@/services/apiService";
 
 interface QuizGridProps {
-  onQuizOpen?: (quizId: number) => void;
 }
 
 const QUIZ_CONFIG = {
@@ -31,7 +30,7 @@ const QUIZ_CONFIG = {
   loadingText: "Cargando quizzes...",
 };
 
-export default function QuizGrid({ onQuizOpen }: QuizGridProps) {
+export default function QuizGrid({}: QuizGridProps) {
   const {
     searchValue,
     setSearchValue,
@@ -54,7 +53,7 @@ export default function QuizGrid({ onQuizOpen }: QuizGridProps) {
             : await apiService.getExamsPublic();
         return data as (ExamDeck & StudyGridBaseItem)[];
       },
-      onItemOpen: (quiz) => onQuizOpen?.(quiz.id),
+      onItemOpen: () => {}, // Now handled by QuizCard navigation
     },
     config: QUIZ_CONFIG,
     defaultViewMode: "public",
@@ -83,7 +82,6 @@ export default function QuizGrid({ onQuizOpen }: QuizGridProps) {
               key={quiz.id}
               quiz={quiz}
               onQuizDeleted={handleItemDeleted}
-              onQuizOpen={onQuizOpen}
             />
           )}
         />

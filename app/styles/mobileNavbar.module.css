@@ -22,6 +22,7 @@
 .bottomNav {
   background: hsl(var(--card) / 0.95);
 
+
   border: 1px solid hsl(var(--border) / 0.8);
   display: flex;
   align-items: center;
@@ -48,7 +49,6 @@
   align-items: center;
   justify-content: center;
   padding: 7px 11px;
-  border: none;
   background: transparent;
   cursor: pointer;
   border-radius: 20px;
@@ -141,7 +141,6 @@
     color 0.15s ease,
     transform 0.1s ease;
   position: relative;
-  margin-left: auto;
   outline: none;
 }
 
@@ -241,9 +240,7 @@
   justify-content: flex-start;
   padding: 11px 14px;
   border-radius: 14px;
-  background: transparent;
-  border: none;
-  color: hsl(var(--foreground));
+  color: hsl(var(--primary-foreground));
   font-size: 0.9rem;
   font-weight: 500;
   cursor: pointer;

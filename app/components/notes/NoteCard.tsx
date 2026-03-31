@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { useRouter } from "next/navigation";
 import { Trash2, FileText, Tag, BookOpen } from "lucide-react";
 import { apiService } from "@/services/apiService";
 import { useToast } from "@/hooks/use-toast";
@@ -9,15 +10,14 @@ import type { NoteDeck } from "@/types";
 
 interface NoteCardProps {
   note: NoteDeck & { canDelete?: boolean };
-  onNoteOpen?: (noteId: number) => void;
   onNoteDeleted?: () => void;
 }
 
 export default function NoteCard({
   note,
-  onNoteOpen,
   onNoteDeleted,
 }: NoteCardProps) {
+  const router = useRouter();
   const { toast } = useToast();
   const isOwner = note.canDelete ?? false;
 
@@ -60,9 +60,7 @@ export default function NoteCard({
   };
 
   const handleCardClick = () => {
-    if (onNoteOpen) {
-      onNoteOpen(note.id);
-    }
+    router.push(`/study/notes/${note.id}`);
   };
 
   // Contar contenidos de la nota

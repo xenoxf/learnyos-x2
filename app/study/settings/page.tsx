@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import {
@@ -17,12 +17,19 @@ import {
   AlertTriangle,
   Globe,
   Lock,
+  Bell,
+  Palette,
+  Database,
+  Info,
+  CheckCircle,
+  XCircle,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiService } from "@/services/apiService";
 import { useCustomAlert } from "@/hooks/useCustomAlert";
 import { CustomAlert } from "@/components/CustomAlert";
-import styles from "@/styles/settings-new.module.css";
+import { ThemeToggle } from "@/components/ThemeToggle";
+import styles from "@/styles/settings.module.css";
 
 type TabType = "general" | "notes" | "flashcards" | "quizzes" | "terms";
 
@@ -74,7 +81,11 @@ export default function SettingsPage() {
           id: n.id,
           title: n.title,
           description: n.description,
-          acceso: n.acceso === "public" || n.acceso === "publico" ? "public" : "private",
+          acceso:
+            n.acceso === "public" || n.acceso === "publico"
+              ? "public"
+              : "private",
+          createdAt: n.createdAt,
           canDelete: true,
         }));
       } else if (activeTab === "flashcards") {
@@ -83,7 +94,8 @@ export default function SettingsPage() {
           id: c.id,
           title: c.title,
           description: c.description,
-          canDelete: c.canDelete,
+          createdAt: c.createdAt,
+          canDelete: c.canDelete !== false,
         }));
       } else if (activeTab === "quizzes") {
         const quizzes = await apiService.getExamsPrivate();
@@ -91,7 +103,8 @@ export default function SettingsPage() {
           id: q.id,
           title: q.title,
           description: q.description,
-          canDelete: q.canDelete,
+          createdAt: q.createdAt,
+          canDelete: q.canDelete !== false,
         }));
       }
 
@@ -114,7 +127,7 @@ export default function SettingsPage() {
   const handleDelete = async (id: number, title: string) => {
     const confirmed = await alert.show({
       title: "Eliminar elemento",
-      message: `¿Estás seguro de eliminar "${title}"? Esta acción no se puede deshacer.`,
+      message: `¿Estás seguro de eliminar "${title}"?`,
       type: "warning",
       confirmText: "Eliminar",
       cancelText: "Cancelar",
@@ -136,7 +149,7 @@ export default function SettingsPage() {
 
       toast({
         title: "Eliminado",
-        description: "El elemento ha sido eliminado correctamente",
+        description: "Elemento eliminado correctamente",
       });
 
       setItems((prev) => prev.filter((item) => item.id !== id));
@@ -154,7 +167,7 @@ export default function SettingsPage() {
   const handleDeleteAll = async () => {
     const confirmed = await alert.show({
       title: "Eliminar todo",
-      message: `¿Estás seguro de eliminar TODOS tus ${getSectionName()}? Esta acción no se puede deshacer.`,
+      message: `¿Estás seguro de eliminar TODOS tus ${getSectionName()}?`,
       type: "warning",
       confirmText: "Eliminar todo",
       cancelText: "Cancelar",
@@ -166,8 +179,11 @@ export default function SettingsPage() {
     try {
       setDeletingAll(true);
       let deletedCount = 0;
+      const itemsToDelete = [...items];
 
-      for (const item of items) {
+      for (const item of itemsToDelete) {
+        if (item.canDelete === false) continue;
+
         try {
           if (activeTab === "notes") {
             await apiService.deleteNote(item.id);
@@ -184,10 +200,10 @@ export default function SettingsPage() {
 
       toast({
         title: "Eliminados",
-        description: `Se eliminaron ${deletedCount} de ${items.length} elementos`,
+        description: `${deletedCount} de ${items.length} elementos eliminados`,
       });
 
-      setItems([]);
+      setItems((prev) => prev.filter((item) => item.canDelete === false));
     } catch (error) {
       toast({
         variant: "destructive",
@@ -215,7 +231,7 @@ export default function SettingsPage() {
   const handleLogout = async () => {
     const confirmed = await alert.show({
       title: "Cerrar sesión",
-      message: "¿Estás seguro de que deseas cerrar sesión?",
+      message: "¿Estás seguro de cerrar sesión?",
       type: "warning",
       confirmText: "Cerrar sesión",
       cancelText: "Cancelar",
@@ -242,20 +258,24 @@ export default function SettingsPage() {
 
   const formatDate = (dateString?: string) => {
     if (!dateString) return "";
-    return new Date(dateString).toLocaleDateString("es-CO", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
+    try {
+      return new Date(dateString).toLocaleDateString("es-CO", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      });
+    } catch {
+      return "";
+    }
   };
 
-  const tabs = [
+  const menuItems = useMemo(() => [
     { id: "general" as TabType, label: "General", icon: Settings },
     { id: "notes" as TabType, label: "Mis Notas", icon: FileText },
     { id: "flashcards" as TabType, label: "Mis Flashcards", icon: CreditCard },
     { id: "quizzes" as TabType, label: "Mis Quizzes", icon: Brain },
     { id: "terms" as TabType, label: "Términos", icon: Shield },
-  ];
+  ], []);
 
   return (
     <div className={styles.container}>
@@ -273,17 +293,17 @@ export default function SettingsPage() {
 
       {/* Header */}
       <header className={styles.header}>
-        <div className={styles.headerLeft}>
+        <div className={styles.headerContent}>
           <button
             onClick={() => router.back()}
             className={styles.backBtn}
             type="button"
             aria-label="Volver"
           >
-            <ArrowLeft size={24} />
+            <ArrowLeft size={20} />
           </button>
           <div className={styles.headerIcon}>
-            <Settings size={28} />
+            <Settings size={22} />
           </div>
           <h1 className={styles.title}>Configuración</h1>
         </div>
@@ -292,8 +312,8 @@ export default function SettingsPage() {
             <Image
               src={user.picture}
               alt={user.name || "Usuario"}
-              width={36}
-              height={36}
+              width={32}
+              height={32}
               className={styles.userAvatar}
             />
           ) : (
@@ -305,90 +325,87 @@ export default function SettingsPage() {
         </div>
       </header>
 
-      <div className={styles.content}>
-        {/* Tabs Navigation */}
-        <aside className={styles.tabsNav}>
-          {tabs.map((tab) => {
-            const Icon = tab.icon;
-            return (
-              <button
-                key={tab.id}
-                className={`${styles.tabBtn} ${activeTab === tab.id ? styles.tabBtnActive : ""}`}
-                onClick={() => setActiveTab(tab.id)}
-                type="button"
-              >
-                <Icon size={24} />
-                <span>{tab.label}</span>
-              </button>
-            );
-          })}
+      <div className={styles.contentWrapper}>
+        {/* Sidebar Navigation */}
+        <aside className={styles.sidebar}>
+          <nav className={styles.navMenu}>
+            {menuItems.map((item) => {
+              const Icon = item.icon;
+              return (
+                <button
+                  key={item.id}
+                  className={`${styles.navItem} ${activeTab === item.id ? styles.navItemActive : ""}`}
+                  onClick={() => setActiveTab(item.id)}
+                  type="button"
+                >
+                  <Icon size={18} />
+                  <span>{item.label}</span>
+                </button>
+              );
+            })}
+          </nav>
         </aside>
 
-        {/* Tab Content */}
-        <main className={styles.tabContent}>
+        {/* Main Content */}
+        <main className={styles.main}>
           {activeTab === "general" && (
-            <div className={styles.generalTab}>
-              <section className={styles.section}>
-                <h2 className={styles.sectionTitle}>Cuenta</h2>
-                <div className={styles.cuenta}>
-                  <div className={styles.infoCard}>
-                    <div className={styles.infoIcon}>
-                      <User size={24} />
+            <div className={styles.generalContent}>
+              <section className={styles.card}>
+                <div className={styles.cardHeader}>
+                  <User size={20} className={styles.cardIcon} />
+                  <h2 className={styles.cardTitle}>Información de Cuenta</h2>
+                </div>
+                <div className={styles.cardBody}>
+                  <div className={styles.infoGrid}>
+                    <div className={styles.infoItem}>
+                      <div className={styles.infoLabel}>
+                        <User size={16} />
+                        <span>Nombre</span>
+                      </div>
+                      <p className={styles.infoValue}>
+                        {user?.name || "No disponible"}
+                      </p>
                     </div>
-                    <div className={styles.infoContent}>
-                      <span className={styles.infoLabel}>Nombre</span>
-                      <span className={styles.infoValue}>{user?.name || "No disponible"}</span>
-                    </div>
-                  </div>
-                  <div className={styles.infoCard}>
-                    <div className={styles.infoIcon}>
-                      <Mail size={24} />
-                    </div>
-                    <div className={styles.infoContent}>
-                      <span className={styles.infoLabel}>Email</span>
-                      <span className={styles.infoValue}>{user?.email || "No disponible"}</span>
+                    <div className={styles.infoItem}>
+                      <div className={styles.infoLabel}>
+                        <Mail size={16} />
+                        <span>Correo Electrónico</span>
+                      </div>
+                      <p className={styles.infoValue}>
+                        {user?.email || "No disponible"}
+                      </p>
                     </div>
                   </div>
                 </div>
               </section>
 
-              <section className={styles.section}>
-                <h2 className={styles.sectionTitle}>Acciones</h2>
-                <div className={styles.sectionContent}>
+
+              <section className={styles.card}>
+                <div className={styles.cardHeader}>
+                  <LogOut size={20} className={styles.cardIcon} />
+                  <h2 className={styles.cardTitle}>Sesión</h2>
+                </div>
+                <div className={styles.cardBody}>
                   <button
-                    className={styles.actionBtnDanger}
+                    className={styles.logoutButton}
                     onClick={handleLogout}
                     type="button"
                   >
-                    <LogOut size={24} />
+                    <LogOut size={18} />
                     <span>Cerrar Sesión</span>
                   </button>
                 </div>
               </section>
 
-              <section className={styles.section}>
-                <h2 className={styles.sectionTitle}>Legal</h2>
-                <div className={styles.sectionContent}>
-                  <a
-                    href="/terms.html"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={styles.actionBtn}
-                  >
-                    <Shield size={24} />
-                    <span>Ver Términos y Condiciones</span>
-                  </a>
+              <section className={styles.card}>
+                <div className={styles.cardHeader}>
+                  <Info size={20} className={styles.cardIcon} />
+                  <h2 className={styles.cardTitle}>Acerca de</h2>
                 </div>
-              </section>
-
-              <section className={styles.section}>
-                <h2 className={styles.sectionTitle}>Acerca de</h2>
-                <div className={styles.sectionContent}>
-                  <div className={styles.infoCard}>
-                    <div className={styles.infoContent}>
-                      <span className={styles.infoLabel}>Versión</span>
-                      <span className={styles.infoValue}>1.0.0</span>
-                    </div>
+                <div className={styles.cardBody}>
+                  <div className={styles.versionInfo}>
+                    <span className={styles.versionLabel}>Versión</span>
+                    <span className={styles.versionValue}>1.0.0</span>
                   </div>
                 </div>
               </section>
@@ -396,177 +413,147 @@ export default function SettingsPage() {
           )}
 
           {activeTab === "terms" && (
-            <div className={styles.termsTab}>
-              <div className={styles.termsContent}>
-                <h2 className={styles.termsTitle}>Términos y Condiciones de Uso</h2>
-                <p className={styles.termsSubtitle}>
-                  Última actualización: {new Date().toLocaleDateString("es-CO")}
+            <div className={styles.termsContent}>
+              <div className={styles.termsHeader}>
+                <Shield size={28} className={styles.termsIcon} />
+                <h2 className={styles.termsTitle}>Términos y Condiciones</h2>
+                <p className={styles.termsDate}>
+                  Última actualización: {new Date().toLocaleDateString("es-CO", {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                  })}
                 </p>
+              </div>
 
-                <div className={styles.termsBody}>
-                  <section>
-                    <h3>1. Aceptación de los Términos</h3>
-                    <p>
-                      Al acceder y utilizar LearnyOS, aceptas estar legalmente vinculado por estos
-                      Términos y Condiciones de Uso. Si no estás de acuerdo con alguno de estos
-                      términos, te pedimos que no utilices nuestra plataforma.
-                    </p>
-                  </section>
+              <div className={styles.termsBody}>
+                <section className={styles.termsSection}>
+                  <h3>1. Aceptación de los Términos</h3>
+                  <p>
+                    Al acceder y utilizar LearnyOS, aceptas estar legalmente
+                    vinculado por estos Términos y Condiciones de Uso.
+                  </p>
+                </section>
 
-                  <section>
-                    <h3>2. Descripción del Servicio</h3>
-                    <p>
-                      LearnyOS es una plataforma educativa impulsada por inteligencia artificial
-                      que proporciona herramientas para la creación y gestión de contenido educativo,
-                      incluyendo quizzes, flashcards y notas de estudio.
-                    </p>
-                  </section>
+                <section className={styles.termsSection}>
+                  <h3>2. Descripción del Servicio</h3>
+                  <p>
+                    LearnyOS es una plataforma educativa impulsada por IA que
+                    proporciona herramientas para creación y gestión de contenido educativo.
+                  </p>
+                </section>
 
-                  <section>
-                    <h3>3. Cuenta de Usuario</h3>
-                    <p>
-                      Para acceder a ciertas funcionalidades, debes crear una cuenta. Eres responsable
-                      de mantener la confidencialidad de tu cuenta y de todas las actividades que
-                      ocurran bajo tu cuenta.
-                    </p>
-                  </section>
+                <section className={styles.termsSection}>
+                  <h3>3. Cuenta de Usuario</h3>
+                  <p>
+                    Eres responsable de mantener la confidencialidad de tu cuenta
+                    y de todas las actividades que ocurran bajo ella.
+                  </p>
+                </section>
 
-                  <section>
-                    <h3>4. Contenido Generado</h3>
-                    <p>
-                      Eres responsable del contenido que creas en la plataforma. El contenido generado
-                      por IA es una herramienta de apoyo y debe ser verificado por el usuario.
-                    </p>
-                  </section>
+                <section className={styles.termsSection}>
+                  <h3>4. Contenido Generado</h3>
+                  <p>
+                    Eres responsable del contenido que creas. El contenido generado
+                    por IA debe ser verificado por el usuario.
+                  </p>
+                </section>
 
-                  <section>
-                    <h3>5. Privacidad</h3>
-                    <p>
-                      Tu privacidad es importante para nosotros. Los datos personales son tratados
-                      conforme a nuestra Política de Privacidad. El contenido privado solo es visible
-                      para ti, a menos que decidas hacerlo público.
-                    </p>
-                  </section>
+                <section className={styles.termsSection}>
+                  <h3>5. Privacidad</h3>
+                  <p>
+                    Los datos personales son tratados conforme a nuestra Política
+                    de Privacidad. El contenido privado solo es visible para ti.
+                  </p>
+                </section>
 
-                  <section>
-                    <h3>6. Uso Aceptable</h3>
-                    <p>Te comprometes a no utilizar la plataforma para:</p>
-                    <ul>
-                      <li>Generar contenido ilegal, ofensivo o dañino</li>
-                      <li>Violar derechos de propiedad intelectual</li>
-                      <li>Interferir con el funcionamiento de la plataforma</li>
-                      <li>Intentar acceder a cuentas de otros usuarios</li>
-                    </ul>
-                  </section>
+                <section className={styles.termsSection}>
+                  <h3>6. Uso Aceptable</h3>
+                  <ul className={styles.termsList}>
+                    <li>No generar contenido ilegal u ofensivo</li>
+                    <li>No violar derechos de propiedad intelectual</li>
+                    <li>No interferir con el funcionamiento de la plataforma</li>
+                    <li>No intentar acceder a cuentas de otros usuarios</li>
+                  </ul>
+                </section>
 
-                  <section>
-                    <h3>7. Propiedad Intelectual</h3>
-                    <p>
-                      La plataforma y su contenido original (excluyendo el contenido generado por
-                      usuarios) son propiedad de LearnyOS y están protegidos por leyes de derechos
-                      de autor.
-                    </p>
-                  </section>
+                <section className={styles.termsSection}>
+                  <h3>7. Propiedad Intelectual</h3>
+                  <p>
+                    La plataforma y su contenido original son propiedad de LearnyOS
+                    y están protegidos por leyes de derechos de autor.
+                  </p>
+                </section>
 
-                  <section>
-                    <h3>8. Limitación de Responsabilidad</h3>
-                    <p>
-                      LearnyOS se proporciona &quot;tal cual&quot; sin garantías de ningún tipo. No nos
-                      hacemos responsables de daños directos, indirectos o consecuentes derivados
-                      del uso de la plataforma.
-                    </p>
-                  </section>
+                <section className={styles.termsSection}>
+                  <h3>8. Limitación de Responsabilidad</h3>
+                  <p>
+                    LearnyOS se proporciona &quot;tal cual&quot; sin garantías.
+                    No nos hacemos responsables de daños derivados del uso.
+                  </p>
+                </section>
 
-                  <section>
-                    <h3>9. Modificaciones</h3>
-                    <p>
-                      Nos reservamos el derecho de modificar estos términos en cualquier momento.
-                      Los cambios entrarán en vigor inmediatamente después de su publicación en
-                      la plataforma.
-                    </p>
-                  </section>
+                <section className={styles.termsSection}>
+                  <h3>9. Modificaciones</h3>
+                  <p>
+                    Nos reservamos el derecho de modificar estos términos en
+                    cualquier momento. Los cambios entran en vigor inmediatamente.
+                  </p>
+                </section>
 
-                  <section>
-                    <h3>10. Terminación</h3>
-                    <p>
-                      Podemos suspender o terminar tu acceso a la plataforma por cualquier motivo,
-                      incluyendo violaciones de estos términos, sin previo aviso.
-                    </p>
-                  </section>
-
-                  <section>
-                    <h3>11. Ley Aplicable</h3>
-                    <p>
-                      Estos términos se rigen por las leyes de Colombia. Cualquier disputa relacionada
-                      con estos términos se someterá a la jurisdicción exclusiva de los tribunales
-                      de Colombia.
-                    </p>
-                  </section>
-
-                  <section>
-                    <h3>12. Contacto</h3>
-                    <p>
-                      Para preguntas sobre estos Términos y Condiciones, puedes contactarnos a
-                      través de la plataforma.
-                    </p>
-                  </section>
-                </div>
+                <section className={styles.termsSection}>
+                  <h3>10. Ley Aplicable</h3>
+                  <p>
+                    Estos términos se rigen por las leyes de Colombia.
+                  </p>
+                </section>
               </div>
             </div>
           )}
 
-          {/* Tabs para Notes, Flashcards y Quizzes */}
           {(activeTab === "notes" || activeTab === "flashcards" || activeTab === "quizzes") && (
-            <div className={styles.manageTab}>
-              <div className={styles.tabHeader}>
-                <h2 className={styles.tabTitle}>
-                  Gestionar {activeTab === "notes" ? "notas" : activeTab === "flashcards" ? "flashcards" : "quizzes"}
-                </h2>
-                {items.length > 0 && (
+            <div className={styles.manageContent}>
+              <div className={styles.manageHeader}>
+                <div className={styles.manageHeaderLeft}>
+                  <Database size={20} className={styles.manageIcon} />
+                  <h2 className={styles.manageTitle}>
+                    Gestionar {activeTab === "notes" ? "Notas" : activeTab === "flashcards" ? "Flashcards" : "Quizzes"}
+                  </h2>
+                </div>
+                {items.filter((item) => item.canDelete !== false).length > 0 && (
                   <button
-                    className={styles.deleteAllBtn}
+                    className={styles.deleteAllButton}
                     onClick={handleDeleteAll}
                     disabled={deletingAll}
                     type="button"
                   >
-                    <AlertTriangle size={18} />
-                    <span>{deletingAll ? "Eliminando..." : `Eliminar todo (${items.length})`}</span>
+                    <AlertTriangle size={16} />
+                    <span>{deletingAll ? "Eliminando..." : `Eliminar Todo (${items.filter((item) => item.canDelete !== false).length})`}</span>
                   </button>
                 )}
               </div>
 
               {loading ? (
-                <div className={styles.loading}>
+                <div className={styles.loadingState}>
                   <div className={styles.spinner} />
-                  <p>Cargando {activeTab === "notes" ? "notas" : activeTab === "flashcards" ? "flashcards" : "quizzes"}...</p>
+                  <p>Cargando elementos...</p>
                 </div>
               ) : items.length === 0 ? (
-                <div className={styles.empty}>
+                <div className={styles.emptyState}>
                   <div className={styles.emptyIcon}>
-                    {activeTab === "notes" ? (
-                      <FileText size={48} />
-                    ) : activeTab === "flashcards" ? (
-                      <CreditCard size={48} />
-                    ) : (
-                      <Brain size={48} />
-                    )}
+                    {activeTab === "notes" ? <FileText size={40} /> : activeTab === "flashcards" ? <CreditCard size={40} /> : <Brain size={40} />}
                   </div>
-                  <p>No tienes {activeTab === "notes" ? "notas" : activeTab === "flashcards" ? "flashcards" : "quizzes"} para mostrar</p>
+                  <p className={styles.emptyText}>No tienes elementos para mostrar</p>
                 </div>
               ) : (
-                <div className={styles.list}>
+                <div className={styles.itemsList}>
                   {items.map((item) => (
                     <div key={item.id} className={styles.listItem}>
                       <div className={styles.listItemContent}>
                         <div className={styles.listItemHeader}>
                           <h3 className={styles.listItemTitle}>{item.title}</h3>
                           {item.acceso && (
-                            <span
-                              className={`${styles.accessBadge} ${item.acceso === "public"
-                                  ? styles.accessPublic
-                                  : styles.accessPrivate
-                                }`}
-                            >
+                            <span className={`${styles.accessBadge} ${item.acceso === "public" ? styles.accessPublic : styles.accessPrivate}`}>
                               {item.acceso === "public" ? (
                                 <>
                                   <Globe size={12} /> Público
@@ -583,24 +570,24 @@ export default function SettingsPage() {
                           <p className={styles.listItemDescription}>{item.description}</p>
                         )}
                         {item.createdAt && (
-                          <span className={styles.listItemDate}>
-                            Creado: {formatDate(item.createdAt)}
-                          </span>
+                          <span className={styles.listItemDate}>Creado: {formatDate(item.createdAt)}</span>
                         )}
                       </div>
-                      <button
-                        className={`${styles.deleteBtn} ${deletingId === item.id ? styles.deleting : ""}`}
-                        onClick={() => handleDelete(item.id, item.title)}
-                        disabled={deletingId === item.id}
-                        type="button"
-                        aria-label={`Eliminar ${item.title}`}
-                      >
-                        {deletingId === item.id ? (
-                          <span className={styles.deleteSpinner} />
-                        ) : (
-                          <Trash2 size={18} />
-                        )}
-                      </button>
+                      {item.canDelete !== false && (
+                        <button
+                          className={`${styles.deleteButton} ${deletingId === item.id ? styles.deleting : ""}`}
+                          onClick={() => handleDelete(item.id, item.title)}
+                          disabled={deletingId === item.id}
+                          type="button"
+                          aria-label={`Eliminar ${item.title}`}
+                        >
+                          {deletingId === item.id ? (
+                            <span className={styles.deleteSpinner} />
+                          ) : (
+                            <Trash2 size={16} />
+                          )}
+                        </button>
+                      )}
                     </div>
                   ))}
                 </div>

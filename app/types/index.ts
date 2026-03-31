@@ -40,6 +40,7 @@ export interface ExamOption {
   id: number;
   text: string;
   isCorrect: boolean;
+  feedback?: string;
 }
 
 export interface ExamQuestion {

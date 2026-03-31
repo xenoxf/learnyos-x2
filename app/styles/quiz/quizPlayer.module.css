@@ -199,6 +199,90 @@
   line-height: 1.5;
 }
 
+.iconCorrect {
+  color: hsl(var(--success));
+  flex-shrink: 0;
+}
+
+.iconIncorrect {
+  color: hsl(var(--destructive));
+  flex-shrink: 0;
+}
+
+/* ==================== IMMEDIATE FEEDBACK ==================== */
+.immediateFeedback {
+  margin-top: 1.5rem;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 2px solid;
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.feedbackHeader {
+  padding: 1rem 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.feedbackCorrect {
+  background: hsl(var(--success) / 0.15);
+  border-color: hsl(var(--success));
+  color: hsl(var(--success));
+}
+
+.feedbackIncorrect {
+  background: hsl(var(--destructive) / 0.15);
+  border-color: hsl(var(--destructive));
+  color: hsl(var(--destructive));
+}
+
+.feedbackContent {
+  padding: 1rem 1.25rem;
+  background: hsl(var(--background));
+  border-top: 1px solid hsl(var(--border));
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.feedbackContent:first-of-type {
+  border-top: none;
+}
+
+.feedbackContent .infoIcon {
+  color: hsl(var(--primary));
+  flex-shrink: 0;
+}
+
+.correctAnswerInfo {
+  padding: 1rem 1.25rem;
+  background: hsl(var(--success) / 0.1);
+  border-top: 1px solid hsl(var(--success) / 0.3);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: hsl(var(--success));
+}
+
+.checkIcon {
+  color: hsl(var(--success));
+  flex-shrink: 0;
+}
+
 /* ==================== EXPLANATION ==================== */
 .explanation {
   padding: 1.25rem;
@@ -268,6 +352,31 @@
   color: hsl(var(--foreground));
   min-width: 60px;
   text-align: center;
+}
+
+.confirmBtn {
+  width: auto;
+  padding: 0.75rem 1.25rem;
+  background: hsl(var(--primary));
+  border: 1px solid hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  font-weight: 600;
+  font-size: 0.875rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.15s ease;
+}
+
+.confirmBtn:hover:not(:disabled) {
+  background: hsl(var(--primary) / 0.9);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px hsl(var(--foreground) / 0.15);
+}
+
+.confirmBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 
 /* ==================== SUBMIT CONTAINER ==================== */
@@ -375,6 +484,193 @@
   color: hsl(var(--primary-foreground));
   transform: translateY(-1px);
   box-shadow: 0 4px 12px hsl(var(--foreground) / 0.15);
+}
+
+.actionBtnSecondary {
+  flex: 1;
+  padding: 0.875rem 1.25rem;
+  background: hsl(var(--secondary));
+  border: 1px solid hsl(var(--border));
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: hsl(var(--foreground));
+  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.actionBtnSecondary:hover {
+  background: hsl(var(--muted));
+  border-color: hsl(var(--muted));
+  transform: translateY(-1px);
+}
+
+/* ==================== FAILED QUESTIONS SECTION ==================== */
+.failedQuestionsSection {
+  width: 100%;
+  max-width: 700px;
+  text-align: left;
+}
+
+.sectionTitle {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: hsl(var(--foreground));
+  margin: 0 0 1rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid hsl(var(--border));
+}
+
+.errorIcon {
+  color: hsl(var(--destructive));
+}
+
+.failedQuestionsList {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.failedQuestionCard {
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  border-radius: 10px;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.failedQuestionHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.questionNumber {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: hsl(var(--muted-foreground));
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background: hsl(var(--muted));
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+}
+
+.failedQuestionText {
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: hsl(var(--foreground));
+  margin: 0;
+}
+
+.answerComparison {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background: hsl(var(--muted) / 0.3);
+  border-radius: 8px;
+}
+
+.userAnswer,
+.correctAnswer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.answerLabel {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: hsl(var(--muted-foreground));
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.incorrectText {
+  font-size: 0.9rem;
+  color: hsl(var(--destructive));
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.correctText {
+  font-size: 0.9rem;
+  color: hsl(var(--success));
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.explanationBox {
+  padding: 1rem;
+  background: hsl(var(--primary) / 0.1);
+  border-left: 3px solid hsl(var(--primary));
+  border-radius: 8px;
+  display: flex;
+  gap: 0.75rem;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.explanationIcon {
+  color: hsl(var(--primary));
+  flex-shrink: 0;
+  margin-top: 0.125rem;
+}
+
+.feedbackBox {
+  padding: 1rem;
+  background: hsl(var(--destructive) / 0.1);
+  border-left: 3px solid hsl(var(--destructive));
+  border-radius: 8px;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: hsl(var(--foreground));
+}
+
+/* ==================== RECOMMENDATIONS SECTION ==================== */
+.recommendationsSection {
+  width: 100%;
+  max-width: 700px;
+  text-align: left;
+}
+
+.recommendationsList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.recommendationItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.875rem 1rem;
+  background: hsl(var(--success) / 0.1);
+  border-radius: 8px;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: hsl(var(--foreground));
+}
+
+.recommendationItem .checkIcon {
+  color: hsl(var(--success));
+  flex-shrink: 0;
+  margin-top: 0.125rem;
 }
 
 /* ==================== LOADING ==================== */

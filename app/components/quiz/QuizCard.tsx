@@ -1,4 +1,5 @@
 import React from "react";
+import { useRouter } from "next/navigation";
 import { Trash2, HelpCircle, Clock, Tag } from "lucide-react";
 import { apiService } from "@/services/apiService";
 import { useToast } from "@/hooks/use-toast";
@@ -8,14 +9,13 @@ import type { ExamDeck } from "@/types";
 interface QuizCardProps {
   quiz: ExamDeck & { canDelete?: boolean };
   onQuizDeleted?: () => void;
-  onQuizOpen?: (quizId: number) => void;
 }
 
 export default function QuizCard({
   quiz,
   onQuizDeleted,
-  onQuizOpen,
 }: QuizCardProps) {
+  const router = useRouter();
   const { toast } = useToast();
   const isOwner = quiz.canDelete ?? false;
 
@@ -54,16 +54,20 @@ export default function QuizCard({
     }
   };
 
+  const handleOpen = () => {
+    router.push(`/study/quiz/${quiz.id}`);
+  };
+
   return (
     <div
       className={styles.card}
       role="button"
       tabIndex={0}
-      onClick={() => onQuizOpen?.(quiz.id)}
+      onClick={handleOpen}
       onKeyDown={(e) => {
         if (e.key === "Enter" || e.key === " ") {
           e.preventDefault();
-          onQuizOpen?.(quiz.id);
+          handleOpen();
         }
       }}
     >

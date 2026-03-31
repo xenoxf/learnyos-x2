@@ -87,13 +87,13 @@ export function useStudyGrid<T extends StudyGridBaseItem & { code?: string | nul
     (itemsToFilter: (T & { canDelete?: boolean })[], term: string) => {
       // Si el término parece un código (5 caracteres alfanuméricos), buscar por código
       const isCodePattern = /^[A-Z0-9]{5}$/i.test(term.trim());
-      
+
       if (isCodePattern && term.trim().length === 5) {
         // Búsqueda por código - se hace en backend
         setIsCodeSearch(true);
         return; // Se maneja en loadCodeSearch
       }
-      
+
       // Búsqueda normal por texto - frontend filter
       setIsCodeSearch(false);
       setCodeSearchResult(null);
@@ -132,7 +132,7 @@ export function useStudyGrid<T extends StudyGridBaseItem & { code?: string | nul
   const loadItems = useCallback(async () => {
     // Prevenir múltiples peticiones simultáneas
     if (loading) return;
-    
+
     try {
       setLoading(true);
       const data = await actions.onLoad();
@@ -254,7 +254,26 @@ export function StudyGridHeader({
   onCreateClick: () => void;
 }) {
   return (
-    <div className={styles.header}>
+    <header className={styles.header}>
+      <div className={styles.headerLeft}>
+
+        <div className={styles.searchSection}>
+          <Input
+            className={styles.searchInput}
+            placeholder={config.searchPlaceholder}
+            value={searchValue}
+            onChange={(e) => setSearchValue(e.target.value)}
+            aria-label="Buscar"
+          />
+        </div>
+        <div className={styles.createBtnWrapper}>
+          <Button onClick={onCreateClick} className={styles.createBtn} type="button">
+            <Plus size={20} />
+            {config.createButtonText}
+          </Button>
+        </div>
+      </div>
+
       <div className={styles.viewTabs}>
         <button
           type="button"
@@ -271,20 +290,8 @@ export function StudyGridHeader({
           <Globe size={16} /> {config.publicTabText}
         </button>
       </div>
-      <div className={styles.searchSection}>
-        <Input
-          className={styles.searchInput}
-          placeholder={config.searchPlaceholder}
-          value={searchValue}
-          onChange={(e) => setSearchValue(e.target.value)}
-          aria-label="Buscar"
-        />
-      </div>
-      <Button onClick={onCreateClick} className={styles.createBtn} type="button">
-        <Plus size={20} />
-        {config.createButtonText}
-      </Button>
-    </div>
+
+    </header>
   );
 }
 

@@ -78,7 +78,7 @@ export const ThemeToggleSidebr: React.FC<ThemeToggleSidebrProps> = ({
       </DropdownMenuTrigger>
 
       <DropdownMenuContent align="end" className={styles.dropdown}>
-        <div className={styles.dropdownHeader}>Seleccionar tema</div>
+        <div className={styles.dropdownHeader}>Temas</div>
 
         <div className={styles.dropdownList}>
           {themes.map((themeOption) => {

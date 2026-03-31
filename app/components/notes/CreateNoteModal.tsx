@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useState, useCallback } from "react";
+import React, { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { apiService } from "@/services/apiService";
-import { Sparkles, FileText, Settings, Eye } from "lucide-react";
 import styles from "@/styles/notes/createNoteModal.module.css";
+import { X, Loader, Sparkles } from "lucide-react";
 import type { GenerateNoteData } from "@/types";
 import { useRouter } from "next/navigation";
 
@@ -27,9 +27,7 @@ export default function CreateNoteModal({
   });
   const router = useRouter();
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
+  const handleCreate = async () => {
     if (!formData.reference?.trim()) {
       toast({
         variant: "destructive",
@@ -62,176 +60,104 @@ export default function CreateNoteModal({
     }
   };
 
-  const handleInputChange = useCallback(
-    (field: keyof GenerateNoteData, value: string | number) => {
-      setFormData((prev) => ({ ...prev, [field]: value }));
-    },
-    []
-  );
-
   return (
-    <div className={styles.overlay} onClick={onClose}>
-      <div className={styles.modal} onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div className={styles.overlay}>
+      <div className={styles.modal}>
         <div className={styles.header}>
-          <div className={styles.headerLeft}>
-            <div className={styles.headerIcon}>
-              <Sparkles size={24} aria-hidden="true" />
-            </div>
-            <div>
-              <h2 id="modal-title" className={styles.title}>Crear Notas con IA</h2>
-              <p className={styles.subtitle}>Genera notas estructuradas automáticamente</p>
-            </div>
-          </div>
+          <h2 className={styles.title}>Generar Notas</h2>
           <button
-            className={styles.closeBtn}
             onClick={onClose}
-            type="button"
+            className={styles.closeBtn}
             aria-label="Cerrar"
-            disabled={loading}
           >
-            ✕
+            <X size={24} />
           </button>
         </div>
 
-        <form className={styles.form} onSubmit={handleSubmit}>
-          <div className={styles.formContent}>
-            <div className={styles.section}>
-              <div className={styles.sectionHeader}>
-                <FileText size={18} className={styles.sectionIcon} aria-hidden="true" />
-                <h3 className={styles.sectionTitle}>Contenido</h3>
-              </div>
-              <div className={styles.formGroup}>
-                <label className={styles.label} htmlFor="reference">
-                  Tema o texto de referencia
-                </label>
-                <textarea
-                  id="reference"
-                  className={styles.textarea}
-                  placeholder="Ej: La Revolución Francesa, Mecánica cuántica, o pega tu texto aquí..."
-                  value={formData.reference || ""}
-                  onChange={(e) => handleInputChange("reference", e.target.value)}
-                  rows={5}
-                  required
-                  disabled={loading}
-                />
-                <p className={styles.helperText}>
-                  La IA generará notas basadas en este contenido
-                </p>
-              </div>
+        <div className={styles.content}>
+
+
+          <div className={styles.formGroup}>
+            <label className={styles.label}>Referencia</label>
+            <textarea
+              placeholder="Sobre que quieres tu quiz? expresate."
+              value={formData.reference}
+              onChange={(e) => setFormData({ ...formData, reference: e.target.value })}
+              className={styles.textarea}
+              rows={5}
+              disabled={loading}
+            />
+          </div>
+
+          <div className={styles.formRow}>
+            <div className={styles.formGroup}>
+              <label className={styles.label}>Número de notas</label>
+              <input
+                type="number"
+                min="1"
+                max="10"
+                value={formData.numberOfNotes}
+                onChange={(e) => setFormData({ ...formData, numberOfNotes: parseInt(e.target.value) })}
+                className={styles.input}
+                disabled={loading}
+              />
             </div>
 
-            <div className={styles.section}>
-              <div className={styles.sectionHeader}>
-                <Settings size={18} className={styles.sectionIcon} aria-hidden="true" />
-                <h3 className={styles.sectionTitle}>Configuración</h3>
-              </div>
-              <div className={styles.formRow}>
-                <div className={styles.formGroup}>
-                  <label className={styles.label} htmlFor="numberOfNotes">
-                    <Eye size={16} className={styles.labelIcon} aria-hidden="true" />
-                    Número de notas
-                  </label>
-                  <input
-                    id="numberOfNotes"
-                    type="number"
-                    className={styles.input}
-                    min="1"
-                    max="10"
-                    value={formData.numberOfNotes}
-                    onChange={(e) =>
-                      handleInputChange("numberOfNotes", parseInt(e.target.value) || 1)
-                    }
-                    disabled={loading}
-                  />
-                  <p className={styles.helperText}>1-10 notas por generación</p>
-                </div>
-
-                <div className={styles.formGroup}>
-                  <label className={styles.label} htmlFor="levelOfDetail">
-                    Nivel de detalle
-                  </label>
-                  <select
-                    id="levelOfDetail"
-                    className={styles.select}
-                    value={formData.levelOfDetail}
-                    onChange={(e) =>
-                      handleInputChange("levelOfDetail", e.target.value)
-                    }
-                    disabled={loading}
-                  >
-                    <option value="breve">Breve - Conceptos clave</option>
-                    <option value="medio">Medio - Balanceado</option>
-                    <option value="detallado">Detallado - Profundo</option>
-                  </select>
-                </div>
-              </div>
-
-              <div className={styles.formGroup}>
-                <label className={styles.label} htmlFor="acceso">
-                  Privacidad
-                </label>
-                <div className={styles.accessOptions}>
-                  <label className={styles.accessOption}>
-                    <input
-                      type="radio"
-                      name="acceso"
-                      value="private"
-                      checked={formData.acceso === "private"}
-                      onChange={(e) => handleInputChange("acceso", e.target.value)}
-                      disabled={loading}
-                    />
-                    <span className={styles.accessLabel}>
-                      <span className={styles.accessIcon}>🔒</span>
-                      Privada - Solo tú puedes verla
-                    </span>
-                  </label>
-                  <label className={styles.accessOption}>
-                    <input
-                      type="radio"
-                      name="acceso"
-                      value="public"
-                      checked={formData.acceso === "public"}
-                      onChange={(e) => handleInputChange("acceso", e.target.value)}
-                      disabled={loading}
-                    />
-                    <span className={styles.accessLabel}>
-                      <span className={styles.accessIcon}>🌍</span>
-                      Pública - Visible para todos
-                    </span>
-                  </label>
-                </div>
-              </div>
+            <div className={styles.formGroup}>
+              <label className={styles.label}>Nivel de detalle</label>
+              <select
+                value={formData.levelOfDetail}
+                onChange={(e) => setFormData({ ...formData, levelOfDetail: e.target.value })}
+                className={styles.select}
+                disabled={loading}
+              >
+                <option value="breve">Breve - Conceptos clave</option>
+                <option value="medio">Medio - Balanceado</option>
+                <option value="detallado">Detallado - Profundo</option>
+              </select>
             </div>
           </div>
 
-          <div className={styles.actions}>
-            <button
-              type="button"
-              className={styles.cancelBtn}
-              onClick={onClose}
+          <div className={styles.formGroup}>
+            <label className={styles.label}>Privacidad</label>
+            <select
+              value={formData.acceso}
+              onChange={(e) => setFormData({ ...formData, acceso: e.target.value })}
+              className={styles.select}
               disabled={loading}
             >
-              Cancelar
-            </button>
-            <button
-              type="submit"
-              className={styles.submitBtn}
-              disabled={loading}
-            >
-              {loading ? (
-                <>
-                  <span className={styles.loadingSpinner} aria-hidden="true" />
-                  Generando...
-                </>
-              ) : (
-                <>
-                  <Sparkles size={18} aria-hidden="true" />
-                  Generar Notas
-                </>
-              )}
-            </button>
+              <option value="private">Privado</option>
+              <option value="public">Público</option>
+            </select>
           </div>
-        </form>
+        </div>
+
+        <div className={styles.footer}>
+          <button
+            onClick={onClose}
+            className={styles.cancelBtn}
+            disabled={loading}
+          >
+            Cancelar
+          </button>
+          <button
+            onClick={handleCreate}
+            disabled={loading || !formData.reference?.trim()}
+            className={styles.confirmBtn}
+          >
+            {loading ? (
+              <>
+                <Loader size={18} className={styles.spinner} />
+                Generando...
+              </>
+            ) : (
+              <>
+                <Sparkles size={18} />
+                Generar Notas
+              </>
+            )}
+          </button>
+        </div>
       </div>
     </div>
   );
