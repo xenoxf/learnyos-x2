@@ -1,369 +1,333 @@
-/* Navbar pill - Mobile bottom navigation */
-.bottomNav {
-    background: hsl(var(--card) / 0.95);
-    border-top: 1px solid hsl(var(--border) / 0.8);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 2px;
-    padding: 8px 6px;
+/* Container principal
+.container {
     width: 100%;
-    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.08);
-    pointer-events: auto;
-    border-radius: 20px 20px 0 0;
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    justify-content: center;
     position: fixed;
     bottom: 0;
     left: 0;
     right: 0;
+    pointer-events: none;
     z-index: 50;
+    transform: translateY(0);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     will-change: transform;
-}
+}*/
 
 .containerHidden {
-    transform: translateY(100%);
+  transform: translateY(100%);
+}
+
+/* Navbar pill */
+.bottomNav {
+  background: hsl(var(--card) / 0.95);
+
+  border: 1px solid hsl(var(--border) / 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 6px 8px;
+  width: 100%;
+  box-shadow:
+    0 4px 24px rgba(0, 0, 0, 0.12),
+    0 1px 4px rgba(0, 0, 0, 0.06);
+  pointer-events: auto;
+  position: relative;
+  overflow: visible;
+  flex-shrink: 0;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease;
 }
 
 /* Items de navegación */
 .navItem {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 6px 4px;
-    border: none;
-    background: transparent;
-    cursor: pointer;
-    border-radius: 12px;
-    flex: 1;
-    max-width: 80px;
-    white-space: nowrap;
-    color: hsl(var(--muted-foreground));
-    text-decoration: none;
-    transition:
-        background 0.15s ease,
-        color 0.15s ease,
-        transform 0.1s ease;
-    outline: none;
-    position: relative;
-    min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 7px 11px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  border-radius: 20px;
+  flex-shrink: 0;
+  white-space: nowrap;
+  color: hsl(var(--muted-foreground));
+  text-decoration: none;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease,
+    transform 0.1s ease;
+  outline: none;
+  position: relative;
 }
 
 .navItem:hover {
-    background: hsl(var(--accent) / 0.12);
-    color: hsl(var(--foreground));
+  background: hsl(var(--accent) / 0.12);
+  color: hsl(var(--foreground));
 }
 
 .navItem:active {
-    transform: scale(0.92);
+  transform: scale(0.94);
 }
 
 .navItemActive {
-    background: hsl(var(--primary) / 0.14);
-    color: hsl(var(--primary));
+  background: hsl(var(--primary) / 0.14);
+  color: hsl(var(--primary));
 }
 
 .navItemActive:hover {
-    background: hsl(var(--primary) / 0.2) !important;
+  background: hsl(var(--primary) / 0.2) !important;
 }
 
-/* Wrapper de icono - CENTRADO PERFECTO */
+/* Wrapper de icono */
 .navIconWrapper {
-    position: relative;
-    width: 24px;
-    height: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto;
+  position: relative;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-/* Label del item - centrado */
+/* Label del item */
 .navLabel {
-    font-size: 0.6rem;
-    font-weight: 600;
-    letter-spacing: 0.01em;
-    margin-top: 4px;
-    line-height: 1;
-    text-align: center;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 100%;
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  margin-top: 3px;
+  line-height: 1;
 }
 
 /* Badge de notificaciones */
 .badge {
-    position: absolute;
-    top: -6px;
-    right: -8px;
-    min-width: 18px;
-    height: 18px;
-    background: hsl(var(--destructive));
-    color: white;
-    border-radius: 10px;
-    font-size: 0.55rem;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 2px solid hsl(var(--card));
-    padding: 0 4px;
-    line-height: 1;
-    transition: background-color 0.2s ease;
-    z-index: 2;
+  position: absolute;
+  top: -5px;
+  right: -7px;
+  min-width: 17px;
+  height: 17px;
+  background: hsl(var(--destructive));
+  color: white;
+  border-radius: 10px;
+  font-size: 0.55rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid hsl(var(--card));
+  padding: 0 3px;
+  line-height: 1;
+  transition: background-color 0.2s ease;
 }
 
 /* Botón "Más" */
 .moreButton {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 6px 12px;
-    border: none;
-    background: transparent;
-    cursor: pointer;
-    border-radius: 12px;
-    flex-shrink: 0;
-    white-space: nowrap;
-    color: hsl(var(--muted-foreground));
-    transition:
-        background 0.15s ease,
-        color 0.15s ease,
-        transform 0.1s ease;
-    position: relative;
-    outline: none;
-    z-index: 55;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 7px 11px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  border-radius: 20px;
+  flex-shrink: 0;
+  white-space: nowrap;
+  color: hsl(var(--muted-foreground));
+  transition:
+    background 0.15s ease,
+    color 0.15s ease,
+    transform 0.1s ease;
+  position: relative;
+  margin-left: auto;
+  outline: none;
 }
 
 .moreButton:hover {
-    background: hsl(var(--accent) / 0.12);
-    color: hsl(var(--foreground));
+  background: hsl(var(--accent) / 0.12);
+  color: hsl(var(--foreground));
 }
 
 .moreButton:active {
-    transform: scale(0.92);
+  transform: scale(0.94);
 }
 
 .moreButtonActive {
-    background: hsl(var(--accent) / 0.18);
-    color: hsl(var(--foreground));
+  background: hsl(var(--accent) / 0.18);
+  color: hsl(var(--foreground));
 }
 
 /* Dot indicador en botón "Más" */
 .moreActiveDot {
-    position: absolute;
-    top: -2px;
-    right: -4px;
-    width: 8px;
-    height: 8px;
-    background: hsl(var(--primary));
-    border-radius: 50%;
-    border: 2px solid hsl(var(--card));
-    animation: popIn 0.2s ease;
-    z-index: 3;
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 7px;
+  height: 7px;
+  background: hsl(var(--primary));
+  border-radius: 50%;
+  border: 2px solid hsl(var(--card));
+  animation: popIn 0.2s ease;
 }
 
 /* Menú flotante */
 .moreMenu {
-    position: absolute;
-    bottom: calc(100% + 12px);
-    right: 8px;
-    background: hsl(var(--card) / 0.98);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid hsl(var(--border) / 0.9);
-    border-radius: 16px;
-    padding: 8px;
-    min-width: 200px;
-    max-width: calc(100vw - 16px);
-    box-shadow:
-        0 -8px 32px rgba(0, 0, 0, 0.16),
-        0 -2px 8px rgba(0, 0, 0, 0.08),
-        0 0 0 1px rgba(0, 0, 0, 0.05);
-    animation: slideUp 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-    transform-origin: bottom right;
-    z-index: 60;
+  position: absolute;
+  bottom: calc(100% + 10px);
+  right: 0;
+  background: hsl(var(--card) / 0.98);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid hsl(var(--border) / 0.9);
+  border-radius: 20px;
+  padding: 6px;
+  min-width: 220px;
+  box-shadow:
+    0 -8px 32px rgba(0, 0, 0, 0.16),
+    0 -2px 8px rgba(0, 0, 0, 0.08);
+  animation: slideUp 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  transform-origin: bottom right;
+  z-index: 60;
 }
 
 .moreMenuSection {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
 /* Items del menú */
 .moreMenuItem {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 12px 14px;
-    border: none;
-    background: transparent;
-    border-radius: 12px;
-    color: hsl(var(--foreground));
-    font-size: 0.875rem;
-    font-weight: 500;
-    cursor: pointer;
-    width: 100%;
-    text-align: left;
-    text-decoration: none;
-    transition:
-        background 0.15s ease,
-        color 0.15s ease;
-    white-space: nowrap;
-    outline: none;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 14px;
+  border: none;
+  background: transparent;
+  border-radius: 14px;
+  color: hsl(var(--foreground));
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  text-decoration: none;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+  white-space: nowrap;
+  outline: none;
 }
 
 .moreMenuItem:hover {
-    background: hsl(var(--accent) / 0.1);
+  background: hsl(var(--accent) / 0.1);
 }
 
 .moreMenuItemActive {
-    background: hsl(var(--primary) / 0.1);
-    color: hsl(var(--primary));
-    font-weight: 600;
+  background: hsl(var(--primary) / 0.1);
+  color: hsl(var(--primary));
+  font-weight: 600;
 }
 
-/* Wrapper para ThemeToggleSidebr */
+/* Wrapper para ThemeToggleSidebr - asegura que herede el contexto */
 .themeToggleWrapper {
-    width: 100%;
-    display: flex;
-    align-items: center;
+  width: 100%;
 }
 
 .themeToggleWrapper :global(button) {
-    width: 100%;
-    justify-content: flex-start;
-    padding: 12px 14px;
-    border-radius: 12px;
-    background: transparent;
-    border: none;
-    color: hsl(var(--foreground));
-    font-size: 0.875rem;
-    font-weight: 500;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    transition: background 0.15s ease;
-    margin: 0;
+  width: 100%;
+  justify-content: flex-start;
+  padding: 11px 14px;
+  border-radius: 14px;
+  background: transparent;
+  border: none;
+  color: hsl(var(--foreground));
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: background 0.15s ease;
 }
 
 .themeToggleWrapper :global(button:hover) {
-    background: hsl(var(--accent) / 0.1);
+  background: hsl(var(--accent) / 0.1);
 }
 
 /* Badge en menú */
 .menuBadge {
-    margin-left: auto;
-    background: hsl(var(--destructive) / 0.1);
-    color: hsl(var(--destructive));
-    padding: 2px 8px;
-    border-radius: 20px;
-    font-size: 0.6875rem;
-    font-weight: 700;
-    line-height: 1.5;
+  margin-left: auto;
+  background: hsl(var(--destructive) / 0.1);
+  color: hsl(var(--destructive));
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1.5;
 }
 
 /* Divisor del menú */
 .moreMenuDivider {
-    height: 1px;
-    background: hsl(var(--border) / 0.7);
-    margin: 6px 8px;
+  height: 1px;
+  background: hsl(var(--border) / 0.7);
+  margin: 4px 8px;
 }
 
 /* Animaciones */
 @keyframes slideUp {
-    from {
-        opacity: 0;
-        transform: translateY(8px) scale(0.97);
-    }
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.97);
+  }
 
-    to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-    }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 @keyframes popIn {
-    from {
-        transform: scale(0);
-        opacity: 0;
-    }
+  from {
+    transform: scale(0);
+    opacity: 0;
+  }
 
-    to {
-        transform: scale(1);
-        opacity: 1;
-    }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
-/* Responsive para diferentes tamaños de móvil */
-@media (min-width: 375px) {
-    .bottomNav {
-        padding: 8px 8px;
-    }
+/* Responsive */
+@media (min-width: 480px) {
 
-    .navItem {
-        padding: 6px 10px;
-    }
+  .navItem,
+  .moreButton {
+    padding: 8px 13px;
+  }
 
-    .navLabel {
-        font-size: 0.65rem;
-    }
-}
-
-@media (min-width: 414px) {
-    .navItem {
-        padding: 8px 12px;
-    }
-
-    .navLabel {
-        font-size: 0.6875rem;
-    }
-
-    .moreButton {
-        padding: 8px 14px;
-    }
+  .navLabel {
+    font-size: 0.65rem;
+  }
 }
 
 @media (min-width: 1024px) {
-    .bottomNav {
-        display: none;
-    }
+  .container {
+    display: none;
+  }
 }
 
-/* High contrast mode */
-@media (prefers-contrast: high) {
-    .bottomNav {
-        border-top-width: 2px;
-    }
-
-    .navItemActive,
-    .moreButtonActive {
-        border: 1px solid hsl(var(--foreground));
-    }
-}
-
-/* Reduced motion */
+/* High contrast / reduced motion */
 @media (prefers-reduced-motion: reduce) {
-    .bottomNav,
-    .navItem,
-    .moreButton,
-    .moreMenu {
-        animation: none !important;
-        transition: none !important;
-    }
 
-    .moreMenu {
-        animation: none !important;
-    }
-}
-
-/* Safe area for notched devices */
-@supports (padding-bottom: env(safe-area-inset-bottom)) {
-    .bottomNav {
-        padding-bottom: calc(8px + env(safe-area-inset-bottom));
-    }
+  .container,
+  .navItem,
+  .moreButton,
+  .moreMenu {
+    animation: none;
+    transition: none;
+  }
 }

@@ -1,7 +1,6 @@
 "use client";
 
-import React,
-{
+import React, {
   useState,
   useCallback,
   useEffect,
@@ -18,16 +17,14 @@ import {
   Languages,
   LogOut,
   MoreHorizontal,
-  MapIcon,
-  Settings,
+  Settings2,
+  Book,
 } from "lucide-react";
 import { apiService } from "@/services/apiService";
 import { useToast } from "@/hooks/use-toast";
 import styles from "@/styles/mobileNavbar.module.css";
 import Link from "next/link";
 import { ThemeToggleSidebr } from "./ThemeToogleSidebr";
-import { ThemeToggle } from "./ThemeToggle";
-
 const SCROLL_THRESHOLD = 10;
 const RESIZE_DEBOUNCE = 100;
 
@@ -39,7 +36,7 @@ interface MenuItem {
 }
 
 const ALL_NAV_ITEMS: MenuItem[] = [
-  { title: "Klerk", url: "/study", icon: LayoutDashboard },
+  { title: "Klerk", url: "/study", icon: Book },
   { title: "Chat", url: "/study/chat", icon: MessageSquare, badge: 3 },
   { title: "Quiz", url: "/study/quiz", icon: Brain },
   { title: "Notas", url: "/study/notes", icon: NotebookPen },
@@ -141,12 +138,13 @@ export function MobileNavbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, [navVisible]);
 
-  // Click outside handler for closing menu
+  // --- CORRECCIÓN AQUÍ: Manejo de click outside más robusto ---
   useEffect(() => {
     if (!showMoreMenu) return;
 
     const handleClickOutside = (e: MouseEvent) => {
       const target = e.target as Node;
+      // Verificamos si el clic fue dentro del menú o en el botón "Más"
       if (
         menuRef.current?.contains(target) ||
         moreButtonRef.current?.contains(target)
@@ -156,8 +154,9 @@ export function MobileNavbar() {
       setShowMoreMenu(false);
     };
 
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    // Usar 'click' en lugar de 'mousedown' para evitar conflictos con botones internos
+    document.addEventListener("click", handleClickOutside);
+    return () => document.removeEventListener("click", handleClickOutside);
   }, [showMoreMenu]);
 
   const handleLogout = useCallback(async () => {
@@ -199,13 +198,10 @@ export function MobileNavbar() {
 
   return (
     <>
-      <nav 
-        ref={navRef} 
-        className={`${styles.bottomNav} ${!navVisible ? styles.containerHidden : ""}`}
-        style={{
-          transform: navVisible ? 'translateY(0)' : 'translateY(100%)',
-        }}
-      >
+      {/*<div
+        className={`${styles.container} ${!navVisible ? styles.containerHidden : ""}`}
+      >*/}
+      <nav ref={navRef} className={styles.bottomNav}>
         {visibleItems.map((item) => {
           const Icon = item.icon;
           return (
@@ -230,26 +226,18 @@ export function MobileNavbar() {
           ref={moreButtonRef}
           className={`${styles.moreButton} ${showMoreMenu ? styles.moreButtonActive : ""}`}
           onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
+            e.stopPropagation(); // Evita que el clic se propague
             setShowMoreMenu((prev) => !prev);
           }}
           aria-expanded={showMoreMenu}
-          aria-label="Más opciones"
         >
-          <div className={styles.navIconWrapper}>
-            <MoreHorizontal size={22} />
-            {hasActiveHidden && <span className={styles.moreActiveDot} />}
-          </div>
+          <MoreHorizontal size={22} />
           <span className={styles.navLabel}>Más</span>
+          {hasActiveHidden && <span className={styles.moreActiveDot} />}
         </button>
 
         {showMoreMenu && (
-          <div 
-            ref={menuRef} 
-            className={styles.moreMenu}
-            onClick={(e) => e.stopPropagation()}
-          >
+          <div ref={menuRef} className={styles.moreMenu}>
             {hiddenItems.length > 0 && (
               <>
                 <div className={styles.moreMenuSection}>
@@ -276,6 +264,7 @@ export function MobileNavbar() {
             )}
 
             <div className={styles.moreMenuSection}>
+              {/* CORRECCIÓN: Wrapper con stopPropagation para asegurar el clic en el tema */}
               <div
                 className={styles.themeToggleWrapper}
                 onClick={(e) => e.stopPropagation()}
@@ -283,14 +272,9 @@ export function MobileNavbar() {
                 <ThemeToggleSidebr />
               </div>
 
-              <Link
-                title="Configuraciones"
-                className={styles.moreMenuItem}
-                href="/study/settings"
-                onClick={() => setShowMoreMenu(false)}
-              >
-                <Settings size={18} />
-                Configuraciones
+              <Link className={styles.moreMenuItem} href='/study/settings' >
+                <Settings2 size={18} />
+                <span>Configuracion</span>
               </Link>
             </div>
           </div>

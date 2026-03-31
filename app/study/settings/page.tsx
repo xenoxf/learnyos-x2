@@ -39,7 +39,7 @@ export default function SettingsPage() {
   const { toast } = useToast();
   const router = useRouter();
   const { alert, alertState, handleClose, handleConfirm } = useCustomAlert();
-  
+
   const [activeTab, setActiveTab] = useState<TabType>("general");
   const [items, setItems] = useState<ManageItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -274,10 +274,10 @@ export default function SettingsPage() {
       {/* Header */}
       <header className={styles.header}>
         <div className={styles.headerLeft}>
-          <button 
-            onClick={() => router.back()} 
-            className={styles.backBtn} 
-            type="button" 
+          <button
+            onClick={() => router.back()}
+            className={styles.backBtn}
+            type="button"
             aria-label="Volver"
           >
             <ArrowLeft size={24} />
@@ -330,7 +330,7 @@ export default function SettingsPage() {
             <div className={styles.generalTab}>
               <section className={styles.section}>
                 <h2 className={styles.sectionTitle}>Cuenta</h2>
-                <div className={styles.sectionContent}>
+                <div className={styles.cuenta}>
                   <div className={styles.infoCard}>
                     <div className={styles.infoIcon}>
                       <User size={24} />
@@ -407,8 +407,8 @@ export default function SettingsPage() {
                   <section>
                     <h3>1. Aceptación de los Términos</h3>
                     <p>
-                      Al acceder y utilizar LearnyOS, aceptas estar legalmente vinculado por estos 
-                      Términos y Condiciones de Uso. Si no estás de acuerdo con alguno de estos 
+                      Al acceder y utilizar LearnyOS, aceptas estar legalmente vinculado por estos
+                      Términos y Condiciones de Uso. Si no estás de acuerdo con alguno de estos
                       términos, te pedimos que no utilices nuestra plataforma.
                     </p>
                   </section>
@@ -416,8 +416,8 @@ export default function SettingsPage() {
                   <section>
                     <h3>2. Descripción del Servicio</h3>
                     <p>
-                      LearnyOS es una plataforma educativa impulsada por inteligencia artificial 
-                      que proporciona herramientas para la creación y gestión de contenido educativo, 
+                      LearnyOS es una plataforma educativa impulsada por inteligencia artificial
+                      que proporciona herramientas para la creación y gestión de contenido educativo,
                       incluyendo quizzes, flashcards y notas de estudio.
                     </p>
                   </section>
@@ -425,8 +425,8 @@ export default function SettingsPage() {
                   <section>
                     <h3>3. Cuenta de Usuario</h3>
                     <p>
-                      Para acceder a ciertas funcionalidades, debes crear una cuenta. Eres responsable 
-                      de mantener la confidencialidad de tu cuenta y de todas las actividades que 
+                      Para acceder a ciertas funcionalidades, debes crear una cuenta. Eres responsable
+                      de mantener la confidencialidad de tu cuenta y de todas las actividades que
                       ocurran bajo tu cuenta.
                     </p>
                   </section>
@@ -434,7 +434,7 @@ export default function SettingsPage() {
                   <section>
                     <h3>4. Contenido Generado</h3>
                     <p>
-                      Eres responsable del contenido que creas en la plataforma. El contenido generado 
+                      Eres responsable del contenido que creas en la plataforma. El contenido generado
                       por IA es una herramienta de apoyo y debe ser verificado por el usuario.
                     </p>
                   </section>
@@ -442,8 +442,8 @@ export default function SettingsPage() {
                   <section>
                     <h3>5. Privacidad</h3>
                     <p>
-                      Tu privacidad es importante para nosotros. Los datos personales son tratados 
-                      conforme a nuestra Política de Privacidad. El contenido privado solo es visible 
+                      Tu privacidad es importante para nosotros. Los datos personales son tratados
+                      conforme a nuestra Política de Privacidad. El contenido privado solo es visible
                       para ti, a menos que decidas hacerlo público.
                     </p>
                   </section>
@@ -462,8 +462,8 @@ export default function SettingsPage() {
                   <section>
                     <h3>7. Propiedad Intelectual</h3>
                     <p>
-                      La plataforma y su contenido original (excluyendo el contenido generado por 
-                      usuarios) son propiedad de LearnyOS y están protegidos por leyes de derechos 
+                      La plataforma y su contenido original (excluyendo el contenido generado por
+                      usuarios) son propiedad de LearnyOS y están protegidos por leyes de derechos
                       de autor.
                     </p>
                   </section>
@@ -471,8 +471,8 @@ export default function SettingsPage() {
                   <section>
                     <h3>8. Limitación de Responsabilidad</h3>
                     <p>
-                      LearnyOS se proporciona &quot;tal cual&quot; sin garantías de ningún tipo. No nos 
-                      hacemos responsables de daños directos, indirectos o consecuentes derivados 
+                      LearnyOS se proporciona &quot;tal cual&quot; sin garantías de ningún tipo. No nos
+                      hacemos responsables de daños directos, indirectos o consecuentes derivados
                       del uso de la plataforma.
                     </p>
                   </section>
@@ -480,8 +480,8 @@ export default function SettingsPage() {
                   <section>
                     <h3>9. Modificaciones</h3>
                     <p>
-                      Nos reservamos el derecho de modificar estos términos en cualquier momento. 
-                      Los cambios entrarán en vigor inmediatamente después de su publicación en 
+                      Nos reservamos el derecho de modificar estos términos en cualquier momento.
+                      Los cambios entrarán en vigor inmediatamente después de su publicación en
                       la plataforma.
                     </p>
                   </section>
@@ -489,7 +489,7 @@ export default function SettingsPage() {
                   <section>
                     <h3>10. Terminación</h3>
                     <p>
-                      Podemos suspender o terminar tu acceso a la plataforma por cualquier motivo, 
+                      Podemos suspender o terminar tu acceso a la plataforma por cualquier motivo,
                       incluyendo violaciones de estos términos, sin previo aviso.
                     </p>
                   </section>
@@ -497,8 +497,8 @@ export default function SettingsPage() {
                   <section>
                     <h3>11. Ley Aplicable</h3>
                     <p>
-                      Estos términos se rigen por las leyes de Colombia. Cualquier disputa relacionada 
-                      con estos términos se someterá a la jurisdicción exclusiva de los tribunales 
+                      Estos términos se rigen por las leyes de Colombia. Cualquier disputa relacionada
+                      con estos términos se someterá a la jurisdicción exclusiva de los tribunales
                       de Colombia.
                     </p>
                   </section>
@@ -506,7 +506,7 @@ export default function SettingsPage() {
                   <section>
                     <h3>12. Contacto</h3>
                     <p>
-                      Para preguntas sobre estos Términos y Condiciones, puedes contactarnos a 
+                      Para preguntas sobre estos Términos y Condiciones, puedes contactarnos a
                       través de la plataforma.
                     </p>
                   </section>
@@ -562,11 +562,10 @@ export default function SettingsPage() {
                           <h3 className={styles.listItemTitle}>{item.title}</h3>
                           {item.acceso && (
                             <span
-                              className={`${styles.accessBadge} ${
-                                item.acceso === "public"
+                              className={`${styles.accessBadge} ${item.acceso === "public"
                                   ? styles.accessPublic
                                   : styles.accessPrivate
-                              }`}
+                                }`}
                             >
                               {item.acceso === "public" ? (
                                 <>
