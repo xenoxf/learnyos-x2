@@ -388,6 +388,11 @@
 @media (max-width: 1024px) {
   .modal {
     width: calc(100% - 80px);
+    max-width: calc(100% - 80px);
+  }
+  
+  .questionContent {
+    padding: 1.75rem;
   }
 }
 
@@ -395,15 +400,17 @@
   .modal {
     width: calc(100% - 1rem);
     height: calc(100vh - 1rem);
+    max-width: calc(100% - 1rem);
     border-radius: 10px;
   }
 
   .questionContent {
     padding: 1.5rem;
+    gap: 1.25rem;
   }
 
   .questionText {
-    font-size: 1.125rem;
+    font-size: clamp(1rem, 3vw, 1.125rem);
   }
 
   .header {
@@ -411,11 +418,16 @@
   }
 
   .title {
-    font-size: 1.125rem;
+    font-size: clamp(1rem, 3vw, 1.125rem);
   }
 
   .resultsContainer {
     padding: 2rem 1rem;
+  }
+  
+  .optionBtn {
+    padding: 0.875rem 1rem;
+    font-size: 0.9rem;
   }
 }
 
@@ -423,6 +435,7 @@
   .modal {
     width: 100%;
     height: 100vh;
+    max-width: 100%;
     border-radius: 0;
   }
 
@@ -432,12 +445,12 @@
   }
 
   .questionText {
-    font-size: 1rem;
+    font-size: clamp(0.95rem, 2.5vw, 1rem);
   }
 
   .optionBtn {
     padding: 0.875rem 1rem;
-    font-size: 0.95rem;
+    font-size: clamp(0.875rem, 2vw, 0.95rem);
   }
 
   .header {
@@ -448,21 +461,23 @@
     position: absolute;
     top: 0.75rem;
     right: 0.75rem;
+    width: 32px;
+    height: 32px;
   }
 
   .title {
-    font-size: 1rem;
-    padding-right: 2rem;
+    font-size: clamp(0.9rem, 2.5vw, 1rem);
+    padding-right: 2.5rem;
   }
 
   .footer {
     padding: 0.75rem;
-    gap: 1rem;
+    gap: 0.75rem;
   }
 
   .navBtn {
-    width: 36px;
-    height: 36px;
+    width: 40px;
+    height: 40px;
   }
 
   .resultsContainer {
@@ -470,15 +485,31 @@
   }
 
   .scoreCircle {
-    width: 120px;
-    height: 120px;
+    width: clamp(100px, 25vw, 120px);
+    height: clamp(100px, 25vw, 120px);
   }
 
   .scoreValue {
-    font-size: 2rem;
+    font-size: clamp(1.5rem, 5vw, 2rem);
   }
 
   .resultActions {
     flex-direction: column;
+  }
+  
+  .actionBtn {
+    width: 100%;
+    padding: 0.75rem 1rem;
+  }
+}
+
+/* Container queries para mejor responsive */
+@container (max-width: 400px) {
+  .questionContent {
+    padding: 0.875rem;
+  }
+  
+  .questionText {
+    font-size: 0.875rem;
   }
 }

@@ -76,7 +76,7 @@
    RESPONSIVE ADJUSTMENTS
    ============================================ */
 
-/* Móvil - Ocultar sidebar, mostrar navbar */
+/* Móvil - hasta 768px */
 @media screen and (max-width: 768px) {
     .sidebarWrapper {
         display: none !important;
@@ -91,23 +91,43 @@
         flex-direction: column;
         padding: 0;
     }
+    
+    .contentWrapper {
+        padding-bottom: env(safe-area-inset-bottom);
+    }
 }
 
-/* Tablet
+/* Tablet pequeña - 769px a 1023px */
 @media screen and (min-width: 769px) and (max-width: 1023px) {
   .sidebarWrapperExpanded {
-    width: 220px;
+    width: 200px;
+  }
+  
+  .sidebarWrapperCollapsed {
+    width: 70px;
   }
 }
 
-/* Desktop */
+/* Tablet grande y Desktop - 1024px en adelante */
 @media screen and (min-width: 1024px) {
     .sidebarWrapperCollapsed {
         width: 80px;
     }
+    
+    .sidebarWrapperExpanded {
+        width: fit-content;
+    }
 }
 
-/* Desktop grande */
+/* Desktop grande - 1280px+ */
+@media screen and (min-width: 1280px) {
+    .contentWrapper {
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+}
+
+/* Desktop extra grande - 1440px+ */
 @media screen and (min-width: 1440px) {
     .contentWrapper {
         max-width: 1600px;

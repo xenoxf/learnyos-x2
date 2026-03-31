@@ -420,10 +420,10 @@
    RESPONSIVE DESIGN - MOBILE FIRST
    ============================================ */
 
-/* Pantallas pequeñas (móviles) */
+/* Pantallas pequeñas (móviles) - hasta 768px */
 @media screen and (max-width: 768px) {
     .sidebar {
-        width: 200px;
+        width: 240px;
         height: 100vh;
         transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         box-shadow: 0 0 40px rgba(0, 0, 0, 0.2);
@@ -498,17 +498,21 @@
     }
 }
 
-/* Tablet (768px - 1023px) */
+/* Tablet pequeña (769px - 1023px) */
 @media screen and (min-width: 769px) and (max-width: 1023px) {
     .sidebarExpanded {
         width: 200px;
     }
+    
+    .sidebarCollapsed {
+        width: 70px;
+    }
 }
 
-/* Desktop (1024px en adelante) */
+/* Tablet grande y Desktop (1024px en adelante) */
 @media screen and (min-width: 1024px) {
     .sidebarExpanded {
-        width: 220px;
+        width: clamp(200px, 15vw, 240px);
     }
 
     .sidebarCollapsed {
@@ -520,10 +524,10 @@
     }
 }
 
-/* Desktop grande (1440px+) */
-@media screen and (min-width: 1440px) {
+/* Desktop grande (1280px+) */
+@media screen and (min-width: 1280px) {
     .sidebarExpanded {
-        width: 260px;
+        width: clamp(220px, 12vw, 260px);
     }
 
     .userAvatar {
@@ -534,6 +538,13 @@
 
     .actionButtonExpanded {
         margin-right: 20px;
+    }
+}
+
+/* Desktop extra grande (1440px+) */
+@media screen and (min-width: 1440px) {
+    .sidebarExpanded {
+        width: 280px;
     }
 }
 

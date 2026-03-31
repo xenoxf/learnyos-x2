@@ -693,7 +693,11 @@
     }
 
     .title {
-        font-size: 2rem;
+        font-size: clamp(1.5rem, 4vw, 2rem);
+    }
+    
+    .container {
+        padding: 1.5rem 1rem;
     }
 }
 
@@ -707,39 +711,45 @@
         flex-direction: column;
         text-align: center;
         gap: 1rem;
+        padding: 1.5rem 1rem;
     }
 
     .titleSection {
         flex-direction: column;
+        align-items: center;
     }
 
     .title {
-        font-size: 1.75rem;
+        font-size: clamp(1.25rem, 4vw, 1.75rem);
     }
 
     .controls {
         flex-direction: column;
         align-items: stretch;
+        gap: 0.75rem;
+        padding: 1rem;
     }
 
     .searchBox {
         min-width: auto;
+        width: 100%;
     }
 
     .generateBtn {
         width: 100%;
+        justify-content: center;
     }
 
     .cardViewer {
-        padding: 1.5rem;
+        padding: 1.5rem 1rem;
     }
 
     .flipCard {
-        height: 250px;
+        height: clamp(200px, 40vh, 250px);
     }
 
     .flipCardContent {
-        font-size: 1.25rem;
+        font-size: clamp(1rem, 3vw, 1.25rem);
     }
 
     .navigationControls {
@@ -748,18 +758,28 @@
 
     .navBtn,
     .resetBtn {
-        width: 40px;
-        height: 40px;
+        width: 44px;
+        height: 44px;
+    }
+    
+    .iconWrapper {
+        width: 48px;
+        height: 48px;
+    }
+    
+    .icon {
+        width: 24px;
+        height: 24px;
     }
 }
 
 @media (max-width: 480px) {
     .title {
-        font-size: 1.5rem;
+        font-size: clamp(1.125rem, 3.5vw, 1.5rem);
     }
 
     .subtitle {
-        font-size: 0.9rem;
+        font-size: clamp(0.8rem, 2vw, 0.9rem);
     }
 
     .deckGrid {
@@ -767,34 +787,71 @@
     }
 
     .deckItem {
-        padding: 1rem;
+        padding: 1rem 0.75rem;
     }
 
     .flipCard {
-        height: 200px;
+        height: clamp(180px, 35vh, 200px);
     }
 
     .flipCardContent {
-        font-size: 1rem;
+        font-size: clamp(0.9rem, 2.5vw, 1rem);
     }
 
     .flipCardFront,
     .flipCardBack {
-        padding: 1.5rem;
+        padding: 1.25rem;
     }
 
     .navigationControls {
         gap: 0.5rem;
+        justify-content: center;
     }
 
     .navBtn,
     .resetBtn {
-        width: 36px;
-        height: 36px;
-        font-size: 0.9rem;
+        width: 40px;
+        height: 40px;
+        font-size: clamp(0.8rem, 2vw, 0.9rem);
     }
 
     .dialogActions {
         flex-direction: column;
+        gap: 0.75rem;
+    }
+    
+    .cancelBtn,
+    .confirmBtn {
+        width: 100%;
+        padding: 0.75rem 1rem;
+    }
+    
+    .header {
+        padding: 1.25rem 0.75rem;
+    }
+    
+    .controls {
+        padding: 0.75rem;
+    }
+}
+
+/* Extra small devices (320px - 375px) */
+@media (max-width: 375px) {
+    .container {
+        padding: 0.75rem;
+    }
+    
+    .flipCard {
+        height: 160px;
+    }
+    
+    .flipCardContent {
+        font-size: 0.875rem;
+    }
+    
+    .navBtn,
+    .resetBtn {
+        width: 36px;
+        height: 36px;
     }
 }

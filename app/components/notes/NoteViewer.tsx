@@ -146,18 +146,6 @@ export default function NoteViewer({ noteId, onClose }: NoteViewerProps) {
           )}
         </div>
 
-        <div className={styles.footer}>
-          <span className={styles.footerInfo}>
-            {sections.length} secci{sections.length !== 1 ? 'ones' : 'ón'}
-          </span>
-          <button
-            className={styles.closeFooterBtn}
-            onClick={onClose}
-            type="button"
-          >
-            Cerrar
-          </button>
-        </div>
       </div>
     </div>
   );

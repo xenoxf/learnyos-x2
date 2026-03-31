@@ -863,7 +863,7 @@
   }
 
   .heroTitle {
-    font-size: 1.75rem;
+    font-size: clamp(1.5rem, 4vw, 1.75rem);
   }
 
   .toolsSection,
@@ -877,20 +877,63 @@
   .footer {
     padding: 1.5rem 1rem;
   }
+  
+  .toolsGrid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .featuresGrid {
+    gap: 1rem;
+  }
+  
+  .benefitsGrid {
+    gap: 1rem;
+  }
+}
+
+/* Mobile medium (480px+) */
+@media (min-width: 480px) {
+  .headerButton {
+    padding: 0.75rem 1.25rem;
+  }
+  
+  .heroTitle {
+    font-size: clamp(1.75rem, 5vw, 2rem);
+  }
+  
+  .toolsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 /* Tablet (768px+) */
 @media (min-width: 768px) {
   .toolsGrid {
-    gap: 2rem;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
   }
 
   .featureCard {
     padding: 2rem;
   }
+  
+  .featuresGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+  }
+  
+  .benefitsGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+  }
+  
+  .heroContent {
+    gap: 2rem;
+  }
 }
 
-/* Desktop (1024px+) */
+/* Tablet large (1024px+) */
 @media (min-width: 1024px) {
   .headerContent {
     padding: 1rem 2rem;
@@ -905,13 +948,61 @@
   .benefitsSection {
     padding: 5rem 2rem;
   }
+  
+  .heroContent {
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+  }
+  
+  .heroText {
+    text-align: left;
+    align-items: flex-start;
+  }
+  
+  .heroTag {
+    align-self: flex-start;
+  }
+  
+  .heroCTA {
+    justify-content: flex-start;
+  }
+  
+  .heroImage {
+    display: block;
+  }
+  
+  .featuresGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  
+  .benefitsGrid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+  }
 }
 
-/* Large Desktop (1280px+) */
+/* Desktop (1280px+) */
 @media (min-width: 1280px) {
   .container {
     max-width: 1280px;
     margin: 0 auto;
+  }
+  
+  .heroTitle {
+    font-size: clamp(2.5rem, 6vw, 3rem);
+  }
+}
+
+/* Large Desktop (1440px+) */
+@media (min-width: 1440px) {
+  .heroSection {
+    padding: 8rem 3rem;
+  }
+  
+  .toolsSection,
+  .featuresSection,
+  .benefitsSection {
+    padding: 6rem 3rem;
   }
 }
 

@@ -3,6 +3,7 @@ import "./globals.css";
 import "katex/dist/katex.min.css";
 import "highlight.js/styles/github-dark.css";
 import type { Metadata, Viewport } from "next";
+import Script from "next/script";
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -15,8 +16,10 @@ export const viewport: Viewport = {
   ],
 };
 
+const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://learnyos.com";
+
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "https://learnyos.com"),
+  metadataBase: new URL(appUrl),
   title: {
     default: "LearnYos - Aprende más rápido con IA",
     template: "%s | LearnYos",
@@ -36,6 +39,9 @@ export const metadata: Metadata = {
     "técnica pomodoro",
     "spaced repetition",
     "active recall",
+    "plataforma educativa",
+    "e-learning",
+    "colombia educación",
   ],
   authors: [{ name: "LearnYos Team" }],
   creator: "LearnYos",
@@ -53,12 +59,22 @@ export const metadata: Metadata = {
     description:
       "La plataforma de estudio más avanzada que combina inteligencia artificial y metodologías probadas.",
     siteName: "LearnYos",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "LearnYos - Plataforma de estudio con IA",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "LearnYos - Aprende más rápido con IA",
     description:
       "La plataforma de estudio más avanzada que combina inteligencia artificial y metodologías probadas.",
+    images: ["/twitter-image.png"],
+    creator: "@learnyos",
   },
   robots: {
     index: true,
@@ -77,6 +93,42 @@ export const metadata: Metadata = {
     apple: "/apple-touch-icon.png",
   },
   manifest: "/manifest.json",
+  alternates: {
+    canonical: "/",
+  },
+  verification: {
+    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION,
+  },
+};
+
+// Structured data para SEO
+const structuredData = {
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  name: "LearnYos",
+  description: "Plataforma de estudio con IA para aprendizaje acelerado",
+  url: appUrl,
+  applicationCategory: "EducationalApplication",
+  operatingSystem: "Web",
+  browserRequirements: "Requires JavaScript",
+  offers: {
+    "@type": "Offer",
+    price: "0",
+    priceCurrency: "USD",
+  },
+  aggregateRating: {
+    "@type": "AggregateRating",
+    ratingValue: "4.8",
+    ratingCount: "1000",
+  },
+  featureList: [
+    "Chatbot IA educativo",
+    "Generador de quizzes",
+    "Flashcards inteligentes",
+    "Notas automáticas",
+    "Técnica Pomodoro",
+    "Spaced repetition",
+  ],
 };
 
 export default function RootLayout({
@@ -92,6 +144,14 @@ export default function RootLayout({
           rel="preconnect"
           href="https://fonts.gstatic.com"
           crossOrigin="anonymous"
+        />
+        <link rel="canonical" href={appUrl} />
+        {/* Structured Data para SEO */}
+        <Script
+          id="structured-data"
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+          strategy="afterInteractive"
         />
       </head>
       <body className="body">

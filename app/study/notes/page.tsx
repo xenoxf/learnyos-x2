@@ -1,30 +1,20 @@
 "use client";
 
-import React, { useState, useCallback } from "react";
+import React, { useCallback } from "react";
 import NotesGrid from "@/components/notes/NotesGrid";
-import NoteViewer from "@/components/notes/NoteViewer";
+import NoteDetail from "@/components/notes/NoteDetail";
+import { useViewerNavigation } from "@/hooks/useViewerNavigation";
 
 export default function NotesPage() {
-  const [selectedNoteId, setSelectedNoteId] = useState<number | null>(null);
+  const { selectedId, isOpen, openDetail, closeDetail } = useViewerNavigation();
 
   const handleNoteOpen = useCallback((noteId: number) => {
-    setSelectedNoteId(noteId);
-  }, []);
+    openDetail(noteId);
+  }, [openDetail]);
 
-  const handleCloseViewer = useCallback(() => {
-    setSelectedNoteId(null);
-  }, []);
+  if (isOpen && selectedId) {
+    return <NoteDetail noteId={selectedId} onBack={closeDetail} />;
+  }
 
-  return (
-    <div style={{ width: "100%", height: "100%" }}>
-      <NotesGrid onNoteOpen={handleNoteOpen} />
-
-      {selectedNoteId && (
-        <NoteViewer
-          noteId={selectedNoteId}
-          onClose={handleCloseViewer}
-        />
-      )}
-    </div>
-  );
+  return <NotesGrid onNoteOpen={handleNoteOpen} />;
 }
