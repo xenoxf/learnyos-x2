@@ -107,7 +107,7 @@ export default function CreateNoteModal({
               <label className={styles.label}>Nivel de detalle</label>
               <select
                 value={formData.levelOfDetail}
-                onChange={(e) => setFormData({ ...formData, levelOfDetail: e.target.value })}
+                onChange={(e) => setFormData({ ...formData, levelOfDetail: e.target.value as "breve" | "medio" | "detallado" })}
                 className={styles.select}
                 disabled={loading}
               >

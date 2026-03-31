@@ -91,10 +91,6 @@ export default function ChatPage() {
     loadChats();
   }, [loadChats]);
 
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
-
   const loadChatMessages = async (chatId: number) => {
     try {
       const response = await apiService.getChatMessages(chatId);
@@ -248,19 +244,37 @@ export default function ChatPage() {
   };
 
   // ==================== UTILS ====================
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
+  const scrollToBottom = useCallback(() => {
+    // Usar requestAnimationFrame para evitar bugs visuales
+    requestAnimationFrame(() => {
+      if (messagesEndRef.current) {
+        // Scroll instantáneo para evitar animaciones problemáticas
+        messagesEndRef.current.scrollIntoView({ 
+          behavior: "auto",
+          block: "end"
+        });
+      }
+    });
+  }, []);
 
-  const adjustTextareaHeight = () => {
+  const adjustTextareaHeight = useCallback(() => {
     if (textareaRef.current) {
-      textareaRef.current.style.height = "auto";
-      textareaRef.current.style.height = `${Math.min(
-        textareaRef.current.scrollHeight,
-        120,
-      )}px`;
+      const textarea = textareaRef.current;
+      textarea.style.height = "auto";
+      const newHeight = Math.min(textarea.scrollHeight, 120);
+      textarea.style.height = `${newHeight}px`;
+      
+      // Scroll al bottom del textarea si es muy alto
+      if (textarea.scrollHeight > 120) {
+        textarea.scrollTop = textarea.scrollHeight - 120;
+      }
     }
-  };
+  }, []);
+
+  // Scroll automático cuando llegan nuevos mensajes
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages, scrollToBottom]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
