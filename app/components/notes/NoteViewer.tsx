@@ -126,31 +126,11 @@ export default function NoteViewer({ noteId, onClose }: NoteViewerProps) {
 
                 return (
                   <article key={content.id} className={styles.contentItem}>
-                    <button
-                      className={styles.contentHeader}
-                      onClick={() => toggleSection(index)}
-                      type="button"
-                      aria-expanded={isExpanded}
-                      aria-controls={`content-${content.id}`}
-                    >
-                      <div className={styles.contentHeaderLeft}>
-                        <div className={styles.sectionNumber}>{index + 1}</div>
-                        <h3 className={styles.contentTitle}>{heading}</h3>
-                      </div>
-                      {sections.length > 1 && (
-                        <div className={styles.expandIcon}>
-                          {isExpanded ? (
-                            <ChevronUp size={20} aria-hidden="true" />
-                          ) : (
-                            <ChevronDown size={20} aria-hidden="true" />
-                          )}
-                        </div>
-                      )}
-                    </button>
-                    
+
+
                     <div
                       id={`content-${content.id}`}
-                      className={`${styles.contentBody} ${isExpanded ? styles.contentBodyExpanded : styles.contentBodyCollapsed}`}
+                      className={`${styles.contentBody} ${styles.contentBodyExpanded}`}
                       role="region"
                     >
                       <div className={styles.contentMd}>

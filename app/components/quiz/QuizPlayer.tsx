@@ -4,6 +4,7 @@ import styles from "@/styles/quiz/quizPlayer.module.css";
 import { useToast } from "@/hooks/use-toast";
 import { apiService } from "@/services/apiService";
 import type { ExamKlek } from "@/types";
+import MarkdownRenderer from "../MarkdownRenderer";
 
 interface QuizPlayerProps {
   quizId: number;
@@ -30,16 +31,16 @@ export default function QuizPlayer({
         // Use getExamForPlay (klek format) instead of getExam (deck format)
         const data = await apiService.getExamForPlay(quizId);
         console.log('Quiz data received:', data);
-        
+
         // Validate exam data
         if (!data) {
           throw new Error('El quiz no existe o no está disponible');
         }
-        
+
         if (!data.questions || data.questions.length === 0) {
           throw new Error(`El quiz "${data.title}" no tiene preguntas. Total: ${data.totalQuestions || 0}`);
         }
-        
+
         setQuiz(data);
       } catch (err: any) {
         const message = err instanceof Error ? err.message : "Error al cargar quiz";
@@ -213,7 +214,7 @@ export default function QuizPlayer({
           </div>
 
           <div className={styles.questionContent}>
-            <h3 className={styles.questionText}>{currentQuestion.question}</h3>
+            <p className={styles.questionText}><MarkdownRenderer content={currentQuestion.question} /></p>
 
             <div className={styles.optionsContainer}>
               {currentQuestion.options.map((option) => {
@@ -232,7 +233,7 @@ export default function QuizPlayer({
                     onClick={() => handleSelectAnswer(option.id)}
                     disabled={showResults}
                   >
-                    <span className={styles.optionText}>{option.text}</span>
+                    <span className={styles.optionText}><MarkdownRenderer content={option.text} /></span>
                     {showCorrect && <Check size={20} />}
                     {showWrong && <X size={20} />}
                   </button>

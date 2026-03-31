@@ -5,7 +5,6 @@
   left: 0;
   right: 0;
   bottom: 0;
-  z-index: 999;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -16,14 +15,9 @@
 
 /* Modal Principal */
 .main- {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
   width: 90%;
   max-width: 900px;
   height: auto;
-  z-index: 1000;
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 0;

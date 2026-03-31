@@ -1,6 +1,7 @@
 "use client";
 
-import React, {
+import React,
+{
   useState,
   useCallback,
   useEffect,
@@ -26,6 +27,7 @@ import styles from "@/styles/mobileNavbar.module.css";
 import Link from "next/link";
 import { ThemeToggleSidebr } from "./ThemeToogleSidebr";
 import { ThemeToggle } from "./ThemeToggle";
+
 const SCROLL_THRESHOLD = 10;
 const RESIZE_DEBOUNCE = 100;
 
@@ -42,7 +44,6 @@ const ALL_NAV_ITEMS: MenuItem[] = [
   { title: "Quiz", url: "/study/quiz", icon: Brain },
   { title: "Notas", url: "/study/notes", icon: NotebookPen },
   { title: "Flashcards", url: "/study/flashcards", icon: CreditCard },
-  { title: "KlerkOS", url: "/study/klerkos", icon: MapIcon },
 ];
 
 export function MobileNavbar() {
@@ -140,13 +141,12 @@ export function MobileNavbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, [navVisible]);
 
-  // --- CORRECCIÓN AQUÍ: Manejo de click outside más robusto ---
+  // Click outside handler for closing menu
   useEffect(() => {
     if (!showMoreMenu) return;
 
     const handleClickOutside = (e: MouseEvent) => {
       const target = e.target as Node;
-      // Verificamos si el clic fue dentro del menú o en el botón "Más"
       if (
         menuRef.current?.contains(target) ||
         moreButtonRef.current?.contains(target)
@@ -156,9 +156,8 @@ export function MobileNavbar() {
       setShowMoreMenu(false);
     };
 
-    // Usar 'click' en lugar de 'mousedown' para evitar conflictos con botones internos
-    document.addEventListener("click", handleClickOutside);
-    return () => document.removeEventListener("click", handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [showMoreMenu]);
 
   const handleLogout = useCallback(async () => {
@@ -200,10 +199,13 @@ export function MobileNavbar() {
 
   return (
     <>
-      {/*<div
-        className={`${styles.container} ${!navVisible ? styles.containerHidden : ""}`}
-      >*/}
-      <nav ref={navRef} className={styles.bottomNav}>
+      <nav 
+        ref={navRef} 
+        className={`${styles.bottomNav} ${!navVisible ? styles.containerHidden : ""}`}
+        style={{
+          transform: navVisible ? 'translateY(0)' : 'translateY(100%)',
+        }}
+      >
         {visibleItems.map((item) => {
           const Icon = item.icon;
           return (
@@ -228,18 +230,26 @@ export function MobileNavbar() {
           ref={moreButtonRef}
           className={`${styles.moreButton} ${showMoreMenu ? styles.moreButtonActive : ""}`}
           onClick={(e) => {
-            e.stopPropagation(); // Evita que el clic se propague
+            e.preventDefault();
+            e.stopPropagation();
             setShowMoreMenu((prev) => !prev);
           }}
           aria-expanded={showMoreMenu}
+          aria-label="Más opciones"
         >
-          <MoreHorizontal size={22} />
+          <div className={styles.navIconWrapper}>
+            <MoreHorizontal size={22} />
+            {hasActiveHidden && <span className={styles.moreActiveDot} />}
+          </div>
           <span className={styles.navLabel}>Más</span>
-          {hasActiveHidden && <span className={styles.moreActiveDot} />}
         </button>
 
         {showMoreMenu && (
-          <div ref={menuRef} className={styles.moreMenu}>
+          <div 
+            ref={menuRef} 
+            className={styles.moreMenu}
+            onClick={(e) => e.stopPropagation()}
+          >
             {hiddenItems.length > 0 && (
               <>
                 <div className={styles.moreMenuSection}>
@@ -266,7 +276,6 @@ export function MobileNavbar() {
             )}
 
             <div className={styles.moreMenuSection}>
-              {/* CORRECCIÓN: Wrapper con stopPropagation para asegurar el clic en el tema */}
               <div
                 className={styles.themeToggleWrapper}
                 onClick={(e) => e.stopPropagation()}
@@ -274,7 +283,12 @@ export function MobileNavbar() {
                 <ThemeToggleSidebr />
               </div>
 
-              <Link title='Configuraciones' target="Ir a configuraciones" className={styles.moreMenuItem} href="/study/settings">
+              <Link
+                title="Configuraciones"
+                className={styles.moreMenuItem}
+                href="/study/settings"
+                onClick={() => setShowMoreMenu(false)}
+              >
                 <Settings size={18} />
                 Configuraciones
               </Link>

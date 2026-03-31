@@ -81,7 +81,7 @@
 
 /* ==================== HEADER ==================== */
 .header {
-  padding: 2rem;
+  padding: 1.5rem 1rem;
   border-bottom: 1px solid hsl(var(--border));
   background: hsl(var(--background) / 0.8);
   backdrop-filter: blur(12px);
@@ -93,13 +93,16 @@
 .headerContent {
   max-width: 1200px;
   margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .titleSection {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  margin-bottom: 0.5rem;
 }
 
 .titleIcon {
@@ -107,7 +110,7 @@
 }
 
 .title {
-  font-size: 2rem;
+  font-size: 1.5rem;
   font-weight: 700;
   color: hsl(var(--foreground));
   margin: 0;
@@ -122,15 +125,57 @@
 }
 
 .subtitle {
-  font-size: 1rem;
+  font-size: 0.875rem;
   color: hsl(var(--muted-foreground));
   margin: 0;
+  text-align: center;
+}
+
+/* ==================== CATEGORY SELECTOR ==================== */
+.categorySelector {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+  margin: 1.5rem 0;
+  padding: 0 1rem;
+}
+
+.categoryButton {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1rem;
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  border-radius: 9999px;
+  color: hsl(var(--muted-foreground));
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.categoryButton:hover {
+  background: hsl(var(--accent));
+  border-color: hsl(var(--primary));
+  color: hsl(var(--foreground));
+}
+
+.categoryButtonActive {
+  background: hsl(var(--primary));
+  border-color: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+}
+
+.categoryButtonLabel {
+  white-space: nowrap;
 }
 
 /* ==================== MAIN ==================== */
 .main {
   flex: 1;
-  padding: 2rem;
+  padding: 1.5rem 1rem;
   max-width: 1200px;
   margin: 0 auto;
   width: 100%;
@@ -139,17 +184,17 @@
 }
 
 .section {
-  margin-bottom: 3rem;
+  margin-bottom: 2.5rem;
 }
 
 .sectionTitle {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   font-weight: 600;
   color: hsl(var(--foreground));
-  margin: 0 0 1.5rem 0;
+  margin: 0 0 1.25rem 0;
 }
 
 .sectionIcon {
@@ -158,14 +203,14 @@
 
 /* ==================== HERO SECTION ==================== */
 .heroSection {
-  margin-bottom: 3rem;
+  margin-bottom: 2rem;
 }
 
 .heroCard {
   background: hsl(var(--card));
   border: 1px solid hsl(var(--border));
   border-radius: 20px;
-  padding: 3rem 2.5rem;
+  padding: 2rem 1.5rem;
   text-align: center;
   position: relative;
   overflow: hidden;
@@ -200,9 +245,9 @@
 }
 
 .heroIcon {
-  width: 64px;
-  height: 64px;
-  margin: 0 auto 1.5rem;
+  width: 56px;
+  height: 56px;
+  margin: 0 auto 1.25rem;
   background: hsl(var(--primary) / 0.1);
   border-radius: 16px;
   display: flex;
@@ -217,7 +262,7 @@
   color: hsl(var(--accent-foreground));
   padding: 0.375rem 1rem;
   border-radius: 20px;
-  font-size: 0.75rem;
+  font-size: 0.6875rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -225,17 +270,17 @@
 }
 
 .heroPhrase {
-  font-size: 2rem;
+  font-size: 1.5rem;
   font-weight: 700;
   color: hsl(var(--foreground));
-  margin: 0 0 1rem 0;
+  margin: 0 0 0.75rem 0;
   line-height: 1.3;
 }
 
 .heroSubtext {
-  font-size: 1.125rem;
+  font-size: 1rem;
   color: hsl(var(--muted-foreground));
-  margin: 0 0 2rem 0;
+  margin: 0 0 1.5rem 0;
   font-style: italic;
 }
 
@@ -259,93 +304,121 @@
   background: hsl(var(--primary));
 }
 
-/* ==================== TIPS GRID ==================== */
-.tipsGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 1.5rem;
+/* ==================== API QUOTE SECTION ==================== */
+.apiQuoteSection {
+  margin-bottom: 2rem;
 }
 
-.tipCard {
+.apiQuoteCard {
   background: hsl(var(--card));
   border: 1px solid hsl(var(--border));
   border-radius: 16px;
   padding: 1.5rem;
-  transition: all 0.2s ease;
+  position: relative;
 }
 
-.tipCard:hover {
-  border-color: hsl(var(--primary));
-  transform: translateY(-4px);
-  box-shadow: 0 12px 24px hsl(var(--foreground) / 0.1);
-}
-
-.tipIcon {
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
+.apiQuoteHeader {
   display: flex;
   align-items: center;
-  justify-content: center;
+  gap: 0.5rem;
   margin-bottom: 1rem;
 }
 
-.tipTitle {
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: hsl(var(--foreground));
-  margin: 0 0 0.5rem 0;
+.apiQuoteIcon {
+  color: hsl(var(--primary));
 }
 
-.tipDescription {
+.apiQuoteLabel {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: hsl(var(--muted-foreground));
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  flex: 1;
+}
+
+.refreshButton {
+  background: transparent;
+  border: none;
+  color: hsl(var(--muted-foreground));
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.refreshButton:hover {
+  background: hsl(var(--accent));
+  color: hsl(var(--foreground));
+}
+
+.refreshButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.spinning {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.apiQuoteText {
+  font-size: 1.125rem;
+  font-style: italic;
+  color: hsl(var(--foreground));
+  margin: 0 0 1rem 0;
+  line-height: 1.6;
+  quotes: """ """ "'" "'";
+}
+
+.apiQuoteText::before {
+  content: open-quote;
+}
+
+.apiQuoteText::after {
+  content: close-quote;
+}
+
+.apiQuoteAuthor {
   font-size: 0.875rem;
   color: hsl(var(--muted-foreground));
-  line-height: 1.6;
-  margin: 0 0 1rem 0;
-}
-
-.tipAction {
-  background: hsl(var(--primary));
-  color: hsl(var(--primary-foreground));
-  border: none;
-  padding: 0.625rem 1.25rem;
-  border-radius: 0.5rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-  margin-top: auto;
-}
-
-.tipAction:hover {
-  background: hsl(var(--primary) / 0.9);
-  transform: translateY(-2px);
+  font-style: italic;
+  text-align: right;
+  display: block;
 }
 
 /* ==================== STATS ROW ==================== */
 .statsRow {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1rem;
 }
 
 .statCard {
   background: hsl(var(--card));
   border: 1px solid hsl(var(--border));
-  border-radius: 16px;
-  padding: 2rem;
+  border-radius: 12px;
+  padding: 1.5rem 1rem;
   text-align: center;
   transition: all 0.2s ease;
 }
 
 .statCard:hover {
   border-color: hsl(var(--primary));
-  transform: translateY(-4px);
-  box-shadow: 0 12px 24px hsl(var(--foreground) / 0.1);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px hsl(var(--foreground) / 0.1);
 }
 
 .statValue {
-  font-size: 3rem;
+  font-size: 2.5rem;
   font-weight: 700;
   color: hsl(var(--primary));
   margin-bottom: 0.5rem;
@@ -360,14 +433,61 @@
 }
 
 .statLabel {
-  font-size: 1rem;
+  font-size: 0.875rem;
   font-weight: 600;
   color: hsl(var(--foreground));
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.25rem;
 }
 
 .statDescription {
-  font-size: 0.875rem;
+  font-size: 0.75rem;
+  color: hsl(var(--muted-foreground));
+  line-height: 1.4;
+  margin: 0;
+}
+
+/* ==================== REMEMBER GRID ==================== */
+.rememberGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 1rem;
+}
+
+.rememberCard {
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  border-radius: 12px;
+  padding: 1.25rem;
+  transition: all 0.2s ease;
+}
+
+.rememberCard:hover {
+  border-color: hsl(var(--primary));
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px hsl(var(--foreground) / 0.1);
+}
+
+.rememberIcon {
+  width: 36px;
+  height: 36px;
+  background: hsl(var(--primary) / 0.1);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: hsl(var(--primary));
+  margin-bottom: 0.75rem;
+}
+
+.rememberTitle {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: hsl(var(--foreground));
+  margin: 0 0 0.5rem 0;
+}
+
+.rememberText {
+  font-size: 0.8125rem;
   color: hsl(var(--muted-foreground));
   line-height: 1.5;
   margin: 0;
@@ -376,8 +496,8 @@
 /* ==================== PHRASES GRID ==================== */
 .phrasesGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 1.25rem;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 1rem;
 }
 
 .phraseCardSmall {
@@ -408,7 +528,7 @@
 }
 
 .phraseCategorySmall {
-  font-size: 0.75rem;
+  font-size: 0.6875rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -416,94 +536,106 @@
 }
 
 .phraseTextSmall {
-  font-size: 0.95rem;
+  font-size: 0.875rem;
   line-height: 1.5;
   color: hsl(var(--foreground));
   margin: 0;
 }
 
-/* ==================== CTA SECTION ==================== */
-.ctaSection {
-  margin-top: var(--spacing-2xl);
-  padding: var(--spacing-2xl);
-  background: linear-gradient(135deg, hsl(var(--primary) / 0.1), hsl(var(--secondary) / 0.1));
-  border-radius: 1.5rem;
-  border: 1px solid hsl(var(--border));
+/* ==================== FINAL CTA SECTION ==================== */
+.finalCtaSection {
+  margin: 2rem 0 3rem;
+}
+
+.finalCtaContent {
+  background: linear-gradient(
+    135deg,
+    hsl(var(--primary) / 0.1),
+    hsl(var(--accent) / 0.1)
+  );
+  border: 2px solid hsl(var(--primary) / 0.3);
+  border-radius: 20px;
+  padding: 2.5rem 1.5rem;
   text-align: center;
+  position: relative;
+  overflow: hidden;
 }
 
-.ctaContent {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--spacing-lg);
-  max-width: 600px;
-  margin: 0 auto;
+.finalCtaContent::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(
+    circle,
+    hsl(var(--primary) / 0.1) 0%,
+    transparent 70%
+  );
+  animation: rotate 20s linear infinite;
 }
 
-.ctaIcon {
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.finalCtaIcon {
   color: hsl(var(--primary));
-  opacity: 0.8;
+  margin-bottom: 1rem;
+  position: relative;
+  z-index: 1;
 }
 
-.ctaTitle {
-  font-size: 1.75rem;
+.finalCtaTitle {
+  font-size: 1.5rem;
   font-weight: 700;
   color: hsl(var(--foreground));
-  margin: 0;
+  margin: 0 0 0.75rem 0;
+  position: relative;
+  z-index: 1;
 }
 
-.ctaText {
-  font-size: 1.125rem;
+.finalCtaText {
+  font-size: 1rem;
   color: hsl(var(--muted-foreground));
   line-height: 1.6;
   margin: 0;
+  position: relative;
+  z-index: 1;
 }
 
-/* ==================== LOADING STATE ==================== */
-.loadingState {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 100vh;
-  font-size: 1.125rem;
-  color: hsl(var(--muted-foreground));
+.finalCtaText strong {
+  color: hsl(var(--primary));
 }
 
-/* ==================== TIP EXTRA ==================== */
-.tipExtra {
-  margin-top: var(--spacing-md);
-  padding-top: var(--spacing-md);
-  border-top: 1px solid hsl(var(--border) / 0.5);
-  font-size: 0.875rem;
-  color: hsl(var(--muted-foreground));
-  font-style: italic;
-}
+/* ==================== RESPONSIVE - MOBILE FIRST ==================== */
 
-/* ==================== RESPONSIVE ==================== */
-@media (max-width: 768px) {
-  .container {
-    padding-bottom: 80px; /* Space for mobile navbar */
-  }
-
+/* Mobile small (320px+) */
+@media (min-width: 320px) {
   .header {
-    padding: 1.5rem 1rem;
-  }
-
-  .main {
-    padding: 1.5rem 1rem;
+    padding: 1rem 0.75rem;
   }
 
   .title {
-    font-size: 1.5rem;
+    font-size: 1.25rem;
   }
 
   .subtitle {
-    font-size: 0.9375rem;
+    font-size: 0.8125rem;
+  }
+
+  .main {
+    padding: 1rem 0.75rem;
   }
 
   .heroCard {
-    padding: 2rem 1.25rem;
+    padding: 1.5rem 1rem;
   }
 
   .heroIcon {
@@ -516,58 +648,260 @@
   }
 
   .heroSubtext {
+    font-size: 0.875rem;
+  }
+
+  .categoryButton {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.8125rem;
+  }
+
+  .categoryButtonLabel {
+    display: none;
+  }
+
+  .statsRow {
+    grid-template-columns: 1fr;
+  }
+
+  .rememberGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .phrasesGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .finalCtaContent {
+    padding: 2rem 1rem;
+  }
+
+  .finalCtaTitle {
+    font-size: 1.25rem;
+  }
+
+  .finalCtaText {
+    font-size: 0.9375rem;
+  }
+}
+
+/* Mobile medium (375px+) */
+@media (min-width: 375px) {
+  .categoryButtonLabel {
+    display: inline;
+  }
+
+  .statsRow {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .rememberGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Mobile large (425px+) */
+@media (min-width: 425px) {
+  .header {
+    padding: 1.25rem 1rem;
+  }
+
+  .title {
+    font-size: 1.375rem;
+  }
+
+  .heroCard {
+    padding: 1.75rem 1.25rem;
+  }
+
+  .heroPhrase {
+    font-size: 1.375rem;
+  }
+
+  .phrasesGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Tablet small (640px+) */
+@media (min-width: 640px) {
+  .header {
+    padding: 1.5rem 1.5rem;
+  }
+
+  .headerContent {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  .subtitle {
+    text-align: left;
+  }
+
+  .main {
+    padding: 2rem 1.5rem;
+  }
+
+  .title {
+    font-size: 1.5rem;
+  }
+
+  .heroCard {
+    padding: 2.5rem 2rem;
+  }
+
+  .heroIcon {
+    width: 64px;
+    height: 64px;
+  }
+
+  .heroPhrase {
+    font-size: 1.75rem;
+  }
+
+  .heroSubtext {
+    font-size: 1.125rem;
+  }
+
+  .statsRow {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .rememberGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .phrasesGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .finalCtaContent {
+    padding: 3rem 2rem;
+  }
+
+  .finalCtaTitle {
+    font-size: 1.75rem;
+  }
+
+  .finalCtaText {
+    font-size: 1.125rem;
+  }
+}
+
+/* Tablet medium (768px+) */
+@media (min-width: 768px) {
+  .categorySelector {
+    gap: 0.75rem;
+  }
+
+  .categoryButton {
+    padding: 0.75rem 1.25rem;
     font-size: 0.9375rem;
   }
 
   .sectionTitle {
-    font-size: 1.125rem;
+    font-size: 1.5rem;
   }
 
-  .tipsGrid,
-  .statsRow,
-  .phrasesGrid {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-  }
-
-  .tipCard,
-  .statCard,
-  .phraseCard {
-    padding: 1.25rem;
-  }
-
-  .ctaSection {
-    padding: 1.5rem 1rem;
-  }
-
-  .ctaTitle {
+  .apiQuoteText {
     font-size: 1.25rem;
-  }
-
-  .ctaText {
-    font-size: 1rem;
   }
 }
 
-@media (max-width: 480px) {
-  .header {
-    padding: 1rem;
-  }
-
+/* Tablet large (1024px+) */
+@media (min-width: 1024px) {
   .main {
-    padding: 1rem 0.75rem;
+    padding: 2.5rem 2rem;
   }
 
-  .title {
+  .rememberGrid {
+    grid-template-columns: repeat(6, 1fr);
+  }
+
+  .phrasesGrid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .finalCtaContent {
+    padding: 4rem 3rem;
+  }
+
+  .finalCtaTitle {
+    font-size: 2rem;
+  }
+
+  .finalCtaText {
     font-size: 1.25rem;
   }
+}
 
-  .subtitle {
-    font-size: 0.875rem;
+/* Desktop (1280px+) */
+@media (min-width: 1280px) {
+  .container {
+    max-width: 1280px;
+    margin: 0 auto;
   }
 
   .heroCard {
-    padding: 1.5rem 1rem;
+    padding: 3rem 2.5rem;
+  }
+
+  .heroPhrase {
+    font-size: 2rem;
+  }
+
+  .rememberGrid {
+    grid-template-columns: repeat(6, 1fr);
+  }
+
+  .phrasesGrid {
+    grid-template-columns: repeat(6, 1fr);
+  }
+}
+
+/* Large Desktop (1536px+) */
+@media (min-width: 1536px) {
+  .main {
+    padding: 3rem 2.5rem;
+  }
+
+  .section {
+    margin-bottom: 3.5rem;
+  }
+
+  .sectionTitle {
+    font-size: 1.75rem;
+  }
+
+  .heroPhrase {
+    font-size: 2.25rem;
+  }
+
+  .finalCtaTitle {
+    font-size: 2.5rem;
+  }
+}
+
+/* ==================== EXTREME SMALL DEVICES (Smartwatch 250px+) ==================== */
+@media (min-width: 250px) and (max-width: 319px) {
+  .header {
+    padding: 0.75rem 0.5rem;
+  }
+
+  .title {
+    font-size: 1rem;
+  }
+
+  .subtitle {
+    font-size: 0.6875rem;
+  }
+
+  .main {
+    padding: 0.75rem 0.5rem;
+  }
+
+  .heroCard {
+    padding: 1.25rem 0.75rem;
   }
 
   .heroIcon {
@@ -575,76 +909,187 @@
     height: 40px;
   }
 
+  .heroCategory {
+    font-size: 0.625rem;
+    padding: 0.25rem 0.625rem;
+  }
+
   .heroPhrase {
     font-size: 1.125rem;
   }
 
   .heroSubtext {
-    font-size: 0.875rem;
-  }
-
-  .heroCategory {
-    font-size: 0.6875rem;
-    padding: 0.25rem 0.75rem;
-  }
-
-  .sectionTitle {
-    font-size: 1rem;
-  }
-
-  .tipCard,
-  .statCard,
-  .phraseCard {
-    padding: 1rem;
-  }
-
-  .tipTitle,
-  .statValue,
-  .phraseText {
-    font-size: 1rem;
-  }
-
-  .tipDescription,
-  .statLabel,
-  .statDescription {
     font-size: 0.8125rem;
   }
 
-  .progressDots {
-    gap: 0.375rem;
+  .categoryButton {
+    padding: 0.375rem 0.625rem;
+    font-size: 0.6875rem;
   }
 
-  .dot {
-    width: 6px;
-    height: 6px;
+  .statValue {
+    font-size: 2rem;
+  }
+
+  .statLabel {
+    font-size: 0.75rem;
+  }
+
+  .statDescription {
+    font-size: 0.6875rem;
+  }
+
+  .rememberCard,
+  .phraseCardSmall {
+    padding: 1rem;
+  }
+
+  .rememberTitle,
+  .phraseTextSmall {
+    font-size: 0.8125rem;
+  }
+
+  .rememberText {
+    font-size: 0.6875rem;
+  }
+
+  .finalCtaContent {
+    padding: 1.5rem 0.75rem;
+  }
+
+  .finalCtaIcon {
+    width: 36px;
+    height: 36px;
+  }
+
+  .finalCtaTitle {
+    font-size: 1.125rem;
+  }
+
+  .finalCtaText {
+    font-size: 0.8125rem;
   }
 }
 
-/* Tablet optimization */
-@media (min-width: 769px) and (max-width: 1024px) {
-  .tipsGrid,
-  .phrasesGrid {
-    grid-template-columns: repeat(2, 1fr);
+/* ==================== TV / LARGE SCREENS (1920px+) ==================== */
+@media (min-width: 1920px) {
+  .main {
+    padding: 4rem 3rem;
+    max-width: 1600px;
   }
 
-  .statsRow {
-    grid-template-columns: repeat(3, 1fr);
+  .section {
+    margin-bottom: 4rem;
+  }
+
+  .sectionTitle {
+    font-size: 2rem;
+  }
+
+  .heroCard {
+    padding: 4rem 3rem;
+    border-radius: 32px;
+  }
+
+  .heroIcon {
+    width: 96px;
+    height: 96px;
+  }
+
+  .heroPhrase {
+    font-size: 3rem;
+  }
+
+  .heroSubtext {
+    font-size: 1.5rem;
+  }
+
+  .apiQuoteText {
+    font-size: 1.75rem;
+  }
+
+  .statValue {
+    font-size: 4rem;
+  }
+
+  .statLabel {
+    font-size: 1.25rem;
+  }
+
+  .statDescription {
+    font-size: 1rem;
+  }
+
+  .rememberGrid {
+    grid-template-columns: repeat(6, 1fr);
+    gap: 1.5rem;
+  }
+
+  .phrasesGrid {
+    grid-template-columns: repeat(6, 1fr);
+    gap: 1.5rem;
+  }
+
+  .finalCtaContent {
+    padding: 5rem 4rem;
+    border-radius: 32px;
+  }
+
+  .finalCtaIcon {
+    width: 72px;
+    height: 72px;
+  }
+
+  .finalCtaTitle {
+    font-size: 3rem;
+  }
+
+  .finalCtaText {
+    font-size: 1.5rem;
   }
 }
 
-/* Desktop */
-@media (min-width: 1025px) {
-  .container {
-    max-width: 1200px;
-    margin: 0 auto;
+/* ==================== TV / XL SCREENS (2560px+) ==================== */
+@media (min-width: 2560px) {
+  .main {
+    padding: 6rem 4rem;
+    max-width: 2000px;
   }
 
-  .tipsGrid,
-  .phrasesGrid {
-    grid-template-columns: repeat(2, 1fr);
+  .heroPhrase {
+    font-size: 4rem;
   }
 
-  .statsRow {
-    grid-template-columns: repeat(3, 1fr);
+  .heroSubtext {
+    font-size: 2rem;
+  }
+
+  .finalCtaTitle {
+    font-size: 4rem;
+  }
+
+  .finalCtaText {
+    font-size: 2rem;
+  }
+}
+
+/* ==================== LOADING STATE ==================== */
+.loadingState {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  font-size: 1.125rem;
+  color: hsl(var(--muted-foreground));
+}
+
+/* ==================== REDUCED MOTION ==================== */
+@media (prefers-reduced-motion: reduce) {
+  .container *,
+  .container *::before,
+  .container *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }

@@ -120,13 +120,15 @@
 
 .contentList {
   display: flex;
-  flex-direction: column;
+  flex-wrap: wrap;
   gap: 0.75rem;
   max-width: 900px;
   margin: 0 auto;
 }
 
 .contentItem {
+  width: fit-content;
+  max-width: 440px;
   background: hsl(var(--card));
   border: 1px solid hsl(var(--border));
   border-radius: 10px;

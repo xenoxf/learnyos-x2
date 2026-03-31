@@ -87,7 +87,14 @@
   border: 1px solid hsl(var(--border));
   border-radius: 0.75rem;
   box-shadow: var(--shadow-lg);
-  z-index: 200000;
+  z-index: 1000 !important;
+  position: relative !important;
+}
+
+/* Cuando el dropdown está dentro del menú "Más" del MobileNavbar */
+.moreMenu .dropdown {
+  position: fixed !important;
+  z-index: 100000 !important;
 }
 
 .dropdownHeader {

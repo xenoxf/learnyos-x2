@@ -9,22 +9,19 @@ import { useRouter } from "next/navigation";
 import LoadingModal from "./loadingModal";
 import { useToast } from "@/hooks/use-toast";
 import {
-  Sparkles,
   Brain,
-  Layers,
   FileText,
+  Layers,
+  Sparkles,
   Languages,
   Target,
-  Zap,
-  Clock,
-  Users,
-  TrendingUp,
   CheckCircle2,
   ArrowRight,
-  GraduationCap,
-  Award,
+  Clock,
   BookOpen,
-  Lightbulb,
+  PenTool,
+  BarChart3,
+  Shield,
 } from "lucide-react";
 
 export const LandingPage: React.FC = () => {
@@ -67,56 +64,40 @@ export const LandingPage: React.FC = () => {
     () => [
       {
         icon: Brain,
-        title: "Chatbot IA Avanzado",
+        title: "Ayuda Inteligente",
         description:
-          "Obtén respuestas instantáneas y explicaciones personalizadas adaptadas a tu nivel de aprendizaje.",
-        gradient: "gradientBlue",
+          "Obtén respuestas claras y explicaciones que se adaptan a tu forma de aprender.",
       },
       {
         icon: FileText,
-        title: "Exámenes y Quizzes",
+        title: "Quizzes Personalizados",
         description:
-          "Crea y responde cuestionarios adaptados a tu nivel con retroalimentación inmediata y explicaciones detalladas.",
-        gradient: "gradientGreen",
+          "Crea cuestionarios sobre cualquier tema y recibe retroalimentación al instante.",
       },
       {
         icon: Layers,
-        title: "Flashcards Inteligentes",
+        title: "Flashcards Efectivas",
         description:
-          "Sistema de repetición espaciada basado en evidencia científica para maximizar tu retención.",
-        gradient: "gradientPurple",
+          "Sistema de repaso espaciado para recordar lo que estudias por más tiempo.",
       },
       {
         icon: Sparkles,
         title: "Notas Automáticas",
         description:
-          "Transforma cualquier contenido en notas estructuradas, técnicas y fáciles de estudiar con IA.",
-        gradient: "gradientOrange",
+          "Convierte cualquier contenido en notas organizadas y fáciles de repasar.",
       },
       {
         icon: Languages,
-        title: "Traductor IA",
+        title: "Traductor Contextual",
         description:
-          "Traduce textos técnicos manteniendo el contexto académico y la precisión terminológica.",
-        gradient: "gradientIndigo",
+          "Traduce textos manteniendo el significado y contexto original.",
       },
       {
         icon: Target,
-        title: "Aprendizaje Adaptativo",
+        title: "Ritmo Personal",
         description:
-          "Contenido que se ajusta automáticamente a tu ritmo, nivel y estilo de aprendizaje único.",
-        gradient: "gradientYellow",
+          "El contenido se adapta a tu velocidad y nivel de comprensión.",
       },
-    ],
-    []
-  );
-
-  const stats = useMemo(
-    () => [
-      { number: "10,000+", label: "Estudiantes activos", icon: Users },
-      { number: "500k+", label: "Sesiones de estudio", icon: Clock },
-      { number: "95%", label: "Mejora en retención", icon: TrendingUp },
-      { number: "24/7", label: "Disponibilidad", icon: Zap },
     ],
     []
   );
@@ -124,23 +105,33 @@ export const LandingPage: React.FC = () => {
   const benefits = useMemo(
     () => [
       {
-        title: "Aprende 3x más rápido",
+        title: "Estudia de forma más eficiente",
         description:
-          "Nuestra IA identifica tus fortalezas y debilidades para optimizar cada sesión de estudio.",
-        icon: Zap,
+          "Identifica qué necesitas reforzar y enfoca tu tiempo en lo que realmente importa.",
+        icon: Clock,
       },
       {
-        title: "Retención comprobada",
+        title: "Retén más información",
         description:
-          "Técnicas de active recall y spaced repetition validadas científicamente para mayor retención.",
+          "Técnicas de active recall y repaso espaciado para mejorar tu memoria.",
         icon: CheckCircle2,
       },
       {
-        title: "Contenido ilimitado",
+        title: "Material ilimitado",
         description:
-          "Genera quizzes, flashcards y notas ilimitadas adaptadas a cualquier materia o tema.",
+          "Genera quizzes, flashcards y notas sobre cualquier tema que necesites.",
         icon: Sparkles,
       },
+    ],
+    []
+  );
+
+  const tools = useMemo(
+    () => [
+      { icon: BookOpen, name: "Quizzes", description: "Pon a prueba tu conocimiento" },
+      { icon: Layers, name: "Flashcards", description: "Memoriza de forma efectiva" },
+      { icon: PenTool, name: "Notas", description: "Organiza tu aprendizaje" },
+      { icon: BarChart3, name: "Progreso", description: "Mira cuánto has avanzado" },
     ],
     []
   );
@@ -157,7 +148,7 @@ export const LandingPage: React.FC = () => {
               </div>
               <div className={styles.brandInfo}>
                 <span className={styles.brandName}>LearnyOS</span>
-                <div className={styles.brandSubtitle}>Powered by AI</div>
+                <div className={styles.brandSubtitle}>Tu compañero de estudio</div>
               </div>
             </div>
             <div className={styles.headerActions}>
@@ -187,14 +178,15 @@ export const LandingPage: React.FC = () => {
                   role="complementary"
                   aria-label="Tag promocional"
                 >
-                  🚀 Domina Cualquier Tema con IA
+                  📚 Tu espacio de aprendizaje personal
                 </div>
                 <h1 id="hero-title" className={styles.heroTitle}>
-                  Estudia Más Inteligente con{" "}
-                  <span className={styles.heroTitleGradient}>LearnyOS</span>
+                  Estudia de forma más{" "}
+                  <span className={styles.heroTitleGradient}>inteligente</span>
                 </h1>
                 <p className={styles.heroDescription}>
-                  La plataforma que combina inteligencia artificial avanzada con técnicas de aprendizaje probadas científicamente. Crea quizzes, flashcards y notas al instante.
+                  LearnyOS te ayuda a aprender mejor con herramientas diseñadas para potenciar tu estudio. 
+                  Crea quizzes, flashcards y notas al instante.
                 </p>
               </div>
               <div className={styles.heroCTA}>
@@ -206,26 +198,6 @@ export const LandingPage: React.FC = () => {
                   Comenzar Ahora - Gratis
                   <ArrowRight className={styles.buttonArrow} size={18} />
                 </Button>
-              </div>
-              <div className={styles.heroStats} role="region" aria-label="Estadísticas">
-                {stats.map((stat, index) => {
-                  const StatIcon = stat.icon;
-                  return (
-                    <div key={index} className={styles.heroStat}>
-                      <StatIcon
-                        className={styles.heroStatIcon}
-                        size={20}
-                        aria-hidden="true"
-                      />
-                      <div className={styles.heroStatNumber}>
-                        {stat.number}
-                      </div>
-                      <div className={styles.heroStatLabel}>
-                        {stat.label}
-                      </div>
-                    </div>
-                  );
-                })}
               </div>
             </div>
             <div
@@ -266,18 +238,62 @@ export const LandingPage: React.FC = () => {
                         className={`${styles.heroImageGridItem} ${styles.heroImageGridItem1}`}
                         aria-hidden="true"
                       >
-                        <span>🤖</span>
+                        <span>📖</span>
                       </div>
                       <div
                         className={`${styles.heroImageGridItem} ${styles.heroImageGridItem2}`}
                         aria-hidden="true"
                       >
-                        <span>📚</span>
+                        <span>✏️</span>
+                      </div>
+                      <div
+                        className={`${styles.heroImageGridItem} ${styles.heroImageGridItem3}`}
+                        aria-hidden="true"
+                      >
+                        <span>🎯</span>
+                      </div>
+                      <div
+                        className={`${styles.heroImageGridItem} ${styles.heroImageGridItem4}`}
+                        aria-hidden="true"
+                      >
+                        <span>📊</span>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Tools Section */}
+        <section className={styles.toolsSection} aria-labelledby="tools-title">
+          <div className={styles.toolsSectionContent}>
+            <div className={styles.toolsHeader}>
+              <h2 id="tools-title" className={styles.toolsTitle}>
+                Todo lo que necesitas para estudiar
+              </h2>
+              <p className={styles.toolsDescription}>
+                Herramientas prácticas para cada etapa de tu aprendizaje
+              </p>
+            </div>
+            <div className={styles.toolsGrid} role="list">
+              {tools.map((tool, index) => {
+                const ToolIcon = tool.icon;
+                return (
+                  <article
+                    key={index}
+                    className={styles.toolCard}
+                    role="listitem"
+                  >
+                    <div className={styles.toolCardIcon}>
+                      <ToolIcon size={24} />
+                    </div>
+                    <h3 className={styles.toolCardTitle}>{tool.name}</h3>
+                    <p className={styles.toolCardDescription}>{tool.description}</p>
+                  </article>
+                );
+              })}
             </div>
           </div>
         </section>
@@ -290,11 +306,10 @@ export const LandingPage: React.FC = () => {
           <div className={styles.featuresSectionContent}>
             <div className={styles.featuresHeader}>
               <h2 id="features-title" className={styles.featuresTitle}>
-                Herramientas Potenciadas por IA
+                Características que marcan la diferencia
               </h2>
               <p className={styles.featuresDescription}>
-                Cada función está diseñada para acelerar tu aprendizaje y hacer
-                que estudiar sea más efectivo.
+                Cada función está diseñada para hacer tu estudio más efectivo.
               </p>
             </div>
             <div className={styles.featuresGrid} role="list">
@@ -308,7 +323,7 @@ export const LandingPage: React.FC = () => {
                   >
                     <div className={styles.featureCardHeader}>
                       <div
-                        className={`${styles.featureCardIcon} ${styles[feature.gradient]}`}
+                        className={styles.featureCardIcon}
                         aria-hidden="true"
                       >
                         <FeatureIcon size={24} />
@@ -337,11 +352,10 @@ export const LandingPage: React.FC = () => {
           <div className={styles.benefitsSectionContent}>
             <div className={styles.benefitsHeader}>
               <h2 id="benefits-title" className={styles.benefitsTitle}>
-                ¿Por qué elegir LearnYos?
+                ¿Por qué elegir LearnyOS?
               </h2>
               <p className={styles.benefitsDescription}>
-                Métodos comprobados científicamente para optimizar tu
-                aprendizaje
+                Métodos comprobados para optimizar tu aprendizaje
               </p>
             </div>
             <div className={styles.benefitsGrid}>
@@ -370,14 +384,28 @@ export const LandingPage: React.FC = () => {
           </div>
         </section>
 
+        {/* Security Section */}
+        <section className={styles.securitySection} aria-labelledby="security-title">
+          <div className={styles.securityContent}>
+            <Shield className={styles.securityIcon} size={48} />
+            <h2 id="security-title" className={styles.securityTitle}>
+              Tu privacidad es primero
+            </h2>
+            <p className={styles.securityText}>
+              Tus datos están protegidos y nunca compartimos tu información con terceros.
+              Estudia con tranquilidad.
+            </p>
+          </div>
+        </section>
+
         {/* CTA Section */}
         <section className={styles.ctaSection} aria-labelledby="cta-title">
           <div className={styles.ctaContent}>
             <h2 id="cta-title" className={styles.ctaTitle}>
-              Comienza a Estudiar Más Inteligente Hoy
+              Comienza a estudiar mejor hoy
             </h2>
             <p className={styles.ctaDescription}>
-              Únete a miles de estudiantes que ya están dominando sus materias con LearnyOS
+              Únete y descubre una nueva forma de aprender
             </p>
             <Button
               className={styles.ctaButton}
@@ -385,7 +413,7 @@ export const LandingPage: React.FC = () => {
               size="lg"
               aria-label="Comenzar gratis ahora"
             >
-              Comenzar Gratis - Sin tarjeta requerida
+              Comenzar Gratis
               <ArrowRight size={18} />
             </Button>
           </div>

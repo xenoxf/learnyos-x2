@@ -317,7 +317,7 @@ export default function SettingsPage() {
                 onClick={() => setActiveTab(tab.id)}
                 type="button"
               >
-                <Icon size={20} />
+                <Icon size={24} />
                 <span>{tab.label}</span>
               </button>
             );
@@ -333,7 +333,7 @@ export default function SettingsPage() {
                 <div className={styles.sectionContent}>
                   <div className={styles.infoCard}>
                     <div className={styles.infoIcon}>
-                      <User size={20} />
+                      <User size={24} />
                     </div>
                     <div className={styles.infoContent}>
                       <span className={styles.infoLabel}>Nombre</span>
@@ -342,7 +342,7 @@ export default function SettingsPage() {
                   </div>
                   <div className={styles.infoCard}>
                     <div className={styles.infoIcon}>
-                      <Mail size={20} />
+                      <Mail size={24} />
                     </div>
                     <div className={styles.infoContent}>
                       <span className={styles.infoLabel}>Email</span>
@@ -360,7 +360,7 @@ export default function SettingsPage() {
                     onClick={handleLogout}
                     type="button"
                   >
-                    <LogOut size={20} />
+                    <LogOut size={24} />
                     <span>Cerrar Sesión</span>
                   </button>
                 </div>
@@ -375,7 +375,7 @@ export default function SettingsPage() {
                     rel="noopener noreferrer"
                     className={styles.actionBtn}
                   >
-                    <Shield size={20} />
+                    <Shield size={24} />
                     <span>Ver Términos y Condiciones</span>
                   </a>
                 </div>

@@ -68,7 +68,7 @@ export const AuthFG: React.FC<AuthFGProps> = ({ onClose }) => {
   };
 
   return (
-    <div onClick={handleClose} className={styles.containerTransparente}>
+    <div onDoubleClick={handleClose} className={styles.containerTransparente}>
       <Button
         className={styles["btnClose"]}
         onClick={handleClose}
@@ -113,9 +113,9 @@ export const AuthFG: React.FC<AuthFGProps> = ({ onClose }) => {
           <div className={styles.authFooter}>
             <p className={styles.authFooterText}>
               Al continuar, aceptas nuestros{" "}
-              <Link href="/terms" className={styles.footerLink}>
+              <a href="/terms.html" target="_blank" rel="noopener noreferrer" className={styles.footerLink}>
                 términos de servicio
-              </Link>
+              </a>
             </p>
           </div>
         </div>
