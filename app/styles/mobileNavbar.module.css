@@ -27,7 +27,7 @@
   justify-content: space-evenly;
   gap: 2px;
   padding: 10px 8px;
-  width: 100%;
+  width: fit-content;
   box-shadow:
     0 -4px 12px rgba(0, 0, 0, 0.08);
   pointer-events: auto;
