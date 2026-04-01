@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import CardContent from "./Card";
 import CrearCard from "./CrearCard";
 import {
@@ -12,6 +12,8 @@ import {
 } from "@/components/study/StudyGrid";
 import type { CardsDeck } from "@/types";
 import { apiService } from "@/services/apiService";
+import { Skeleton } from "@/components/ui/skeleton";
+import styles from "@/styles/card/CardGrid.module.css";
 
 interface CardGridProps {
   onCardSelect?: (cardId: number) => void;
@@ -32,6 +34,9 @@ const CARDS_CONFIG = {
 };
 
 export default function CardGrid({ onCardSelect }: CardGridProps) {
+  const [isSearching, setIsSearching] = useState(false);
+  const viewModeRef = useRef<ViewMode>('public');
+
   const {
     searchValue,
     setSearchValue,
@@ -45,20 +50,81 @@ export default function CardGrid({ onCardSelect }: CardGridProps) {
     handleCreateClick,
     handleCloseModal,
     handleItemDeleted,
-  } = useStudyGrid<CardsDeck>({
+    loadItems,
+  } = useStudyGrid<CardsDeck & StudyGridBaseItem>({
     actions: {
-      onLoad: async () => {
+      onLoad: useCallback(async () => {
+        const currentViewMode = viewModeRef.current;
         const data =
-          viewMode === "private"
+          currentViewMode === "private"
             ? await apiService.getFlashcardsPrivate()
             : await apiService.getFlashcardsPublic();
-        return data as CardsDeck[];
-      },
-      onItemOpen: (card) => onCardSelect?.(card.id),
+        const validCards = (data || []).filter(
+          (card: any) => card.id && card.title,
+        ) as (CardsDeck & StudyGridBaseItem)[];
+        return validCards;
+      }, []),
+      onItemOpen: useCallback((card) => {
+        onCardSelect?.(card.id);
+      }, [onCardSelect]),
     },
     config: CARDS_CONFIG,
     defaultViewMode: "public",
   });
+
+  // Actualizar ref cuando viewMode cambie
+  useEffect(() => {
+    viewModeRef.current = viewMode;
+  }, [viewMode]);
+
+  // Búsqueda con debounce optimizado
+  const handleSearch = useCallback(async (query: string) => {
+    if (query.trim().length >= 2) {
+      setIsSearching(true);
+      try {
+        await apiService.searchFlashcards(query, 20, 0, true);
+      } catch (error) {
+        console.error("Error en búsqueda:", error);
+      } finally {
+        setIsSearching(false);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    const searchTimeout = setTimeout(() => {
+      handleSearch(searchValue);
+    }, 300);
+
+    return () => clearTimeout(searchTimeout);
+  }, [searchValue, handleSearch]);
+
+  const isSearchActive = useMemo(
+    () => searchValue.trim().length >= 2,
+    [searchValue]
+  );
+
+  // Memoizar renderizado de cards
+  const renderCard = useCallback((card: CardsDeck & StudyGridBaseItem) => (
+    <CardContent
+      key={card.id}
+      card={card}
+      onCardDeleted={handleItemDeleted}
+      onOpen={() => onCardSelect?.(card.id)}
+    />
+  ), [handleItemDeleted, onCardSelect]);
+
+  // Memoizar skeleton array
+  const skeletons = useMemo(
+    () => Array.from({ length: 6 }).map((_, i) => (
+      <div key={i} className={styles.skeletonCard}>
+        <Skeleton className={styles.skeletonTitle} />
+        <Skeleton className={styles.skeletonDescription} />
+        <Skeleton className={styles.skeletonMeta} />
+      </div>
+    )),
+    []
+  );
 
   return (
     <>
@@ -72,21 +138,31 @@ export default function CardGrid({ onCardSelect }: CardGridProps) {
           onCreateClick={handleCreateClick}
         />
 
-        <StudyGridContent
-          loading={loading}
-          items={items}
-          allItems={allItems}
-          resultText={resultText}
-          config={CARDS_CONFIG}
-          renderCard={(card) => (
-            <CardContent
-              key={card.id}
-              card={card}
-              onCardDeleted={handleItemDeleted}
-              onOpen={() => onCardSelect?.(card.id)}
-            />
-          )}
-        />
+        {/* Loading state - Initial load (al entrar a la página) */}
+        {loading && !isSearchActive && (
+          <div className={styles.grid}>
+            {skeletons}
+          </div>
+        )}
+
+        {/* Search loading */}
+        {isSearching && isSearchActive && (
+          <div className={styles.grid}>
+            {skeletons}
+          </div>
+        )}
+
+        {/* Normal display - Solo cuando no está cargando */}
+        {!loading && !isSearching && (
+          <StudyGridContent
+            loading={false}
+            items={items}
+            allItems={allItems}
+            resultText={resultText}
+            config={CARDS_CONFIG}
+            renderCard={renderCard}
+          />
+        )}
       </div>
       {showCreate && (
         <CrearCard

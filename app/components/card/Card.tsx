@@ -117,7 +117,7 @@ const CardContent: React.FC<CardProps> = ({ card, onCardDeleted, onOpen }) => {
             {card.tema}
           </span>
         )}
-        <span className={styles.cardHint}>{card.totalCards} tarjetas</span>
+        <span className={styles.cardHint}>{card.flashcards?.length} tarjetas</span>
       </div>
 
       {/* Solo mostrar el code si es el dueño */}

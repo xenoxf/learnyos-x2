@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { apiService } from "@/services/apiService";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -13,21 +13,17 @@ import {
   MessageSquare,
   Bot,
   User,
+  Menu,
   PanelLeftClose,
   PanelLeft,
-  Calendar,
+  X,
 } from "lucide-react";
 import styles from "@/styles/chat.module.css";
+import DashboardLayout from "../layout";
 import type { ChatMessage, Chat } from "@/types";
 import { MarkdownRenderer } from "@/components/MarkdownRenderer";
-import { Skeleton } from "@/components/ui/skeleton";
 
 export const dynamic = "force-dynamic";
-
-interface MessageWithDate {
-  date: string;
-  messages: ChatMessage[];
-}
 
 export default function ChatPage() {
   // ==================== STATE ====================
@@ -36,18 +32,13 @@ export default function ChatPage() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
   const [copiedId, setCopiedId] = useState<number | null>(null);
-  const [isLoadingChats, setIsLoadingChats] = useState(true);
-  const [isLoadingMessages, setIsLoadingMessages] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { toast } = useToast();
-
-  // Control de carga inicial para evitar múltiples peticiones
-  const isInitialLoad = useRef(true);
 
   // ==================== SUGERENCIAS ====================
   const suggestions = [
@@ -81,12 +72,9 @@ export default function ChatPage() {
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
-  // ==================== CARGAR CHATS (CON DEBOUNCE) ====================
+  // ==================== FUNCIONES API REALES ====================
   const loadChats = useCallback(async () => {
-    if (isLoadingChats) return; // Evitar múltiples peticiones simultáneas
-
     try {
-      setIsLoadingChats(true);
       const response = await apiService.getChats();
       setChats(Array.isArray(response) ? response : []);
     } catch {
@@ -95,23 +83,16 @@ export default function ChatPage() {
         description: "No se pudieron cargar los chats",
         variant: "destructive",
       });
-    } finally {
-      setIsLoadingChats(false);
-      isInitialLoad.current = false;
     }
-  }, [toast, isLoadingChats]);
+  }, [toast]);
 
-  // Carga inicial única
+  // ==================== CARGAR DATOS REALES ====================
   useEffect(() => {
-    if (isInitialLoad.current && !isLoadingChats) {
-      loadChats();
-    }
-  }, [loadChats, isLoadingChats]);
+    loadChats();
+  }, [loadChats]);
 
-  // ==================== CARGAR MENSAJES ====================
   const loadChatMessages = async (chatId: number) => {
     try {
-      setIsLoadingMessages(true);
       const response = await apiService.getChatMessages(chatId);
       const messagesList = response.messages ?? [];
 
@@ -139,12 +120,9 @@ export default function ChatPage() {
         description: "No se pudieron cargar los mensajes",
         variant: "destructive",
       });
-    } finally {
-      setIsLoadingMessages(false);
     }
   };
 
-  // ==================== ENVIAR MENSAJE ====================
   const handleSendMessage = async () => {
     if (!inputValue.trim() || isLoading) return;
 
@@ -205,7 +183,6 @@ export default function ChatPage() {
     }
   };
 
-  // ==================== NUEVO CHAT ====================
   const handleNewChat = () => {
     setCurrentChat(null);
     setMessages([]);
@@ -214,14 +191,12 @@ export default function ChatPage() {
     if (textareaRef.current) textareaRef.current.focus();
   };
 
-  // ==================== SELECCIONAR CHAT ====================
   const handleSelectChat = async (chat: Chat) => {
     setCurrentChat(chat);
     await loadChatMessages(chat.id);
     if (isMobile) setIsSidebarOpen(false);
   };
 
-  // ==================== ELIMINAR CHAT ====================
   const handleDeleteChat = async (chatId: number, e: React.MouseEvent) => {
     e.stopPropagation();
 
@@ -249,7 +224,6 @@ export default function ChatPage() {
     }
   };
 
-  // ==================== COPIAR MENSAJE ====================
   const handleCopyMessage = async (text: string, messageId: number) => {
     try {
       await navigator.clipboard.writeText(text);
@@ -271,9 +245,11 @@ export default function ChatPage() {
 
   // ==================== UTILS ====================
   const scrollToBottom = useCallback(() => {
+    // Usar requestAnimationFrame para evitar bugs visuales
     requestAnimationFrame(() => {
       if (messagesEndRef.current) {
-        messagesEndRef.current.scrollIntoView({
+        // Scroll instantáneo para evitar animaciones problemáticas
+        messagesEndRef.current.scrollIntoView({ 
           behavior: "auto",
           block: "end"
         });
@@ -287,7 +263,8 @@ export default function ChatPage() {
       textarea.style.height = "auto";
       const newHeight = Math.min(textarea.scrollHeight, 120);
       textarea.style.height = `${newHeight}px`;
-
+      
+      // Scroll al bottom del textarea si es muy alto
       if (textarea.scrollHeight > 120) {
         textarea.scrollTop = textarea.scrollHeight - 120;
       }
@@ -306,38 +283,24 @@ export default function ChatPage() {
     }
   };
 
-  // ==================== AGRUPAR MENSAJES POR FECHA ====================
-  const messagesByDate = useMemo(() => {
-    const groups: MessageWithDate[] = [];
-    let currentDate = "";
-
-    messages.forEach((msg) => {
-      const msgDate = new Date(msg.createdAt).toLocaleDateString("es-ES", {
-        weekday: "long",
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      });
-
-      if (msgDate !== currentDate) {
-        currentDate = msgDate;
-        groups.push({
-          date: msgDate,
-          messages: [msg],
-        });
-      } else {
-        const lastGroup = groups[groups.length - 1];
-        lastGroup.messages.push(msg);
-      }
-    });
-
-    return groups;
-  }, [messages]);
-
-  // ==================== FORMAT TIME ====================
   const formatTime = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleTimeString("es-ES", {
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+
+    if (diffMins < 1) return "Ahora";
+    if (diffMins < 60) return `Hace ${diffMins} min`;
+
+    const diffHours = Math.floor(diffMins / 60);
+    if (diffHours < 24) return `Hace ${diffHours} h`;
+
+    const diffDays = Math.floor(diffHours / 24);
+    if (diffDays === 1) return "Ayer";
+
+    return date.toLocaleDateString("es-ES", {
+      day: "2-digit",
+      month: "2-digit",
       hour: "2-digit",
       minute: "2-digit",
     });
@@ -345,8 +308,9 @@ export default function ChatPage() {
 
   // ==================== RENDER ====================
   return (
+
     <div className={styles.container}>
-      {/* SIDEBAR */}
+      {/* SIDEBAR INTEGRADO (NO FIXED) */}
       <aside
         className={`${styles.sidebar} ${!isSidebarOpen ? styles.sidebarClosed : ""
           } ${isMobile && isSidebarOpen ? styles.sidebarOpen : ""}`}
@@ -360,18 +324,7 @@ export default function ChatPage() {
         </div>
 
         <div className={styles.chatList}>
-          {isLoadingChats ? (
-            // Skeleton para chats
-            Array.from({ length: 5 }).map((_, i) => (
-              <div key={i} className={styles.chatItemSkeleton}>
-                <Skeleton className={styles.skeletonIcon} />
-                <div className={styles.chatInfoSkeleton}>
-                  <Skeleton className={styles.skeletonTitle} />
-                  <Skeleton className={styles.skeletonMeta} />
-                </div>
-              </div>
-            ))
-          ) : chats.length === 0 ? (
+          {chats.length === 0 ? (
             <div className={styles.emptyChats}>
               <MessageSquare size={40} />
               <p>No hay conversaciones</p>
@@ -404,7 +357,7 @@ export default function ChatPage() {
         </div>
       </aside>
 
-      {/* BOTÓN TOGGLE */}
+      {/* BOTÓN TOGGLE MEJORADO */}
       <button
         className={`${styles.toggleButton} ${!isSidebarOpen ? styles.toggleButtonClosed : ""
           }`}
@@ -420,9 +373,9 @@ export default function ChatPage() {
 
       {/* MAIN CONTENT */}
       <main className={styles.main}>
-        {/* MESSAGES */}
+        {/* MESSAGES ESTILO LIBRO */}
         <div className={styles.messages}>
-          {messages.length === 0 && !isLoadingMessages ? (
+          {messages.length === 0 ? (
             <div className={styles.welcome}>
               <div className={styles.welcomeIcon}>
                 <Bot size={48} />
@@ -451,76 +404,47 @@ export default function ChatPage() {
                 ))}
               </div>
             </div>
-          ) : isLoadingMessages ? (
-            // Skeleton para mensajes
-            <div className={styles.messagesSkeleton}>
-              {Array.from({ length: 4 }).map((_, i) => (
-                <div key={i} className={styles.messageSkeleton}>
-                  <Skeleton className={styles.skeletonAvatar} />
-                  <div className={styles.messageContentSkeleton}>
-                    <Skeleton className={styles.skeletonLine1} />
-                    <Skeleton className={styles.skeletonLine2} />
-                    <Skeleton className={styles.skeletonLine3} />
-                  </div>
-                </div>
-              ))}
-            </div>
           ) : (
             <>
-              {messagesByDate.map((group, groupIndex) => (
-                <React.Fragment key={groupIndex}>
-                  {/* Separador de fecha */}
-                  <div className={styles.dateSeparator}>
-                    <Calendar size={14} />
-                    <span>{group.date}</span>
-                  </div>
-
-                  {/* Mensajes del grupo */}
-                  {group.messages.map((msg) => (
-                    <div
-                      key={msg.id}
-                      className={`${styles.message} ${msg.role === "user"
-                        ? styles.userMessage
-                        : styles.botMessage
-                        }`}
-                    >
-                      {msg.role === "user" ? (
-                        <div className={styles.messageAvatar}>
-                          <User size={18} />
-                        </div>
-                      ) : null}
-                      <div className={styles.messageContent}>
-                        <div className={styles.messageText}>
-                          {msg.role === "assistant" ? (
-                            <MarkdownRenderer content={msg.content} />
-                          ) : (
-                            msg.content
-                          )}
-                        </div>
-                        <div className={styles.messageMeta}>
-                          {msg.role === "assistant" && (
-                            <button
-                              className={styles.copyButton}
-                              onClick={() =>
-                                handleCopyMessage(msg.content, msg.id)
-                              }
-                              title="Copiar respuesta"
-                            >
-                              {copiedId === msg.id ? (
-                                <Check size={14} />
-                              ) : (
-                                <Copy size={14} />
-                              )}
-                            </button>
-                          )}
-                          <span className={styles.messageTime}>
-                            {formatTime(msg.createdAt)}
-                          </span>
-                        </div>
-                      </div>
+              {messages.map((msg) => (
+                <div
+                  key={msg.id}
+                  className={`${styles.message} ${msg.role === "user"
+                      ? styles.userMessage
+                      : styles.botMessage
+                    }`}
+                >
+                  {/*}<div className={styles.messageAvatar}>
+                      {msg.role === "user" ? <User size={18} /> : <Bot size={18} />}
+                    </div>*/}
+                  {msg.role === "user" ? (
+                    <div className={styles.messageAvatar}>
+                      <User size={18} />{" "}
                     </div>
-                  ))}
-                </React.Fragment>
+                  ) : null}
+                  <div className={styles.messageContent}>
+                    <div>
+                      {msg.role === "assistant" ? (
+                        <MarkdownRenderer content={msg.content} />
+                      ) : (
+                        msg.content
+                      )}
+                    </div>
+                    {msg.role === "assistant" && (
+                      <button
+                        className={styles.copyButton}
+                        onClick={() => handleCopyMessage(msg.content, msg.id)}
+                        title="Copiar respuesta"
+                      >
+                        {copiedId === msg.id ? (
+                          <Check size={14} />
+                        ) : (
+                          <Copy size={14} />
+                        )}
+                      </button>
+                    )}
+                  </div>
+                </div>
               ))}
 
               {isLoading && (
@@ -541,7 +465,7 @@ export default function ChatPage() {
           )}
         </div>
 
-        {/* INPUT AREA */}
+        {/* INPUT CIRCULAR Y FLOTANTE (COMO TU PAGE) */}
         <div className={styles.inputArea}>
           <div className={styles.inputContainer}>
             <div className={styles.inputWrapper}>
@@ -587,5 +511,6 @@ export default function ChatPage() {
         />
       )}
     </div>
+
   );
 }

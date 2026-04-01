@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import NoteCard from "./NoteCard";
 import CreateNoteModal from "./CreateNoteModal";
 import {
@@ -12,8 +12,10 @@ import {
 } from "@/components/study/StudyGrid";
 import type { NoteDeck } from "@/types";
 import { apiService } from "@/services/apiService";
+import { Skeleton } from "@/components/ui/skeleton";
+import styles from "@/styles/notes/NotesGrid.module.css";
 
-interface NotesGridProps {}
+interface NotesGridProps { }
 
 const NOTES_CONFIG = {
   entitySingular: "nota",
@@ -29,7 +31,10 @@ const NOTES_CONFIG = {
   loadingText: "Cargando notas...",
 };
 
-export default function NotesGrid({}: NotesGridProps) {
+export default function NotesGrid({ }: NotesGridProps) {
+  const [isSearching, setIsSearching] = useState(false);
+  const viewModeRef = useRef<ViewMode>('public');
+
   const {
     searchValue,
     setSearchValue,
@@ -43,20 +48,74 @@ export default function NotesGrid({}: NotesGridProps) {
     handleCreateClick,
     handleCloseModal,
     handleItemDeleted,
-  } = useStudyGrid<NoteDeck>({
+  } = useStudyGrid<NoteDeck & StudyGridBaseItem>({
     actions: {
-      onLoad: async () => {
+      onLoad: useCallback(async () => {
+        const currentViewMode = viewModeRef.current;
         const data =
-          viewMode === "private"
+          currentViewMode === "private"
             ? await apiService.getNotesPrivate()
             : await apiService.getNotesPublic();
-        return data as NoteDeck[];
-      },
-      onItemOpen: () => {},
+        return data as (NoteDeck & StudyGridBaseItem)[];
+      }, []),
+      onItemOpen: useCallback(() => { }, []),
     },
     config: NOTES_CONFIG,
     defaultViewMode: "public",
   });
+
+  // Actualizar ref cuando viewMode cambie
+  useEffect(() => {
+    viewModeRef.current = viewMode;
+  }, [viewMode]);
+
+  // Búsqueda con debounce optimizado
+  const handleSearch = useCallback(async (query: string) => {
+    if (query.trim().length >= 2) {
+      setIsSearching(true);
+      try {
+        await apiService.searchNotes(query, 20, 0, true);
+      } catch (error) {
+        console.error("Error en búsqueda:", error);
+      } finally {
+        setIsSearching(false);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    const searchTimeout = setTimeout(() => {
+      handleSearch(searchValue);
+    }, 300);
+
+    return () => clearTimeout(searchTimeout);
+  }, [searchValue, handleSearch]);
+
+  const isSearchActive = useMemo(
+    () => searchValue.trim().length >= 2,
+    [searchValue]
+  );
+
+  // Memoizar renderizado de notas
+  const renderCard = useCallback((note: NoteDeck & StudyGridBaseItem) => (
+    <NoteCard
+      key={note.id}
+      note={note}
+      onNoteDeleted={handleItemDeleted}
+    />
+  ), [handleItemDeleted]);
+
+  // Memoizar skeleton array
+  const skeletons = useMemo(
+    () => Array.from({ length: 6 }).map((_, i) => (
+      <div key={i} className={styles.skeletonCard}>
+        <Skeleton className={styles.skeletonTitle} />
+        <Skeleton className={styles.skeletonDescription} />
+        <Skeleton className={styles.skeletonMeta} />
+      </div>
+    )),
+    []
+  );
 
   return (
     <>
@@ -70,20 +129,31 @@ export default function NotesGrid({}: NotesGridProps) {
           onCreateClick={handleCreateClick}
         />
 
-        <StudyGridContent
-          loading={loading}
-          items={items}
-          allItems={allItems}
-          resultText={resultText}
-          config={NOTES_CONFIG}
-          renderCard={(note) => (
-            <NoteCard
-              key={note.id}
-              note={note}
-              onNoteDeleted={handleItemDeleted}
-            />
-          )}
-        />
+        {/* Loading state - Initial load (al entrar a la página) */}
+        {loading && !isSearchActive && (
+          <div className={styles.grid}>
+            {skeletons}
+          </div>
+        )}
+
+        {/* Search loading */}
+        {isSearching && isSearchActive && (
+          <div className={styles.grid}>
+            {skeletons}
+          </div>
+        )}
+
+        {/* Normal display - Solo cuando no está cargando */}
+        {!loading && !isSearching && (
+          <StudyGridContent
+            loading={false}
+            items={items}
+            allItems={allItems}
+            resultText={resultText}
+            config={NOTES_CONFIG}
+            renderCard={renderCard}
+          />
+        )}
       </div>
 
       {showCreate && (

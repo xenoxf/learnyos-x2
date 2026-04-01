@@ -111,9 +111,7 @@ export default function QuizCard({
       </div>
 
       <div className={styles.cardFooter}>
-        <span className={styles.cardHint}>
-          {quiz.estimatedTime || "Sin límite de tiempo"}
-        </span>
+
         {/* Solo mostrar el code si es el dueño */}
         {isOwner && quiz.code ? (
           <span className={styles.cardCode}>{quiz.code}</span>

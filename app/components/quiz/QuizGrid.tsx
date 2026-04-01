@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import QuizCard from "./QuizCard";
 import CreateQuizModal from "./CreateQuizModal";
 import {
@@ -12,6 +12,8 @@ import {
 } from "@/components/study/StudyGrid";
 import type { ExamDeck } from "@/types";
 import { apiService } from "@/services/apiService";
+import { Skeleton } from "@/components/ui/skeleton";
+import styles from "@/styles/quiz/quizGrid.module.css";
 
 interface QuizGridProps {}
 
@@ -30,6 +32,9 @@ const QUIZ_CONFIG = {
 };
 
 export default function QuizGrid({}: QuizGridProps) {
+  const [isSearching, setIsSearching] = useState(false);
+  const viewModeRef = useRef<ViewMode>('public');
+
   const {
     searchValue,
     setSearchValue,
@@ -43,20 +48,74 @@ export default function QuizGrid({}: QuizGridProps) {
     handleCreateClick,
     handleCloseModal,
     handleItemDeleted,
-  } = useStudyGrid<ExamDeck>({
+  } = useStudyGrid<ExamDeck & StudyGridBaseItem>({
     actions: {
-      onLoad: async () => {
+      onLoad: useCallback(async () => {
+        const currentViewMode = viewModeRef.current;
         const data =
-          viewMode === "private"
+          currentViewMode === "private"
             ? await apiService.getExamsPrivate()
             : await apiService.getExamsPublic();
-        return data as ExamDeck[];
-      },
-      onItemOpen: () => {},
+        return data as (ExamDeck & StudyGridBaseItem)[];
+      }, []),
+      onItemOpen: useCallback(() => {}, []),
     },
     config: QUIZ_CONFIG,
     defaultViewMode: "public",
   });
+
+  // Actualizar ref cuando viewMode cambie
+  useEffect(() => {
+    viewModeRef.current = viewMode;
+  }, [viewMode]);
+
+  // Búsqueda con debounce optimizado
+  const handleSearch = useCallback(async (query: string) => {
+    if (query.trim().length >= 2) {
+      setIsSearching(true);
+      try {
+        await apiService.searchExams(query, 20, 0, true);
+      } catch (error) {
+        console.error("Error en búsqueda:", error);
+      } finally {
+        setIsSearching(false);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    const searchTimeout = setTimeout(() => {
+      handleSearch(searchValue);
+    }, 300);
+
+    return () => clearTimeout(searchTimeout);
+  }, [searchValue, handleSearch]);
+
+  const isSearchActive = useMemo(
+    () => searchValue.trim().length >= 2,
+    [searchValue]
+  );
+
+  // Memoizar renderizado de quizzes
+  const renderCard = useCallback((quiz: ExamDeck & StudyGridBaseItem) => (
+    <QuizCard
+      key={quiz.id}
+      quiz={quiz}
+      onQuizDeleted={handleItemDeleted}
+    />
+  ), [handleItemDeleted]);
+
+  // Memoizar skeleton array
+  const skeletons = useMemo(
+    () => Array.from({ length: 6 }).map((_, i) => (
+      <div key={i} className={styles.skeletonCard}>
+        <Skeleton className={styles.skeletonTitle} />
+        <Skeleton className={styles.skeletonDescription} />
+        <Skeleton className={styles.skeletonMeta} />
+      </div>
+    )),
+    []
+  );
 
   return (
     <>
@@ -70,20 +129,31 @@ export default function QuizGrid({}: QuizGridProps) {
           onCreateClick={handleCreateClick}
         />
 
-        <StudyGridContent
-          loading={loading}
-          items={items}
-          allItems={allItems}
-          resultText={resultText}
-          config={QUIZ_CONFIG}
-          renderCard={(quiz) => (
-            <QuizCard
-              key={quiz.id}
-              quiz={quiz}
-              onQuizDeleted={handleItemDeleted}
-            />
-          )}
-        />
+        {/* Loading state - Initial load (al entrar a la página) */}
+        {loading && !isSearchActive && (
+          <div className={styles.grid}>
+            {skeletons}
+          </div>
+        )}
+
+        {/* Search loading */}
+        {isSearching && isSearchActive && (
+          <div className={styles.grid}>
+            {skeletons}
+          </div>
+        )}
+
+        {/* Normal display - Solo cuando no está cargando */}
+        {!loading && !isSearching && (
+          <StudyGridContent
+            loading={false}
+            items={items}
+            allItems={allItems}
+            resultText={resultText}
+            config={QUIZ_CONFIG}
+            renderCard={renderCard}
+          />
+        )}
       </div>
 
       {showCreate && (
