@@ -451,6 +451,29 @@
   cursor: not-allowed;
 }
 
+.nextButton {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.625rem 1.25rem;
+  background: hsl(var(--secondary));
+  color: hsl(var(--secondary-foreground));
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.875rem;
+  transition: all 0.15s ease;
+  flex: 1;
+  justify-content: center;
+}
+
+.nextButton:hover {
+  background: hsl(var(--secondary) / 0.9);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px hsl(var(--foreground) / 0.1);
+}
+
 .submitSection {
   padding-top: 0.25rem;
 }

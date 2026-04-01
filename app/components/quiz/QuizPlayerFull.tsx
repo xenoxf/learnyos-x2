@@ -25,6 +25,7 @@ export default function QuizPlayerFull({ quizId }: QuizPlayerFullProps) {
   const [quiz, setQuiz] = useState<ExamKlek | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedAnswers, setSelectedAnswers] = useState<Record<number, number>>({});
+  const [answeredQuestions, setAnsweredQuestions] = useState<Set<number>>(new Set());
   const [showResults, setShowResults] = useState(false);
   const [showImmediateFeedback, setShowImmediateFeedback] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -71,6 +72,10 @@ export default function QuizPlayerFull({ quizId }: QuizPlayerFullProps) {
   }, [showImmediateFeedback]);
 
   const handleNext = useCallback(() => {
+    // Mark current question as answered (or skipped) before moving
+    const currentQuestionId = quiz!.questions[currentIndex].id || 0;
+    setAnsweredQuestions((prev) => new Set(prev).add(currentQuestionId));
+    
     if (currentIndex < quiz!.questions.length - 1) {
       setCurrentIndex((prev) => prev + 1);
       setShowImmediateFeedback(false);
@@ -87,6 +92,7 @@ export default function QuizPlayerFull({ quizId }: QuizPlayerFullProps) {
   const handleReset = useCallback(() => {
     setCurrentIndex(0);
     setSelectedAnswers({});
+    setAnsweredQuestions(new Set());
     setShowResults(false);
     setShowImmediateFeedback(false);
   }, []);
@@ -119,7 +125,7 @@ export default function QuizPlayerFull({ quizId }: QuizPlayerFullProps) {
   // Calculate results for summary
   const results = useMemo(() => {
     if (!quiz) return { questionResults: [], failedQuestions: [], failedTopics: [] };
-    
+
     const questionResults: QuestionResult[] = [];
     const failedQuestions: QuestionResult[] = [];
     const failedTopics: Set<string> = new Set();
@@ -127,11 +133,12 @@ export default function QuizPlayerFull({ quizId }: QuizPlayerFullProps) {
     quiz.questions.forEach((q) => {
       const selectedId = selectedAnswers[q.id || 0];
       const correctOption = q.options.find((o) => o.isCorrect);
-      const isCorrect = selectedId === correctOption?.id;
+      // Consider unanswered questions as incorrect
+      const isCorrect = selectedId !== undefined && selectedId === correctOption?.id;
 
       const result: QuestionResult = {
         question: q,
-        selectedOptionId: selectedId || null,
+        selectedOptionId: selectedId !== undefined ? selectedId : null,
         isCorrect,
       };
 
@@ -486,15 +493,26 @@ export default function QuizPlayerFull({ quizId }: QuizPlayerFullProps) {
               <span className={styles.navButtonText}>Anterior</span>
             </button>
 
-            <button
-              className={`${styles.confirmButton} ${!selectedOptionId ? styles.disabled : ''}`}
-              onClick={handleConfirmAnswer}
-              disabled={!selectedOptionId}
-              type="button"
-            >
-              <Check size={18} />
-              <span>Confirmar</span>
-            </button>
+            {!showImmediateFeedback ? (
+              <button
+                className={`${styles.confirmButton} ${!selectedOptionId ? styles.disabled : ''}`}
+                onClick={handleConfirmAnswer}
+                disabled={!selectedOptionId}
+                type="button"
+              >
+                <Check size={18} />
+                <span>Confirmar</span>
+              </button>
+            ) : (
+              <button
+                className={styles.nextButton}
+                onClick={handleNext}
+                type="button"
+              >
+                <span>Siguiente</span>
+                <ChevronRight size={18} />
+              </button>
+            )}
           </div>
 
           {currentIndex === totalQuestions - 1 && showImmediateFeedback && (

@@ -785,3 +785,128 @@
         transform: rotate(360deg);
     }
 }
+
+/* ========== SKELETONS ========== */
+.chatItemSkeleton {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+}
+
+.skeletonIcon {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+}
+
+.chatInfoSkeleton {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.skeletonTitle {
+  height: 1rem;
+  width: 70%;
+  border-radius: 4px;
+}
+
+.skeletonMeta {
+  height: 0.75rem;
+  width: 40%;
+  border-radius: 4px;
+}
+
+.messagesSkeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 1.5rem;
+}
+
+.messageSkeleton {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.skeletonAvatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.messageContentSkeleton {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-width: 70%;
+}
+
+.skeletonLine1 {
+  height: 1rem;
+  width: 100%;
+  border-radius: 4px;
+}
+
+.skeletonLine2 {
+  height: 1rem;
+  width: 90%;
+  border-radius: 4px;
+}
+
+.skeletonLine3 {
+  height: 1rem;
+  width: 60%;
+  border-radius: 4px;
+}
+
+/* ========== SEPARADOR DE FECHA ========== */
+.dateSeparator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  margin: 1rem 0;
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  background: hsl(var(--background) / 0.9);
+  backdrop-filter: blur(8px);
+}
+
+.dateSeparator span {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: hsl(var(--muted-foreground));
+  text-transform: capitalize;
+  background: hsl(var(--secondary));
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+}
+
+.dateSeparator svg {
+  color: hsl(var(--muted-foreground));
+}
+
+/* ========== MESSAGE META ========== */
+.messageMeta {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.messageTime {
+  font-size: 0.7rem;
+  color: hsl(var(--muted-foreground));
+}
+
+.messageText {
+  line-height: 1.6;
+}

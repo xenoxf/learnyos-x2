@@ -418,12 +418,7 @@ export default function SettingsPage() {
                 <Shield size={28} className={styles.termsIcon} />
                 <h2 className={styles.termsTitle}>Términos y Condiciones</h2>
                 <p className={styles.termsDate}>
-                  Última actualización: {new Date().toLocaleDateString("es-CO", {
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric",
-                  })}
-                </p>
+                  Última actualización: 30 de marzo del 2026                </p>
               </div>
 
               <div className={styles.termsBody}>

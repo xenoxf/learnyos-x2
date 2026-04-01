@@ -634,7 +634,8 @@ body,
 }
 
 .h-screen {
-  height: 100vh;
+  height: 100dvh; /* Dynamic viewport height para móviles */
+  height: 100vh; /* Fallback para navegadores antiguos */
 }
 
 .h-auto {
@@ -694,7 +695,8 @@ body,
 }
 
 .min-h-screen {
-  min-height: 100vh;
+  min-height: 100dvh; /* Dynamic viewport height para móviles */
+  min-height: 100vh; /* Fallback para navegadores antiguos */
 }
 
 .min-h-full {

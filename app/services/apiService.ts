@@ -255,6 +255,23 @@ class ApiService {
     return this.request<NoteDeck[]>("/notes/private", { method: "GET" });
   }
 
+  async searchNotes(
+    query: string,
+    limit: number = 30,
+    offset: number = 0,
+    searchInContent: boolean = true,
+  ): Promise<NoteDeck[]> {
+    const params = new URLSearchParams({
+      q: query,
+      limit: String(limit),
+      offset: String(offset),
+      searchInContent: String(searchInContent),
+    });
+    return this.request<NoteDeck[]>(`/notes/search?${params.toString()}`, {
+      method: "GET",
+    });
+  }
+
   async getNote(id: number): Promise<NoteKlek> {
     return this.request<NoteKlek>(`/notes/${id}`, { method: "GET" });
   }
@@ -324,6 +341,23 @@ class ApiService {
 
   async getFlashcardsPrivate(): Promise<CardsDeck[]> {
     return this.request<CardsDeck[]>("/flash-cards/private", { method: "GET" });
+  }
+
+  async searchFlashcards(
+    query: string,
+    limit: number = 30,
+    offset: number = 0,
+    searchInCards: boolean = true,
+  ): Promise<CardsDeck[]> {
+    const params = new URLSearchParams({
+      q: query,
+      limit: String(limit),
+      offset: String(offset),
+      searchInCards: String(searchInCards),
+    });
+    return this.request<CardsDeck[]>(`/flash-cards/search?${params.toString()}`, {
+      method: "GET",
+    });
   }
 
   async getFlashcard(id: number): Promise<CardKlek> {
@@ -399,6 +433,23 @@ class ApiService {
 
   async getExamsOnly(): Promise<ExamDeck[]> {
     return this.request<ExamDeck[]>("/exams/deck", { method: "GET" });
+  }
+
+  async searchExams(
+    query: string,
+    limit: number = 30,
+    offset: number = 0,
+    searchInQuestions: boolean = true,
+  ): Promise<ExamDeck[]> {
+    const params = new URLSearchParams({
+      q: query,
+      limit: String(limit),
+      offset: String(offset),
+      searchInQuestions: String(searchInQuestions),
+    });
+    return this.request<ExamDeck[]>(`/exams/search?${params.toString()}`, {
+      method: "GET",
+    });
   }
 
   async getExam(id: number): Promise<ExamKlek> {

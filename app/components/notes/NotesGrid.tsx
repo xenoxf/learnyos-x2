@@ -13,13 +13,12 @@ import {
 import type { NoteDeck } from "@/types";
 import { apiService } from "@/services/apiService";
 
-interface NotesGridProps {
-}
+interface NotesGridProps {}
 
 const NOTES_CONFIG = {
   entitySingular: "nota",
   entityPlural: "notas",
-  searchPlaceholder: "Busca tus notas...",
+  searchPlaceholder: "Busca tus notas por título, tema, área o contenido...",
   createButtonText: "Crear Nota",
   privateTabText: "Privadas",
   publicTabText: "Publicas",
@@ -44,16 +43,16 @@ export default function NotesGrid({}: NotesGridProps) {
     handleCreateClick,
     handleCloseModal,
     handleItemDeleted,
-  } = useStudyGrid<NoteDeck & StudyGridBaseItem>({
+  } = useStudyGrid<NoteDeck>({
     actions: {
       onLoad: async () => {
         const data =
           viewMode === "private"
             ? await apiService.getNotesPrivate()
             : await apiService.getNotesPublic();
-        return data as (NoteDeck & StudyGridBaseItem)[];
+        return data as NoteDeck[];
       },
-      onItemOpen: () => {}, // Now handled by NoteCard navigation
+      onItemOpen: () => {},
     },
     config: NOTES_CONFIG,
     defaultViewMode: "public",
@@ -96,4 +95,3 @@ export default function NotesGrid({}: NotesGridProps) {
     </>
   );
 }
-

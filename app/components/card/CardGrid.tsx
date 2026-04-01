@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import CardContent from "./Card";
 import CrearCard from "./CrearCard";
 import {
@@ -20,7 +20,7 @@ interface CardGridProps {
 const CARDS_CONFIG = {
   entitySingular: "mazo",
   entityPlural: "mazos",
-  searchPlaceholder: "Busca un mazo...",
+  searchPlaceholder: "Busca un mazo por título, tema, área o contenido...",
   createButtonText: "Crear Mazo",
   privateTabText: "Privados",
   publicTabText: "Publicos",
@@ -45,17 +45,14 @@ export default function CardGrid({ onCardSelect }: CardGridProps) {
     handleCreateClick,
     handleCloseModal,
     handleItemDeleted,
-  } = useStudyGrid<CardsDeck & StudyGridBaseItem>({
+  } = useStudyGrid<CardsDeck>({
     actions: {
       onLoad: async () => {
         const data =
           viewMode === "private"
             ? await apiService.getFlashcardsPrivate()
             : await apiService.getFlashcardsPublic();
-        const validCards = (data || []).filter(
-          (card: any) => card.id && card.title,
-        ) as (CardsDeck & StudyGridBaseItem)[];
-        return validCards;
+        return data as CardsDeck[];
       },
       onItemOpen: (card) => onCardSelect?.(card.id),
     },

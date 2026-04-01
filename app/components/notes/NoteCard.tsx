@@ -63,8 +63,6 @@ export default function NoteCard({
     router.push(`/study/notes/${note.id}`);
   };
 
-  // Contar contenidos de la nota
-  const contentsCount = note.contentsCount ?? 0;
 
   return (
     <div
@@ -116,15 +114,12 @@ export default function NoteCard({
         )}
         <div className={styles.metaItem}>
           <span className={styles.levelBadge}>
-            {contentsCount} sección{contentsCount !== 1 ? 'es' : ''}
-          </span>
+            {note.contentsCount} sección          </span>
         </div>
       </div>
 
       <div className={styles.cardFooter}>
-        <span className={styles.cardHint}>
-          {contentsCount} sección{contentsCount !== 1 ? 'es' : ''}
-        </span>
+
         {/* Solo mostrar el code si es el dueño */}
         {isOwner && note.code ? (
           <span className={styles.noteCode}>{note.code}</span>

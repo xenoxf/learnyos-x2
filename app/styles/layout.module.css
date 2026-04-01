@@ -5,7 +5,8 @@
 .dashboardLayout {
     display: flex;
     flex-direction: row;
-    height: 100vh;
+    height: 100dvh; /* Dynamic viewport height para móviles */
+    height: 100vh; /* Fallback para navegadores antiguos */
     width: 100%;
     background-color: hsl(var(--background));
     overflow: hidden;
@@ -55,7 +56,8 @@
 /* ajustes específicos para móvil cuando el layout usa navbar en lugar de sidebar */
 .mainContentMobile {
     width: 100%;
-    padding-bottom: env(safe-area-inset-bottom);
+    /* Padding bottom para reservar espacio del MobileNavbar (~70px) + safe-area */
+    padding-bottom: calc(70px + env(safe-area-inset-bottom));
 }
 
 .contentArea {
@@ -91,9 +93,10 @@
         flex-direction: column;
         padding: 0;
     }
-    
+
     .contentWrapper {
-        padding-bottom: env(safe-area-inset-bottom);
+        /* Padding bottom para reservar espacio del MobileNavbar + safe-area */
+        padding-bottom: calc(70px + env(safe-area-inset-bottom));
     }
 }
 

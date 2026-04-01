@@ -1,4 +1,4 @@
-/* Container principal
+/* Container principal */
 .container {
     width: 100%;
     display: flex;
@@ -12,7 +12,7 @@
     transform: translateY(0);
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     will-change: transform;
-}*/
+}
 
 .containerHidden {
   transform: translateY(100%);
@@ -21,8 +21,6 @@
 /* Navbar pill */
 .bottomNav {
   background: hsl(var(--card) / 0.95);
-
-
   border: 1px solid hsl(var(--border) / 0.8);
   display: flex;
   align-items: center;
@@ -34,7 +32,11 @@
     0 4px 24px rgba(0, 0, 0, 0.12),
     0 1px 4px rgba(0, 0, 0, 0.06);
   pointer-events: auto;
-  position: relative;
+  position: fixed; /* Fixed para permanecer visible en la parte inferior */
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 50; /* Asegurar que esté por encima del contenido */
   overflow: visible;
   flex-shrink: 0;
   transition:

@@ -11,7 +11,8 @@
 .container-modal {
   position: absolute;
   width: 100%;
-  height: 100vh;
+  height: 100dvh; /* Dynamic viewport height para móviles */
+  height: 100vh; /* Fallback para navegadores antiguos */
   display: flex;
   justify-content: center;
   align-items: center;

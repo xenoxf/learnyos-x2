@@ -13,13 +13,12 @@ import {
 import type { ExamDeck } from "@/types";
 import { apiService } from "@/services/apiService";
 
-interface QuizGridProps {
-}
+interface QuizGridProps {}
 
 const QUIZ_CONFIG = {
   entitySingular: "quiz",
   entityPlural: "quizzes",
-  searchPlaceholder: "Busca un quiz...",
+  searchPlaceholder: "Busca un quiz por título, tema, área o código...",
   createButtonText: "Crear Quiz",
   privateTabText: "Privados",
   publicTabText: "Publicos",
@@ -44,16 +43,16 @@ export default function QuizGrid({}: QuizGridProps) {
     handleCreateClick,
     handleCloseModal,
     handleItemDeleted,
-  } = useStudyGrid<ExamDeck & StudyGridBaseItem>({
+  } = useStudyGrid<ExamDeck>({
     actions: {
       onLoad: async () => {
         const data =
           viewMode === "private"
             ? await apiService.getExamsPrivate()
             : await apiService.getExamsPublic();
-        return data as (ExamDeck & StudyGridBaseItem)[];
+        return data as ExamDeck[];
       },
-      onItemOpen: () => {}, // Now handled by QuizCard navigation
+      onItemOpen: () => {},
     },
     config: QUIZ_CONFIG,
     defaultViewMode: "public",

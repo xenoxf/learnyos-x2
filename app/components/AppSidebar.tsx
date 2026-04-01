@@ -78,7 +78,7 @@ export function AppSidebar({
       title: "Sesión cerrada",
       description: "Has cerrado sesión exitosamente",
     });
-    navigate.push("/auth");
+    navigate.push("/");
   };
 
   const handleNavigation = (url: string) => {

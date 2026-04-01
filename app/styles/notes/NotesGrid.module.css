@@ -96,3 +96,37 @@
         font-size: 0.875rem;
     }
 }
+
+/* ==================== SKELETON LOADING ==================== */
+
+.skeletonContainer {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1rem;
+  padding: 1rem;
+}
+
+.skeletonCard {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1.25rem;
+  background: hsl(var(--card));
+  border-radius: 12px;
+  border: 1px solid hsl(var(--border));
+}
+
+.skeletonTitle {
+  height: 1.5rem;
+  width: 85%;
+}
+
+.skeletonDescription {
+  height: 1rem;
+  width: 100%;
+}
+
+.skeletonMeta {
+  height: 0.875rem;
+  width: 60%;
+}
