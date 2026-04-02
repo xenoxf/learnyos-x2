@@ -66,7 +66,15 @@ export function useStudyGrid<T extends StudyGridBaseItem & { code?: string | nul
   const [showCreate, setShowCreate] = useState(false);
   const [codeSearchResult, setCodeSearchResult] = useState<T | null>(null);
   const [isCodeSearch, setIsCodeSearch] = useState(false);
+  const [isGuest, setIsGuest] = useState(false);
   const viewModeRef = useRef(viewMode);
+
+  // Detectar si es invitado
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setIsGuest(localStorage.getItem("isGuest") === "true");
+    }
+  }, []);
 
   // Keep ref updated
   useEffect(() => {
@@ -185,12 +193,16 @@ export function useStudyGrid<T extends StudyGridBaseItem & { code?: string | nul
   }, [searchValue, allItems, isCodeSearch, filterItems]);
 
   const handleCreateClick = useCallback(() => {
+    if (isGuest) {
+      alert("Inicia sesión para crear contenido");
+      return;
+    }
     if (actions.onCreateClick) {
       actions.onCreateClick();
     } else {
       setShowCreate(true);
     }
-  }, [actions.onCreateClick]);
+  }, [actions.onCreateClick, isGuest]);
 
   const handleCloseModal = useCallback(() => {
     setShowCreate(false);
@@ -235,6 +247,7 @@ export function useStudyGrid<T extends StudyGridBaseItem & { code?: string | nul
     loadItems,
     isCodeSearch,
     codeSearchResult,
+    isGuest,
   };
 }
 
@@ -245,6 +258,7 @@ export function StudyGridHeader({
   searchValue,
   setSearchValue,
   onCreateClick,
+  isGuest,
 }: {
   config: StudyGridConfig;
   viewMode: ViewMode;
@@ -252,6 +266,7 @@ export function StudyGridHeader({
   searchValue: string;
   setSearchValue: (value: string) => void;
   onCreateClick: () => void;
+  isGuest?: boolean;
 }) {
   return (
     <header className={styles.header}>
@@ -267,7 +282,13 @@ export function StudyGridHeader({
           />
         </div>
         <div className={styles.createBtnWrapper}>
-          <Button onClick={onCreateClick} className={styles.createBtn} type="button">
+          <Button 
+            onClick={onCreateClick} 
+            className={styles.createBtn} 
+            type="button"
+            disabled={isGuest}
+            style={isGuest ? { opacity: 0.5, pointerEvents: 'none' } : undefined}
+          >
             <Plus size={20} />
             {config.createButtonText}
           </Button>

@@ -4,6 +4,8 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { AppSidebar } from "@/components/AppSidebar";
 import { MobileNavbar } from "@/components/MobileNavbar";
+import { GuestBanner } from "@/components/GuestBanner";
+import { apiService } from "@/services/apiService";
 import styles from "@/styles/layout.module.css";
 
 interface DashboardLayoutProps {
@@ -16,8 +18,9 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  const [isValidating, setIsValidating] = useState(false);
-  const [isTokenValid, setIsTokenValid] = useState(true);
+  const [isValidating, setIsValidating] = useState(true);
+  const [isTokenValid, setIsTokenValid] = useState(false);
+  const [isGuest, setIsGuest] = useState(false);
 
   // Detectar si es móvil
   useEffect(() => {
@@ -38,8 +41,25 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       if (savedState !== null) {
         setIsCollapsed(savedState === "true");
       }
+      // Verificar si es invitado
+      setIsGuest(apiService.isGuest());
+      
+      // Verificar token
+      const token = localStorage.getItem("token");
+      if (token) {
+        apiService.verifyToken().then((isValid) => {
+          setIsTokenValid(isValid);
+          setIsValidating(false);
+        }).catch(() => {
+          setIsTokenValid(false);
+          setIsValidating(false);
+        });
+      } else {
+        setIsTokenValid(false);
+        setIsValidating(false);
+      }
     } catch {
-      // ignore
+      setIsValidating(false);
     }
   }, []);
 
@@ -72,6 +92,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
   return (
     <div className={styles.dashboardLayout}>
+      {isGuest && <GuestBanner />}
+      
       {!isMobile && (
         <div
           className={`
@@ -88,6 +110,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         ${styles.mainContent}
         ${!isMobile && isCollapsed ? styles.mainContentExpanded : ""}
         ${isMobile ? styles.mainContentMobile : ""}
+        ${isGuest ? styles.mainContentWithBanner : ""}
       `}
       >
         <div className={styles.contentArea}>

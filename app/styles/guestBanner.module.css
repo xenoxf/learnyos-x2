@@ -1,0 +1,121 @@
+/**
+ * GuestBanner Styles
+ * Banner informativo para usuarios invitados
+ */
+
+.guestBanner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background: hsl(var(--warning) / 0.95);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 10px 16px;
+  color: hsl(var(--warning-foreground));
+  font-size: 0.875rem;
+  font-weight: 500;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
+  animation: slideDown 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: auto;
+  touch-action: manipulation;
+}
+
+/* Fallback para navegadores sin backdrop-filter */
+@supports not (backdrop-filter: blur(12px)) {
+  .guestBanner {
+    background: hsl(var(--warning));
+  }
+}
+
+.guestBannerIcon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.9;
+}
+
+.guestBannerText {
+  text-align: center;
+  line-height: 1.4;
+  letter-spacing: 0.01em;
+}
+
+.guestBannerClose {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: hsl(var(--warning-foreground));
+  cursor: pointer;
+  border-radius: 8px;
+  transition:
+    background-color 0.15s ease,
+    transform 0.1s ease;
+  outline: none;
+  touch-action: manipulation;
+}
+
+.guestBannerClose:hover {
+  background: hsl(var(--warning-foreground) / 0.15);
+}
+
+.guestBannerClose:active {
+  transform: scale(0.92);
+}
+
+.guestBannerClose:focus-visible {
+  outline: 2px solid hsl(var(--warning-foreground));
+  outline-offset: 2px;
+}
+
+/* Animación de entrada */
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .guestBanner {
+    animation: none;
+  }
+
+  .guestBannerClose {
+    transition: none;
+  }
+}
+
+/* Mobile adjustments */
+@media (max-width: 640px) {
+  .guestBanner {
+    padding: 8px 12px;
+    gap: 8px;
+  }
+
+  .guestBannerText {
+    font-size: 0.8rem;
+  }
+
+  .guestBannerClose {
+    width: 28px;
+    height: 28px;
+  }
+}

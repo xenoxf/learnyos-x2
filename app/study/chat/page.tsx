@@ -35,10 +35,16 @@ export default function ChatPage() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [copiedId, setCopiedId] = useState<number | null>(null);
+  const [isGuest, setIsGuest] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { toast } = useToast();
+
+  // ==================== DETECTAR GUEST ====================
+  useEffect(() => {
+    setIsGuest(apiService.isGuest());
+  }, []);
 
   // ==================== SUGERENCIAS ====================
   const suggestions = [
@@ -125,6 +131,15 @@ export default function ChatPage() {
   };
 
   const handleSendMessage = async () => {
+    if (isGuest) {
+      toast({
+        title: "Modo invitado",
+        description: "Inicia sesión para usar el chat con IA",
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (!inputValue.trim() || isLoading) return;
 
     const messageContent = inputValue.trim();
@@ -185,6 +200,14 @@ export default function ChatPage() {
   };
 
   const handleNewChat = () => {
+    if (isGuest) {
+      toast({
+        title: "Modo invitado",
+        description: "Inicia sesión para crear nuevos chats",
+        variant: "destructive",
+      });
+      return;
+    }
     setCurrentChat(null);
     setMessages([]);
     setInputValue("");
@@ -199,6 +222,15 @@ export default function ChatPage() {
   };
 
   const handleDeleteChat = async (chatId: number, e: React.MouseEvent) => {
+    if (isGuest) {
+      toast({
+        title: "Modo invitado",
+        description: "Inicia sesión para eliminar chats",
+        variant: "destructive",
+      });
+      return;
+    }
+
     e.stopPropagation();
 
     try {
@@ -318,7 +350,12 @@ export default function ChatPage() {
       >
         <div className={styles.sidebarHeader}>
           <h2 className={styles.sidebarTitle}>Conversaciones</h2>
-          <button className={styles.newChatButton} onClick={handleNewChat}>
+          <button 
+            className={styles.newChatButton} 
+            onClick={handleNewChat}
+            disabled={isGuest}
+            style={isGuest ? { opacity: 0.5, pointerEvents: 'none' } : undefined}
+          >
             <Plus size={18} />
             Nuevo chat
           </button>
@@ -349,6 +386,8 @@ export default function ChatPage() {
                   className={styles.deleteButton}
                   onClick={(e) => handleDeleteChat(chat.id, e)}
                   aria-label="Eliminar chat"
+                  disabled={isGuest}
+                  style={isGuest ? { opacity: 0.5, pointerEvents: 'none' } : undefined}
                 >
                   <Trash2 size={16} />
                 </button>
@@ -473,7 +512,7 @@ export default function ChatPage() {
               <textarea
                 ref={textareaRef}
                 className={styles.textarea}
-                placeholder="Envía un mensaje..."
+                placeholder={isGuest ? "Inicia sesión para enviar mensajes..." : "Envía un mensaje..."}
                 value={inputValue}
                 onChange={(e) => {
                   setInputValue(e.target.value);
@@ -481,12 +520,14 @@ export default function ChatPage() {
                 }}
                 onKeyDown={handleKeyDown}
                 rows={1}
-                disabled={isLoading}
+                disabled={isLoading || isGuest}
+                style={isGuest ? { opacity: 0.7 } : undefined}
               />
               <button
                 className={styles.sendButton}
                 onClick={handleSendMessage}
-                disabled={!inputValue.trim() || isLoading}
+                disabled={!inputValue.trim() || isLoading || isGuest}
+                style={isGuest ? { opacity: 0.5, pointerEvents: 'none' } : undefined}
               >
                 {isLoading ? (
                   <Loader size={18} className={styles.spin} />

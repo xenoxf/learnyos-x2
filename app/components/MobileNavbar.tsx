@@ -1,12 +1,13 @@
 "use client";
 
-import React, {
-  useState,
-  useCallback,
-  useEffect,
-  useRef,
-  useMemo,
-} from "react";
+import React,
+  {
+    useState,
+    useCallback,
+    useEffect,
+    useRef,
+    useMemo,
+  } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import {
   MessageSquare,
@@ -23,7 +24,7 @@ import styles from "@/styles/mobileNavbar.module.css";
 import Link from "next/link";
 import { ThemeToggleSidebr } from "./ThemeToogleSidebr";
 
-const RESIZE_DEBOUNCE = 100;
+const RESIZE_DEBOUNCE = 200;
 
 interface MenuItem {
   title: string;
@@ -55,6 +56,7 @@ export function MobileNavbar() {
   const resizeTimeoutRef = useRef<NodeJS.Timeout>();
   const itemWidthsRef = useRef<number[]>([]);
   const moreButtonWidthRef = useRef(70);
+  const resizeObserverRef = useRef<ResizeObserver | null>(null);
 
   const measureItems = useCallback(() => {
     if (!navRef.current) return;
@@ -89,6 +91,46 @@ export function MobileNavbar() {
     setVisibleCount(Math.max(1, count));
   }, []);
 
+  const handleResize = useCallback(() => {
+    if (resizeTimeoutRef.current) clearTimeout(resizeTimeoutRef.current);
+    resizeTimeoutRef.current = setTimeout(() => {
+      measureItems();
+      computeVisibleCount();
+    }, RESIZE_DEBOUNCE);
+  }, [measureItems, computeVisibleCount]);
+
+  // Setup ResizeObserver para detectar cambios en el contenedor
+  useEffect(() => {
+    if (!navRef.current) return;
+
+    resizeObserverRef.current = new ResizeObserver(() => {
+      handleResize();
+    });
+
+    resizeObserverRef.current.observe(navRef.current);
+
+    // Medición inicial
+    setIsMeasuring(true);
+    const timeoutId = setTimeout(() => {
+      measureItems();
+      computeVisibleCount();
+      setIsMeasuring(false);
+    }, 50);
+
+    return () => {
+      if (resizeObserverRef.current) {
+        resizeObserverRef.current.disconnect();
+      }
+      clearTimeout(timeoutId);
+    };
+  }, [measureItems, computeVisibleCount, handleResize]);
+
+  useEffect(() => {
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [handleResize]);
+
+  // Recalcular cuando cambia la ruta
   useEffect(() => {
     setIsMeasuring(true);
     const timeoutId = setTimeout(() => {
@@ -99,35 +141,35 @@ export function MobileNavbar() {
     return () => clearTimeout(timeoutId);
   }, [pathname, measureItems, computeVisibleCount]);
 
-  useEffect(() => {
-    const handleResize = () => {
-      if (resizeTimeoutRef.current) clearTimeout(resizeTimeoutRef.current);
-      resizeTimeoutRef.current = setTimeout(() => {
-        measureItems();
-        computeVisibleCount();
-      }, RESIZE_DEBOUNCE);
-    };
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, [measureItems, computeVisibleCount]);
-
   // Manejo de click outside para cerrar el menú
   useEffect(() => {
     if (!showMoreMenu) return;
 
-    const handleClickOutside = (e: MouseEvent) => {
+    const handleClickOutside = (e: MouseEvent | TouchEvent) => {
       const target = e.target as Node;
-      if (
-        menuRef.current?.contains(target) ||
-        moreButtonRef.current?.contains(target)
-      ) {
+      const composedPath = e.composedPath?.() as Node[];
+      
+      // Verificar si el click fue dentro del menú o botón
+      const isInsideMenu = menuRef.current?.contains(target);
+      const isInsideButton = moreButtonRef.current?.contains(target);
+      const isInsidePath = composedPath?.some(
+        node => menuRef.current?.contains(node) || moreButtonRef.current?.contains(node)
+      );
+
+      if (isInsideMenu || isInsideButton || isInsidePath) {
         return;
       }
       setShowMoreMenu(false);
     };
 
-    document.addEventListener("click", handleClickOutside);
-    return () => document.removeEventListener("click", handleClickOutside);
+    // Usar mousedown y touchstart para mejor respuesta en móviles
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("touchstart", handleClickOutside);
+    
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("touchstart", handleClickOutside);
+    };
   }, [showMoreMenu]);
 
   const handleLogout = useCallback(async () => {
@@ -167,6 +209,13 @@ export function MobileNavbar() {
     [hiddenItems, isActive],
   );
 
+  // Toggle menu handler con prevención de doble firing
+  const handleToggleMenu = useCallback((e: React.MouseEvent | React.TouchEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setShowMoreMenu((prev) => !prev);
+  }, []);
+
   return (
     <nav ref={navRef} className={styles.bottomNav}>
       {visibleItems.map((item) => {
@@ -177,6 +226,7 @@ export function MobileNavbar() {
             href={item.url}
             className={`${styles.navItem} ${isActive(item.url) ? styles.navItemActive : ""}`}
             onClick={() => setShowMoreMenu(false)}
+            touch-action="manipulation"
           >
             <div className={styles.navIconWrapper}>
               <Icon size={22} />
@@ -190,11 +240,10 @@ export function MobileNavbar() {
       <button
         ref={moreButtonRef}
         className={`${styles.moreButton} ${showMoreMenu ? styles.moreButtonActive : ""}`}
-        onClick={(e) => {
-          e.stopPropagation();
-          setShowMoreMenu((prev) => !prev);
-        }}
+        onClick={handleToggleMenu}
+        onTouchStart={handleToggleMenu}
         aria-expanded={showMoreMenu}
+        touch-action="manipulation"
       >
         <MoreHorizontal size={22} />
         <span className={styles.navLabel}>Más</span>
@@ -202,7 +251,15 @@ export function MobileNavbar() {
       </button>
 
       {showMoreMenu && (
-        <div ref={menuRef} className={styles.moreMenu}>
+        <div 
+          ref={menuRef} 
+          className={styles.moreMenu}
+          style={{
+            position: 'fixed',
+            right: `${moreButtonRef.current?.getBoundingClientRect().right || 0}px`,
+            bottom: `${(moreButtonRef.current?.getBoundingClientRect().top || 0) - 10}px`,
+          }}
+        >
           {hiddenItems.length > 0 && (
             <>
               <div className={styles.moreMenuSection}>
@@ -214,6 +271,7 @@ export function MobileNavbar() {
                       href={item.url}
                       className={`${styles.moreMenuItem} ${isActive(item.url) ? styles.moreMenuItemActive : ""}`}
                       onClick={() => setShowMoreMenu(false)}
+                      touch-action="manipulation"
                     >
                       <Icon size={18} />
                       <span>{item.title}</span>
@@ -240,6 +298,7 @@ export function MobileNavbar() {
               className={styles.moreMenuItem}
               href="/study/settings"
               onClick={() => setShowMoreMenu(false)}
+              touch-action="manipulation"
             >
               <Settings2 size={18} />
               <span>Configuración</span>

@@ -171,6 +171,7 @@ class ApiService {
     if (typeof window !== "undefined") {
       localStorage.removeItem("token");
       localStorage.removeItem("user");
+      localStorage.removeItem("isGuest");
     }
   }
 
@@ -239,6 +240,25 @@ class ApiService {
       }
     }
     return response;
+  }
+
+  async loginAsGuest(): Promise<AuthResponse> {
+    const response = await this.request<AuthResponse>("/auth/guest", {
+      method: "POST",
+    });
+    if (response.token && response.user) {
+      this.setToken(response.token);
+      if (typeof window !== "undefined") {
+        localStorage.setItem("user", JSON.stringify(response.user));
+        localStorage.setItem("isGuest", "true");
+      }
+    }
+    return response;
+  }
+
+  isGuest(): boolean {
+    if (typeof window === "undefined") return false;
+    return localStorage.getItem("isGuest") === "true";
   }
 
   // ==================== NOTES ====================

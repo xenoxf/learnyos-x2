@@ -148,6 +148,8 @@
   /* Acentos semánticos opcionales (derivados del tema) */
   --success: 142 76% 36%;
   --success-foreground: 0 0% 98%;
+  --warning: 38 92% 50%;
+  --warning-foreground: 0 0% 10%;
 
   /* Variables adicionales para Klerk (dashboard motivacional) */
   --klerk-glass-bg: 0 0% 100% / 0.1;
@@ -193,6 +195,12 @@
   --sidebar-accent-foreground: 0 0% 98%;
   --sidebar-border: 0 0% 14.9%;
   --sidebar-ring: 0 0% 83.1%;
+
+  /* Acentos semánticos - Dark theme */
+  --success: 142 76% 45%;
+  --success-foreground: 0 0% 98%;
+  --warning: 38 92% 50%;
+  --warning-foreground: 0 0% 10%;
 
   /* Variables Klerk para tema dark */
   --klerk-glass-bg: 0 0% 100% / 0.05;

@@ -60,6 +60,12 @@
   width: 100%;
 }
 
+/* cuando hay banner de invitado, ajustar el contenido */
+.mainContentWithBanner {
+  margin-top: 40px;
+  height: calc(100% - 40px);
+}
+
 .contentArea {
   flex: 1;
   width: 100%;

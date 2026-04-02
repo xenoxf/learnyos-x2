@@ -48,6 +48,7 @@ export default function QuizGrid({}: QuizGridProps) {
     handleCreateClick,
     handleCloseModal,
     handleItemDeleted,
+    isGuest,
   } = useStudyGrid<ExamDeck & StudyGridBaseItem>({
     actions: {
       onLoad: useCallback(async () => {
@@ -127,6 +128,7 @@ export default function QuizGrid({}: QuizGridProps) {
           searchValue={searchValue}
           setSearchValue={setSearchValue}
           onCreateClick={handleCreateClick}
+          isGuest={isGuest}
         />
 
         {/* Loading state - Initial load (al entrar a la página) */}

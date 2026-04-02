@@ -51,6 +51,7 @@ export default function CardGrid({ onCardSelect }: CardGridProps) {
     handleCloseModal,
     handleItemDeleted,
     loadItems,
+    isGuest,
   } = useStudyGrid<CardsDeck & StudyGridBaseItem>({
     actions: {
       onLoad: useCallback(async () => {
@@ -136,6 +137,7 @@ export default function CardGrid({ onCardSelect }: CardGridProps) {
           searchValue={searchValue}
           setSearchValue={setSearchValue}
           onCreateClick={handleCreateClick}
+          isGuest={isGuest}
         />
 
         {/* Loading state - Initial load (al entrar a la página) */}

@@ -34,6 +34,7 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
           setIsTokenValid(false);
           localStorage.removeItem('token');
           localStorage.removeItem('user');
+          localStorage.removeItem('isGuest');
           router.push('/auth');
         }
       } catch (error) {
@@ -41,6 +42,7 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
         setIsTokenValid(false);
         localStorage.removeItem('token');
         localStorage.removeItem('user');
+        localStorage.removeItem('isGuest');
         router.push('/auth');
       } finally {
         setIsValidating(false);

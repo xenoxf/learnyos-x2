@@ -48,6 +48,7 @@ export default function NotesGrid({ }: NotesGridProps) {
     handleCreateClick,
     handleCloseModal,
     handleItemDeleted,
+    isGuest,
   } = useStudyGrid<NoteDeck & StudyGridBaseItem>({
     actions: {
       onLoad: useCallback(async () => {
@@ -127,6 +128,7 @@ export default function NotesGrid({ }: NotesGridProps) {
           searchValue={searchValue}
           setSearchValue={setSearchValue}
           onCreateClick={handleCreateClick}
+          isGuest={isGuest}
         />
 
         {/* Loading state - Initial load (al entrar a la página) */}

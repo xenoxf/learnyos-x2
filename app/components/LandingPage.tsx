@@ -56,6 +56,22 @@ export const LandingPage: React.FC = () => {
     }
   };
 
+  const handleLoginAsGuest = async () => {
+    setLoading(true);
+    try {
+      await apiService.loginAsGuest();
+      setLoading(false);
+      router.push("/study");
+    } catch (_error) {
+      setLoading(false);
+      toast({
+        title: "Error",
+        description: "No se pudo iniciar como invitado. Intenta de nuevo.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleCloseAuth = () => {
     setShowAuthModal(false);
   };
@@ -185,14 +201,14 @@ export const LandingPage: React.FC = () => {
                   <span className={styles.heroTitleGradient}>inteligente</span>
                 </h1>
                 <p className={styles.heroDescription}>
-                  LearnyOS te ayuda a aprender mejor con herramientas diseñadas para potenciar tu estudio. 
+                  LearnyOS te ayuda a aprender mejor con herramientas diseñadas para potenciar tu estudio.
                   Crea quizzes, flashcards y notas al instante.
                 </p>
               </div>
               <div className={styles.heroCTA}>
                 <Button
                   className={styles.headerButton}
-                  onClick={handleOpenAuth}
+                  onClick={handleLoginAsGuest}
                   aria-label="Comenzar ahora gratis"
                 >
                   Comenzar Ahora - Gratis
@@ -281,17 +297,19 @@ export const LandingPage: React.FC = () => {
               {tools.map((tool, index) => {
                 const ToolIcon = tool.icon;
                 return (
-                  <article
+                  <button
                     key={index}
                     className={styles.toolCard}
                     role="listitem"
+                    onClick={handleLoginAsGuest}
+                    type="button"
                   >
                     <div className={styles.toolCardIcon}>
                       <ToolIcon size={24} />
                     </div>
                     <h3 className={styles.toolCardTitle}>{tool.name}</h3>
                     <p className={styles.toolCardDescription}>{tool.description}</p>
-                  </article>
+                  </button>
                 );
               })}
             </div>
@@ -405,15 +423,15 @@ export const LandingPage: React.FC = () => {
               Comienza a estudiar mejor hoy
             </h2>
             <p className={styles.ctaDescription}>
-              Únete y descubre una nueva forma de aprender
+              Prueba la aplicación sin registrarte
             </p>
             <Button
               className={styles.ctaButton}
-              onClick={handleOpenAuth}
+              onClick={handleLoginAsGuest}
               size="lg"
-              aria-label="Comenzar gratis ahora"
+              aria-label="Iniciar como invitado"
             >
-              Comenzar Gratis
+              Iniciar como Invitado
               <ArrowRight size={18} />
             </Button>
           </div>
