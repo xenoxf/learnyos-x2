@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "@/hooks/useLocalToast";
 import { apiService } from "@/services/apiService";
 import styles from "@/styles/quiz/createQuizModal.module.css";
-import type { GenerateExamData } from "@/types";
+import type { GenerateExamData, ApiErrorResponse } from "@/types";
 import { useRouter } from "next/navigation";
 
 interface CreateQuizModalProps {
@@ -14,7 +14,6 @@ export default function CreateQuizModal({
   onClose,
   onQuizCreated,
 }: CreateQuizModalProps) {
-  const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<GenerateExamData>({
     reference: '',
@@ -28,46 +27,65 @@ export default function CreateQuizModal({
     e.preventDefault();
 
     if (!formData.reference || formData.reference.length < 3) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Debes proporcionar un texto con mas de 3 caracteres",
-      });
+      toast.error("Error", "Debes proporcionar un texto con más de 3 caracteres");
       return;
     }
 
     try {
       setLoading(true);
       await apiService.generateExam(formData);
-      toast({
-        title: "Éxito",
-        description: "Quiz creado correctamente",
-      });
+      toast.success("Éxito", "Quiz creado correctamente");
       onQuizCreated();
       router.refresh();
       onClose();
-    } catch (err) {
+    } catch (err: any) {
       let message = "Error al crear quiz";
+      let details = "";
+      let errorCode = "";
+      let rawResponse = null;
 
-      if (err instanceof Error) {
+      // Manejar errores con estructura del backend
+      if (err?.response?.data) {
+        const errorData = err.response.data as ApiErrorResponse;
+        message = errorData.message || message;
+        details = errorData.details || "";
+        errorCode = errorData.errorCode || "";
+        rawResponse = errorData.rawResponse;
+      } else if (err instanceof Error) {
         message = err.message;
       } else if (typeof err === 'string') {
         message = err;
       }
 
-      // Mejorar mensajes de error específicos
-      if (message.includes('metadata')) {
-        message = "La IA no pudo generar el quiz correctamente. Por favor, intenta con otro tema o referencia.";
-      } else if (message.includes('questions')) {
-        message = "No se pudieron generar las preguntas. Intenta nuevamente con una referencia más específica.";
+      // Construir descripción detallada del error
+      let errorDescription = details || message;
+
+      // Agregar información de la respuesta raw si está disponible
+      if (rawResponse) {
+        console.error('Raw response from AI:', rawResponse);
+        
+        // Mostrar información útil según el código de error
+        if (errorCode === 'INVALID_AI_RESPONSE') {
+          errorDescription = `${details} La IA devolvo una respuesta con formato inesperado.`;
+        } else if (errorCode === 'NO_QUESTIONS_GENERATED') {
+          errorDescription = `${details} Intenta con un tema más específico o diferente.`;
+        } else if (errorCode === 'MISSING_METADATA') {
+          errorDescription = `${details} La IA generó preguntas pero sin título o descripción del quiz.`;
+        } else if (errorCode === 'INCOMPLETE_METADATA') {
+          errorDescription = `${details} Campos faltantes detectados.`;
+        } else if (errorCode === 'INVALID_QUESTION_FORMAT') {
+          errorDescription = `${details} Las preguntas generadas no tienen el formato correcto.`;
+        }
       }
 
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: message,
-        duration: 5000,
-      });
+      // Mejorar mensajes de error específicos (fallback para errores antiguos)
+      if (message.includes('metadata') && !details) {
+        errorDescription = "La IA no pudo generar el quiz correctamente. Por favor, intenta con otro tema o referencia.";
+      } else if (message.includes('questions') && !details) {
+        errorDescription = "No se pudieron generar las preguntas. Intenta nuevamente con una referencia más específica.";
+      }
+
+      toast.error("Error al crear quiz", errorDescription, 8000);
     } finally {
       setLoading(false);
     }

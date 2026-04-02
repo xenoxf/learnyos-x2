@@ -73,10 +73,24 @@ class ApiService {
     });
 
     if (!response.ok) {
-      const error = await response.json().catch(() => ({}));
+      // Intentar parsear el error como JSON
+      const errorData = await response.json().catch(() => ({}));
+      
+      // Si el error tiene estructura de ApiErrorResponse, lo propagamos completo
+      if (errorData.message || errorData.details || errorData.errorCode) {
+        const error = new Error(errorData.message || 'Error en la solicitud');
+        (error as any).response = {
+          status: response.status,
+          statusText: response.statusText,
+          data: errorData,
+        };
+        throw error;
+      }
+      
+      // Fallback para errores tradicionales
       const errorMessage =
-        (error as Record<string, unknown>).message ||
-        (error as Record<string, unknown>).error ||
+        (errorData as Record<string, unknown>).message ||
+        (errorData as Record<string, unknown>).error ||
         `Error: ${response.status} ${response.statusText}`;
       throw new Error(String(errorMessage));
     }

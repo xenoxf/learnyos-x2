@@ -74,9 +74,11 @@ const CodeBlock = React.memo(
             <span>Copiar</span>
           </button>
         </div>
-        <pre className={className}>
-          <code {...props}>{children}</code>
-        </pre>
+        <div className={styles.codeBlockScrollContainer}>
+          <pre className={className}>
+            <code {...props}>{children}</code>
+          </pre>
+        </div>
       </div>
     );
   },

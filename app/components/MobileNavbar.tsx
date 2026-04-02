@@ -209,12 +209,31 @@ export function MobileNavbar() {
     [hiddenItems, isActive],
   );
 
-  // Toggle menu handler con prevención de doble firing
+  // Toggle menu handler
   const handleToggleMenu = useCallback((e: React.MouseEvent | React.TouchEvent) => {
-    e.preventDefault();
     e.stopPropagation();
     setShowMoreMenu((prev) => !prev);
   }, []);
+
+  // Calcular posición del menú
+  const getMoreButtonPosition = useCallback(() => {
+    if (!moreButtonRef.current) {
+      return { right: 16, bottom: 60 };
+    }
+    const rect = moreButtonRef.current.getBoundingClientRect();
+    return {
+      right: Math.max(8, window.innerWidth - rect.right),
+      bottom: rect.top,
+    };
+  }, []);
+
+  const [menuPosition, setMenuPosition] = useState({ right: 16, bottom: 60 });
+
+  useEffect(() => {
+    if (showMoreMenu) {
+      setMenuPosition(getMoreButtonPosition());
+    }
+  }, [showMoreMenu, getMoreButtonPosition]);
 
   return (
     <nav ref={navRef} className={styles.bottomNav}>
@@ -229,7 +248,7 @@ export function MobileNavbar() {
             touch-action="manipulation"
           >
             <div className={styles.navIconWrapper}>
-              <Icon size={22} />
+              <Icon size={18} />
               {item.badge && <span className={styles.badge}>{item.badge}</span>}
             </div>
             <span className={styles.navLabel}>{item.title}</span>
@@ -242,21 +261,28 @@ export function MobileNavbar() {
         className={`${styles.moreButton} ${showMoreMenu ? styles.moreButtonActive : ""}`}
         onClick={handleToggleMenu}
         aria-expanded={showMoreMenu}
+        aria-label="Abrir menú de opciones adicionales"
+        aria-controls="more-menu"
+        type="button"
       >
-        <MoreHorizontal size={22} />
+        <MoreHorizontal size={18} aria-hidden="true" />
         <span className={styles.navLabel}>Más</span>
-        {hasActiveHidden && <span className={styles.moreActiveDot} />}
+        {hasActiveHidden && <span className={styles.moreActiveDot} aria-label="Hay elementos activos ocultos" />}
       </button>
 
       {showMoreMenu && (
         <div
+          id="more-menu"
           ref={menuRef}
           className={styles.moreMenu}
           style={{
             position: 'fixed',
-            right: `${moreButtonRef.current?.getBoundingClientRect().right || 0}px`,
-            bottom: `${(moreButtonRef.current?.getBoundingClientRect().top || 0) - 10}px`,
+            right: `${menuPosition.right}px`,
+            bottom: `${window.innerHeight - menuPosition.bottom + 8}px`,
+            zIndex: 1000,
           }}
+          role="menu"
+          aria-label="Menú de opciones adicionales"
         >
           {hiddenItems.length > 0 && (
             <>
@@ -271,7 +297,7 @@ export function MobileNavbar() {
                       onClick={() => setShowMoreMenu(false)}
                       touch-action="manipulation"
                     >
-                      <Icon size={18} />
+                      <Icon size={16} />
                       <span>{item.title}</span>
                       {item.badge && (
                         <span className={styles.menuBadge}>{item.badge}</span>
@@ -298,7 +324,7 @@ export function MobileNavbar() {
               onClick={() => setShowMoreMenu(false)}
               touch-action="manipulation"
             >
-              <Settings2 size={18} />
+              <Settings2 size={16} />
               <span>Configuración</span>
             </Link>
           </div>

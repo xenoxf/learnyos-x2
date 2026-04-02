@@ -11,18 +11,25 @@
 }
 
 /* ============================================
-   CODE BLOCKS CONTAINER - USANDO VARIABLES CSS
+   CODE BLOCKS CONTAINER - VERSION MEJORADA
    ============================================ */
 
 .codeBlockContainer {
   position: relative;
-
   border-radius: 12px;
   overflow: hidden;
   background-color: hsl(var(--muted));
   border: 1px solid hsl(var(--border));
   box-shadow: 0 2px 8px hsl(var(--foreground) / 0.1);
   transition: all 0.2s ease;
+  width: 100%;
+  max-width: 100%;
+}
+
+.codeBlockScrollContainer {
+  overflow-x: auto;
+  overflow-y: auto;
+  max-width: 100%;
 }
 
 .codeBlockContainer:hover {
@@ -97,6 +104,7 @@
   margin: 0;
   padding: 0.4rem;
   overflow-x: auto;
+  overflow-y: visible;
   background-color: hsl(var(--muted));
   font-family: "Monaco", "Courier New", "Fira Code", monospace;
   font-size: 0.85rem;
@@ -104,6 +112,7 @@
   border-radius: 9px;
   position: relative;
   color: hsl(var(--foreground));
+  max-width: 100%;
 }
 
 /* Scrollbar personalizado para pre */
@@ -133,7 +142,24 @@
   font-family: inherit;
   font-size: inherit;
   line-height: inherit;
-  white-space: pre;
+  white-space: pre-wrap !important;
+  word-wrap: break-word !important;
+  word-break: break-word !important;
+  display: block;
+  max-width: 100%;
+}
+
+/* Sobreescribir highlight.js - forzar wrap de línea */
+.markdownContent pre .hljs {
+  white-space: pre-wrap !important;
+  word-wrap: break-word !important;
+  word-break: break-word !important;
+  max-width: 100%;
+}
+
+.markdownContent pre .hljs span {
+  white-space: pre-wrap !important;
+  word-wrap: break-word !important;
 }
 
 /* ============================================

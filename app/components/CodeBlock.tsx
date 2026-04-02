@@ -60,20 +60,25 @@ export const CodeBlock: React.FC<CodeBlockProps> = ({
           {copied ? '✅ Copiado' : '📋 Copiar'}
         </Button>
       </div>
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto max-w-full">
         <SyntaxHighlighter
           language={language.toLowerCase()}
           style={themeStyles[codeTheme]}
           showLineNumbers={showLineNumbers}
+          wrapLines={true}
           customStyle={{
             margin: 0,
             borderRadius: 0,
             background: 'transparent',
+            whiteSpace: 'pre-wrap',
+            wordWrap: 'break-word',
           }}
           codeTagProps={{
             style: {
               fontSize: '14px',
               fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, monospace',
+              whiteSpace: 'pre-wrap',
+              wordWrap: 'break-word',
             }
           }}
         >

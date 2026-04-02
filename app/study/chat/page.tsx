@@ -145,7 +145,7 @@ export default function ChatPage() {
     const messageContent = inputValue.trim();
     setInputValue("");
     setIsLoading(true);
-    adjustTextareaHeight();
+    resetTextareaHeight();
 
     // Optimistic update
     const tempId = Date.now();
@@ -304,6 +304,12 @@ export default function ChatPage() {
     }
   }, []);
 
+  const resetTextareaHeight = useCallback(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = "auto";
+    }
+  }, []);
+
   // Scroll automático cuando llegan nuevos mensajes
   useEffect(() => {
     scrollToBottom();
@@ -350,8 +356,8 @@ export default function ChatPage() {
       >
         <div className={styles.sidebarHeader}>
           <h2 className={styles.sidebarTitle}>Conversaciones</h2>
-          <button 
-            className={styles.newChatButton} 
+          <button
+            className={styles.newChatButton}
             onClick={handleNewChat}
             disabled={isGuest}
             style={isGuest ? { opacity: 0.5, pointerEvents: 'none' } : undefined}
@@ -454,23 +460,20 @@ export default function ChatPage() {
                     : styles.botMessage
                     }`}
                 >
-                  {/*}<div className={styles.messageAvatar}>
-                      {msg.role === "user" ? <User size={18} /> : <Bot size={18} />}
-                    </div>*/}
                   {msg.role === "user" ? (
-                    <div className={styles.messageAvatar}>
-                      <User size={18} />{" "}
-                    </div>
-                  ) : null}
-                  <div className={styles.messageContent}>
-                    <div>
-                      {msg.role === "assistant" ? (
-                        <MarkdownRenderer content={msg.content} />
-                      ) : (
-                        msg.content
-                      )}
-                    </div>
-                    {msg.role === "assistant" && (
+                    <>
+                      <div className={styles.messageContent}>
+                        <div>
+                          {msg.content}
+                        </div>
+                      </div>
+                      <div className={styles.messageAvatar}>
+                        <User size={18} />
+                      </div>
+                    </>
+                  ) : (
+                    <div className={styles.messageContentBot}>
+                      <MarkdownRenderer content={msg.content} />
                       <button
                         className={styles.copyButton}
                         onClick={() => handleCopyMessage(msg.content, msg.id)}
@@ -482,16 +485,13 @@ export default function ChatPage() {
                           <Copy size={14} />
                         )}
                       </button>
-                    )}
-                  </div>
+                    </div>
+                  )}
                 </div>
               ))}
 
               {isLoading && (
                 <div className={`${styles.message} ${styles.botMessage}`}>
-                  <div className={styles.messageAvatar}>
-                    <Bot size={18} />
-                  </div>
                   <div className={styles.typing}>
                     <span></span>
                     <span></span>
@@ -537,10 +537,7 @@ export default function ChatPage() {
               </button>
             </div>
           </div>
-          <p className={styles.disclaimer}>
-            Junior puede cometer errores. Considera verificar información
-            importante.
-          </p>
+
         </div>
       </main>
 

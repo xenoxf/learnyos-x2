@@ -1,11 +1,11 @@
 "use client";
 
 import React, { useState } from "react";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "@/hooks/useLocalToast";
 import { apiService } from "@/services/apiService";
 import styles from "@/styles/notes/createNoteModal.module.css";
 import { X, Loader, Sparkles } from "lucide-react";
-import type { GenerateNoteData } from "@/types";
+import type { GenerateNoteData, ApiErrorResponse } from "@/types";
 import { useRouter } from "next/navigation";
 
 interface CreateNoteModalProps {
@@ -17,7 +17,6 @@ export default function CreateNoteModal({
   onClose,
   onNoteCreated,
 }: CreateNoteModalProps) {
-  const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<GenerateNoteData>({
     reference: "",
@@ -29,32 +28,58 @@ export default function CreateNoteModal({
 
   const handleCreate = async () => {
     if (!formData.reference?.trim()) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Debes proporcionar un tema o una referencia",
-      });
+      toast.error("Error", "Debes proporcionar un tema o una referencia");
       return;
     }
 
     try {
       setLoading(true);
       await apiService.generateNote(formData);
-      toast({
-        title: "Éxito",
-        description: "Notas creadas correctamente",
-      });
+      toast.success("Éxito", "Notas creadas correctamente");
       onNoteCreated();
       router.refresh();
       onClose();
-    } catch (err) {
-      const message =
-        err instanceof Error ? err.message : "Error al crear notas";
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: message,
-      });
+    } catch (err: any) {
+      let message = "Error al crear notas";
+      let details = "";
+      let errorCode = "";
+      let rawResponse = null;
+
+      // Manejar errores con estructura del backend
+      if (err?.response?.data) {
+        const errorData = err.response.data as ApiErrorResponse;
+        message = errorData.message || message;
+        details = errorData.details || "";
+        errorCode = errorData.errorCode || "";
+        rawResponse = errorData.rawResponse;
+      } else if (err instanceof Error) {
+        message = err.message;
+      } else if (typeof err === 'string') {
+        message = err;
+      }
+
+      // Construir descripción detallada del error
+      let errorDescription = details || message;
+
+      // Agregar información según el código de error
+      if (rawResponse) {
+        console.error('Raw response from AI:', rawResponse);
+        
+        if (errorCode === 'INVALID_AI_RESPONSE') {
+          errorDescription = `${details} La IA devolvió una respuesta con formato inesperado.`;
+        } else if (errorCode === 'MISSING_METADATA') {
+          errorDescription = `${details} La IA generó contenido pero sin título.`;
+        } else if (errorCode === 'NO_CONTENT_GENERATED') {
+          errorDescription = `${details} Intenta con un tema más específico o detallado.`;
+        }
+      }
+
+      // Fallback para errores antiguos
+      if (message.includes('metadata') && !details) {
+        errorDescription = "La IA no pudo generar las notas correctamente. Intenta con otro tema.";
+      }
+
+      toast.error("Error al crear notas", errorDescription, 8000);
     } finally {
       setLoading(false);
     }

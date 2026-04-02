@@ -305,24 +305,30 @@
 }
 
 .userMessage {
-  align-self: flex-end;
-  flex-direction: row-reverse;
-  margin-left: auto;
-}
-
-.userMessage>.messageContent {
+  width: 100%;
   display: flex;
-  align-self: flex-end;
-  flex-direction: row-reverse;
+  flex-direction: row;
+  justify-content: flex-end;
+  gap: 0.75rem;
 }
 
-.userMessage>.messageContent>div {
+.userMessage .messageContent {
+  display: flex;
+  width: fit-content;
+  max-width: 80%;
+  flex-direction: column;
+  align-items: flex-end;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+
+}
+
+.userMessage .messageContent>div {
   border: 2px solid hsl(var(--secondary));
   padding: 0.7rem;
   background: hsl(var(--background) * 0.4);
   color: hsl(var(--foreground));
   width: fit-content;
-  max-width: 100%;
   border-radius: 10px;
   overflow-wrap: break-word;
   word-wrap: break-word;
@@ -331,6 +337,7 @@
 .botMessage {
   align-self: flex-start;
   margin-right: auto;
+  width: 100%;
 }
 
 .messageAvatar {
@@ -364,6 +371,15 @@
   text-align: right;
 }
 
+/* Mensaje del bot - sin avatar, ancho completo */
+.messageContentBot {
+  width: 100%;
+  max-width: 100%;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: hsl(var(--foreground));
+}
+
 /* Botón copiar */
 .copyButton {
   margin-top: 0.5rem;
@@ -378,6 +394,7 @@
   align-items: center;
   justify-content: center;
   transition: all 0.2s;
+  align-self: flex-start;
 }
 
 .copyButton:hover {
@@ -429,8 +446,8 @@
 
 .inputWrapper {
   display: flex;
-  align-items: flex-end;
-  /* Alinear al fondo para textarea alto */
+  align-items: center;
+  /* Centrado vertical correcto */
   background: hsl(var(--background));
   border: 1px solid hsl(var(--border));
   border-radius: 20px;
@@ -442,6 +459,9 @@
   background: hsl(var(--background) / 0.9);
   max-height: 200px;
   /* Limitar altura máxima */
+  min-height: 56px;
+  /* Altura mínima para centrado */
+  box-sizing: border-box;
 }
 
 .inputWrapper:focus-within {
@@ -452,7 +472,9 @@
 
 .textarea {
   flex: 1;
-  padding: 0.75rem 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   border: none;
   background: transparent;
   color: hsl(var(--foreground));
@@ -463,9 +485,14 @@
   font-family: inherit;
   outline: none;
   line-height: 1.5;
-  min-height: 24px;
   width: 100%;
   /* Asegurar ancho completo */
+  padding: 0;
+  margin: 0;
+  align-self: center;
+  /* Centrado vertical explícito */
+  min-height: 24px;
+  /* Altura mínima del texto */
 }
 
 .textarea::placeholder {
@@ -489,6 +516,8 @@
   margin-left: 0.5rem;
   touch-action: manipulation;
   /* Mejorar respuesta táctil */
+  align-self: center;
+  /* Centrado vertical explícito */
 }
 
 .sendButton:hover:not(:disabled) {

@@ -8,6 +8,7 @@ import { apiService } from "@/services/apiService";
 import { useRouter } from "next/navigation";
 import LoadingModal from "./loadingModal";
 import { useToast } from "@/hooks/use-toast";
+import Image from "next/image";
 import {
   Brain,
   FileText,
@@ -135,10 +136,34 @@ export const LandingPage: React.FC = () => {
 
   const tools = useMemo(
     () => [
-      { icon: BookOpen, name: "Quizzes", description: "Pon a prueba tu conocimiento" },
-      { icon: Layers, name: "Flashcards", description: "Memoriza de forma efectiva" },
-      { icon: PenTool, name: "Notas", description: "Organiza tu aprendizaje" },
-      { icon: BarChart3, name: "Progreso", description: "Mira cuánto has avanzado" },
+      { 
+        icon: BookOpen, 
+        name: "Quizzes", 
+        description: "Pon a prueba tu conocimiento",
+        image: "/tools/quiz-preview.png",
+        imageAlt: "Vista previa de quiz con preguntas de opción múltiple en la plataforma LearnyOS"
+      },
+      { 
+        icon: Layers, 
+        name: "Flashcards", 
+        description: "Memoriza de forma efectiva",
+        image: "/tools/flashcards-preview.png",
+        imageAlt: "Tarjetas de estudio flashcards mostrando frente y reverso con sistema de repaso espaciado"
+      },
+      { 
+        icon: PenTool, 
+        name: "Notas", 
+        description: "Organiza tu aprendizaje",
+        image: "/tools/notes-preview.png",
+        imageAlt: "Notas de estudio organizadas con formato markdown y secciones estructuradas"
+      },
+      { 
+        icon: BarChart3, 
+        name: "Progreso", 
+        description: "Mira cuánto has avanzado",
+        image: "/tools/progress-preview.png",
+        imageAlt: "Gráficos de progreso y estadísticas de aprendizaje con métricas de rendimiento"
+      },
     ],
     []
   );
@@ -209,65 +234,19 @@ export const LandingPage: React.FC = () => {
             </div>
             <div
               className={styles.heroImage}
-              aria-label="Ilustración de la plataforma"
+              aria-label="Ilustración de la plataforma LearnyOS mostrando un estudiante usando las herramientas de estudio"
+              role="img"
             >
               <div className={styles.heroImageBox}>
-                <div className={styles.heroImageContent}>
-                  <div className={styles.heroImageHeader}>
-                    <div
-                      className={`${styles.heroImageHeaderDot} ${styles.heroImageHeaderDotRed}`}
-                      aria-hidden="true"
-                    />
-                    <div
-                      className={`${styles.heroImageHeaderDot} ${styles.heroImageHeaderDotYellow}`}
-                      aria-hidden="true"
-                    />
-                    <div
-                      className={`${styles.heroImageHeaderDot} ${styles.heroImageHeaderDotGreen}`}
-                      aria-hidden="true"
-                    />
-                  </div>
-                  <div className={styles.heroImageBars}>
-                    <div
-                      className={`${styles.heroImageBar} ${styles.heroImageBar1}`}
-                      aria-hidden="true"
-                    />
-                    <div
-                      className={`${styles.heroImageBar} ${styles.heroImageBar2}`}
-                      aria-hidden="true"
-                    />
-                    <div
-                      className={`${styles.heroImageBar} ${styles.heroImageBar3}`}
-                      aria-hidden="true"
-                    />
-                    <div className={styles.heroImageGrid}>
-                      <div
-                        className={`${styles.heroImageGridItem} ${styles.heroImageGridItem1}`}
-                        aria-hidden="true"
-                      >
-                        <span>📖</span>
-                      </div>
-                      <div
-                        className={`${styles.heroImageGridItem} ${styles.heroImageGridItem2}`}
-                        aria-hidden="true"
-                      >
-                        <span>✏️</span>
-                      </div>
-                      <div
-                        className={`${styles.heroImageGridItem} ${styles.heroImageGridItem3}`}
-                        aria-hidden="true"
-                      >
-                        <span>🎯</span>
-                      </div>
-                      <div
-                        className={`${styles.heroImageGridItem} ${styles.heroImageGridItem4}`}
-                        aria-hidden="true"
-                      >
-                        <span>📊</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                <Image
+                  src="/landing/hero-study.svg"
+                  alt="Ilustración de estudiante usando laptop con quizzes, flashcards y notas - herramientas de estudio de LearnyOS"
+                  width={500}
+                  height={400}
+                  priority
+                  loading="eager"
+                  className={styles.heroImageContent}
+                />
               </div>
             </div>
           </div>
@@ -294,12 +273,23 @@ export const LandingPage: React.FC = () => {
                     role="listitem"
                     onClick={handleLoginAsGuest}
                     type="button"
+                    aria-label={`${tool.name}: ${tool.description}`}
                   >
                     <div className={styles.toolCardIcon}>
-                      <ToolIcon size={24} />
+                      <ToolIcon size={24} aria-hidden="true" />
                     </div>
                     <h3 className={styles.toolCardTitle}>{tool.name}</h3>
                     <p className={styles.toolCardDescription}>{tool.description}</p>
+                    <div className={styles.toolCardImageWrapper}>
+                      <Image
+                        src={tool.image}
+                        alt={tool.imageAlt}
+                        width={280}
+                        height={180}
+                        loading="lazy"
+                        className={styles.toolCardImage}
+                      />
+                    </div>
                   </button>
                 );
               })}
