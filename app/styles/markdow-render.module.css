@@ -137,30 +137,54 @@
 }
 
 /* ============================================
-   INLINE CODE - MEJORADO CON VARIABLES CSS
+   INLINE CODE - ESTILO TERMINAL
    ============================================ */
 
 .inlineCode {
-    background: hsl(var(--primary) / 0.1);
-    color: hsl(var(--primary));
-    padding: 0.2rem 0.4rem;
+    background: linear-gradient(
+        135deg,
+        hsl(var(--muted)) 0%,
+        hsl(var(--muted) / 0.8) 100%
+    );
+    color: hsl(var(--destructive));
+    padding: 0.25rem 0.5rem;
     border-radius: 6px;
     font-size: 0.85em;
-    font-family: "Monaco", "Courier New", monospace;
-    font-weight: 500;
-    border: 1px solid hsl(var(--primary) / 0.2);
+    font-family: "Monaco", "Courier New", "Consolas", monospace;
+    font-weight: 600;
+    border: 1px solid hsl(var(--border));
     white-space: nowrap;
+    box-shadow: 0 1px 3px hsl(var(--foreground) / 0.1);
+    letter-spacing: -0.3px;
+}
+
+/* Código inline dentro de párrafos - permitir wrap */
+.markdownContent p .inlineCode {
+    white-space: normal;
+    word-break: break-word;
 }
 
 /* Smart inline code - para código corto dentro del texto */
 .markdownContent code:not([class*="hljs"]):not(.inlineCode) {
-    background: hsl(var(--muted));
+    background: linear-gradient(
+        135deg,
+        hsl(var(--muted)) 0%,
+        hsl(var(--muted) / 0.8) 100%
+    );
     color: hsl(var(--foreground));
-    padding: 0.2rem 0.4rem;
+    padding: 0.25rem 0.5rem;
     border-radius: 6px;
     font-size: 0.85em;
-    font-family: "Monaco", "Courier New", monospace;
+    font-family: "Monaco", "Courier New", "Consolas", monospace;
+    font-weight: 600;
     border: 1px solid hsl(var(--border));
+    white-space: nowrap;
+    box-shadow: 0 1px 3px hsl(var(--foreground) / 0.1);
+}
+
+.markdownContent p code:not([class*="hljs"]):not(.inlineCode) {
+    white-space: normal;
+    word-break: break-word;
 }
 
 /* ============================================

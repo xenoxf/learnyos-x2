@@ -16,7 +16,7 @@ interface Props {
   className?: string;
 }
 
-// Componente CodeBlock memoizado
+// Componente CodeBlock memoizado - DETECCIÓN AUTOMÁTICA DE CÓDIGO CORTO
 const CodeBlock = React.memo(
   ({
     inline,
@@ -42,7 +42,15 @@ const CodeBlock = React.memo(
       return () => clearTimeout(timer);
     }, [code]);
 
-    if (inline) {
+    // DETECCIÓN DE CÓDIGO CORTO - Renderizar como inline
+    // Si tiene menos de 3 líneas O menos de 50 caracteres, es inline
+    const isShortCode = !inline && (
+      code.split('\n').length < 3 || 
+      code.length < 50
+    );
+
+    // Si es código corto, renderizar como inline automáticamente
+    if (isShortCode) {
       return (
         <code className={`${className} ${styles.inlineCode}`} {...props}>
           {children}
@@ -50,6 +58,7 @@ const CodeBlock = React.memo(
       );
     }
 
+    // Código largo - renderizar como bloque
     return (
       <div className={styles.codeBlockContainer}>
         <div className={styles.codeBlockHeader}>

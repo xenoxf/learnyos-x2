@@ -60,6 +60,7 @@
 .label {
   font-size: 0.875rem;
   font-weight: 500;
+  color: hsl(var(--foreground));
 }
 
 .icon {
@@ -69,7 +70,7 @@
 .chevron {
   width: 1rem;
   height: 1rem;
-  color: hsl(var(--primary-foreground) / 0.6);
+  color: hsl(var(--foreground));
   transition: transform var(--transition-fast);
 }
 
@@ -100,7 +101,7 @@
 .dropdownHeader {
   font-size: 0.75rem;
   font-weight: 600;
-  color: hsl(var(--muted-foreground));
+  color: hsl(var(--foreground) / 0.7);
   padding: 0.25rem 0.5rem 0.5rem;
 }
 

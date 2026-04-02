@@ -62,8 +62,6 @@ export default function ChatPage() {
       setIsMobile(mobile);
       if (mobile) {
         setIsSidebarOpen(false);
-      } else {
-        setIsSidebarOpen(true);
       }
     };
 

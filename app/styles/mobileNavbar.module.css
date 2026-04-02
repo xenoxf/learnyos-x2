@@ -1,17 +1,13 @@
 /* Container principal */
 .container {
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    pointer-events: none;
-    z-index: 50;
-    transform: translateY(0);
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    will-change: transform;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 50;
+  transform: translateY(0);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
 }
 
 .containerHidden {
@@ -32,11 +28,7 @@
     0 4px 24px rgba(0, 0, 0, 0.12),
     0 1px 4px rgba(0, 0, 0, 0.06);
   pointer-events: auto;
-  position: fixed; /* Fixed para permanecer visible en la parte inferior */
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 50; /* Asegurar que esté por encima del contenido */
+
   overflow: visible;
   flex-shrink: 0;
   transition:
