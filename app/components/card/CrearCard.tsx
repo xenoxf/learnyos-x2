@@ -81,13 +81,13 @@ export default function CrearCard({ onClose, onCardCreated }: CrearCardProps) {
 
         <div className={styles.content}>
           <p className={styles.description}>
-            Genera tarjetas usando IA basándote en un texto de referencia
+            Genera tarjetas basándote en un texto de referencia
           </p>
 
           <div className={styles.formGroup}>
             <label className={styles.label}>Texto de Referencia</label>
             <textarea
-              placeholder="Pega el contenido para extraer tarjetas..."
+              placeholder="Sobre que quieres las FlashCards, expresate..."
               value={reference}
               onChange={(e) => setReference(e.target.value)}
               className={styles.textarea}
@@ -118,8 +118,8 @@ export default function CrearCard({ onClose, onCardCreated }: CrearCardProps) {
                 className={styles.select}
                 disabled={loading}
               >
-                <option value="private">Privado</option>
-                <option value="public">Público</option>
+                <option title="Solo tu podras usarlas" value="private">Privado</option>
+                <option title="Todos podran usarlas" value="public">Público</option>
               </select>
             </div>
           </div>

@@ -48,20 +48,20 @@ export default function CreateQuizModal({
       onClose();
     } catch (err) {
       let message = "Error al crear quiz";
-      
+
       if (err instanceof Error) {
         message = err.message;
       } else if (typeof err === 'string') {
         message = err;
       }
-      
+
       // Mejorar mensajes de error específicos
       if (message.includes('metadata')) {
         message = "La IA no pudo generar el quiz correctamente. Por favor, intenta con otro tema o referencia.";
       } else if (message.includes('questions')) {
         message = "No se pudieron generar las preguntas. Intenta nuevamente con una referencia más específica.";
       }
-      
+
       toast({
         variant: "destructive",
         title: "Error",
@@ -125,7 +125,7 @@ export default function CreateQuizModal({
                   setFormData({ ...formData, difficulty: e.target.value })
                 }
               >
-                <option value="easy">Fácil</option>
+                <option value="easy">Fácil </option>
                 <option value="medium">Medio</option>
                 <option value="hard">Difícil</option>
               </select>
@@ -139,8 +139,8 @@ export default function CreateQuizModal({
                   setFormData({ ...formData, acceso: e.target.value })
                 }
               >
-                <option value="private">Privado</option>
-                <option value="public">Publico</option>
+                <option title="Solo tu podras usarlo" value="private">Privado</option>
+                <option title="La comunidad tambien podra usarlo" value="public">Publico</option>
               </select>
             </div>
           </div>

@@ -126,8 +126,8 @@ export default function CreateNoteModal({
               className={styles.select}
               disabled={loading}
             >
-              <option value="private">Privado</option>
-              <option value="public">Público</option>
+              <option title="Solo tu podras usarlos" value="private">Privado</option>
+              <option title="La comunidad tambien podra usarlos" value="public">Público</option>
             </select>
           </div>
         </div>
