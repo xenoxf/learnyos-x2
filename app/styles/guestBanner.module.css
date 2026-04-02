@@ -1,36 +1,27 @@
 /**
  * GuestBanner Styles
- * Banner informativo para usuarios invitados
+ * Banner informativo para usuarios invitados - Estilo píldora/badge
+ * Usa variables primarias del tema
  */
 
 .guestBanner {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
   z-index: 1000;
-  background: hsl(var(--warning) / 0.95);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: hsl(var(--primary));
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 12px;
-  padding: 10px 16px;
-  color: hsl(var(--warning-foreground));
-  font-size: 0.875rem;
-  font-weight: 500;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
+  gap: 10px;
+  padding: 10px 20px;
+  border-radius: 9999px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   animation: slideDown 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   will-change: auto;
   touch-action: manipulation;
-}
-
-/* Fallback para navegadores sin backdrop-filter */
-@supports not (backdrop-filter: blur(12px)) {
-  .guestBanner {
-    background: hsl(var(--warning));
-  }
+  max-width: calc(100vw - 24px);
 }
 
 .guestBannerIcon {
@@ -38,13 +29,17 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  opacity: 0.9;
+  color: hsl(var(--primary-foreground));
 }
 
 .guestBannerText {
   text-align: center;
   line-height: 1.4;
   letter-spacing: 0.01em;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: hsl(var(--primary-foreground));
+  white-space: nowrap;
 }
 
 .guestBannerClose {
@@ -52,14 +47,14 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   padding: 0;
   border: none;
-  background: transparent;
-  color: hsl(var(--warning-foreground));
+  background: hsl(var(--primary-foreground) / 0.2);
+  color: hsl(var(--primary-foreground));
   cursor: pointer;
-  border-radius: 8px;
+  border-radius: 30px;
   transition:
     background-color 0.15s ease,
     transform 0.1s ease;
@@ -68,15 +63,16 @@
 }
 
 .guestBannerClose:hover {
-  background: hsl(var(--warning-foreground) / 0.15);
+  background: hsl(var(--primary-foreground) / 0.3);
+  transform: scale(1.05);
 }
 
 .guestBannerClose:active {
-  transform: scale(0.92);
+  transform: scale(0.95);
 }
 
 .guestBannerClose:focus-visible {
-  outline: 2px solid hsl(var(--warning-foreground));
+  outline: 2px solid hsl(var(--primary-foreground));
   outline-offset: 2px;
 }
 
@@ -84,11 +80,12 @@
 @keyframes slideDown {
   from {
     opacity: 0;
-    transform: translateY(-100%);
+    transform: translateX(-50%) translateY(-20px);
   }
+
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateX(-50%) translateY(0);
   }
 }
 
@@ -106,16 +103,25 @@
 /* Mobile adjustments */
 @media (max-width: 640px) {
   .guestBanner {
-    padding: 8px 12px;
+    top: 8px;
+    padding: 8px 14px;
     gap: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: auto;
+    max-width: calc(100vw - 16px);
   }
 
   .guestBannerText {
-    font-size: 0.8rem;
+    font-size: 0.75rem;
   }
 
   .guestBannerClose {
-    width: 28px;
-    height: 28px;
+    width: 24px;
+    height: 24px;
+  }
+
+  .guestBannerIcon {
+    display: none;
   }
 }

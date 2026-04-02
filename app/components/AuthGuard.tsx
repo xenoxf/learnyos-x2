@@ -15,12 +15,30 @@ export function AuthGuard({ children }: AuthGuardProps) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const checkAuth = () => {
-      const isAuthenticated = apiService.isAuthenticated();
-      if (!isAuthenticated) {
+    const checkAuth = async () => {
+      const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+      
+      // Si no hay token, redirigir a auth
+      if (!token) {
         router.push("/auth");
-      } else {
-        setIsAuthed(true);
+        setLoading(false);
+        return;
+      }
+
+      // Verificar si el token es válido
+      try {
+        const isValid = await apiService.verifyToken();
+        if (isValid) {
+          setIsAuthed(true);
+        } else {
+          // Token inválido, limpiar y redirigir
+          await apiService.logout();
+          router.push("/auth");
+        }
+      } catch (error) {
+        console.error("Auth check error:", error);
+        await apiService.logout();
+        router.push("/auth");
       }
       setLoading(false);
     };

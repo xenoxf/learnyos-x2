@@ -12,6 +12,7 @@
   width: 100%;
   background-color: hsl(var(--background));
   overflow: hidden;
+  position: relative;
 }
 
 /* ============================================
@@ -24,6 +25,8 @@
   transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   flex-shrink: 0;
   border-right: 1px solid hsl(var(--border));
+  z-index: 10;
+  position: relative;
 }
 
 .sidebarWrapperExpanded {
@@ -44,11 +47,10 @@
   flex-direction: column;
   width: 100%;
   height: 100%;
-  /* overflow: hidden;*/
   background-color: hsl(var(--background));
 }
 
-/* cuando el sidebar está colapsado (visual tweaks) */
+/* cuando el sidebar está colapsado (visual tweaks) /
 .mainContentExpanded {
   transition:
     margin 0.25s ease,
@@ -60,10 +62,9 @@
   width: 100%;
 }
 
-/* cuando hay banner de invitado, ajustar el contenido */
+/* cuando hay banner de invitado, el contenido NO necesita ajuste porque el banner es flotante */
 .mainContentWithBanner {
-  margin-top: 40px;
-  height: calc(100% - 40px);
+  /* Sin margen - el banner es fixed y no afecta el layout */
 }
 
 .contentArea {

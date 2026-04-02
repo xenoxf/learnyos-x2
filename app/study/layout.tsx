@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { AppSidebar } from "@/components/AppSidebar";
 import { MobileNavbar } from "@/components/MobileNavbar";
 import { GuestBanner } from "@/components/GuestBanner";
 import { apiService } from "@/services/apiService";
+import { Loader2 } from "lucide-react";
 import styles from "@/styles/layout.module.css";
 
 interface DashboardLayoutProps {
@@ -34,6 +35,35 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
+  // Función para verificar estado de autenticación
+  const checkAuthStatus = useCallback(() => {
+    if (typeof window === "undefined") return;
+
+    // Verificar si es invitado
+    const guestStatus = apiService.isGuest();
+    setIsGuest(guestStatus);
+
+    // Verificar token
+    const token = localStorage.getItem("token");
+    if (token) {
+      apiService.verifyToken().then((isValid) => {
+        setIsTokenValid(isValid);
+        setIsValidating(false);
+      }).catch(() => {
+        setIsTokenValid(false);
+        setIsValidating(false);
+        // Limpiar token inválido y redirigir
+        apiService.logout();
+        router.push("/auth");
+      });
+    } else {
+      setIsTokenValid(false);
+      setIsValidating(false);
+      // Sin token, redirigir a auth
+      router.push("/auth");
+    }
+  }, [router]);
+
   useEffect(() => {
     setMounted(true);
     try {
@@ -41,27 +71,35 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       if (savedState !== null) {
         setIsCollapsed(savedState === "true");
       }
-      // Verificar si es invitado
-      setIsGuest(apiService.isGuest());
-      
-      // Verificar token
-      const token = localStorage.getItem("token");
-      if (token) {
-        apiService.verifyToken().then((isValid) => {
-          setIsTokenValid(isValid);
-          setIsValidating(false);
-        }).catch(() => {
-          setIsTokenValid(false);
-          setIsValidating(false);
-        });
-      } else {
-        setIsTokenValid(false);
-        setIsValidating(false);
-      }
-    } catch {
+
+      // Verificar autenticación inicial
+      checkAuthStatus();
+    } catch (error) {
+      console.error("Error in layout initialization:", error);
       setIsValidating(false);
+      setIsTokenValid(false);
+      router.push("/auth");
     }
-  }, []);
+  }, [checkAuthStatus, router]);
+
+  // Escuchar cambios en localStorage para actualizar el banner
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === "isGuest" || e.key === "token") {
+        checkAuthStatus();
+      }
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    
+    // También verificar periódicamente por si hay cambios directos
+    const interval = setInterval(checkAuthStatus, 1000);
+
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+      clearInterval(interval);
+    };
+  }, [checkAuthStatus]);
 
   useEffect(() => {
     if (!mounted) return;
@@ -72,6 +110,18 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     }
   }, [isCollapsed, mounted]);
 
+  // Redirigir si el token no es válido
+  useEffect(() => {
+    if (!isValidating && !isTokenValid && typeof window !== "undefined") {
+      const token = localStorage.getItem("token");
+      if (token) {
+        // Token inválido, limpiar y redirigir
+        apiService.logout();
+      }
+      router.push("/auth");
+    }
+  }, [isValidating, isTokenValid, router]);
+
   const handleToggleSidebar = () => {
     setIsCollapsed(!isCollapsed);
   };
@@ -80,6 +130,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     return (
       <div className={styles.loadingContainer}>
         <div className={styles.spinner}>
+          <Loader2 className="animate-spin w-10 h-10 text-primary" />
           <p>Validando sesión...</p>
         </div>
       </div>
@@ -87,7 +138,14 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   }
 
   if (!isTokenValid) {
-    return null;
+    return (
+      <div className={styles.loadingContainer}>
+        <div className={styles.spinner}>
+          <Loader2 className="animate-spin w-10 h-10 text-primary" />
+          <p>Redirigiendo...</p>
+        </div>
+      </div>
+    );
   }
 
   return (

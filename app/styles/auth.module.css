@@ -1,7 +1,9 @@
 .authPage {
   width: 100%;
-  height: 100dvh; /* Dynamic viewport height para móviles */
-  height: 100vh; /* Fallback para navegadores antiguos */
+  height: 100dvh;
+  /* Dynamic viewport height para móviles */
+  height: 100vh;
+  /* Fallback para navegadores antiguos */
   display: flex;
   justify-content: center;
   align-items: center;
@@ -320,4 +322,14 @@
     top: 0.5rem;
     left: 0.5rem;
   }
+}
+
+/* Loading Container */
+.loadingContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  width: 100%;
 }

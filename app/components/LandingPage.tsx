@@ -59,6 +59,19 @@ export const LandingPage: React.FC = () => {
   const handleLoginAsGuest = async () => {
     setLoading(true);
     try {
+      // Verificar si ya hay un token válido (invitado o registrado)
+      const token =
+        typeof window !== "undefined" ? localStorage.getItem("token") : null;
+      if (token) {
+        const isValid = await apiService.verifyToken();
+        if (isValid) {
+          // Token válido, redirigir directamente
+          setLoading(false);
+          router.push("/study");
+          return;
+        }
+      }
+      // No hay token válido, iniciar como invitado
       await apiService.loginAsGuest();
       setLoading(false);
       router.push("/study");
@@ -211,7 +224,7 @@ export const LandingPage: React.FC = () => {
                   onClick={handleLoginAsGuest}
                   aria-label="Comenzar ahora gratis"
                 >
-                  Comenzar Ahora - Gratis
+                  Comenzar como invitado
                   <ArrowRight className={styles.buttonArrow} size={18} />
                 </Button>
               </div>

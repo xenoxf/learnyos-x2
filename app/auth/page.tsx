@@ -13,6 +13,7 @@ import {
   SplitIcon,
   Eye,
   EyeOff,
+  ArrowBigLeft,
 } from "lucide-react";
 import { apiService } from "@/services/apiService";
 import type { LoginInput, RegisterInput } from "@/types";
@@ -30,11 +31,37 @@ function AuthContent() {
   const [loading, setLoading] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
+  const [validatingToken, setValidatingToken] = useState(true);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
 
+  // Verificar token al montar el componente
+  useEffect(() => {
+    const checkExistingToken = async () => {
+      const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+      if (token) {
+        try {
+          const isValid = await apiService.verifyToken();
+          if (isValid) {
+            // Token válido, redirigir a /study
+            router.push("/study");
+            return;
+          }
+        } catch (err) {
+          console.error("Token verification failed:", err);
+          // Token inválido, limpiar y continuar
+          await apiService.logout();
+        }
+      }
+      setValidatingToken(false);
+    };
+
+    checkExistingToken();
+  }, [router]);
+
+  // Mostrar toast de errores
   useEffect(() => {
     if (formError) {
       toast({
@@ -44,6 +71,19 @@ function AuthContent() {
       });
     }
   }, [formError]);
+
+  if (validatingToken) {
+    return (
+      <div className={styles.authPage}>
+        <div className={styles.auth}>
+          <div className={styles.loadingContainer}>
+            <Loader2 className="animate-spin w-10 h-10 text-primary" />
+            <p className="text-muted-foreground mt-4">Verificando sesión...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -148,7 +188,7 @@ function AuthContent() {
   return (
     <div className={styles.authPage}>
       <Link className={styles.authBtnVolver} href="/">
-        <SplitIcon color="white" />
+        <ArrowBigLeft />
       </Link>
 
       <div className={styles.auth}>
