@@ -20,7 +20,7 @@ export default function CreateQuizModal({
     reference: '',
     numberOfQuestions: 10,
     difficulty: "medium",
-    acceso: "public",
+    acceso: "private",
   });
   const router = useRouter();
 
@@ -47,12 +47,26 @@ export default function CreateQuizModal({
       router.refresh();
       onClose();
     } catch (err) {
-      const message =
-        err instanceof Error ? err.message : "Error al crear quiz";
+      let message = "Error al crear quiz";
+      
+      if (err instanceof Error) {
+        message = err.message;
+      } else if (typeof err === 'string') {
+        message = err;
+      }
+      
+      // Mejorar mensajes de error específicos
+      if (message.includes('metadata')) {
+        message = "La IA no pudo generar el quiz correctamente. Por favor, intenta con otro tema o referencia.";
+      } else if (message.includes('questions')) {
+        message = "No se pudieron generar las preguntas. Intenta nuevamente con una referencia más específica.";
+      }
+      
       toast({
         variant: "destructive",
         title: "Error",
         description: message,
+        duration: 5000,
       });
     } finally {
       setLoading(false);

@@ -7,6 +7,15 @@
   flex-direction: column;
 }
 
+.fullPageContainerFed {
+  width: 100%;
+  padding: 4rem;
+  max-width: 1200px;
+  background: hsl(var(--background));
+  display: flex;
+  flex-direction: column;
+}
+
 /* ==================== LOADING & ERROR STATES ==================== */
 .loadingState,
 .errorState {
@@ -76,7 +85,7 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  max-width: 900px;
+  max-width: 800px;
   margin: 0 auto;
   width: 100%;
   padding: 1rem;
@@ -87,6 +96,13 @@
   .quizPage {
     padding: 1.5rem;
     gap: 1.25rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .quizPage {
+    max-width: 900px;
+    padding: 2rem;
   }
 }
 
@@ -305,6 +321,7 @@
     opacity: 0;
     transform: translateY(-8px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -504,6 +521,7 @@
   flex-direction: column;
   gap: 1.5rem;
   padding-bottom: 1.5rem;
+  max-width: 100%;
 }
 
 .resultsHeader {
@@ -525,7 +543,7 @@
 .resultsContent {
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: 1.5rem;
   padding-top: 0.5rem;
 }
 
@@ -538,6 +556,7 @@
   background: hsl(var(--card));
   border: 1px solid hsl(var(--border));
   border-radius: 12px;
+  max-width: 100%;
 }
 
 .scoreCircle {
@@ -578,6 +597,7 @@
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
+  max-width: 100%;
 }
 
 .sectionTitle {
@@ -610,6 +630,7 @@
   display: flex;
   flex-direction: column;
   gap: 0.875rem;
+  max-width: 100%;
 }
 
 .failedQuestionHeader {

@@ -32,7 +32,7 @@ export default function ChatPage() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [copiedId, setCopiedId] = useState<number | null>(null);
 
@@ -74,10 +74,13 @@ export default function ChatPage() {
 
   // ==================== FUNCIONES API REALES ====================
   const loadChats = useCallback(async () => {
+    setIsLoading(true);
     try {
       const response = await apiService.getChats();
       setChats(Array.isArray(response) ? response : []);
+      setIsLoading(false)
     } catch {
+      setIsLoading(false);
       toast({
         title: "Error",
         description: "No se pudieron cargar los chats",
@@ -249,7 +252,7 @@ export default function ChatPage() {
     requestAnimationFrame(() => {
       if (messagesEndRef.current) {
         // Scroll instantáneo para evitar animaciones problemáticas
-        messagesEndRef.current.scrollIntoView({ 
+        messagesEndRef.current.scrollIntoView({
           behavior: "auto",
           block: "end"
         });
@@ -263,7 +266,7 @@ export default function ChatPage() {
       textarea.style.height = "auto";
       const newHeight = Math.min(textarea.scrollHeight, 120);
       textarea.style.height = `${newHeight}px`;
-      
+
       // Scroll al bottom del textarea si es muy alto
       if (textarea.scrollHeight > 120) {
         textarea.scrollTop = textarea.scrollHeight - 120;
@@ -410,8 +413,8 @@ export default function ChatPage() {
                 <div
                   key={msg.id}
                   className={`${styles.message} ${msg.role === "user"
-                      ? styles.userMessage
-                      : styles.botMessage
+                    ? styles.userMessage
+                    : styles.botMessage
                     }`}
                 >
                   {/*}<div className={styles.messageAvatar}>

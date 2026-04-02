@@ -75,7 +75,7 @@ export default function QuizPlayerFull({ quizId }: QuizPlayerFullProps) {
     // Mark current question as answered (or skipped) before moving
     const currentQuestionId = quiz!.questions[currentIndex].id || 0;
     setAnsweredQuestions((prev) => new Set(prev).add(currentQuestionId));
-    
+
     if (currentIndex < quiz!.questions.length - 1) {
       setCurrentIndex((prev) => prev + 1);
       setShowImmediateFeedback(false);
@@ -161,7 +161,7 @@ export default function QuizPlayerFull({ quizId }: QuizPlayerFullProps) {
   // Generate recommendations based on failed topics
   const getRecommendations = useCallback(() => {
     if (!quiz) return [];
-    
+
     if (results.failedTopics.length === 0) {
       return [
         "¡Excelente trabajo! Has dominado todos los temas de este quiz.",
@@ -170,7 +170,7 @@ export default function QuizPlayerFull({ quizId }: QuizPlayerFullProps) {
     }
 
     const recommendations: string[] = [];
-    
+
     results.failedTopics.forEach((topic) => {
       recommendations.push(`Repasa el tema: ${topic}`);
     });
@@ -239,7 +239,7 @@ export default function QuizPlayerFull({ quizId }: QuizPlayerFullProps) {
     const correctCount = results.questionResults.filter((r) => r.isCorrect).length;
 
     return (
-      <div className={styles.fullPageContainer}>
+      <div className={styles.fullPageContainerFed}>
         <div className={styles.resultsPage}>
           <div className={styles.resultsHeader}>
             <button onClick={handleBack} className={styles.backButtonSmall} type="button">
@@ -255,7 +255,7 @@ export default function QuizPlayerFull({ quizId }: QuizPlayerFullProps) {
                 <div className={styles.scoreValue}>{score}%</div>
                 <div className={styles.scoreLabel}>Puntuación</div>
               </div>
-              
+
               <p className={styles.scoreDetail}>
                 Has acertado <strong>{correctCount}</strong> de <strong>{totalQuestions}</strong> preguntas
               </p>
@@ -268,7 +268,7 @@ export default function QuizPlayerFull({ quizId }: QuizPlayerFullProps) {
                   <X size={24} className={styles.errorIcon} />
                   Preguntas para Repasar ({results.failedQuestions.length})
                 </h2>
-                
+
                 <div className={styles.failedQuestionsList}>
                   {results.failedQuestions.map((result, idx) => {
                     const selectedOpt = result.question.options.find(
@@ -281,7 +281,7 @@ export default function QuizPlayerFull({ quizId }: QuizPlayerFullProps) {
                         <div className={styles.failedQuestionHeader}>
                           <span className={styles.questionNumber}>Pregunta {idx + 1}</span>
                         </div>
-                        
+
                         <p className={styles.failedQuestionText}>
                           <MarkdownRenderer content={result.question.question} />
                         </p>
@@ -294,7 +294,7 @@ export default function QuizPlayerFull({ quizId }: QuizPlayerFullProps) {
                               <MarkdownRenderer content={selectedOpt?.text || 'No respondida'} />
                             </span>
                           </div>
-                          
+
                           <div className={styles.correctAnswer}>
                             <span className={styles.answerLabel}>Respuesta correcta:</span>
                             <span className={styles.correctText}>
@@ -410,11 +410,9 @@ export default function QuizPlayerFull({ quizId }: QuizPlayerFullProps) {
                 return (
                   <button
                     key={option.id}
-                    className={`${styles.optionBtn} ${
-                      isSelected && !showFeedback ? styles.selected : ""
-                    } ${showCorrectState ? styles.correct : ""} ${
-                      showWrongState ? styles.incorrect : ""
-                    }`}
+                    className={`${styles.optionBtn} ${isSelected && !showFeedback ? styles.selected : ""
+                      } ${showCorrectState ? styles.correct : ""} ${showWrongState ? styles.incorrect : ""
+                      }`}
                     onClick={() => handleSelectAnswer(option.id, currentQuestion.id || 0)}
                     disabled={showFeedback}
                     type="button"
@@ -432,9 +430,8 @@ export default function QuizPlayerFull({ quizId }: QuizPlayerFullProps) {
             {/* Immediate Feedback Section */}
             {showImmediateFeedback && (
               <div className={styles.immediateFeedback}>
-                <div className={`${styles.feedbackHeader} ${
-                  selectedOption?.isCorrect ? styles.feedbackCorrect : styles.feedbackIncorrect
-                }`}>
+                <div className={`${styles.feedbackHeader} ${selectedOption?.isCorrect ? styles.feedbackCorrect : styles.feedbackIncorrect
+                  }`}>
                   {selectedOption?.isCorrect ? (
                     <>
                       <Check size={18} />

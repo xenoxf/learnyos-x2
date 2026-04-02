@@ -11,7 +11,7 @@
 }
 
 /* ============================================
-   CODE BLOCKS CONTAINER - TOTALMENTE MEJORADO
+   CODE BLOCKS CONTAINER - USANDO VARIABLES CSS
    ============================================ */
 
 .codeBlockContainer {
@@ -19,15 +19,15 @@
     margin: 1em 0;
     border-radius: 12px;
     overflow: hidden;
-    background-color: #0a0a0a;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    background-color: hsl(var(--muted));
+    border: 1px solid hsl(var(--border));
+    box-shadow: 0 2px 8px hsl(var(--foreground) / 0.1);
     transition: all 0.2s ease;
 }
 
 .codeBlockContainer:hover {
-    border-color: rgba(255, 255, 255, 0.2);
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+    border-color: hsl(var(--primary));
+    box-shadow: 0 4px 12px hsl(var(--foreground) / 0.15);
 }
 
 .codeBlockHeader {
@@ -35,9 +35,8 @@
     justify-content: space-between;
     align-items: center;
     padding: 0.6rem 1rem;
-    background: linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-    backdrop-filter: blur(8px);
+    background: hsl(var(--muted) / 0.8);
+    border-bottom: 1px solid hsl(var(--border));
 }
 
 .codeLanguage {
@@ -45,11 +44,12 @@
     font-weight: 500;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    color: #9ca3af;
-    background: rgba(255, 255, 255, 0.05);
+    color: hsl(var(--muted-foreground));
+    background: hsl(var(--background));
     padding: 0.2rem 0.6rem;
     border-radius: 20px;
     font-family: "Monaco", "Courier New", monospace;
+    border: 1px solid hsl(var(--border));
 }
 
 .copyButton {
@@ -57,22 +57,21 @@
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    color: #9ca3af;
+    background: hsl(var(--background));
+    border: 1px solid hsl(var(--border));
+    color: hsl(var(--muted-foreground));
     padding: 0.3rem 0.8rem;
     border-radius: 8px;
     font-size: 0.75rem;
     font-weight: 500;
     cursor: pointer;
     transition: all 0.2s ease;
-    backdrop-filter: blur(4px);
 }
 
 .copyButton:hover {
-    background: rgba(255, 255, 255, 0.1);
-    border-color: rgba(255, 255, 255, 0.2);
-    color: #e5e7eb;
+    background: hsl(var(--accent));
+    border-color: hsl(var(--primary));
+    color: hsl(var(--foreground));
     transform: translateY(-1px);
 }
 
@@ -91,19 +90,20 @@
 }
 
 /* ============================================
-   PRE Y CODE - MEJORADO
+   PRE Y CODE - USANDO VARIABLES CSS
    ============================================ */
 
 .markdownContent pre {
     margin: 0;
     padding: 1rem;
     overflow-x: auto;
-    background-color: #0a0a0a;
+    background-color: hsl(var(--muted));
     font-family: "Monaco", "Courier New", "Fira Code", monospace;
     font-size: 0.85rem;
     line-height: 1.5;
     border-radius: 0;
     position: relative;
+    color: hsl(var(--foreground));
 }
 
 /* Scrollbar personalizado para pre */
@@ -112,22 +112,22 @@
 }
 
 .markdownContent pre::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.05);
+    background: hsl(var(--background));
     border-radius: 4px;
 }
 
 .markdownContent pre::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.2);
+    background: hsl(var(--muted-foreground));
     border-radius: 4px;
 }
 
 .markdownContent pre::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.3);
+    background: hsl(var(--foreground));
 }
 
 .markdownContent pre code {
     background-color: transparent;
-    color: #d4d4d4;
+    color: hsl(var(--foreground));
     padding: 0;
     border: none;
     font-family: inherit;
@@ -137,119 +137,100 @@
 }
 
 /* ============================================
-   INLINE CODE - MEJORADO
+   INLINE CODE - MEJORADO CON VARIABLES CSS
    ============================================ */
 
 .inlineCode {
-    background: linear-gradient(
-        135deg,
-        rgba(59, 130, 246, 0.1) 0%,
-        rgba(59, 130, 246, 0.05) 100%
-    );
-    color: #60a5fa;
+    background: hsl(var(--primary) / 0.1);
+    color: hsl(var(--primary));
     padding: 0.2rem 0.4rem;
     border-radius: 6px;
     font-size: 0.85em;
     font-family: "Monaco", "Courier New", monospace;
     font-weight: 500;
-    border: 1px solid rgba(59, 130, 246, 0.2);
+    border: 1px solid hsl(var(--primary) / 0.2);
     white-space: nowrap;
 }
 
+/* Smart inline code - para código corto dentro del texto */
 .markdownContent code:not([class*="hljs"]):not(.inlineCode) {
-    background: linear-gradient(
-        135deg,
-        rgba(255, 255, 255, 0.05) 0%,
-        rgba(255, 255, 255, 0.02) 100%
-    );
-    color: #d4d4d4;
+    background: hsl(var(--muted));
+    color: hsl(var(--foreground));
     padding: 0.2rem 0.4rem;
     border-radius: 6px;
     font-size: 0.85em;
     font-family: "Monaco", "Courier New", monospace;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid hsl(var(--border));
 }
 
 /* ============================================
-   HIGHLIGHT.JS - MEJORADO CON MEJORES COLORES
+   HIGHLIGHT.JS - USANDO VARIABLES CSS
    ============================================ */
 
 .markdownContent .hljs {
     background-color: transparent !important;
-    color: #d4d4d4 !important;
+    color: hsl(var(--foreground)) !important;
 }
 
-/* Paleta de colores mejorada */
+/* Colores de sintaxis usando variables CSS */
 .markdownContent .hljs-keyword {
-    color: #569cd6;
-    font-weight: 500;
+    color: hsl(var(--primary));
+    font-weight: 600;
 }
 
 .markdownContent .hljs-function {
-    color: #dcdcaa;
+    color: hsl(var(--accent));
 }
 
 .markdownContent .hljs-title {
-    color: #9cdcfe;
+    color: hsl(var(--accent));
 }
 
 .markdownContent .hljs-params {
-    color: #9cdcfe;
+    color: hsl(var(--foreground));
     font-style: italic;
 }
 
 .markdownContent .hljs-string {
-    color: #ce9178;
+    color: hsl(142 76% 36%); /* Verde éxito */
 }
 
 .markdownContent .hljs-number {
-    color: #b5cea8;
+    color: hsl(142 76% 36%);
 }
 
 .markdownContent .hljs-comment {
-    color: #6a9955;
+    color: hsl(var(--muted-foreground));
     font-style: italic;
 }
 
 .markdownContent .hljs-attr,
 .markdownContent .hljs-attribute {
-    color: #9cdcfe;
+    color: hsl(var(--primary));
 }
 
-.markdownContent .hljs-built_in {
-    color: #4ec9b0;
-}
-
-.markdownContent .hljs-literal {
-    color: #4ec9b0;
-}
-
-.markdownContent .hljs-type {
-    color: #4ec9b0;
-}
-
+.markdownContent .hljs-built_in,
+.markdownContent .hljs-literal,
+.markdownContent .hljs-type,
 .markdownContent .hljs-class {
-    color: #4ec9b0;
+    color: hsl(188 94% 43%); /* Cyan */
 }
 
 .markdownContent .hljs-tag {
-    color: #569cd6;
+    color: hsl(var(--primary));
 }
 
 .markdownContent .hljs-name {
-    color: #9cdcfe;
+    color: hsl(var(--accent));
 }
 
 .markdownContent .hljs-selector {
-    color: #d7ba7d;
+    color: hsl(var(--accent));
 }
 
-.markdownContent .hljs-variable {
-    color: #9cdcfe;
-}
-
+.markdownContent .hljs-variable,
 .markdownContent .hljs-template-variable {
-    color: #9cdcfe;
+    color: hsl(var(--foreground));
 }
 
 .markdownContent .hljs-operator {
@@ -494,6 +475,12 @@
     .markdownContent td {
         padding: 0.5rem 0.75rem;
     }
+
+    /* Inline code responsive */
+    .inlineCode {
+        white-space: normal;
+        word-break: break-word;
+    }
 }
 
 @media (max-width: 480px) {
@@ -508,5 +495,9 @@
 
     .markdownContent h1 {
         font-size: 1.5em;
+    }
+
+    .codeBlockContainer {
+        margin: 0.75em 0;
     }
 }
