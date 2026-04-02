@@ -5,13 +5,13 @@
   justify-content: center;
   pointer-events: none;
   z-index: 50;
-  transform: translate3d(0, 0, 0);
+  transform: translateY(0);
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   will-change: transform;
 }
 
 .containerHidden {
-  transform: translate3d(0, 100%, 0);
+  transform: translateY(100%);
 }
 
 /* Navbar pill */
@@ -28,13 +28,12 @@
     0 4px 24px rgba(0, 0, 0, 0.12),
     0 1px 4px rgba(0, 0, 0, 0.06);
   pointer-events: auto;
+
   overflow: visible;
   flex-shrink: 0;
   transition:
     background-color 0.2s ease,
     border-color 0.2s ease;
-  will-change: auto;
-  touch-action: manipulation;
 }
 
 /* Items de navegación */
@@ -57,8 +56,6 @@
     transform 0.1s ease;
   outline: none;
   position: relative;
-  will-change: auto;
-  touch-action: manipulation;
 }
 
 .navItem:hover {
@@ -139,8 +136,6 @@
     transform 0.1s ease;
   position: relative;
   outline: none;
-  will-change: auto;
-  touch-action: manipulation;
 }
 
 .moreButton:hover {
@@ -172,7 +167,9 @@
 
 /* Menú flotante */
 .moreMenu {
-  position: fixed;
+  position: absolute;
+  bottom: calc(100% + 10px);
+  right: 0;
   background: hsl(var(--card) / 0.98);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
@@ -185,16 +182,7 @@
     0 -2px 8px rgba(0, 0, 0, 0.08);
   animation: slideUp 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   transform-origin: bottom right;
-  z-index: 100;
-  will-change: auto;
-  pointer-events: auto;
-}
-
-/* Fallback para navegadores sin backdrop-filter */
-@supports not (backdrop-filter: blur(16px)) {
-  .moreMenu {
-    background: hsl(var(--card));
-  }
+  z-index: 60;
 }
 
 .moreMenuSection {
@@ -224,7 +212,6 @@
     color 0.15s ease;
   white-space: nowrap;
   outline: none;
-  touch-action: manipulation;
 }
 
 .moreMenuItem:hover {
@@ -331,7 +318,7 @@
   .navItem,
   .moreButton,
   .moreMenu {
-    animation: none !important;
-    transition: none !important;
+    animation: none;
+    transition: none;
   }
 }

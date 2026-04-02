@@ -30,48 +30,26 @@ export const LandingPage: React.FC = () => {
   const router = useRouter();
   const { toast } = useToast();
 
-  const handleOpenAuth = async () => {
-    setLoading(true);
-    try {
-      const token =
-        typeof window !== "undefined" ? localStorage.getItem("token") : null;
-      if (token) {
-        const isValid = await apiService.verifyToken();
-        if (isValid) {
-          setLoading(false);
-          router.push("/study");
-          return;
-        }
-      }
-      setLoading(false);
-      setShowAuthModal(true);
-    } catch (_error) {
-      setLoading(false);
-      toast({
-        title: "Error",
-        description: "No se pudo verificar la sesión. Intenta de nuevo.",
-        variant: "destructive",
-      });
-      setShowAuthModal(true);
+  const handleOpenAuth = () => {
+    const token =
+      typeof window !== "undefined" ? localStorage.getItem("token") : null;
+    if (token) {
+      router.push("/study");
+      return;
     }
+    setShowAuthModal(true);
   };
 
   const handleLoginAsGuest = async () => {
     setLoading(true);
     try {
-      // Verificar si ya hay un token válido (invitado o registrado)
       const token =
         typeof window !== "undefined" ? localStorage.getItem("token") : null;
       if (token) {
-        const isValid = await apiService.verifyToken();
-        if (isValid) {
-          // Token válido, redirigir directamente
-          setLoading(false);
-          router.push("/study");
-          return;
-        }
+        setLoading(false);
+        router.push("/study");
+        return;
       }
-      // No hay token válido, iniciar como invitado
       await apiService.loginAsGuest();
       setLoading(false);
       router.push("/study");

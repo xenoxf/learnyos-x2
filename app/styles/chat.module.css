@@ -1,789 +1,804 @@
 /* chat.module.css - Optimizado para todos los dispositivos */
 
 .container {
-    display: flex;
-    height: 100vh;
-    height: 100dvh; /* Dynamic viewport height para móviles */
-    background: hsl(var(--background));
-    overflow: hidden;
-    position: relative;
-    contain: layout; /* Prevenir repaints innecesarios */
+  display: flex;
+  height: 100vh;
+  height: 100dvh;
+  /* Dynamic viewport height para móviles */
+  background: hsl(var(--background));
+  overflow: hidden;
+  position: relative;
+  contain: layout;
+  /* Prevenir repaints innecesarios */
 }
 
 /* ========== SIDEBAR ========== */
 .sidebar {
-    width: 280px;
-    height: 100vh;
-    height: 100dvh;
-    background: hsl(var(--background));
-    border-right: 1px solid hsl(var(--border));
-    display: flex;
-    flex-direction: column;
-    transition:
-        transform 0.3s ease,
-        width 0.3s ease;
-    flex-shrink: 0;
-    position: relative;
-    z-index: 10;
-    overflow-y: auto;
-    overflow-x: hidden;
-    -webkit-overflow-scrolling: touch; /* Scroll suave en iOS */
+  width: 230px;
+  height: 100vh;
+  height: 100dvh;
+  background: hsl(var(--background));
+  border-right: 1px solid hsl(var(--border));
+  display: flex;
+  flex-direction: column;
+  transition:
+    transform 0.3s ease,
+    width 0.3s ease;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 10;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  /* Scroll suave en iOS */
 }
 
 .sidebarClosed {
-    width: 0;
-    border-right: none;
-    display: none;
+  width: 0;
+  border-right: none;
+  display: none;
 }
 
 .sidebarHeader {
-    padding: 1.25rem;
-    border-bottom: 1px solid hsl(var(--border));
-    flex-shrink: 0;
-    position: sticky;
-    top: 0;
-    background: hsl(var(--background));
-    z-index: 5;
-    overflow: hidden; /* Prevenir desbordamiento de texto */
+  padding: 1.25rem;
+  border-bottom: 1px solid hsl(var(--border));
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  background: hsl(var(--background));
+  z-index: 5;
+  overflow: hidden;
+  /* Prevenir desbordamiento de texto */
 }
 
 .sidebarTitle {
-    font-size: 1.125rem;
-    font-weight: 600;
-    color: hsl(var(--foreground));
-    margin: 0 0 1rem 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: hsl(var(--foreground));
+  margin: 0 0 1rem 0;
 }
 
 .newChatButton {
-    width: 100%;
-    padding: 0.75rem;
-    background: hsl(var(--primary));
-    color: hsl(var(--background));
-    border: none;
-    border-radius: 9999px;
-    font-weight: 500;
-    font-size: 0.9375rem;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    transition: all 0.2s;
+  width: 100%;
+  padding: 0.75rem;
+  background: hsl(var(--primary));
+  color: hsl(var(--background));
+  border: none;
+  border-radius: 9999px;
+  font-weight: 500;
+  font-size: 0.9375rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: all 0.2s;
 }
 
 .newChatButton:hover {
-    background: hsl(var(--primary) / 0.9);
+  background: hsl(var(--primary) / 0.9);
 }
 
 .chatList {
-    flex: 1;
-    overflow-y: auto;
-    padding: 1rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
 .emptyChats {
-    text-align: center;
-    padding: 2rem 1rem;
-    color: hsl(var(--foreground));
+  text-align: center;
+  padding: 2rem 1rem;
+  color: hsl(var(--foreground));
 }
 
 .chatItem {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 0.875rem 1rem;
-    background: hsl(var(--muted) / 0.3);
-    border: 1px solid transparent;
-    border-radius: 12px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.875rem 1rem;
+  background: hsl(var(--muted) / 0.3);
+  border: 1px solid transparent;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
 }
 
 .chatItem:hover {
-    background: hsl(var(--muted) / 0.5);
-    border-color: hsl(var(--border));
+  background: hsl(var(--muted) / 0.5);
+  border-color: hsl(var(--border));
 }
 
 .chatItem.active {
-    background: hsl(var(--primary) / 0.1);
-    border-color: hsl(var(--primary));
+  background: hsl(var(--primary) / 0.1);
+  border-color: hsl(var(--primary));
 }
 
 .chatInfo {
-    flex: 1;
-    min-width: 0;
-    overflow: hidden;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .chatTitle {
-    font-weight: 500;
-    font-size: 0.875rem;
-    color: hsl(var(--foreground));
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+  font-weight: 500;
+  font-size: 0.875rem;
+  color: hsl(var(--foreground));
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .deleteButton {
-    opacity: 0;
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    border: none;
-    background: hsl(var(--destructive) / 0.1);
-    color: hsl(var(--destructive));
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s;
-    flex-shrink: 0;
+  opacity: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: none;
+  background: hsl(var(--destructive) / 0.1);
+  color: hsl(var(--destructive));
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  flex-shrink: 0;
 }
 
 .chatItem:hover .deleteButton {
-    opacity: 1;
+  opacity: 1;
 }
 
 .deleteButton:hover {
-    background: hsl(var(--destructive));
-    color: white;
+  background: hsl(var(--destructive));
+  color: white;
 }
 
 /* ========== BOTÓN TOGGLE ========== */
 .toggleButton {
-    position: absolute;
-    top: 20px;
-    left: 280px;
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    background: hsl(var(--primary));
-    color: hsl(var(--primary-foreground));
-    border: none;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s ease;
-    z-index: 20;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  position: absolute;
+  top: 20px;
+  left: 230px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  z-index: 20;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 .toggleButtonClosed {
-    left: 20px;
+  left: 20px;
 }
 
 .toggleButton:hover {
-    transform: scale(1.1);
-    background: hsl(var(--primary) / 0.9);
+  transform: scale(1.1);
+  background: hsl(var(--primary) / 0.9);
 }
 
 /* ========== MAIN CONTENT ========== */
 .main {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    background: hsl(var(--background));
-    overflow: hidden;
-    position: relative;
-    height: 100vh;
-    height: 100dvh;
-    min-height: 0; /* Importante para flexbox */
-    contain: layout; /* Prevenir repaints */
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: hsl(var(--background));
+  overflow: hidden;
+  position: relative;
+  height: 100vh;
+  height: 100dvh;
+  min-height: 0;
+  /* Importante para flexbox */
+  contain: layout;
+  /* Prevenir repaints */
 }
 
 /* ========== MENSAJES ========== */
 .messages {
-    flex: 1 1 auto;
-    overflow-y: auto;
-    overflow-x: hidden;
-    padding: 2rem;
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-    scroll-behavior: auto; /* Evitar bugs en móviles */
-    min-height: 0; /* Previene el desbordamiento */
-    -webkit-overflow-scrolling: touch; /* Scroll suave en iOS */
-    overflow-anchor: auto; /* Prevenir saltos de scroll */
+  flex: 1 1 auto;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  scroll-behavior: auto;
+  /* Evitar bugs en móviles */
+  min-height: 0;
+  /* Previene el desbordamiento */
+  -webkit-overflow-scrolling: touch;
+  /* Scroll suave en iOS */
+  overflow-anchor: auto;
+  /* Prevenir saltos de scroll */
 }
 
 /* Welcome screen */
 .welcome {
-    min-height: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    max-width: 600px;
-    margin: 0 auto;
-    padding: 2rem 1rem;
-    width: 100%;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+  width: 100%;
 }
 
 .welcomeIcon {
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    background: linear-gradient(
-        135deg,
-        hsl(var(--primary)),
-        hsl(var(--primary) / 0.5)
-    );
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    margin-bottom: 1.5rem;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg,
+      hsl(var(--primary)),
+      hsl(var(--primary) / 0.5));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  margin-bottom: 1.5rem;
 }
 
 .welcome h1 {
-    font-size: 1.75rem;
-    font-weight: 600;
-    margin-bottom: 0.5rem;
-    color: hsl(var(--foreground));
+  font-size: 1.75rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: hsl(var(--foreground));
 }
 
 .welcome p {
-    color: hsl(var(--muted-foreground));
-    margin-bottom: 2rem;
+  color: hsl(var(--muted-foreground));
+  margin-bottom: 2rem;
 }
 
 .suggestions {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-    gap: 0.75rem;
-    width: 100%;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 0.75rem;
+  width: 100%;
 }
 
 .suggestionText,
 .suggestionTitle {
-    color: hsl(var(--muted-foreground));
+  color: hsl(var(--muted-foreground));
 }
 
 .suggestionCard {
-    padding: 1rem;
-    background: hsl(var(--muted) / 0.3);
-    border: 1px solid hsl(var(--border));
-    border-radius: 12px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    text-align: left;
-    transition: all 0.2s;
+  padding: 1rem;
+  background: hsl(var(--muted) / 0.3);
+  border: 1px solid hsl(var(--border));
+  border-radius: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  text-align: left;
+  transition: all 0.2s;
 }
 
 .suggestionCard:hover {
-    background: hsl(var(--muted) / 0.5);
-    border-color: hsl(var(--primary));
+  background: hsl(var(--muted) / 0.5);
+  border-color: hsl(var(--primary));
 }
 
 /* ========== MENSAJES ========== */
 .message {
-    display: flex;
-    gap: 0.75rem;
-    max-width: 800px;
-    margin: 0 auto;
-    width: 100%;
-    height: fit-content;
-    animation: fadeIn 0.3s ease;
-    contain: layout; /* Prevenir repaints */
+  display: flex;
+  gap: 0.75rem;
+  max-width: 800px;
+  margin: 0 auto;
+  width: 100%;
+  height: fit-content;
+  animation: fadeIn 0.3s ease;
+  contain: layout;
+  /* Prevenir repaints */
 }
 
 .userMessage {
-    align-self: flex-end;
-    flex-direction: row-reverse;
-    margin-left: auto;
+  align-self: flex-end;
+  flex-direction: row-reverse;
+  margin-left: auto;
 }
 
-.userMessage > .messageContent {
-    display: flex;
-    align-self: flex-end;
-    flex-direction: row-reverse;
+.userMessage>.messageContent {
+  display: flex;
+  align-self: flex-end;
+  flex-direction: row-reverse;
 }
 
-.userMessage > .messageContent > div {
-    border: 2px solid hsl(var(--secondary));
-    padding: 0.7rem;
-    background: hsl(var(--background) * 0.4);
-    color: hsl(var(--foreground));
-    width: fit-content;
-    max-width: 100%;
-    border-radius: 10px;
-    overflow-wrap: break-word;
-    word-wrap: break-word;
+.userMessage>.messageContent>div {
+  border: 2px solid hsl(var(--secondary));
+  padding: 0.7rem;
+  background: hsl(var(--background) * 0.4);
+  color: hsl(var(--foreground));
+  width: fit-content;
+  max-width: 100%;
+  border-radius: 10px;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
 }
 
 .botMessage {
-    align-self: flex-start;
-    margin-right: auto;
+  align-self: flex-start;
+  margin-right: auto;
 }
 
 .messageAvatar {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    background: linear-gradient(
-        135deg,
-        hsl(var(--primary)),
-        hsl(var(--primary) / 0.8)
-    );
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: hsl(var(--primary-foreground));
-    flex-shrink: 0;
-    flex-grow: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg,
+      hsl(var(--primary)),
+      hsl(var(--primary) / 0.8));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: hsl(var(--primary-foreground));
+  flex-shrink: 0;
+  flex-grow: 0;
 }
 
 .messageContent {
-    flex: 1;
-    font-size: 1rem;
-    line-height: 1.6;
-    color: hsl(var(--foreground));
-    padding: 0.25rem 0;
-    min-width: 0; /* Prevenir desbordamiento de texto */
-    overflow-wrap: break-word;
-    word-wrap: break-word;
+  flex: 1;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: hsl(var(--foreground));
+  padding: 0.25rem 0;
+  min-width: 0;
+  /* Prevenir desbordamiento de texto */
+  overflow-wrap: break-word;
+  word-wrap: break-word;
 }
 
 .userMessage .messageContent {
-    text-align: right;
+  text-align: right;
 }
 
 /* Botón copiar */
 .copyButton {
-    margin-top: 0.5rem;
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    border: none;
-    background: hsl(var(--muted) / 0.3);
-    color: hsl(var(--muted-foreground));
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s;
+  margin-top: 0.5rem;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: none;
+  background: hsl(var(--muted) / 0.3);
+  color: hsl(var(--muted-foreground));
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
 }
 
 .copyButton:hover {
-    background: hsl(var(--muted));
-    color: hsl(var(--foreground));
+  background: hsl(var(--muted));
+  color: hsl(var(--foreground));
 }
 
 /* Typing indicator */
 .typing {
-    display: flex;
-    gap: 0.5rem;
-    padding: 0.5rem 0;
-    margin-left: 3rem;
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.5rem 0;
+  margin-left: 3rem;
 }
 
 .typing span {
-    width: 8px;
-    height: 8px;
-    background: hsl(var(--primary) / 0.5);
-    border-radius: 50%;
-    animation: pulse 1.4s infinite;
+  width: 8px;
+  height: 8px;
+  background: hsl(var(--primary) / 0.5);
+  border-radius: 50%;
+  animation: pulse 1.4s infinite;
 }
 
 .typing span:nth-child(2) {
-    animation-delay: 0.2s;
+  animation-delay: 0.2s;
 }
 
 .typing span:nth-child(3) {
-    animation-delay: 0.4s;
+  animation-delay: 0.4s;
 }
 
 /* ========== INPUT AREA ========== */
 .inputArea {
-    padding: 1rem 2rem;
-    background: transparent;
-    flex-shrink: 0;
-    position: relative;
-    border-top: 1px solid transparent;
-    width: 100%;
-    box-sizing: border-box;
+  padding: 1rem 2rem;
+  background: transparent;
+  flex-shrink: 0;
+  position: relative;
+  border-top: 1px solid transparent;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .inputContainer {
-    max-width: 800px;
-    margin: 0 auto;
-    position: relative;
-    width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  position: relative;
+  width: 100%;
 }
 
 .inputWrapper {
-    display: flex;
-    align-items: flex-end; /* Alinear al fondo para textarea alto */
-    background: hsl(var(--background));
-    border: 1px solid hsl(var(--border));
-    border-radius: 20px;
-    padding: 0.5rem 0.5rem 0.5rem 1.5rem;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-    transition: all 0.2s;
-    backdrop-filter: blur(8px);
-    overflow: hidden;
-    background: hsl(var(--background) / 0.9);
-    max-height: 200px; /* Limitar altura máxima */
+  display: flex;
+  align-items: flex-end;
+  /* Alinear al fondo para textarea alto */
+  background: hsl(var(--background));
+  border: 1px solid hsl(var(--border));
+  border-radius: 20px;
+  padding: 0.5rem 0.5rem 0.5rem 1.5rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  transition: all 0.2s;
+  backdrop-filter: blur(8px);
+  overflow: hidden;
+  background: hsl(var(--background) / 0.9);
+  max-height: 200px;
+  /* Limitar altura máxima */
 }
 
 .inputWrapper:focus-within {
-    border-color: hsl(var(--primary));
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
-    background: hsl(var(--background));
+  border-color: hsl(var(--primary));
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+  background: hsl(var(--background));
 }
 
 .textarea {
-    flex: 1;
-    padding: 0.75rem 0;
-    border: none;
-    background: transparent;
-    color: hsl(var(--foreground));
-    font-size: 16px; /* 16px previene zoom en iOS */
-    resize: none;
-    max-height: 120px;
-    font-family: inherit;
-    outline: none;
-    line-height: 1.5;
-    min-height: 24px;
-    width: 100%; /* Asegurar ancho completo */
+  flex: 1;
+  padding: 0.75rem 0;
+  border: none;
+  background: transparent;
+  color: hsl(var(--foreground));
+  font-size: 16px;
+  /* 16px previene zoom en iOS */
+  resize: none;
+  max-height: 120px;
+  font-family: inherit;
+  outline: none;
+  line-height: 1.5;
+  min-height: 24px;
+  width: 100%;
+  /* Asegurar ancho completo */
 }
 
 .textarea::placeholder {
-    color: hsl(var(--muted-foreground) / 0.7);
+  color: hsl(var(--muted-foreground) / 0.7);
 }
 
 .sendButton {
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    border: none;
-    background: hsl(var(--primary));
-    color: hsl(var(--primary-foreground));
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s;
-    flex-shrink: 0;
-    flex-grow: 0;
-    margin-left: 0.5rem;
-    touch-action: manipulation; /* Mejorar respuesta táctil */
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: none;
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  flex-shrink: 0;
+  flex-grow: 0;
+  margin-left: 0.5rem;
+  touch-action: manipulation;
+  /* Mejorar respuesta táctil */
 }
 
 .sendButton:hover:not(:disabled) {
-    background: hsl(var(--primary) / 0.9);
-    transform: scale(1.05);
+  background: hsl(var(--primary) / 0.9);
+  transform: scale(1.05);
 }
 
 .sendButton:active:not(:disabled) {
-    transform: scale(0.95);
+  transform: scale(0.95);
 }
 
 .sendButton:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .disclaimer {
-    max-width: 800px;
-    margin: 0.75rem auto 0;
-    font-size: 0.75rem;
-    color: hsl(var(--muted-foreground) / 0.7);
-    text-align: center;
-    padding: 0 1rem;
+  max-width: 800px;
+  margin: 0.75rem auto 0;
+  font-size: 0.75rem;
+  color: hsl(var(--muted-foreground) / 0.7);
+  text-align: center;
+  padding: 0 1rem;
 }
 
 /* Botón copiar */
 .copyButton {
-    margin-top: 0.5rem;
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    border: none;
-    background: hsl(var(--muted) / 0.3);
-    color: hsl(var(--muted-foreground));
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s;
-    flex-shrink: 0;
-    touch-action: manipulation;
+  margin-top: 0.5rem;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: none;
+  background: hsl(var(--muted) / 0.3);
+  color: hsl(var(--muted-foreground));
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  flex-shrink: 0;
+  touch-action: manipulation;
 }
 
 .copyButton:hover {
-    background: hsl(var(--muted));
-    color: hsl(var(--foreground));
+  background: hsl(var(--muted));
+  color: hsl(var(--foreground));
 }
 
 /* ========== RESPONSIVE ========== */
 
 /* Pantallas muy grandes (4K, monitores grandes) */
 @media (min-width: 2560px) {
-    .message {
-        max-width: 1200px;
-    }
-    
-    .inputContainer,
-    .disclaimer {
-        max-width: 1200px;
-    }
-    
-    .welcome {
-        max-width: 800px;
-    }
+  .message {
+    max-width: 1200px;
+  }
+
+  .inputContainer,
+  .disclaimer {
+    max-width: 1200px;
+  }
+
+  .welcome {
+    max-width: 800px;
+  }
 }
 
 /* Pantallas grandes (Desktop 1920px+) */
 @media (min-width: 1920px) and (max-width: 2559px) {
-    .message {
-        max-width: 1000px;
-    }
-    
-    .inputContainer,
-    .disclaimer {
-        max-width: 1000px;
-    }
+  .message {
+    max-width: 1000px;
+  }
+
+  .inputContainer,
+  .disclaimer {
+    max-width: 1000px;
+  }
 }
 
 /* Tablets grandes y desktops pequeños (769px - 1024px) */
 @media (max-width: 1024px) {
-    .sidebar {
-        width: 260px;
-    }
-    
-    .messages {
-        padding: 1.5rem;
-    }
-    
-    .message {
-        max-width: 90%;
-    }
+  .sidebar {
+    width: 200px;
+  }
+
+  .messages {
+    padding: 1.5rem;
+  }
+
+  .message {
+    max-width: 90%;
+  }
 }
 
 /* Tablets pequeñas y móviles grandes (481px - 768px) */
 @media (max-width: 768px) {
-    .sidebar {
-        position: fixed;
-        top: 0;
-        left: 0;
-        height: 100vh;
-        height: 100dvh;
-        z-index: 100;
-        transform: translateX(-100%);
-        width: 280px;
-        box-shadow: 2px 0 20px rgba(0, 0, 0, 0.15);
-    }
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    height: 100dvh;
+    z-index: 100;
+    transform: translateX(-100%);
+    width: 170px;
+    box-shadow: 2px 0 20px rgba(0, 0, 0, 0.15);
+  }
 
-    .sidebarOpen {
-        transform: translateX(0);
-    }
+  .sidebarOpen {
+    transform: translateX(0);
+  }
 
-    .toggleButton {
-        left: 16px;
-        top: 16px;
-        width: 40px;
-        height: 40px;
-    }
+  .toggleButton {
+    left: 16px;
+    top: 16px;
+    width: 40px;
+    height: 40px;
+  }
 
-    .toggleButtonClosed {
-        left: 16px;
-    }
+  .toggleButtonClosed {
+    left: 16px;
+  }
 
-    .messages {
-        padding: 1rem;
-        gap: 1rem;
-    }
+  .messages {
+    padding: 1rem;
+    gap: 1rem;
+  }
 
-    .message {
-        max-width: 100%;
-        gap: 0.5rem;
-    }
-    
-    .messageAvatar {
-        width: 28px;
-        height: 28px;
-    }
-    
-    .messageContent {
-        font-size: 0.9375rem;
-    }
+  .message {
+    max-width: 100%;
+    gap: 0.5rem;
+  }
 
-    .inputArea {
-        padding: 0.75rem 1rem;
-    }
-    
-    .inputWrapper {
-        padding: 0.5rem;
-    }
+  .messageAvatar {
+    width: 28px;
+    height: 28px;
+  }
 
-    .overlay {
-        position: fixed;
-        inset: 0;
-        background: rgba(0, 0, 0, 0.5);
-        backdrop-filter: blur(4px);
-        z-index: 90;
-        animation: fadeIn 0.2s ease;
-    }
-    
-    .welcome {
-        padding: 1.5rem 1rem;
-    }
-    
-    .welcome h1 {
-        font-size: 1.5rem;
-    }
-    
-    .welcomeIcon {
-        width: 64px;
-        height: 64px;
-    }
-    
-    .suggestions {
-        grid-template-columns: 1fr;
-    }
-    
-    .suggestionCard {
-        padding: 0.75rem;
-    }
+  .messageContent {
+    font-size: 0.9375rem;
+  }
+
+  .inputArea {
+    padding: 0.75rem 1rem;
+  }
+
+  .inputWrapper {
+    padding: 0.5rem;
+  }
+
+  .overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    z-index: 90;
+    animation: fadeIn 0.2s ease;
+  }
+
+  .welcome {
+    padding: 1.5rem 1rem;
+  }
+
+  .welcome h1 {
+    font-size: 1.5rem;
+  }
+
+  .welcomeIcon {
+    width: 64px;
+    height: 64px;
+  }
+
+  .suggestions {
+    grid-template-columns: 1fr;
+  }
+
+  .suggestionCard {
+    padding: 0.75rem;
+  }
 }
 
 /* Móviles pequeños (320px - 480px) */
 @media (max-width: 480px) {
-    .messages {
-        padding: 0.75rem;
-        gap: 0.75rem;
-    }
-    
-    .message {
-        gap: 0.5rem;
-    }
-    
-    .messageAvatar {
-        width: 24px;
-        height: 24px;
-    }
-    
-    .messageContent {
-        font-size: 0.875rem;
-        padding: 0.2rem 0;
-    }
-    
-    .inputArea {
-        padding: 0.5rem 0.75rem 0.75rem 0.75rem;
-    }
-    
-    .inputWrapper {
-        border-radius: 16px;
-        padding: 0.375rem;
-    }
-    
-    .textarea {
-        font-size: 16px; /* Mantener 16px para evitar zoom */
-        min-height: 20px;
-    }
-    
-    .sendButton {
-        width: 42px;
-        height: 42px;
-    }
-    
-    .toggleButton {
-        width: 36px;
-        height: 36px;
-        top: 12px;
-    }
-    
-    .sidebar {
-        width: 100%;
-        max-width: 320px;
-    }
-    
-    .welcome h1 {
-        font-size: 1.25rem;
-    }
-    
-    .welcome p {
-        font-size: 0.875rem;
-    }
-    
-    .welcomeIcon {
-        width: 56px;
-        height: 56px;
-    }
-    
-    .disclaimer {
-        font-size: 0.6875rem;
-    }
+  .messages {
+    padding: 0.75rem;
+    gap: 0.75rem;
+  }
+
+  .message {
+    gap: 0.5rem;
+  }
+
+  .messageAvatar {
+    width: 24px;
+    height: 24px;
+  }
+
+  .messageContent {
+    font-size: 0.875rem;
+    padding: 0.2rem 0;
+  }
+
+  .inputArea {
+    padding: 0.5rem 0.75rem 0.75rem 0.75rem;
+  }
+
+  .inputWrapper {
+    border-radius: 16px;
+    padding: 0.375rem;
+  }
+
+  .textarea {
+    font-size: 16px;
+    /* Mantener 16px para evitar zoom */
+    min-height: 20px;
+  }
+
+  .sendButton {
+    width: 42px;
+    height: 42px;
+  }
+
+  .toggleButton {
+    width: 36px;
+    height: 36px;
+    top: 12px;
+  }
+
+  .sidebar {
+    width: 100%;
+    max-width: 160px;
+  }
+
+  .welcome h1 {
+    font-size: 1.25rem;
+  }
+
+  .welcome p {
+    font-size: 0.875rem;
+  }
+
+  .welcomeIcon {
+    width: 56px;
+    height: 56px;
+  }
+
+  .disclaimer {
+    font-size: 0.6875rem;
+  }
 }
 
 /* Móviles muy pequeños (< 320px) */
 @media (max-width: 320px) {
-    .messageContent {
-        font-size: 0.8125rem;
-    }
-    
-    .messageAvatar {
-        width: 20px;
-        height: 20px;
-    }
-    
-    .inputWrapper {
-        padding: 0.25rem;
-    }
-    
-    .sendButton {
-        width: 38px;
-        height: 38px;
-    }
+  .messageContent {
+    font-size: 0.8125rem;
+  }
+
+  .messageAvatar {
+    width: 20px;
+    height: 20px;
+  }
+
+  .inputWrapper {
+    padding: 0.25rem;
+  }
+
+  .sendButton {
+    width: 38px;
+    height: 38px;
+  }
 }
 
 /* ========== ANIMACIONES ========== */
 @keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
 
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes pulse {
-    0%,
-    100% {
-        opacity: 0.4;
-        transform: scale(1);
-    }
 
-    50% {
-        opacity: 1;
-        transform: scale(1.1);
-    }
+  0%,
+  100% {
+    opacity: 0.4;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
 }
 
 .spin {
-    animation: spin 1s linear infinite;
+  animation: spin 1s linear infinite;
 }
 
 @keyframes spin {
-    from {
-        transform: rotate(0deg);
-    }
+  from {
+    transform: rotate(0deg);
+  }
 
-    to {
-        transform: rotate(360deg);
-    }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* ========== SKELETONS ========== */

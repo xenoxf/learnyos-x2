@@ -91,13 +91,9 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     };
 
     window.addEventListener("storage", handleStorageChange);
-    
-    // También verificar periódicamente por si hay cambios directos
-    const interval = setInterval(checkAuthStatus, 1000);
 
     return () => {
       window.removeEventListener("storage", handleStorageChange);
-      clearInterval(interval);
     };
   }, [checkAuthStatus]);
 

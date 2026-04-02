@@ -1,13 +1,13 @@
 "use client";
 
 import React,
-  {
-    useState,
-    useCallback,
-    useEffect,
-    useRef,
-    useMemo,
-  } from "react";
+{
+  useState,
+  useCallback,
+  useEffect,
+  useRef,
+  useMemo,
+} from "react";
 import { useRouter, usePathname } from "next/navigation";
 import {
   MessageSquare,
@@ -148,7 +148,7 @@ export function MobileNavbar() {
     const handleClickOutside = (e: MouseEvent | TouchEvent) => {
       const target = e.target as Node;
       const composedPath = e.composedPath?.() as Node[];
-      
+
       // Verificar si el click fue dentro del menú o botón
       const isInsideMenu = menuRef.current?.contains(target);
       const isInsideButton = moreButtonRef.current?.contains(target);
@@ -165,7 +165,7 @@ export function MobileNavbar() {
     // Usar mousedown y touchstart para mejor respuesta en móviles
     document.addEventListener("mousedown", handleClickOutside);
     document.addEventListener("touchstart", handleClickOutside);
-    
+
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
       document.removeEventListener("touchstart", handleClickOutside);
@@ -241,9 +241,7 @@ export function MobileNavbar() {
         ref={moreButtonRef}
         className={`${styles.moreButton} ${showMoreMenu ? styles.moreButtonActive : ""}`}
         onClick={handleToggleMenu}
-        onTouchStart={handleToggleMenu}
         aria-expanded={showMoreMenu}
-        touch-action="manipulation"
       >
         <MoreHorizontal size={22} />
         <span className={styles.navLabel}>Más</span>
@@ -251,8 +249,8 @@ export function MobileNavbar() {
       </button>
 
       {showMoreMenu && (
-        <div 
-          ref={menuRef} 
+        <div
+          ref={menuRef}
           className={styles.moreMenu}
           style={{
             position: 'fixed',
