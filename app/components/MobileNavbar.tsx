@@ -127,9 +127,17 @@ export function MobileNavbar() {
     const handler = (e: any) => {
       const target = e.target;
 
+      // Verificar si el click está dentro de un dropdown/menu de Radix (portal)
+      const isDropdownMenu =
+        target.closest("[data-radix-dropdown-menu-content]") ||
+        target.closest("[data-radix-portal]") ||
+        target.closest("[role='menu']") ||
+        target.closest("[role='menuitem']");
+
       if (
         menuRef.current?.contains(target) ||
-        moreButtonRef.current?.contains(target)
+        moreButtonRef.current?.contains(target) ||
+        isDropdownMenu // 👈 AGREGAR ESTA VERIFICACIÓN
       ) return;
 
       setShowMoreMenu(false);
@@ -258,7 +266,13 @@ export function MobileNavbar() {
           )}
 
           <div className={styles.moreMenuSection}>
-            <ThemeToggleSidebr isCollapse={false} />
+            <div
+              className={styles.themeToggleWrapper}
+              onClick={(e) => e.stopPropagation()}
+              onTouchStart={(e) => e.stopPropagation()}
+            >
+              <ThemeToggleSidebr isCollapse={false} />
+            </div>
 
             <Link
               href="/study/settings"

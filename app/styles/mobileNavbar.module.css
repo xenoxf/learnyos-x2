@@ -21,8 +21,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 2px;
-  padding: 4px 4px;
+  gap: 4px;
+  padding: 6px 8px;
   width: 100%;
   box-shadow:
     0 4px 24px rgba(0, 0, 0, 0.12),
@@ -42,10 +42,10 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 5px 8px;
+  padding: 7px 11px;
   background: transparent;
   cursor: pointer;
-  border-radius: 16px;
+  border-radius: 20px;
   flex-shrink: 0;
   white-space: nowrap;
   color: hsl(var(--muted-foreground));
@@ -79,8 +79,8 @@
 /* Wrapper de icono */
 .navIconWrapper {
   position: relative;
-  width: 20px;
-  height: 20px;
+  width: 24px;
+  height: 24px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -88,30 +88,30 @@
 
 /* Label del item */
 .navLabel {
-  font-size: 0.55rem;
+  font-size: 0.625rem;
   font-weight: 600;
   letter-spacing: 0.01em;
-  margin-top: 2px;
+  margin-top: 3px;
   line-height: 1;
 }
 
 /* Badge de notificaciones */
 .badge {
   position: absolute;
-  top: -4px;
-  right: -6px;
-  min-width: 15px;
-  height: 15px;
+  top: -5px;
+  right: -7px;
+  min-width: 17px;
+  height: 17px;
   background: hsl(var(--destructive));
   color: white;
   border-radius: 10px;
-  font-size: 0.5rem;
+  font-size: 0.55rem;
   font-weight: 700;
   display: flex;
   align-items: center;
   justify-content: center;
   border: 2px solid hsl(var(--card));
-  padding: 0 2px;
+  padding: 0 3px;
   line-height: 1;
   transition: background-color 0.2s ease;
 }
@@ -122,11 +122,11 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 5px 8px;
+  padding: 7px 11px;
   border: none;
   background: transparent;
   cursor: pointer;
-  border-radius: 16px;
+  border-radius: 20px;
   flex-shrink: 0;
   white-space: nowrap;
   color: hsl(var(--muted-foreground));
@@ -155,10 +155,10 @@
 /* Dot indicador en botón "Más" */
 .moreActiveDot {
   position: absolute;
-  top: 4px;
-  right: 4px;
-  width: 6px;
-  height: 6px;
+  top: 5px;
+  right: 5px;
+  width: 7px;
+  height: 7px;
   background: hsl(var(--primary));
   border-radius: 50%;
   border: 2px solid hsl(var(--card));
@@ -167,6 +167,9 @@
 
 /* Menú flotante */
 .moreMenu {
+  position: absolute;
+  bottom: calc(100% + 10px);
+  right: 0;
   background: hsl(var(--card) / 0.98);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
@@ -175,10 +178,10 @@
   padding: 6px;
   min-width: 220px;
   box-shadow:
-    0 8px 32px rgba(0, 0, 0, 0.16),
-    0 4px 8px rgba(0, 0, 0, 0.08);
-  animation: slideDown 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  transform-origin: top right;
+    0 -8px 32px rgba(0, 0, 0, 0.16),
+    0 -2px 8px rgba(0, 0, 0, 0.08);
+  animation: slideUp 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  transform-origin: bottom right;
   z-index: 60;
 }
 
@@ -231,21 +234,25 @@
   justify-content: flex-start;
   padding: 11px 14px;
   border-radius: 14px;
+  color: hsl(var(--primary-foreground));
   font-size: 0.9rem;
-  color: hsl(var(--foreground));
   font-weight: 500;
   cursor: pointer;
   display: flex;
   align-items: center;
   gap: 12px;
+  transition: background 0.15s ease;
 }
 
+.themeToggleWrapper :global(button:hover) {
+  background: hsl(var(--accent) / 0.1);
+}
 
 /* Badge en menú */
 .menuBadge {
   margin-left: auto;
-  background: hsl(var(--secondary) / 0.1);
-  color: hsl(var(--foreground));
+  background: hsl(var(--destructive) / 0.1);
+  color: hsl(var(--destructive));
   padding: 2px 8px;
   border-radius: 20px;
   font-size: 0.72rem;
@@ -261,10 +268,10 @@
 }
 
 /* Animaciones */
-@keyframes slideDown {
+@keyframes slideUp {
   from {
     opacity: 0;
-    transform: translateY(-8px) scale(0.97);
+    transform: translateY(8px) scale(0.97);
   }
 
   to {
@@ -285,60 +292,49 @@
   }
 }
 
+/* Responsive para pantallas muy pequeñas (300px) */
+@media (max-width: 300px) {
+  .moreMenu {
+    min-width: 180px;
+    padding: 4px;
+  }
+
+  .moreMenuItem {
+    gap: 8px;
+    padding: 9px 10px;
+    font-size: 0.82rem;
+  }
+
+  .menuBadge {
+    padding: 1px 6px;
+    font-size: 0.65rem;
+  }
+
+  .moreMenuDivider {
+    margin: 3px 6px;
+  }
+
+  .themeToggleWrapper :global(button) {
+    padding: 9px 10px;
+    font-size: 0.82rem;
+    gap: 8px;
+  }
+
+  .dropdown {
+    width: 12rem !important;
+  }
+}
+
 /* Responsive */
 @media (min-width: 480px) {
 
   .navItem,
   .moreButton {
-    padding: 6px 10px;
+    padding: 8px 13px;
   }
 
   .navLabel {
-    font-size: 0.6rem;
-  }
-
-  .navIconWrapper {
-    width: 22px;
-    height: 22px;
-  }
-}
-
-/* Pantallas muy pequeñas (< 360px) */
-@media (max-width: 360px) {
-  .bottomNav {
-    padding: 3px 3px;
-    gap: 1px;
-  }
-
-  .navItem,
-  .moreButton {
-    padding: 4px 6px;
-    border-radius: 14px;
-  }
-
-  .navIconWrapper {
-    width: 18px;
-    height: 18px;
-  }
-
-  .navLabel {
-    font-size: 0.5rem;
-    margin-top: 1px;
-  }
-
-  .badge {
-    min-width: 13px;
-    height: 13px;
-    font-size: 0.45rem;
-    top: -3px;
-    right: -5px;
-  }
-
-  .moreActiveDot {
-    width: 5px;
-    height: 5px;
-    top: 3px;
-    right: 3px;
+    font-size: 0.65rem;
   }
 }
 

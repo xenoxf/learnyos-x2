@@ -56,7 +56,7 @@ export const ThemeToggleSidebr: React.FC<ThemeToggleSidebrProps> = ({
 
           {/* Label */}
           <span
-            className={`hidden sm:inline ${isCollapse ? styles.none : styles.label}`}
+            className={`${isCollapse ? styles.none : styles.label}`}
           >
             {currentTheme?.label}
           </span>
