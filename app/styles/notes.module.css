@@ -148,14 +148,16 @@
 .formInput,
 .formSelect {
     width: 100%;
-    padding: 0.625rem;
+    padding: 0.75rem; /* Aumentado: mejor touch target */
     background: hsl(var(--background));
     border: 1px solid hsl(var(--border));
     border-radius: 0.5rem;
-    font-size: 0.875rem;
+    font-size: 1rem; /* 16px para evitar zoom en iOS */
     color: hsl(var(--foreground));
     font-family: inherit;
     transition: border-color 0.2s, background-color 0.2s;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
 }
 
 .formInput:focus,
@@ -205,8 +207,9 @@
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
-    max-height: calc(100vh - 400px);
+    max-height: calc(100dvh - 350px); /* Usar dvh en lugar de vh */
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch; /* Scroll suave en iOS */
 }
 
 .noteItem,
@@ -266,7 +269,9 @@
 }
 
 .deleteButton {
-    padding: 0.5rem;
+    padding: 0.75rem; /* Aumentado: touch target mínimo 44x44px */
+    min-width: 44px; /* Mínimo WCAG */
+    min-height: 44px; /* Mínimo WCAG */
     background: transparent;
     border: none;
     color: hsl(var(--muted-foreground));
@@ -276,6 +281,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
 }
 
 .deleteButton:hover {
@@ -357,8 +364,8 @@
 
 .notesGrid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 1.5rem;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); /* Reducido: de 320px a 260px para pantallas pequeñas */
+    gap: 1.25rem;
 }
 
 .noteCard {
@@ -514,6 +521,11 @@
     .notesContainer {
         grid-template-columns: 1fr;
     }
+    
+    .notesSidebar {
+        width: 85%; /* Aumentado: mejor aprovechamiento */
+        max-width: 320px;
+    }
 
     .noteViewContainer {
         padding: 1.5rem 1rem;
@@ -527,11 +539,16 @@
     .noteHeader h1 {
         font-size: 1.5rem;
     }
+    
+    .notesGrid {
+        grid-template-columns: 1fr; /* Una columna en tablet/móvil */
+        gap: 1rem;
+    }
 }
 
 @media (max-width: 480px) {
     .noteViewContainer {
-        padding: 1rem 0.75rem;
+        padding: 1rem 0.875rem;
     }
 
     .noteHeader {
@@ -539,10 +556,48 @@
     }
 
     .noteHeader h1 {
-        font-size: 1.25rem;
+        font-size: 1.375rem;
     }
 
     .contentTitle {
         font-size: 1.25rem;
+    }
+    
+    .generateForm {
+        gap: 0.875rem;
+    }
+    
+    .submitButton {
+        padding: 0.875rem;
+        font-size: 1rem;
+        min-height: 48px; /* Touch target adecuado */
+    }
+}
+
+/* Móviles muy pequeños (< 320px) */
+@media (max-width: 320px) {
+    .notesSidebar {
+        width: 100%;
+        max-width: 280px;
+    }
+    
+    .noteViewContainer {
+        padding: 0.875rem 0.75rem;
+    }
+    
+    .noteHeader h1 {
+        font-size: 1.25rem;
+    }
+    
+    .formInput,
+    .formSelect {
+        padding: 0.625rem;
+        font-size: 1rem; /* Mantener 16px para evitar zoom iOS */
+    }
+    
+    .deleteButton {
+        padding: 0.625rem;
+        min-width: 44px;
+        min-height: 44px;
     }
 }

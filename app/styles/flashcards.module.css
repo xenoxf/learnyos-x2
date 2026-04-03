@@ -840,18 +840,44 @@
     .container {
         padding: 0.75rem;
     }
+
+    .flipCard {
+        height: 180px; /* Aumentado: mejor legibilidad */
+    }
+
+    .flipCardContent {
+        font-size: 0.9375rem; /* 15px - mejor que 14px */
+    }
+
+    .navBtn,
+    .resetBtn {
+        width: 44px; /* Mantener mínimo WCAG */
+        height: 44px; /* Mantener mínimo WCAG */
+    }
+    
+    .deckDeleteBtn {
+        width: 44px; /* Mantener mínimo WCAG */
+        height: 44px; /* Mantener mínimo WCAG */
+    }
+}
+
+/* Móviles muy pequeños (< 320px) */
+@media (max-width: 320px) {
+    .container {
+        padding: 0.5rem;
+    }
     
     .flipCard {
         height: 160px;
     }
     
     .flipCardContent {
-        font-size: 0.875rem;
+        font-size: 0.875rem; /* 14px mínimo */
     }
     
     .navBtn,
     .resetBtn {
-        width: 36px;
-        height: 36px;
+        width: 44px; /* Mantener mínimo WCAG */
+        height: 44px; /* Mantener mínimo WCAG */
     }
 }

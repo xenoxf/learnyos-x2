@@ -5,7 +5,6 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import {
   Settings,
-  ArrowLeft,
   User,
   Mail,
   LogOut,
@@ -17,21 +16,24 @@ import {
   AlertTriangle,
   Globe,
   Lock,
-  Bell,
-  Palette,
   Database,
   Info,
-  CheckCircle,
-  XCircle,
+  Sparkles,
+  Coins,
+  TrendingUp,
+  Clock,
+  Zap,
+  BookOpen,
+  MessageSquare,
+  RefreshCw,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiService } from "@/services/apiService";
 import { useCustomAlert } from "@/hooks/useCustomAlert";
 import { CustomAlert } from "@/components/CustomAlert";
-import { ThemeToggle } from "@/components/ThemeToggle";
 import styles from "@/styles/settings.module.css";
 
-type TabType = "general" | "notes" | "flashcards" | "quizzes" | "terms";
+type TabType = "general" | "credits" | "notes" | "flashcards" | "quizzes" | "terms";
 
 interface ManageItem {
   id: number;
@@ -40,6 +42,25 @@ interface ManageItem {
   acceso?: string;
   createdAt?: string;
   canDelete?: boolean;
+}
+
+interface CreditsStatus {
+  remaining: number;
+  total: number;
+  used: number;
+  percentageUsed: number;
+  breakdown: {
+    examGenerations: number;
+    noteGenerations: number;
+    flashcardGenerations: number;
+    chatMessages: number;
+  };
+  costs: {
+    EXAM_GENERATION: number;
+    NOTE_GENERATION: number;
+    FLASHCARD_GENERATION: number;
+    CHAT_MESSAGE: number;
+  };
 }
 
 export default function SettingsPage() {
@@ -53,7 +74,10 @@ export default function SettingsPage() {
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const [deletingAll, setDeletingAll] = useState(false);
   const [user, setUser] = useState<any>(null);
+  const [credits, setCredits] = useState<CreditsStatus | null>(null);
+  const [creditsLoading, setCreditsLoading] = useState(false);
 
+  // Cargar datos de usuario
   useEffect(() => {
     const userData = localStorage.getItem("user");
     if (userData) {
@@ -65,8 +89,22 @@ export default function SettingsPage() {
     }
   }, []);
 
+  // Cargar créditos
+  const loadCredits = useCallback(async () => {
+    try {
+      setCreditsLoading(true);
+      const status = await apiService.getCreditsStatus();
+      setCredits(status);
+    } catch (error) {
+      console.error("Error loading credits:", error);
+    } finally {
+      setCreditsLoading(false);
+    }
+  }, []);
+
+  // Cargar items de gestión
   const loadItems = useCallback(async () => {
-    if (activeTab === "general" || activeTab === "terms") {
+    if (activeTab === "general" || activeTab === "credits" || activeTab === "terms") {
       setLoading(false);
       return;
     }
@@ -123,6 +161,13 @@ export default function SettingsPage() {
   useEffect(() => {
     loadItems();
   }, [loadItems]);
+
+  // Cargar créditos cuando se abre la pestaña
+  useEffect(() => {
+    if (activeTab === "credits") {
+      loadCredits();
+    }
+  }, [activeTab, loadCredits]);
 
   const handleDelete = async (id: number, title: string) => {
     const confirmed = await alert.show({
@@ -271,6 +316,7 @@ export default function SettingsPage() {
 
   const menuItems = useMemo(() => [
     { id: "general" as TabType, label: "General", icon: Settings },
+    { id: "credits" as TabType, label: "Mis Créditos", icon: Coins },
     { id: "notes" as TabType, label: "Mis Notas", icon: FileText },
     { id: "flashcards" as TabType, label: "Mis Flashcards", icon: CreditCard },
     { id: "quizzes" as TabType, label: "Mis Quizzes", icon: Brain },
@@ -294,7 +340,6 @@ export default function SettingsPage() {
       {/* Header */}
       <header className={styles.header}>
         <div className={styles.headerContent}>
-
           <div className={styles.headerIcon}>
             <Settings size={22} />
           </div>
@@ -341,6 +386,7 @@ export default function SettingsPage() {
 
         {/* Main Content */}
         <main className={styles.main}>
+          {/* GENERAL TAB */}
           {activeTab === "general" && (
             <div className={styles.generalContent}>
               <section className={styles.card}>
@@ -371,7 +417,6 @@ export default function SettingsPage() {
                   </div>
                 </div>
               </section>
-
 
               <section className={styles.card}>
                 <div className={styles.cardHeader}>
@@ -405,13 +450,233 @@ export default function SettingsPage() {
             </div>
           )}
 
+          {/* CREDITS TAB */}
+          {activeTab === "credits" && (
+            <div className={styles.creditsContent}>
+              {/* Header de Créditos */}
+              <section className={styles.creditsHero}>
+                <div className={styles.creditsHeroIcon}>
+                  <Sparkles size={32} />
+                </div>
+                <h2 className={styles.creditsHeroTitle}>
+                  Tus Créditos Diarios
+                </h2>
+                <p className={styles.creditsHeroSubtitle}>
+                  Los créditos se renuevan automáticamente cada día a medianoche
+                </p>
+              </section>
+
+              {creditsLoading ? (
+                <div className={styles.creditsLoading}>
+                  <RefreshCw size={24} className={styles.spinner} />
+                  <p>Cargando créditos...</p>
+                </div>
+              ) : credits ? (
+                <>
+                  {/* Tarjeta Principal de Créditos */}
+                  <section className={styles.creditsMainCard}>
+                    <div className={styles.creditsMainHeader}>
+                      <div className={styles.creditsMainIcon}>
+                        <Coins size={28} />
+                      </div>
+                      <div className={styles.creditsMainInfo}>
+                        <span className={styles.creditsMainLabel}>
+                          Créditos Disponibles
+                        </span>
+                        <div className={styles.creditsMainNumbers}>
+                          <span className={styles.creditsRemaining}>
+                            {credits.remaining}
+                          </span>
+                          <span className={styles.creditsSeparator}>/</span>
+                          <span className={styles.creditsTotal}>
+                            {credits.total}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Barra de Progreso */}
+                    <div className={styles.creditsProgressBar}>
+                      <div
+                        className={styles.creditsProgressFill}
+                        style={{
+                          width: `${Math.min(credits.percentageUsed, 100)}%`,
+                        }}
+                      />
+                    </div>
+
+                    {/* Porcentaje usado */}
+                    <div className={styles.creditsPercentage}>
+                      <TrendingUp size={16} />
+                      <span>
+                        {credits.percentageUsed}% usado hoy
+                      </span>
+                    </div>
+                  </section>
+
+                  {/* Costos por Acción */}
+                  <section className={styles.creditsCostsCard}>
+                    <div className={styles.creditsCostsHeader}>
+                      <Zap size={20} className={styles.creditsCostsIcon} />
+                      <h3 className={styles.creditsCostsTitle}>
+                        Costo por Acción
+                      </h3>
+                    </div>
+                    <div className={styles.creditsCostsGrid}>
+                      <div className={styles.creditsCostItem}>
+                        <div className={styles.creditsCostIcon}>
+                          <BookOpen size={18} />
+                        </div>
+                        <div className={styles.creditsCostInfo}>
+                          <span className={styles.creditsCostName}>
+                            Generar Quiz
+                          </span>
+                          <span className={styles.creditsCostValue}>
+                            {credits.costs.EXAM_GENERATION} créditos
+                          </span>
+                        </div>
+                      </div>
+                      <div className={styles.creditsCostItem}>
+                        <div className={styles.creditsCostIcon}>
+                          <FileText size={18} />
+                        </div>
+                        <div className={styles.creditsCostInfo}>
+                          <span className={styles.creditsCostName}>
+                            Generar Notas
+                          </span>
+                          <span className={styles.creditsCostValue}>
+                            {credits.costs.NOTE_GENERATION} créditos
+                          </span>
+                        </div>
+                      </div>
+                      <div className={styles.creditsCostItem}>
+                        <div className={styles.creditsCostIcon}>
+                          <CreditCard size={18} />
+                        </div>
+                        <div className={styles.creditsCostInfo}>
+                          <span className={styles.creditsCostName}>
+                            Generar Flashcards
+                          </span>
+                          <span className={styles.creditsCostValue}>
+                            {credits.costs.FLASHCARD_GENERATION} créditos
+                          </span>
+                        </div>
+                      </div>
+                      <div className={styles.creditsCostItem}>
+                        <div className={styles.creditsCostIcon}>
+                          <MessageSquare size={18} />
+                        </div>
+                        <div className={styles.creditsCostInfo}>
+                          <span className={styles.creditsCostName}>
+                            Mensaje de Chat
+                          </span>
+                          <span className={styles.creditsCostValue}>
+                            {credits.costs.CHAT_MESSAGE} crédito
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </section>
+
+                  {/* Desglose de Uso */}
+                  <section className={styles.creditsBreakdownCard}>
+                    <div className={styles.creditsBreakdownHeader}>
+                      <Clock size={20} className={styles.creditsBreakdownIcon} />
+                      <h3 className={styles.creditsBreakdownTitle}>
+                        Uso de Hoy
+                      </h3>
+                    </div>
+                    <div className={styles.creditsBreakdownGrid}>
+                      <div className={styles.creditsBreakdownItem}>
+                        <div className={styles.creditsBreakdownIconWrapper}>
+                          <BookOpen size={16} />
+                        </div>
+                        <div className={styles.creditsBreakdownInfo}>
+                          <span className={styles.creditsBreakdownName}>
+                            Quizzes Generados
+                          </span>
+                          <span className={styles.creditsBreakdownValue}>
+                            {credits.breakdown.examGenerations}
+                          </span>
+                        </div>
+                      </div>
+                      <div className={styles.creditsBreakdownItem}>
+                        <div className={styles.creditsBreakdownIconWrapper}>
+                          <FileText size={16} />
+                        </div>
+                        <div className={styles.creditsBreakdownInfo}>
+                          <span className={styles.creditsBreakdownName}>
+                            Notas Generadas
+                          </span>
+                          <span className={styles.creditsBreakdownValue}>
+                            {credits.breakdown.noteGenerations}
+                          </span>
+                        </div>
+                      </div>
+                      <div className={styles.creditsBreakdownItem}>
+                        <div className={styles.creditsBreakdownIconWrapper}>
+                          <CreditCard size={16} />
+                        </div>
+                        <div className={styles.creditsBreakdownInfo}>
+                          <span className={styles.creditsBreakdownName}>
+                            Flashcards Generadas
+                          </span>
+                          <span className={styles.creditsBreakdownValue}>
+                            {credits.breakdown.flashcardGenerations}
+                          </span>
+                        </div>
+                      </div>
+                      <div className={styles.creditsBreakdownItem}>
+                        <div className={styles.creditsBreakdownIconWrapper}>
+                          <MessageSquare size={16} />
+                        </div>
+                        <div className={styles.creditsBreakdownInfo}>
+                          <span className={styles.creditsBreakdownName}>
+                            Mensajes de Chat
+                          </span>
+                          <span className={styles.creditsBreakdownValue}>
+                            {credits.breakdown.chatMessages}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </section>
+
+                  {/* Nota Informativa */}
+                  <section className={styles.creditsInfoCard}>
+                    <Info size={18} />
+                    <p>
+                      Los créditos son gratuitos y se renuevan automáticamente cada
+                      día a las 00:00 (hora local). No son acumulables entre días.
+                    </p>
+                  </section>
+                </>
+              ) : (
+                <div className={styles.creditsError}>
+                  <AlertTriangle size={32} />
+                  <p>No se pudieron cargar los créditos</p>
+                  <button
+                    className={styles.creditsRetryButton}
+                    onClick={loadCredits}
+                    type="button"
+                  >
+                    <RefreshCw size={16} />
+                    <span>Reintentar</span>
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* TERMS TAB */}
           {activeTab === "terms" && (
             <div className={styles.termsContent}>
               <div className={styles.termsHeader}>
                 <Shield size={28} className={styles.termsIcon} />
                 <h2 className={styles.termsTitle}>Términos y Condiciones</h2>
                 <p className={styles.termsDate}>
-                  Última actualización: 30 de marzo del 2026                </p>
+                  Última actualización: 30 de marzo del 2026
+                </p>
               </div>
 
               <div className={styles.termsBody}>
@@ -432,7 +697,22 @@ export default function SettingsPage() {
                 </section>
 
                 <section className={styles.termsSection}>
-                  <h3>3. Cuenta de Usuario</h3>
+                  <h3>3. Sistema de Créditos</h3>
+                  <p>
+                    La plataforma utiliza un sistema de créditos diarios para el uso de IA.
+                    Cada usuario recibe 100 créditos gratuitos cada día, los cuales no son
+                    acumulables. Los créditos se renuevan automáticamente a medianoche.
+                  </p>
+                  <ul className={styles.termsList}>
+                    <li>Generar Quiz: 5 créditos</li>
+                    <li>Generar Notas: 4 créditos</li>
+                    <li>Generar Flashcards: 3 créditos</li>
+                    <li>Mensaje de Chat: 1 crédito</li>
+                  </ul>
+                </section>
+
+                <section className={styles.termsSection}>
+                  <h3>4. Cuenta de Usuario</h3>
                   <p>
                     Eres responsable de mantener la confidencialidad de tu cuenta
                     y de todas las actividades que ocurran bajo ella.
@@ -440,7 +720,7 @@ export default function SettingsPage() {
                 </section>
 
                 <section className={styles.termsSection}>
-                  <h3>4. Contenido Generado</h3>
+                  <h3>5. Contenido Generado</h3>
                   <p>
                     Eres responsable del contenido que creas. El contenido generado
                     por IA debe ser verificado por el usuario.
@@ -448,7 +728,7 @@ export default function SettingsPage() {
                 </section>
 
                 <section className={styles.termsSection}>
-                  <h3>5. Privacidad</h3>
+                  <h3>6. Privacidad</h3>
                   <p>
                     Los datos personales son tratados conforme a nuestra Política
                     de Privacidad. El contenido privado solo es visible para ti.
@@ -456,7 +736,7 @@ export default function SettingsPage() {
                 </section>
 
                 <section className={styles.termsSection}>
-                  <h3>6. Uso Aceptable</h3>
+                  <h3>7. Uso Aceptable</h3>
                   <ul className={styles.termsList}>
                     <li>No generar contenido ilegal u ofensivo</li>
                     <li>No violar derechos de propiedad intelectual</li>
@@ -466,7 +746,7 @@ export default function SettingsPage() {
                 </section>
 
                 <section className={styles.termsSection}>
-                  <h3>7. Propiedad Intelectual</h3>
+                  <h3>8. Propiedad Intelectual</h3>
                   <p>
                     La plataforma y su contenido original son propiedad de LearnYos
                     y están protegidos por leyes de derechos de autor.
@@ -474,7 +754,7 @@ export default function SettingsPage() {
                 </section>
 
                 <section className={styles.termsSection}>
-                  <h3>8. Limitación de Responsabilidad</h3>
+                  <h3>9. Limitación de Responsabilidad</h3>
                   <p>
                     LearnYos se proporciona &quot;tal cual&quot; sin garantías.
                     No nos hacemos responsables de daños derivados del uso.
@@ -482,7 +762,7 @@ export default function SettingsPage() {
                 </section>
 
                 <section className={styles.termsSection}>
-                  <h3>9. Modificaciones</h3>
+                  <h3>10. Modificaciones</h3>
                   <p>
                     Nos reservamos el derecho de modificar estos términos en
                     cualquier momento. Los cambios entran en vigor inmediatamente.
@@ -490,7 +770,7 @@ export default function SettingsPage() {
                 </section>
 
                 <section className={styles.termsSection}>
-                  <h3>10. Ley Aplicable</h3>
+                  <h3>11. Ley Aplicable</h3>
                   <p>
                     Estos términos se rigen por las leyes de Colombia.
                   </p>
@@ -499,6 +779,7 @@ export default function SettingsPage() {
             </div>
           )}
 
+          {/* NOTES / FLASHCARDS / QUIZZES TABS */}
           {(activeTab === "notes" || activeTab === "flashcards" || activeTab === "quizzes") && (
             <div className={styles.manageContent}>
               <div className={styles.manageHeader}>
