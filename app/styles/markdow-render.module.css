@@ -8,6 +8,23 @@
   color: hsl(var(--foreground));
   word-wrap: break-word;
   overflow-wrap: break-word;
+  word-break: break-word;
+  hyphens: auto;
+  max-width: 100%;
+  /* Prevenir desbordamiento */
+}
+
+/* Prevenir que imágenes causen overflow */
+.markdownContent img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Prevenir que tablas causen overflow */
+.markdownContent table {
+  max-width: 100%;
+  overflow-x: auto;
+  display: block;
 }
 
 /* ============================================

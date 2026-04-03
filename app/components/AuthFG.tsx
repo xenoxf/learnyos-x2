@@ -1,6 +1,7 @@
 "use client";
 
 import styles from "@/styles/AuthFG.module.css";
+import Image from "next/image";
 import { GoogleAuthButton } from "./GoogleAuthButton";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -80,7 +81,16 @@ export const AuthFG: React.FC<AuthFGProps> = ({ onClose }) => {
       <main className={styles["main-"]}>
         {/* Section 1 - Brand */}
         <div className={styles["section-1"]}>
-          <h1 className={styles.appName}>LearnyOS</h1>
+          <div className={styles.logoContainer}>
+            <Image
+              src="/logo-100x100.png"
+              alt="LearnYos Logo"
+              width={100}
+              height={100}
+              className={styles.logoImage}
+            />
+          </div>
+          <h1 className={styles.appName}>LearnYos</h1>
           <p className={styles.sectionSubtitle}>
             Tu plataforma de aprendizaje con IA
           </p>

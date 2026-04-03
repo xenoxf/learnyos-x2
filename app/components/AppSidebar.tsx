@@ -107,7 +107,13 @@ export function AppSidebar({
       <div className={styles.header} onClick={toggleSidebar}>
         <div className={styles.headerContent}>
           <div className={styles.logo} aria-hidden="true">
-            <Sparkles size={20} />
+            <Image
+              src="/logo-100x100.png"
+              alt="LearnYos Logo"
+              width={100}
+              height={100}
+              className={styles.logoImage}
+            />
           </div>
           {!sidebarClosed && <span className={styles.logoText}>LearnYos</span>}
         </div>

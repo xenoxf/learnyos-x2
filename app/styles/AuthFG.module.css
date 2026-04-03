@@ -52,6 +52,19 @@
   position: relative;
 }
 
+.logoContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.75rem;
+}
+
+.logoImage {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+}
+
 .appName {
   font-size: 2.5rem;
   font-weight: 900;

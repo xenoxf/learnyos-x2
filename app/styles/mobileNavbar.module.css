@@ -231,25 +231,21 @@
   justify-content: flex-start;
   padding: 11px 14px;
   border-radius: 14px;
-  color: hsl(var(--primary-foreground));
   font-size: 0.9rem;
+  color: hsl(var(--foreground));
   font-weight: 500;
   cursor: pointer;
   display: flex;
   align-items: center;
   gap: 12px;
-  transition: background 0.15s ease;
 }
 
-.themeToggleWrapper :global(button:hover) {
-  background: hsl(var(--accent) / 0.1);
-}
 
 /* Badge en menú */
 .menuBadge {
   margin-left: auto;
-  background: hsl(var(--destructive) / 0.1);
-  color: hsl(var(--destructive));
+  background: hsl(var(--secondary) / 0.1);
+  color: hsl(var(--foreground));
   padding: 2px 8px;
   border-radius: 20px;
   font-size: 0.72rem;

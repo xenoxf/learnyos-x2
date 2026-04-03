@@ -15,7 +15,7 @@ export const GOOGLE_REDIRECT_URI = process.env.GOOGLE_REDIRECT_URI;
 // ==================== FRONTEND ====================
 export const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
 export const AUTH_CALLBACK_URL = process.env.NEXT_PUBLIC_AUTH_CALLBACK_URL || `${APP_URL}/auth/callback`;
-export const APP_NAME = process.env.VITE_APP_NAME || 'LearnyOS';
+export const APP_NAME = process.env.VITE_APP_NAME || 'LearnYos';
 export const APP_VERSION = process.env.VITE_APP_VERSION || '1.0.0';
 export const VITE_PORT = process.env.VITE_PORT || '3000';
 

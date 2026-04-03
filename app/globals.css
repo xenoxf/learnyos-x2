@@ -22,8 +22,8 @@
 /* GPU acceleration para animaciones comunes */
 * {
   will-change: auto;
+  -webkit-tap-highlight-color: transparent;
 }
-
 /* Mejorar rendering de elementos animados */
 @keyframes float {
   0%, 100% {

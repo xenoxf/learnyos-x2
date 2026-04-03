@@ -1,4 +1,5 @@
 import React from "react";
+import Image from "next/image";
 import { LandingThemeSelector } from "./LandingThemeSelector";
 import styles from "@/styles/header.module.css";
 import Link from "next/link";
@@ -23,10 +24,16 @@ export default function Header() {
         <div className={styles.headerContent}>
           <div className={styles.headerBrand}>
             <div className={styles.brandIcon}>
-              <span className={styles.brandIconText}>L</span>
+              <Image
+                src="/logo-100x100.png"
+                alt="LearnYos Logo"
+                width={100}
+                height={100}
+                className={styles.brandIconImage}
+              />
             </div>
             <div className={styles.brandInfo}>
-              <span className={styles.brandName}>LearnyOS</span>
+              <span className={styles.brandName}>LearnYos</span>
               <div className={styles.brandSubtitle}>Powered by AI</div>
             </div>
           </div>

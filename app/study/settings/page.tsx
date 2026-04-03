@@ -294,14 +294,7 @@ export default function SettingsPage() {
       {/* Header */}
       <header className={styles.header}>
         <div className={styles.headerContent}>
-          <button
-            onClick={() => router.back()}
-            className={styles.backBtn}
-            type="button"
-            aria-label="Volver"
-          >
-            <ArrowLeft size={20} />
-          </button>
+
           <div className={styles.headerIcon}>
             <Settings size={22} />
           </div>
@@ -425,7 +418,7 @@ export default function SettingsPage() {
                 <section className={styles.termsSection}>
                   <h3>1. Aceptación de los Términos</h3>
                   <p>
-                    Al acceder y utilizar LearnyOS, aceptas estar legalmente
+                    Al acceder y utilizar LearnYos, aceptas estar legalmente
                     vinculado por estos Términos y Condiciones de Uso.
                   </p>
                 </section>
@@ -433,7 +426,7 @@ export default function SettingsPage() {
                 <section className={styles.termsSection}>
                   <h3>2. Descripción del Servicio</h3>
                   <p>
-                    LearnyOS es una plataforma educativa impulsada por IA que
+                    LearnYos es una plataforma educativa impulsada por IA que
                     proporciona herramientas para creación y gestión de contenido educativo.
                   </p>
                 </section>
@@ -475,7 +468,7 @@ export default function SettingsPage() {
                 <section className={styles.termsSection}>
                   <h3>7. Propiedad Intelectual</h3>
                   <p>
-                    La plataforma y su contenido original son propiedad de LearnyOS
+                    La plataforma y su contenido original son propiedad de LearnYos
                     y están protegidos por leyes de derechos de autor.
                   </p>
                 </section>
@@ -483,7 +476,7 @@ export default function SettingsPage() {
                 <section className={styles.termsSection}>
                   <h3>8. Limitación de Responsabilidad</h3>
                   <p>
-                    LearnyOS se proporciona &quot;tal cual&quot; sin garantías.
+                    LearnYos se proporciona &quot;tal cual&quot; sin garantías.
                     No nos hacemos responsables de daños derivados del uso.
                   </p>
                 </section>

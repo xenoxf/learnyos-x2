@@ -95,12 +95,6 @@ export const LandingPage: React.FC = () => {
           "Convierte cualquier contenido en notas organizadas y fáciles de repasar.",
       },
       {
-        icon: Languages,
-        title: "Traductor Contextual",
-        description:
-          "Traduce textos manteniendo el significado y contexto original.",
-      },
-      {
         icon: Target,
         title: "Ritmo Personal",
         description:
@@ -136,33 +130,33 @@ export const LandingPage: React.FC = () => {
 
   const tools = useMemo(
     () => [
-      { 
-        icon: BookOpen, 
-        name: "Quizzes", 
+      {
+        icon: BookOpen,
+        name: "Quizzes",
         description: "Pon a prueba tu conocimiento",
         image: "/tools/quiz-preview.png",
-        imageAlt: "Vista previa de quiz con preguntas de opción múltiple en la plataforma LearnyOS"
+        imageAlt: "Vista previa de quiz con preguntas de opción múltiple en la plataforma LearnYos"
       },
-      { 
-        icon: Layers, 
-        name: "Flashcards", 
+      {
+        icon: Layers,
+        name: "Flashcards",
         description: "Memoriza de forma efectiva",
         image: "/tools/flashcards-preview.png",
         imageAlt: "Tarjetas de estudio flashcards mostrando frente y reverso con sistema de repaso espaciado"
       },
-      { 
-        icon: PenTool, 
-        name: "Notas", 
+      {
+        icon: PenTool,
+        name: "Notas",
         description: "Organiza tu aprendizaje",
         image: "/tools/notes-preview.png",
         imageAlt: "Notas de estudio organizadas con formato markdown y secciones estructuradas"
       },
-      { 
-        icon: BarChart3, 
-        name: "Progreso", 
-        description: "Mira cuánto has avanzado",
-        image: "/tools/progress-preview.png",
-        imageAlt: "Gráficos de progreso y estadísticas de aprendizaje con métricas de rendimiento"
+      {
+        icon: BarChart3,
+        name: "Junior IA",
+        description: 'Aprende con Junior',
+        image: "/tools/quiz.png",
+        imageAlt: "Chat IA para usar como tutor en tu aprendizaje"
       },
     ],
     []
@@ -176,10 +170,16 @@ export const LandingPage: React.FC = () => {
           <div className={styles.headerContent}>
             <div className={styles.headerBrand}>
               <div className={styles.brandIcon} aria-hidden="true">
-                <span className={styles.brandIconText}>L</span>
+                <Image
+                  src="/logo-100x100.png"
+                  alt="LearnYos Logo"
+                  width={100}
+                  height={100}
+                  className={styles.brandIconImage}
+                />
               </div>
               <div className={styles.brandInfo}>
-                <span className={styles.brandName}>LearnyOS</span>
+                <span className={styles.brandName}>LearnYos</span>
                 <div className={styles.brandSubtitle}>Tu compañero de estudio</div>
               </div>
             </div>
@@ -217,7 +217,7 @@ export const LandingPage: React.FC = () => {
                   <span className={styles.heroTitleGradient}>inteligente</span>
                 </h1>
                 <p className={styles.heroDescription}>
-                  LearnyOS te ayuda a aprender mejor con herramientas diseñadas para potenciar tu estudio.
+                  LearnYos te ayuda a aprender mejor con herramientas diseñadas para potenciar tu estudio.
                   Crea quizzes, flashcards y notas al instante.
                 </p>
               </div>
@@ -234,14 +234,14 @@ export const LandingPage: React.FC = () => {
             </div>
             <div
               className={styles.heroImage}
-              aria-label="Ilustración de la plataforma LearnyOS mostrando un estudiante usando las herramientas de estudio"
+              aria-label="Ilustración de la plataforma LearnYos mostrando un estudiante usando las herramientas de estudio"
               role="img"
             >
               <div className={styles.heroImageBox}>
                 <Image
-                  src="/landing/hero-study.svg"
-                  alt="Ilustración de estudiante usando laptop con quizzes, flashcards y notas - herramientas de estudio de LearnyOS"
-                  width={500}
+                  src="/landing/hero-study.png"
+                  alt="Ilustración de estudiante usando laptop con quizzes, flashcards y notas - herramientas de estudio de LearnYos"
+                  width={600}
                   height={400}
                   priority
                   loading="eager"
@@ -252,7 +252,7 @@ export const LandingPage: React.FC = () => {
           </div>
         </section>
 
-        {/* Tools Section */}
+        {/* Tools Section - Premium Showcase */}
         <section className={styles.toolsSection} aria-labelledby="tools-title">
           <div className={styles.toolsSectionContent}>
             <div className={styles.toolsHeader}>
@@ -263,32 +263,51 @@ export const LandingPage: React.FC = () => {
                 Herramientas prácticas para cada etapa de tu aprendizaje
               </p>
             </div>
-            <div className={styles.toolsGrid} role="list">
+            <div className={styles.toolsShowcase}>
               {tools.map((tool, index) => {
                 const ToolIcon = tool.icon;
+                const isEven = index % 2 === 0;
                 return (
                   <button
                     key={index}
-                    className={styles.toolCard}
-                    role="listitem"
+                    className={`${styles.showcasePanel} ${isEven ? styles.panelLeft : styles.panelRight}`}
                     onClick={handleLoginAsGuest}
                     type="button"
                     aria-label={`${tool.name}: ${tool.description}`}
                   >
-                    <div className={styles.toolCardIcon}>
-                      <ToolIcon size={24} aria-hidden="true" />
+                    <div className={styles.panelContent}>
+                      <div className={styles.panelNumber}>
+                        <span>{String(index + 1).padStart(2, "0")}</span>
+                      </div>
+                      <div className={styles.panelIcon}>
+                        <ToolIcon size={28} aria-hidden="true" />
+                      </div>
+                      <h3 className={styles.panelTitle}>{tool.name}</h3>
+                      <p className={styles.panelDescription}>{tool.description}</p>
+                      <div className={styles.panelCTA}>
+                        <span>Probar ahora</span>
+                        <ArrowRight size={16} />
+                      </div>
                     </div>
-                    <h3 className={styles.toolCardTitle}>{tool.name}</h3>
-                    <p className={styles.toolCardDescription}>{tool.description}</p>
-                    <div className={styles.toolCardImageWrapper}>
-                      <Image
-                        src={tool.image}
-                        alt={tool.imageAlt}
-                        width={280}
-                        height={180}
-                        loading="lazy"
-                        className={styles.toolCardImage}
-                      />
+                    <div className={styles.panelVisual}>
+                      <div className={styles.deviceFrame}>
+                        <div className={styles.deviceHeader}>
+                          <div className={styles.deviceDot}></div>
+                          <div className={styles.deviceDot}></div>
+                          <div className={styles.deviceDot}></div>
+                        </div>
+                        <div className={styles.deviceScreen}>
+                          <Image
+                            src={tool.image}
+                            alt={tool.imageAlt}
+                            fill
+                            loading="lazy"
+                            className={styles.deviceImage}
+                            sizes="(max-width: 768px) 90vw, (max-width: 1024px) 45vw, 40vw"
+                          />
+                        </div>
+                      </div>
+                      <div className={styles.deviceGlow}></div>
                     </div>
                   </button>
                 );
@@ -351,7 +370,7 @@ export const LandingPage: React.FC = () => {
           <div className={styles.benefitsSectionContent}>
             <div className={styles.benefitsHeader}>
               <h2 id="benefits-title" className={styles.benefitsTitle}>
-                ¿Por qué elegir LearnyOS?
+                ¿Por qué elegir LearnYos?
               </h2>
               <p className={styles.benefitsDescription}>
                 Métodos comprobados para optimizar tu aprendizaje
@@ -423,9 +442,15 @@ export const LandingPage: React.FC = () => {
           <div className={styles.footerContent}>
             <div className={styles.footerBrand}>
               <div className={styles.footerBrandIcon} aria-hidden="true">
-                <span className={styles.footerBrandIconText}>L</span>
+                <Image
+                  src="/logo-100x100.png"
+                  alt="LearnYos Logo"
+                  width={100}
+                  height={100}
+                  className={styles.footerBrandIconImage}
+                />
               </div>
-              <span className={styles.footerBrandName}>LearnyOS</span>
+              <span className={styles.footerBrandName}>LearnYos</span>
             </div>
             <div className={styles.footerLinks}>
               <a href="/terms.html" target="_blank" rel="noopener noreferrer" className={styles.footerLink}>
@@ -433,7 +458,7 @@ export const LandingPage: React.FC = () => {
               </a>
             </div>
             <p className={styles.footerCopy}>
-              © {new Date().getFullYear()} LearnyOS. Todos los derechos reservados.
+              © {new Date().getFullYear()} LearnYos. Todos los derechos reservados.
             </p>
           </div>
         </footer>

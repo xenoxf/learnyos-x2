@@ -174,7 +174,7 @@ export const PomodoroTimer: React.FC = () => {
               "Notification" in window &&
               Notification.permission === "granted"
             ) {
-              new Notification("LearnyOS", {
+              new Notification("LearnYos", {
                 body: `${isWorkSession ? "Trabajo" : "Descanso"} completado!`,
                 icon: "/favicon.ico",
               });

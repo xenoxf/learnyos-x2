@@ -2,10 +2,11 @@
 .container {
   display: flex;
   flex-direction: column;
-  height: 100dvh; /* Dynamic viewport height para móviles */
-  height: 100vh; /* Fallback para navegadores antiguos */
+  height: 100dvh;
+  /* Dynamic viewport height para móviles */
+  height: 100vh;
+  /* Fallback para navegadores antiguos */
   background: hsl(var(--background));
-  overflow: hidden;
 }
 
 /* ==================== HEADER ==================== */
@@ -99,7 +100,6 @@
 .contentWrapper {
   display: flex;
   flex: 1;
-  overflow: hidden;
 }
 
 /* ==================== SIDEBAR ==================== */
@@ -152,7 +152,6 @@
 .main {
   flex: 1;
   padding: 2rem;
-  overflow-y: auto;
   background: hsl(var(--background));
 }
 

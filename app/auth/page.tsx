@@ -1,6 +1,7 @@
 "use client";
 
 import React, { Suspense, useState, useEffect } from "react";
+import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { GoogleAuthButton } from "@/components/GoogleAuthButton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -155,7 +156,16 @@ function AuthContent() {
 
       <div className={styles.auth}>
         <div className={styles.containerTitle}>
-          <h1 className={styles.logo}>LearnYos</h1>
+          <div className={styles.logo}>
+            <Image
+              src="/logo-100x100.png"
+              alt="LearnYos Logo"
+              width={100}
+              height={100}
+              className={styles.logoImage}
+            />
+          </div>
+          <h1 className={styles.appTitle}>LearnYos</h1>
         </div>
 
         <Card className={styles.authWindow}>

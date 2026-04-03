@@ -24,8 +24,6 @@ import styles from "@/styles/mobileNavbar.module.css";
 import Link from "next/link";
 import { ThemeToggleSidebr } from "./ThemeToogleSidebr";
 
-const RESIZE_DEBOUNCE = 200;
-
 interface MenuItem {
   title: string;
   url: string;
@@ -48,144 +46,111 @@ export function MobileNavbar() {
 
   const [visibleCount, setVisibleCount] = useState(ALL_NAV_ITEMS.length);
   const [showMoreMenu, setShowMoreMenu] = useState(false);
-  const [isMeasuring, setIsMeasuring] = useState(false);
+  const [menuPosition, setMenuPosition] = useState({ right: 16, bottom: 60 });
 
   const navRef = useRef<HTMLElement>(null);
   const moreButtonRef = useRef<HTMLButtonElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
-  const resizeTimeoutRef = useRef<NodeJS.Timeout>();
+
   const itemWidthsRef = useRef<number[]>([]);
-  const moreButtonWidthRef = useRef(70);
-  const resizeObserverRef = useRef<ResizeObserver | null>(null);
+  const moreWidthRef = useRef(70);
 
-  const measureItems = useCallback(() => {
-    if (!navRef.current) return;
-    const items = navRef.current.querySelectorAll(`.${styles.navItem}`);
-    const moreButton = moreButtonRef.current;
+  const rafRef = useRef<number>();
 
-    if (items.length > 0) {
-      itemWidthsRef.current = Array.from(items).map(
-        (item) => item.getBoundingClientRect().width + 4,
-      );
-    }
-    if (moreButton) {
-      moreButtonWidthRef.current = moreButton.getBoundingClientRect().width + 4;
+  // 🔥 Medir UNA sola vez
+  const measure = useCallback(() => {
+    const nav = navRef.current;
+    if (!nav) return;
+
+    const items = nav.querySelectorAll(`.${styles.navItem}`);
+
+    itemWidthsRef.current = Array.from(items, el =>
+      el.getBoundingClientRect().width + 4
+    );
+
+    if (moreButtonRef.current) {
+      moreWidthRef.current =
+        moreButtonRef.current.getBoundingClientRect().width + 4;
     }
   }, []);
 
-  const computeVisibleCount = useCallback(() => {
-    if (!navRef.current || itemWidthsRef.current.length === 0) return;
-    const navWidth = navRef.current.clientWidth;
-    let usedWidth = moreButtonWidthRef.current;
+  // ⚡ Cálculo eficiente
+  const compute = useCallback(() => {
+    const nav = navRef.current;
+    if (!nav) return;
+
+    const navWidth = nav.clientWidth;
+    let used = moreWidthRef.current;
     let count = 0;
 
-    for (let i = 0; i < itemWidthsRef.current.length; i++) {
-      const candidateWidth = usedWidth + itemWidthsRef.current[i];
-      if (candidateWidth <= navWidth) {
-        usedWidth = candidateWidth;
-        count = i + 1;
-      } else {
-        break;
-      }
+    for (const width of itemWidthsRef.current) {
+      if (used + width > navWidth) break;
+      used += width;
+      count++;
     }
-    setVisibleCount(Math.max(1, count));
+
+    setVisibleCount(count || 1);
   }, []);
 
-  const handleResize = useCallback(() => {
-    if (resizeTimeoutRef.current) clearTimeout(resizeTimeoutRef.current);
-    resizeTimeoutRef.current = setTimeout(() => {
-      measureItems();
-      computeVisibleCount();
-    }, RESIZE_DEBOUNCE);
-  }, [measureItems, computeVisibleCount]);
+  // 🧠 Recalculo suave
+  const scheduleCompute = useCallback(() => {
+    cancelAnimationFrame(rafRef.current!);
+    rafRef.current = requestAnimationFrame(compute);
+  }, [compute]);
 
-  // Setup ResizeObserver para detectar cambios en el contenedor
+  // 🚀 Init + observer
   useEffect(() => {
     if (!navRef.current) return;
 
-    resizeObserverRef.current = new ResizeObserver(() => {
-      handleResize();
-    });
+    measure();
+    compute();
 
-    resizeObserverRef.current.observe(navRef.current);
-
-    // Medición inicial
-    setIsMeasuring(true);
-    const timeoutId = setTimeout(() => {
-      measureItems();
-      computeVisibleCount();
-      setIsMeasuring(false);
-    }, 50);
+    const observer = new ResizeObserver(scheduleCompute);
+    observer.observe(navRef.current);
 
     return () => {
-      if (resizeObserverRef.current) {
-        resizeObserverRef.current.disconnect();
-      }
-      clearTimeout(timeoutId);
+      observer.disconnect();
+      cancelAnimationFrame(rafRef.current!);
     };
-  }, [measureItems, computeVisibleCount, handleResize]);
+  }, [measure, compute, scheduleCompute]);
 
+  // 🔁 Recalcular en cambio de ruta
   useEffect(() => {
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, [handleResize]);
+    measure();
+    compute();
+  }, [pathname, measure, compute]);
 
-  // Recalcular cuando cambia la ruta
-  useEffect(() => {
-    setIsMeasuring(true);
-    const timeoutId = setTimeout(() => {
-      measureItems();
-      computeVisibleCount();
-      setIsMeasuring(false);
-    }, 50);
-    return () => clearTimeout(timeoutId);
-  }, [pathname, measureItems, computeVisibleCount]);
-
-  // Manejo de click outside para cerrar el menú
+  // 👇 Click outside
   useEffect(() => {
     if (!showMoreMenu) return;
 
-    const handleClickOutside = (e: MouseEvent | TouchEvent) => {
-      const target = e.target as Node;
-      const composedPath = e.composedPath?.() as Node[];
+    const handler = (e: any) => {
+      const target = e.target;
 
-      // Verificar si el click fue dentro del menú o botón
-      const isInsideMenu = menuRef.current?.contains(target);
-      const isInsideButton = moreButtonRef.current?.contains(target);
-      const isInsidePath = composedPath?.some(
-        node => menuRef.current?.contains(node) || moreButtonRef.current?.contains(node)
-      );
+      if (
+        menuRef.current?.contains(target) ||
+        moreButtonRef.current?.contains(target)
+      ) return;
 
-      if (isInsideMenu || isInsideButton || isInsidePath) {
-        return;
-      }
       setShowMoreMenu(false);
     };
 
-    // Usar mousedown y touchstart para mejor respuesta en móviles
-    document.addEventListener("mousedown", handleClickOutside);
-    document.addEventListener("touchstart", handleClickOutside);
+    document.addEventListener("mousedown", handler);
+    document.addEventListener("touchstart", handler);
 
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-      document.removeEventListener("touchstart", handleClickOutside);
+      document.removeEventListener("mousedown", handler);
+      document.removeEventListener("touchstart", handler);
     };
   }, [showMoreMenu]);
 
   const handleLogout = useCallback(async () => {
     try {
       await apiService.logout();
-      toast({
-        title: "Sesión cerrada",
-        description: "Has cerrado sesión correctamente.",
-      });
+      toast({ title: "Sesión cerrada" });
       router.push("/auth");
     } catch {
-      toast({
-        title: "Error",
-        description: "No se pudo cerrar la sesión.",
-        variant: "destructive",
-      });
+      toast({ title: "Error", variant: "destructive" });
     }
   }, [router, toast]);
 
@@ -193,6 +158,7 @@ export function MobileNavbar() {
     () => ALL_NAV_ITEMS.slice(0, visibleCount),
     [visibleCount],
   );
+
   const hiddenItems = useMemo(
     () => ALL_NAV_ITEMS.slice(visibleCount),
     [visibleCount],
@@ -200,52 +166,40 @@ export function MobileNavbar() {
 
   const isActive = useCallback(
     (url: string) =>
-      url === "/study" ? pathname === "/study" : pathname.startsWith(url),
+      url === "/study" ? pathname === url : pathname.startsWith(url),
     [pathname],
   );
 
-  const hasActiveHidden = useMemo(
-    () => hiddenItems.some((item) => isActive(item.url)),
-    [hiddenItems, isActive],
-  );
+  const hasActiveHidden = hiddenItems.some(i => isActive(i.url));
 
-  // Toggle menu handler
-  const handleToggleMenu = useCallback((e: React.MouseEvent | React.TouchEvent) => {
+  const toggleMenu = useCallback((e: any) => {
     e.stopPropagation();
-    setShowMoreMenu((prev) => !prev);
+    setShowMoreMenu(p => !p);
   }, []);
 
-  // Calcular posición del menú
-  const getMoreButtonPosition = useCallback(() => {
-    if (!moreButtonRef.current) {
-      return { right: 16, bottom: 60 };
-    }
-    const rect = moreButtonRef.current.getBoundingClientRect();
-    return {
-      right: Math.max(8, window.innerWidth - rect.right),
-      bottom: rect.top,
-    };
-  }, []);
-
-  const [menuPosition, setMenuPosition] = useState({ right: 16, bottom: 60 });
-
+  // 📍 Posición menú
   useEffect(() => {
-    if (showMoreMenu) {
-      setMenuPosition(getMoreButtonPosition());
-    }
-  }, [showMoreMenu, getMoreButtonPosition]);
+    if (!showMoreMenu || !moreButtonRef.current) return;
+
+    const rect = moreButtonRef.current.getBoundingClientRect();
+
+    setMenuPosition({
+      right: Math.max(8, window.innerWidth - rect.right),
+      bottom: window.innerHeight - rect.top + 8,
+    });
+  }, [showMoreMenu]);
 
   return (
     <nav ref={navRef} className={styles.bottomNav}>
-      {visibleItems.map((item) => {
+      {visibleItems.map(item => {
         const Icon = item.icon;
+
         return (
           <Link
             key={item.url}
             href={item.url}
             className={`${styles.navItem} ${isActive(item.url) ? styles.navItemActive : ""}`}
             onClick={() => setShowMoreMenu(false)}
-            touch-action="manipulation"
           >
             <div className={styles.navIconWrapper}>
               <Icon size={18} />
@@ -259,43 +213,36 @@ export function MobileNavbar() {
       <button
         ref={moreButtonRef}
         className={`${styles.moreButton} ${showMoreMenu ? styles.moreButtonActive : ""}`}
-        onClick={handleToggleMenu}
-        aria-expanded={showMoreMenu}
-        aria-label="Abrir menú de opciones adicionales"
-        aria-controls="more-menu"
-        type="button"
+        onClick={toggleMenu}
       >
-        <MoreHorizontal size={18} aria-hidden="true" />
+        <MoreHorizontal size={18} />
         <span className={styles.navLabel}>Más</span>
-        {hasActiveHidden && <span className={styles.moreActiveDot} aria-label="Hay elementos activos ocultos" />}
+        {hasActiveHidden && <span className={styles.moreActiveDot} />}
       </button>
 
       {showMoreMenu && (
         <div
-          id="more-menu"
           ref={menuRef}
           className={styles.moreMenu}
           style={{
-            position: 'fixed',
-            right: `${menuPosition.right}px`,
-            bottom: `${window.innerHeight - menuPosition.bottom + 8}px`,
+            position: "fixed",
+            right: menuPosition.right,
+            bottom: menuPosition.bottom,
             zIndex: 1000,
           }}
-          role="menu"
-          aria-label="Menú de opciones adicionales"
         >
           {hiddenItems.length > 0 && (
             <>
               <div className={styles.moreMenuSection}>
-                {hiddenItems.map((item) => {
+                {hiddenItems.map(item => {
                   const Icon = item.icon;
+
                   return (
                     <Link
                       key={item.url}
                       href={item.url}
                       className={`${styles.moreMenuItem} ${isActive(item.url) ? styles.moreMenuItemActive : ""}`}
                       onClick={() => setShowMoreMenu(false)}
-                      touch-action="manipulation"
                     >
                       <Icon size={16} />
                       <span>{item.title}</span>
@@ -311,18 +258,12 @@ export function MobileNavbar() {
           )}
 
           <div className={styles.moreMenuSection}>
-            <div
-              className={styles.themeToggleWrapper}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <ThemeToggleSidebr isCollapse={false} />
-            </div>
+            <ThemeToggleSidebr isCollapse={false} />
 
             <Link
-              className={styles.moreMenuItem}
               href="/study/settings"
+              className={styles.moreMenuItem}
               onClick={() => setShowMoreMenu(false)}
-              touch-action="manipulation"
             >
               <Settings2 size={16} />
               <span>Configuración</span>

@@ -90,9 +90,9 @@ export const metadata: Metadata = {
     },
   },
   icons: {
-    icon: "/favicon.ico",
-    shortcut: "/favicon-16x16.png",
-    apple: "/apple-touch-icon.png",
+    icon: "/logo-100x100.png",
+    shortcut: "/logo-100x100.png",
+    apple: "/logo-100x100.png",
   },
   manifest: "/manifest.json",
   alternates: {

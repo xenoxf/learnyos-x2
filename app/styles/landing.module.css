@@ -43,6 +43,15 @@
   color: hsl(var(--primary-foreground));
   font-weight: 700;
   font-size: 1.25rem;
+  overflow: hidden;
+  padding: 4px;
+}
+
+.brandIconImage {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: calc(var(--radius) - 4px);
 }
 
 .brandIconText {
@@ -360,16 +369,23 @@
 }
 
 /* ============================================
-   TOOLS SECTION
+   TOOLS SECTION - PREMIUM SHOWCASE
    ============================================ */
 .toolsSection {
-  padding: 4rem 1.5rem;
+  padding: 5rem 1.5rem;
   background-color: hsl(var(--background));
+  overflow: hidden;
 }
 
 @media (min-width: 640px) {
   .toolsSection {
-    padding: 5rem 1.5rem;
+    padding: 6rem 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .toolsSection {
+    padding: 7rem 2rem;
   }
 }
 
@@ -380,19 +396,26 @@
 
 .toolsHeader {
   text-align: center;
-  margin-bottom: 3rem;
+  margin-bottom: 4rem;
 }
 
 .toolsTitle {
-  font-size: 1.875rem;
+  font-size: 2rem;
   font-weight: 700;
   margin-bottom: 0.75rem;
   color: hsl(var(--foreground));
+  letter-spacing: -0.02em;
 }
 
 @media (min-width: 640px) {
   .toolsTitle {
-    font-size: 2.25rem;
+    font-size: 2.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .toolsTitle {
+    font-size: 3rem;
   }
 }
 
@@ -410,75 +433,284 @@
   }
 }
 
-.toolsGrid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1rem;
+/* Showcase Container */
+.toolsShowcase {
+  display: flex;
+  flex-direction: column;
+  gap: 4rem;
 }
 
-@media (min-width: 640px) {
-  .toolsGrid {
-    grid-template-columns: repeat(4, 1fr);
-    gap: 1.5rem;
+@media (min-width: 768px) {
+  .toolsShowcase {
+    gap: 6rem;
   }
 }
 
-.toolCard {
-  background-color: hsl(var(--card));
-  border: 1px solid hsl(var(--border));
-  border-radius: var(--radius);
-  padding: 1.5rem;
-  display: flex;
-  flex-direction: column;
+/* Each Showcase Panel */
+.showcasePanel {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
   align-items: center;
-  text-align: center;
-  gap: 0.75rem;
-  transition: all var(--transition-fast);
+  background: linear-gradient(
+    135deg,
+    hsl(var(--card)) 0%,
+    hsl(var(--card) / 0.8) 100%
+  );
+  border: 1px solid hsl(var(--border) / 0.6);
+  border-radius: 24px;
+  padding: 2rem 1.5rem;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  position: relative;
+  overflow: hidden;
   width: 100%;
 }
 
-.toolCard:hover {
-  border-color: hsl(var(--primary));
-  transform: translateY(-4px);
-  box-shadow: 0 8px 24px hsl(var(--foreground) / 0.1);
+.showcasePanel::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, hsl(var(--primary)), hsl(var(--primary) / 0.3));
+  opacity: 0;
+  transition: opacity 0.4s ease;
 }
 
-.toolCardIcon {
+.showcasePanel:hover::before {
+  opacity: 1;
+}
+
+.showcasePanel:hover {
+  border-color: hsl(var(--primary) / 0.4);
+  box-shadow:
+    0 20px 60px hsl(var(--foreground) / 0.08),
+    0 8px 24px hsl(var(--foreground) / 0.06);
+  transform: translateY(-4px);
+}
+
+@media (min-width: 768px) {
+  .showcasePanel {
+    grid-template-columns: 1fr 1.2fr;
+    gap: 3rem;
+    padding: 2.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .showcasePanel {
+    grid-template-columns: 1fr 1.3fr;
+    gap: 4rem;
+    padding: 3rem;
+  }
+}
+
+/* Panel Content (Left/Top) */
+.panelContent {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  text-align: center;
+  align-items: center;
+}
+
+@media (min-width: 768px) {
+  .panelContent {
+    text-align: left;
+    align-items: flex-start;
+  }
+}
+
+/* Panel Number Badge */
+.panelNumber {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   width: 48px;
   height: 48px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary) / 0.7));
+  color: hsl(var(--primary-foreground));
+  font-size: 1.125rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  flex-shrink: 0;
+}
+
+/* Panel Icon */
+.panelIcon {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
   background-color: hsl(var(--primary) / 0.1);
-  border-radius: calc(var(--radius) - 2px);
   display: flex;
   align-items: center;
   justify-content: center;
   color: hsl(var(--primary));
+  flex-shrink: 0;
 }
 
-.toolCardTitle {
-  font-size: 1rem;
-  font-weight: 600;
+/* Panel Title */
+.panelTitle {
+  font-size: 1.5rem;
+  font-weight: 700;
   color: hsl(var(--foreground));
+  letter-spacing: -0.01em;
+  margin: 0;
 }
 
-.toolCardDescription {
-  font-size: 0.75rem;
+@media (min-width: 640px) {
+  .panelTitle {
+    font-size: 1.75rem;
+  }
+}
+
+/* Panel Description */
+.panelDescription {
+  font-size: 1rem;
   color: hsl(var(--muted-foreground));
-  line-height: 1.5;
+  line-height: 1.7;
+  max-width: 360px;
+  margin: 0;
 }
 
-.toolCardImageWrapper {
-  width: 100%;
+@media (min-width: 640px) {
+  .panelDescription {
+    font-size: 1.0625rem;
+  }
+}
+
+/* Panel CTA */
+.panelCTA {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 9999px;
+  background-color: hsl(var(--primary) / 0.1);
+  color: hsl(var(--primary));
+  font-size: 0.9375rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
   margin-top: 0.5rem;
-  border-radius: calc(var(--radius) - 2px);
-  overflow: hidden;
-  border: 1px solid hsl(var(--border) / 0.5);
 }
 
-.toolCardImage {
+.panelCTA span {
+  transition: transform 0.3s ease;
+}
+
+.showcasePanel:hover .panelCTA {
+  background-color: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+}
+
+.showcasePanel:hover .panelCTA span {
+  transform: translateX(4px);
+}
+
+.showcasePanel:hover .panelCTA svg {
+  transform: translateX(4px);
+}
+
+/* Panel Visual (Right/Bottom) */
+.panelVisual {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Device Frame (Browser Mockup) */
+.deviceFrame {
+  position: relative;
   width: 100%;
-  height: auto;
-  display: block;
+  max-width: 520px;
+  background: hsl(var(--background));
+  border: 1px solid hsl(var(--border) / 0.8);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.06),
+    0 12px 40px rgba(0, 0, 0, 0.08);
+  transition: all 0.4s ease;
+}
+
+.showcasePanel:hover .deviceFrame {
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.08),
+    0 20px 60px rgba(0, 0, 0, 0.1);
+  transform: scale(1.02);
+}
+
+/* Device Header (Browser Chrome) */
+.deviceHeader {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 14px;
+  background: hsl(var(--muted) / 0.5);
+  border-bottom: 1px solid hsl(var(--border) / 0.5);
+}
+
+.deviceDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: hsl(var(--muted-foreground) / 0.3);
+}
+
+.deviceDot:first-child {
+  background: hsl(0, 84%, 60%);
+}
+
+.deviceDot:nth-child(2) {
+  background: hsl(45, 93%, 47%);
+}
+
+.deviceDot:nth-child(3) {
+  background: hsl(142, 71%, 45%);
+}
+
+/* Device Screen (Image Area) */
+.deviceScreen {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  background: hsl(var(--muted) / 0.2);
+}
+
+.deviceImage {
   object-fit: cover;
+  transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.showcasePanel:hover .deviceImage {
+  transform: scale(1.03);
+}
+
+/* Device Glow Effect */
+.deviceGlow {
+  position: absolute;
+  bottom: -20%;
+  left: 10%;
+  right: 10%;
+  height: 60%;
+  background: radial-gradient(
+    ellipse,
+    hsl(var(--primary) / 0.15) 0%,
+    transparent 70%
+  );
+  filter: blur(30px);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.showcasePanel:hover .deviceGlow {
+  opacity: 1;
 }
 
 /* ============================================
@@ -828,6 +1060,15 @@
   align-items: center;
   justify-content: center;
   background-color: hsl(var(--primary));
+  overflow: hidden;
+  padding: 2px;
+}
+
+.footerBrandIconImage {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: calc(var(--radius) - 4px);
 }
 
 .footerBrandIconText {
@@ -895,9 +1136,44 @@
     padding: 1.5rem 1rem;
   }
   
-  .toolsGrid {
-    grid-template-columns: 1fr;
-    gap: 1rem;
+  .toolsShowcase {
+    gap: 3rem;
+  }
+
+  .showcasePanel {
+    padding: 1.5rem 1.25rem;
+    gap: 1.5rem;
+    border-radius: 20px;
+  }
+
+  .panelNumber {
+    width: 42px;
+    height: 42px;
+    font-size: 1rem;
+    border-radius: 12px;
+  }
+
+  .panelIcon {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+  }
+
+  .panelTitle {
+    font-size: 1.375rem;
+  }
+
+  .deviceFrame {
+    max-width: 400px;
+  }
+
+  .deviceHeader {
+    padding: 10px 12px;
+  }
+
+  .deviceDot {
+    width: 8px;
+    height: 8px;
   }
   
   .featuresGrid {
@@ -919,16 +1195,30 @@
     font-size: clamp(1.75rem, 5vw, 2rem);
   }
   
-  .toolsGrid {
-    grid-template-columns: repeat(2, 1fr);
+  .toolsShowcase {
+    gap: 3.5rem;
+  }
+
+  .showcasePanel {
+    padding: 1.75rem 1.25rem;
+    gap: 1.75rem;
+  }
+
+  .deviceFrame {
+    max-width: 440px;
   }
 }
 
 /* Tablet (768px+) */
 @media (min-width: 768px) {
-  .toolsGrid {
-    grid-template-columns: repeat(4, 1fr);
-    gap: 1.5rem;
+  .showcasePanel {
+    grid-template-columns: 1fr 1.2fr;
+    gap: 3rem;
+    padding: 2.5rem;
+  }
+
+  .deviceFrame {
+    max-width: 480px;
   }
 
   .featureCard {
