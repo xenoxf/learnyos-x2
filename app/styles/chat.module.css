@@ -1,7 +1,7 @@
 /* chat.module.css - Optimizado para todos los dispositivos */
 .container {
   display: flex;
-  height: 100dvh;
+  height: 100%;
   width: 100%;
   overflow: hidden;
   position: relative;
@@ -206,6 +206,7 @@
   gap: 1.5rem;
   min-height: 0;
 }
+
 /* Responsive: ajustar max-height para móviles */
 @media (max-width: 768px) {
   .messages {
@@ -440,11 +441,9 @@
   position: sticky;
   bottom: 0;
   z-index: 10;
-  background: linear-gradient(
-    to top,
-    hsl(var(--background)) 70%,
-    transparent
-  );
+  background: linear-gradient(to top,
+      hsl(var(--background)) 70%,
+      transparent);
   padding: 1rem 2rem 1.25rem;
   width: 100%;
 }
@@ -619,6 +618,7 @@
     max-width: 90%;
   }
 }
+
 @media (max-width: 768px) {
   .sidebar {
     position: fixed;
@@ -629,6 +629,7 @@
     z-index: 100;
     transition: transform 0.25s ease;
   }
+
   .overlay {
     position: fixed;
     inset: 0;
@@ -681,6 +682,7 @@
     height: 40px;
   }
 }
+
 /* Móviles pequeños (320px - 480px) */
 @media (max-width: 480px) {
   .messages {

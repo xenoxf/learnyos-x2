@@ -61,7 +61,7 @@ export const metadata: Metadata = {
     url: "/",
     title: "LearnYos",
     description:
-      "Plataforma de estudio con IA para aprendizaje acelerado.",
+      "La plataforma de estudio más avanzada que combina inteligencia artificial y metodologías probadas para maximizar tu aprendizaje",
     siteName: "LearnYos",
     images: [
       {
@@ -75,9 +75,9 @@ export const metadata: Metadata = {
 
   twitter: {
     card: "summary_large_image",
-    title: "LearnYos - Aprende más rápido con IA",
+    title: "LearnYos",
     description:
-      "Plataforma de estudio con IA para aprendizaje acelerado.",
+      "La plataforma de estudio más avanzada que combina inteligencia artificial y metodologías probadas para maximizar tu aprendizaje",
     images: ["/twitter-image.png"],
     creator: "@learnyos",
   },
@@ -117,7 +117,7 @@ const structuredData = {
   "@type": "WebApplication",
   name: "LearnYos",
   description:
-    "Plataforma de estudio con IA para aprendizaje acelerado",
+    "La plataforma de estudio más avanzada que combina inteligencia artificial y metodologías probadas para maximizar tu aprendizaje",
   url: appUrl,
   applicationCategory: "EducationalApplication",
   operatingSystem: "Web",

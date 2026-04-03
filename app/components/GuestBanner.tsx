@@ -32,7 +32,7 @@ export function GuestBanner() {
     <div className={styles.guestBanner}>
       <UserX size={16} className={styles.guestBannerIcon} />
       <span className={styles.guestBannerText}>
-        Modo invitado · Inicia sesión para guardar tu progreso y crear contenido
+        <p className={styles["mode-text"]} >Modo invitado · </p>  inicia sesión para participar en nuestra comunidad
       </span>
       <button
         className={styles.guestBannerClose}
