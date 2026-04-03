@@ -14,7 +14,7 @@
       "type": "image/x-icon"
     },
     {
-      "src": "/favicon-16x16.png",
+      "src": "/logo-100x100.png",
       "sizes": "16x16",
       "type": "image/png"
     },
@@ -85,14 +85,14 @@
   ],
   "screenshots": [
     {
-      "src": "/screenshot-wide.png",
+      "src": "/tools/quiz.png",
       "sizes": "1280x720",
       "type": "image/png",
       "form_factor": "wide",
       "label": "Vista de escritorio"
     },
     {
-      "src": "/screenshot-narrow.png",
+      "src": "/landing/hero-study.png",
       "sizes": "750x1334",
       "type": "image/png",
       "form_factor": "narrow",
