@@ -25,7 +25,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(appUrl),
 
   title: {
-    default: "LearnYos - Aprende más rápido con IA",
+    default: "LearnYos",
     template: "%s | LearnYos",
   },
 
