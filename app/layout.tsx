@@ -11,55 +11,57 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 5,
   userScalable: true,
-  viewportFit: "cover", // Para que safe-area-inset funcione en dispositivos con notch
+  viewportFit: "cover",
   themeColor: [
     { media: "(prefers-color-scheme: light)", color: "#ffffff" },
     { media: "(prefers-color-scheme: dark)", color: "#09090b" },
   ],
 };
 
-const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://learnyos.com";
+const appUrl =
+  process.env.NEXT_PUBLIC_APP_URL || "https://learnyos.vercel.app";
 
 export const metadata: Metadata = {
   metadataBase: new URL(appUrl),
+
   title: {
     default: "LearnYos - Aprende más rápido con IA",
     template: "%s | LearnYos",
   },
+
   description:
-    "La plataforma de estudio más avanzada que combina inteligencia artificial y metodologías probadas para maximizar tu aprendizaje. Chatbot IA, generador de quiz, flashcards inteligentes y notas estructuradas.",
+    "La plataforma de estudio más avanzada que combina inteligencia artificial y metodologías probadas para maximizar tu aprendizaje.",
+
   keywords: [
     "educación",
     "IA",
-    "inteligencia artificial",
     "estudio",
-    "aprendizaje",
     "flashcards",
     "quiz",
     "notas",
-    "chatbot educativo",
-    "técnica pomodoro",
+    "pomodoro",
     "spaced repetition",
     "active recall",
-    "plataforma educativa",
-    "e-learning",
-    "colombia educación",
   ],
+
   authors: [{ name: "Jesus Camacho" }],
   creator: "Jesus Camacho",
   publisher: "Jesus Camacho",
+
+  // ✅ CORREGIDO
   formatDetection: {
-    email: 'jesuscasierra928@gmail.com',
+    email: false,
     address: false,
     telephone: false,
   },
+
   openGraph: {
     type: "website",
     locale: "es_CO",
     url: "/",
     title: "LearnYos",
     description:
-      "La plataforma de estudio más avanzada que combina inteligencia artificial y metodologías probadas.",
+      "Plataforma de estudio con IA para aprendizaje acelerado.",
     siteName: "LearnYos",
     images: [
       {
@@ -70,92 +72,90 @@ export const metadata: Metadata = {
       },
     ],
   },
+
   twitter: {
     card: "summary_large_image",
     title: "LearnYos - Aprende más rápido con IA",
     description:
-      "La plataforma de estudio más avanzada que combina inteligencia artificial y metodologías probadas.",
+      "Plataforma de estudio con IA para aprendizaje acelerado.",
     images: ["/twitter-image.png"],
     creator: "@learnyos",
   },
+
   robots: {
     index: true,
     follow: true,
     googleBot: {
       index: true,
       follow: true,
-      "max-video-preview": -1,
       "max-image-preview": "large",
       "max-snippet": -1,
     },
   },
+
   icons: {
     icon: "/logo-100x100.png",
     shortcut: "/logo-100x100.png",
     apple: "/logo-100x100.png",
   },
+
   manifest: "/manifest.json",
+
   alternates: {
     canonical: "/",
   },
+
+  // 🔥 ESTO ES LO QUE NECESITAS PARA GOOGLE SEARCH CONSOLE
   verification: {
     google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION,
   },
 };
 
-// Structured data para SEO
+// 🔥 Structured Data (SEO PRO)
 const structuredData = {
   "@context": "https://schema.org",
   "@type": "WebApplication",
   name: "LearnYos",
-  description: "Plataforma de estudio con IA para aprendizaje acelerado usando herramientas como flashcards, notas y examenes",
+  description:
+    "Plataforma de estudio con IA para aprendizaje acelerado",
   url: appUrl,
   applicationCategory: "EducationalApplication",
   operatingSystem: "Web",
-  browserRequirements: "Requires JavaScript",
   offers: {
     "@type": "Offer",
     price: "0",
     priceCurrency: "USD",
   },
-  aggregateRating: {
-    "@type": "AggregateRating",
-    ratingValue: "4.8",
-    ratingCount: "1000",
-  },
-  featureList: [
-    "Chatbot IA educativo",
-    "Generador de quizzes",
-    "Flashcards inteligentes",
-    "Notas automáticas",
-    "Técnica Pomodoro",
-    "Spaced repetition",
-  ],
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
     <html lang="es" suppressHydrationWarning>
       <head>
+        <link rel="canonical" href={appUrl} />
+
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link
           rel="preconnect"
           href="https://fonts.gstatic.com"
           crossOrigin="anonymous"
         />
-        <link rel="canonical" href={appUrl} />
-        {/* Structured Data para SEO */}
+
+        {/* 🔥 SEO estructurado */}
         <Script
           id="structured-data"
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(structuredData),
+          }}
           strategy="afterInteractive"
         />
       </head>
+
       <body className="body">
         <Providers>{children}</Providers>
         <LocalToaster position="top-right" />
