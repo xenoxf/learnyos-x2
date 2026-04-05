@@ -69,7 +69,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     try {
       const savedState = localStorage.getItem("sidebar-collapsed");
       if (savedState !== null) {
-        setIsCollapsed(savedState === "true");
+        setIsCollapsed(savedState === "false");
       }
 
       // Verificar autenticación inicial

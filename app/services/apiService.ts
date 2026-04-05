@@ -195,8 +195,9 @@ class ApiService {
     return user ? JSON.parse(user) : null;
   }
 
-  isAuthenticated(): boolean {
-    return !!this.getToken();
+  async isAuthenticated(): Promise<boolean> {
+    const pass = await this.verifyToken();
+    return pass;
   }
 
   isValidEmail(email: string): boolean {
@@ -363,6 +364,12 @@ class ApiService {
     );
   }
 
+  async deleteAllNotes(): Promise<void> {
+    await this.request<void>('/notes/all', {
+      method: 'DELETE'
+    });
+  }
+
   // ==================== FLASHCARDS ====================
 
   async getFlashcards(): Promise<CardsDeck[]> {
@@ -451,6 +458,10 @@ class ApiService {
     await this.request<void>(`/flash-cards/${id}`, { method: "DELETE" });
   }
 
+  async deleteAllCards(): Promise<void> {
+    await this.request<void>('/flash-cards/all', {method: 'DELETE'});
+  }
+
   // ==================== EXAMS ====================
 
   async getExams(): Promise<ExamDeck[]> {
@@ -490,10 +501,6 @@ class ApiService {
     return this.request<ExamKlek>(`/exams/${id}`, { method: "GET" });
   }
 
-  /**
-   * Get exam for playing (klek format) - includes questions
-   * Use this when opening a quiz to play, not for deck listing
-   */
   async getExamForPlay(id: number): Promise<ExamKlek> {
     return this.request<ExamKlek>(`/exams/play/${id}`, { method: "GET" });
   }
@@ -516,6 +523,10 @@ class ApiService {
 
   async deleteExam(id: number): Promise<void> {
     await this.request<void>(`/exams/${id}`, { method: "DELETE" });
+  }
+
+  async deleteAllExams():Promise<void> {
+    await this.request<void>('/exams/all', {method: 'DELETE'});
   }
 
   // ==================== CHATS ====================
@@ -550,6 +561,10 @@ class ApiService {
 
   async deleteChat(chatId: number): Promise<void> {
     await this.request<void>(`/messages/chat/${chatId}`, { method: "DELETE" });
+  }
+
+  async deleteAllChats(): Promise<void> {
+    await this.request<void>('/messages/chat/all', {method: 'DELETE'});
   }
 
   // ==================== GROQ (AI) ====================

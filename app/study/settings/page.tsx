@@ -27,11 +27,12 @@ import {
   MessageSquare,
   RefreshCw,
 } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
 import { apiService } from "@/services/apiService";
 import { useCustomAlert } from "@/hooks/useCustomAlert";
 import { CustomAlert } from "@/components/CustomAlert";
 import styles from "@/styles/settings.module.css";
+import { toast } from "@/hooks/useLocalToast";
+import { Button } from "@/components/ui/button";
 
 type TabType = "general" | "credits" | "notes" | "flashcards" | "quizzes" | "terms";
 
@@ -64,7 +65,6 @@ interface CreditsStatus {
 }
 
 export default function SettingsPage() {
-  const { toast } = useToast();
   const router = useRouter();
   const { alert, alertState, handleClose, handleConfirm } = useCustomAlert();
 
@@ -148,11 +148,7 @@ export default function SettingsPage() {
 
       setItems(data);
     } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "No se pudieron cargar los elementos",
-      });
+      toast.error('Error', 'No se pudieron cargar los elementos')
     } finally {
       setLoading(false);
     }
@@ -165,7 +161,10 @@ export default function SettingsPage() {
   // Cargar créditos cuando se abre la pestaña
   useEffect(() => {
     if (activeTab === "credits") {
-      loadCredits();
+      if(apiService.isGuest()) {
+        toast.error('Inicia Sesion', 'Acceso restringido')
+      }
+      else loadCredits();
     }
   }, [activeTab, loadCredits]);
 
@@ -192,18 +191,11 @@ export default function SettingsPage() {
         await apiService.deleteExam(id);
       }
 
-      toast({
-        title: "Eliminado",
-        description: "Elemento eliminado correctamente",
-      });
+      toast.success('Eliminado')
 
       setItems((prev) => prev.filter((item) => item.id !== id));
     } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "No se pudo eliminar el elemento",
-      });
+      toast.error('Error', 'No se pudo eliminar')
     } finally {
       setDeletingId(null);
     }
@@ -223,38 +215,24 @@ export default function SettingsPage() {
 
     try {
       setDeletingAll(true);
-      let deletedCount = 0;
-      const itemsToDelete = [...items];
 
-      for (const item of itemsToDelete) {
-        if (item.canDelete === false) continue;
-
-        try {
-          if (activeTab === "notes") {
-            await apiService.deleteNote(item.id);
-          } else if (activeTab === "flashcards") {
-            await apiService.deleteCard(item.id);
-          } else if (activeTab === "quizzes") {
-            await apiService.deleteExam(item.id);
-          }
-          deletedCount++;
-        } catch (error) {
-          console.error(`Error deleting ${item.id}:`, error);
-        }
+      switch (activeTab) {
+        case 'flashcards':
+          await apiService.deleteAllCards;
+          break;
+        case 'notes':
+          await apiService.deleteAllNotes;
+          break;
+        case 'quizzes':
+          await apiService.deleteAllExams;
+          break;
       }
 
-      toast({
-        title: "Eliminados",
-        description: `${deletedCount} de ${items.length} elementos eliminados`,
-      });
+      toast.success('Eliminados', 'Todo fue eliminado de forma correcta')
 
-      setItems((prev) => prev.filter((item) => item.canDelete === false));
+      router.refresh();
     } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Error al eliminar los elementos",
-      });
+      toast.error('Error', 'Error al eliminar los elementos')
     } finally {
       setDeletingAll(false);
     }
@@ -287,17 +265,10 @@ export default function SettingsPage() {
 
     try {
       await apiService.logout();
-      toast({
-        title: "Sesión cerrada",
-        description: "Has cerrado sesión correctamente.",
-      });
-      router.push("/auth");
+      toast.success('Sesion cerrada', 'Has cerrado sesión correctamente.')
+      router.push("/");
     } catch {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "No se pudo cerrar la sesión.",
-      });
+      toast.error('Error', 'No se pudo cerrar la sesión.')
     }
   };
 
@@ -316,11 +287,11 @@ export default function SettingsPage() {
 
   const menuItems = useMemo(() => [
     { id: "general" as TabType, label: "General", icon: Settings },
-    { id: "credits" as TabType, label: "Mis Créditos", icon: Coins },
+    { id: "creditos" as TabType, label: "Mis Créditos", icon: Coins },
     { id: "notes" as TabType, label: "Mis Notas", icon: FileText },
     { id: "flashcards" as TabType, label: "Mis Flashcards", icon: CreditCard },
     { id: "quizzes" as TabType, label: "Mis Quizzes", icon: Brain },
-    { id: "terms" as TabType, label: "Términos", icon: Shield },
+    { id: "terminos" as TabType, label: "Términos", icon: Shield },
   ], []);
 
   return (
@@ -349,7 +320,7 @@ export default function SettingsPage() {
           {user?.picture ? (
             <Image
               src={user.picture}
-              alt={user.name || "Usuario"}
+              alt={user.name || "Invitado"}
               width={32}
               height={32}
               className={styles.userAvatar}
@@ -359,7 +330,7 @@ export default function SettingsPage() {
               {user?.name?.[0]?.toUpperCase() || "U"}
             </div>
           )}
-          <span className={styles.userName}>{user?.name || "Usuario"}</span>
+          <span className={styles.userName}>{user?.name || "Invitado"}</span>
         </div>
       </header>
 
@@ -451,7 +422,7 @@ export default function SettingsPage() {
           )}
 
           {/* CREDITS TAB */}
-          {activeTab === "credits" && (
+          {activeTab === "credits" && apiService.isGuest() === false ? (
             <div className={styles.creditsContent}>
               {/* Header de Créditos */}
               <section className={styles.creditsHero}>
@@ -651,8 +622,8 @@ export default function SettingsPage() {
                     </p>
                   </section>
                 </>
-              ) : (
-                <div className={styles.creditsError}>
+              ) : ( 
+                (<div className={styles.creditsError}>
                   <AlertTriangle size={32} />
                   <p>No se pudieron cargar los créditos</p>
                   <button
@@ -663,9 +634,22 @@ export default function SettingsPage() {
                     <RefreshCw size={16} />
                     <span>Reintentar</span>
                   </button>
-                </div>
+                </div>) 
+                
               )}
             </div>
+          ): (
+            <div className={styles.creditsError}>
+                  <AlertTriangle size={32} />
+                  <p>Eres un Invitado</p>
+                  <Button
+                    className={styles.creditsRetryButton}
+                    onClick={() => {apiService.logout(); router.push('/auth')}}
+                  >
+                    <RefreshCw size={16} />
+                    <span>Iniciar Sesion</span>
+                  </Button>
+                </div>
           )}
 
           {/* TERMS TAB */}
@@ -780,7 +764,7 @@ export default function SettingsPage() {
           )}
 
           {/* NOTES / FLASHCARDS / QUIZZES TABS */}
-          {(activeTab === "notes" || activeTab === "flashcards" || activeTab === "quizzes") && (
+          {(activeTab === "notes" || activeTab === "flashcards" || activeTab === "quizzes") && apiService.isGuest() === false ?(
             <div className={styles.manageContent}>
               <div className={styles.manageHeader}>
                 <div className={styles.manageHeaderLeft}>
@@ -862,6 +846,18 @@ export default function SettingsPage() {
                 </div>
               )}
             </div>
+          ): (
+            <div className={styles.creditsError}>
+                  <AlertTriangle size={32} />
+                  <p>Eres un invitado</p>
+                  <Button
+                    className={styles.creditsRetryButton}
+                    onClick={() => {apiService.logout(); router.push('/auth')}}
+                  >
+                    <RefreshCw size={16} />
+                    <span>Inciar Sesion</span>
+                  </Button>
+                </div>
           )}
         </main>
       </div>
