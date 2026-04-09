@@ -6,7 +6,7 @@ import {
   RotateCcw,
 } from "lucide-react";
 import styles from "@/styles/flashCards/CardKlek.module.css";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "@/hooks/useLocalToast";
 import { apiService } from "@/services/apiService";
 import MarkdownRenderer from "../MarkdownRenderer";
 
@@ -16,7 +16,7 @@ interface CardKlekProps {
 }
 
 const CardKlekComponent: React.FC<CardKlekProps> = ({ cardId, onClose }) => {
-  const { toast } = useToast();
+  ;
   const [card, setCard] = useState<CardKlek | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
@@ -33,11 +33,7 @@ const CardKlekComponent: React.FC<CardKlekProps> = ({ cardId, onClose }) => {
       const message =
         err instanceof Error ? err.message : "Error al cargar mazo";
       setError(message);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: message,
-      });
+      toast.info("", );
     } finally {
       setLoading(false);
     }

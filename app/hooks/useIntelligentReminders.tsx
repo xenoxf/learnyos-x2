@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useLocalStorage } from './useLocalStorage';
-import { toast } from '@/hooks/use-toast';
+import { toast } from '@/hooks/useLocalToast';
 
 interface Reminder {
   id: string;
@@ -98,10 +98,7 @@ export const useIntelligentReminders = () => {
     const timeUntilReminder = reminderTime.getTime() - now.getTime();
 
     setTimeout(() => {
-      toast({
-        title: 'Recordatorio de Estudio',
-        description: reminder.message,
-      });
+      toast.success("Éxito");
     }, timeUntilReminder);
   };
 

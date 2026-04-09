@@ -4,7 +4,7 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus, atomDark, tomorrow, nightOwl } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from '@/hooks/useLocalToast';
 import { useCodeTheme } from '@/contexts/CodeThemeContext';
 
 interface CodeBlockProps {
@@ -19,7 +19,7 @@ export const CodeBlock: React.FC<CodeBlockProps> = ({
   showLineNumbers = true 
 }) => {
   const [copied, setCopied] = useState(false);
-  const { toast } = useToast();
+  ;
   const { codeTheme } = useCodeTheme();
 
   const themeStyles = {
@@ -33,17 +33,10 @@ export const CodeBlock: React.FC<CodeBlockProps> = ({
     try {
       await navigator.clipboard.writeText(children);
       setCopied(true);
-      toast({
-        title: "Código copiado",
-        description: "El código ha sido copiado al portapapeles",
-      });
+      toast.info("", "");
       setTimeout(() => setCopied(false), 2000);
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "No se pudo copiar el código",
-        variant: "destructive",
-      });
+      toast.error("Error", "Algo salió mal");
     }
   };
 

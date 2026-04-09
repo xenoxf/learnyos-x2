@@ -1,62 +1,64 @@
-import React from "react";
+"use client";
+
+import React, { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { Trash2, HelpCircle, Clock, Tag } from "lucide-react";
+import { Trash2, HelpCircle, Clock, Tag, Heart, User } from "lucide-react";
 import { apiService } from "@/services/apiService";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "@/hooks/useLocalToast";
 import styles from "@/styles/quiz/quizCard.module.css";
 import type { ExamDeck } from "@/types";
 
 interface QuizCardProps {
   quiz: ExamDeck & { canDelete?: boolean };
   onQuizDeleted?: () => void;
+  isEspacio?: boolean;
+  onShowOptions?: () => void;
 }
 
 export default function QuizCard({
   quiz,
   onQuizDeleted,
+  isEspacio,
+  onShowOptions,
 }: QuizCardProps) {
   const router = useRouter();
-  const { toast } = useToast();
+  ;
+  const [likesCount, setLikesCount] = useState(quiz.likesCount || 0);
+  const [userLiked, setUserLiked] = useState(quiz.userLiked || false);
+  const [isLiking, setIsLiking] = useState(false);
+
   const isOwner = quiz.canDelete ?? false;
 
-  const handleDelete = async () => {
+  const handleDelete = useCallback(async (e: React.MouseEvent) => {
+    e.stopPropagation();
     if (!isOwner) {
-      toast({
-        variant: "destructive",
-        title: "No permitido",
-        description: "Solo puedes eliminar tus propios quizzes",
-      });
+      toast.error("No permitido", "Solo puedes eliminar tus propios quizzes");
       return;
     }
+  }, [isOwner]);
 
-    const confirm = window.confirm(
-      "¿Estás seguro de que deseas eliminar este quiz?",
-    );
-    if (confirm) {
-      try {
-        await apiService.deleteExam(quiz.id);
-        toast({
-          title: "Éxito",
-          description: "Quiz eliminado correctamente",
-        });
-        if (onQuizDeleted) {
-          onQuizDeleted();
-        }
-      } catch (err) {
-        const message =
-          err instanceof Error ? err.message : "Error al eliminar quiz";
-        toast({
-          variant: "destructive",
-          title: "Error",
-          description: message,
-        });
-      }
+  const handleLike = useCallback(async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (isLiking) return;
+    try {
+      setIsLiking(true);
+      const result = await apiService.toggleExamLike(quiz.id);
+      setLikesCount(result.count);
+      setUserLiked(result.liked);
+    } catch {
+      // Silent fail for likes
+    } finally {
+      setIsLiking(false);
     }
-  };
+  }, [quiz.id, isLiking]);
 
-  const handleOpen = () => {
-    router.push(`/study/quiz/${quiz.id}`);
-  };
+  const handleOpen = useCallback(() => {
+    if (isEspacio && onShowOptions) {
+      onShowOptions();
+    } else {
+      router.push(`/study/quiz/${quiz.id}`);
+    }
+  }, [isEspacio, onShowOptions, router, quiz.id]);
 
   return (
     <div
@@ -73,13 +75,10 @@ export default function QuizCard({
     >
       <div className={styles.cardHeader}>
         <h3 className={styles.cardTitle}>{quiz.title}</h3>
-        {isOwner && (
+        {isOwner && !isEspacio && (
           <button
             className={styles.deleteBtn}
-            onClick={(e) => {
-              e.stopPropagation();
-              handleDelete();
-            }}
+            onClick={handleDelete}
             title="Eliminar quiz"
             aria-label="Eliminar quiz"
             type="button"
@@ -110,12 +109,34 @@ export default function QuizCard({
         )}
       </div>
 
-      <div className={styles.cardFooter}>
+      <div className={styles.cardCreator}>
+        <User size={12} />
+        <span>{quiz.creatorName}</span>
+      </div>
 
-        {/* Solo mostrar el code si es el dueño */}
-        {isOwner && quiz.code ? (
+      <div className={styles.cardFooter}>
+        {!isOwner && (
+          <button
+            className={`${styles.likeBtn} ${userLiked ? styles.likeBtnActive : ""}`}
+            onClick={handleLike}
+            disabled={isLiking}
+            title="Me gusta"
+            aria-label="Me gusta"
+            type="button"
+          >
+            <Heart size={14} fill={userLiked ? "currentColor" : "none"} />
+            <span>{likesCount}</span>
+          </button>
+        )}
+        {isOwner && (
+          <span className={styles.likesCount}>
+            <Heart size={14} fill="currentColor" />
+            <span>{likesCount}</span>
+          </span>
+        )}
+        {isOwner && quiz.code && (
           <span className={styles.cardCode}>{quiz.code}</span>
-        ) : null}
+        )}
       </div>
     </div>
   );

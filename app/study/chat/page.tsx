@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { apiService } from "@/services/apiService";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "@/hooks/useLocalToast";
 import {
   Send,
   Trash2,
@@ -13,13 +13,11 @@ import {
   MessageSquare,
   Bot,
   User,
-  Menu,
   PanelLeftClose,
   PanelLeft,
   X,
 } from "lucide-react";
 import styles from "@/styles/chat.module.css";
-import DashboardLayout from "../layout";
 import type { ChatMessage, Chat } from "@/types";
 import { MarkdownRenderer } from "@/components/MarkdownRenderer";
 
@@ -32,6 +30,8 @@ export default function ChatPage() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isStreaming, setIsStreaming] = useState(false);
+  const [streamingContent, setStreamingContent] = useState("");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [copiedId, setCopiedId] = useState<number | null>(null);
@@ -39,7 +39,6 @@ export default function ChatPage() {
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const { toast } = useToast();
 
   // ==================== DETECTAR GUEST ====================
   useEffect(() => {
@@ -49,16 +48,8 @@ export default function ChatPage() {
   // ==================== SUGERENCIAS ====================
   const suggestions = [
     { icon: "🧠", title: "Ciencia", text: "Explica la teoría cuántica" },
-    {
-      icon: "🤖",
-      title: "Tecnología",
-      text: "¿Cómo funciona el machine learning?",
-    },
-    {
-      icon: "📚",
-      title: "Historia",
-      text: "Resumen de la Segunda Guerra Mundial",
-    },
+    { icon: "🤖", title: "Tecnología", text: "¿Cómo funciona el machine learning?" },
+    { icon: "📚", title: "Historia", text: "Resumen de la Segunda Guerra Mundial" },
   ];
 
   // ==================== DETECTAR MÓVIL ====================
@@ -66,91 +57,76 @@ export default function ChatPage() {
     const checkMobile = () => {
       const mobile = window.innerWidth <= 768;
       setIsMobile(mobile);
-      if (mobile) {
-        setIsSidebarOpen(false);
-      }
+      if (mobile) setIsSidebarOpen(false);
     };
-
     checkMobile();
     window.addEventListener("resize", checkMobile);
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
-  // ==================== FUNCIONES API REALES ====================
+  // ==================== CARGAR CHATS ====================
   const loadChats = useCallback(async () => {
-    setIsLoading(true);
     try {
       const response = await apiService.getChats();
       setChats(Array.isArray(response) ? response : []);
-      setIsLoading(false)
     } catch {
-      setIsLoading(false);
-      toast({
-        title: "Error",
-        description: "No se pudieron cargar los chats",
-        variant: "destructive",
-      });
+      toast.error("Error", "No se pudieron cargar las conversaciones");
     }
-  }, [toast]);
+  }, []);
 
-  // ==================== CARGAR DATOS REALES ====================
   useEffect(() => {
-    loadChats();
-  }, [loadChats]);
+    if (!isGuest) loadChats();
+  }, [loadChats, isGuest]);
 
-  const loadChatMessages = async (chatId: number) => {
+  // ==================== CARGAR MENSAJES ====================
+  const loadChatMessages = useCallback(async (chatId: number) => {
     try {
       const response = await apiService.getChatMessages(chatId);
       const messagesList = response.messages ?? [];
-
       const chatMessages: ChatMessage[] = messagesList.flatMap((m) => [
-        {
-          id: m.id * 2,
-          chatId: response.chatId,
-          content: m.prompt,
-          role: "user",
-          createdAt: String(m.createdAt),
-        },
-        {
-          id: m.id * 2 + 1,
-          chatId: response.chatId,
-          content: m.response,
-          role: "assistant",
-          createdAt: String(m.createdAt),
-        },
+        { id: m.id * 2, chatId: response.chatId, content: m.prompt, role: "user", createdAt: String(m.createdAt) },
+        { id: m.id * 2 + 1, chatId: response.chatId, content: m.response, role: "assistant", createdAt: String(m.createdAt) },
       ]);
-
       setMessages(chatMessages);
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "No se pudieron cargar los mensajes",
-        variant: "destructive",
-      });
+    } catch {
+      toast.error("Error", "No se pudieron cargar los mensajes");
     }
-  };
+  }, []);
 
-  const handleSendMessage = async () => {
+  // ==================== TEXTAREA ====================
+  const adjustTextareaHeight = useCallback(() => {
+    if (textareaRef.current) {
+      const ta = textareaRef.current;
+      ta.style.height = "auto";
+      ta.style.height = `${Math.min(ta.scrollHeight, 120)}px`;
+    }
+  }, []);
+
+  const resetTextareaHeight = useCallback(() => {
+    if (textareaRef.current) textareaRef.current.style.height = "auto";
+  }, []);
+
+  // ==================== ENVIAR MENSAJE ====================
+  const handleSendMessage = useCallback(async () => {
     if (isGuest) {
-      toast({
-        title: "Modo invitado",
-        description: "Inicia sesión para usar el chat con IA",
-        variant: "destructive",
-      });
+      toast.error("Acceso restringido", "Inicia sesión para usar el chat");
       return;
     }
-
     if (!inputValue.trim() || isLoading) return;
 
     const messageContent = inputValue.trim();
     setInputValue("");
     setIsLoading(true);
+    setIsStreaming(true);
+    setStreamingContent("");
     resetTextareaHeight();
 
-    // Optimistic update
-    const tempId = Date.now();
+    // Si no hay chat actual, el backend creará uno nuevo y devolverá el ID en el evento "done"
+    const sendingToExistingChat = !!currentChat;
+
+    // Mensaje del usuario (optimista)
     const userMessage: ChatMessage = {
-      id: tempId,
+      id: Date.now(),
       chatId: currentChat?.id,
       content: messageContent,
       role: "user",
@@ -159,53 +135,70 @@ export default function ChatPage() {
 
     setMessages((prev) => [...prev, userMessage]);
 
+    let fullContent = "";
+    let newChatId: number | undefined;
+
     try {
-      const response = await apiService.sendMessage({
+      for await (const chunk of apiService.sendMessageStream({
         prompt: messageContent,
         chatId: currentChat?.id,
-      });
+      })) {
+        if (chunk.type === "chunk") {
+          fullContent += chunk.content || "";
+          setStreamingContent(fullContent);
+        } else if (chunk.type === "done") {
+          // El backend devuelve el chatId y messageId en el evento "done"
+          newChatId = (chunk as any).chatId;
+        }
+      }
 
+      // Limpiar streaming
+      setStreamingContent("");
+      setIsStreaming(false);
+
+      // Si el backend creó un chat nuevo, actualizar el estado
+      if (!sendingToExistingChat && newChatId) {
+        // Crear el objeto chat localmente con el ID que vino del backend
+        const newChat: Chat = {
+          id: newChatId,
+          title: messageContent.slice(0, 40) + (messageContent.length > 40 ? '...' : ''),
+          createdAt: new Date().toISOString(),
+          messageCount: 1,
+        };
+        setCurrentChat(newChat);
+        setChats((prev) => [newChat, ...prev]);
+      }
+
+      // Agregar mensaje del asistente
       const assistantMessage: ChatMessage = {
-        id: response.id,
-        chatId: response.chatId,
-        content: response.response,
+        id: Date.now() + 1,
+        chatId: newChatId ?? currentChat?.id,
+        content: fullContent,
         role: "assistant",
-        createdAt: response.createdAt ?? new Date().toISOString(),
+        createdAt: new Date().toISOString(),
       };
 
       setMessages((prev) => [...prev, assistantMessage]);
 
-      // Si es un chat nuevo, actualizar la lista
-      if (response.chatId && !currentChat) {
+      // Recargar lista de chats solo si se creó uno nuevo
+      if (!sendingToExistingChat) {
         await loadChats();
-        setCurrentChat({
-          id: response.chatId,
-          title: "Nuevo Chat",
-          messageCount: 2,
-          createdAt: new Date().toISOString(),
-        });
       }
-    } catch (error) {
-      // Rollback en caso de error
-      setMessages((prev) => prev.filter((m) => m.id !== tempId));
 
-      toast({
-        title: "Error",
-        description: "No se pudo enviar el mensaje",
-        variant: "destructive",
-      });
+    } catch {
+      // Remover mensaje optimista en caso de error
+      setMessages((prev) => prev.filter((m) => m.id !== userMessage.id));
+      toast.error("Error", "No se pudo obtener la respuesta");
     } finally {
       setIsLoading(false);
+      setIsStreaming(false);
+      setStreamingContent("");
     }
-  };
+  }, [isGuest, inputValue, isLoading, currentChat, loadChats, resetTextareaHeight]);
 
   const handleNewChat = () => {
     if (isGuest) {
-      toast({
-        title: "Modo invitado",
-        description: "Inicia sesión para crear nuevos chats",
-        variant: "destructive",
-      });
+      toast.error("Acceso restringido", "Inicia sesión para usar el chat");
       return;
     }
     setCurrentChat(null);
@@ -222,38 +215,21 @@ export default function ChatPage() {
   };
 
   const handleDeleteChat = async (chatId: number, e: React.MouseEvent) => {
+    e.stopPropagation();
     if (isGuest) {
-      toast({
-        title: "Modo invitado",
-        description: "Inicia sesión para eliminar chats",
-        variant: "destructive",
-      });
+      toast.error("Acceso restringido", "Inicia sesión para eliminar chats");
       return;
     }
-
-    e.stopPropagation();
-
     try {
       await apiService.deleteChat(chatId);
-
-      // Actualizar lista
       setChats((prev) => prev.filter((c) => c.id !== chatId));
-
-      // Si el chat actual fue eliminado, crear nuevo
       if (currentChat?.id === chatId) {
-        handleNewChat();
+        setCurrentChat(null);
+        setMessages([]);
       }
-
-      toast({
-        title: "Éxito",
-        description: "Chat eliminado correctamente",
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "No se pudo eliminar el chat",
-        variant: "destructive",
-      });
+      toast.success("Eliminado", "Conversación eliminada");
+    } catch {
+      toast.error("Error", "No se pudo eliminar la conversación");
     }
   };
 
@@ -262,55 +238,21 @@ export default function ChatPage() {
       await navigator.clipboard.writeText(text);
       setCopiedId(messageId);
       setTimeout(() => setCopiedId(null), 2000);
-
-      toast({
-        title: "Copiado",
-        description: "Mensaje copiado al portapapeles",
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "No se pudo copiar el mensaje",
-        variant: "destructive",
-      });
+      toast.success("Copiado", "Mensaje copiado al portapapeles");
+    } catch {
+      toast.error("Error", "No se pudo copiar el mensaje");
     }
   };
 
-  // ==================== UTILS ====================
+  // ==================== SCROLL ====================
   const scrollToBottom = useCallback(() => {
-    // Usar requestAnimationFrame para evitar bugs visuales
     requestAnimationFrame(() => {
       if (messagesEndRef.current) {
-        // Scroll instantáneo para evitar animaciones problemáticas
-        messagesEndRef.current.scrollIntoView({
-          behavior: "auto",
-          block: "end"
-        });
+        messagesEndRef.current.scrollIntoView({ behavior: "auto", block: "end" });
       }
     });
   }, []);
 
-  const adjustTextareaHeight = useCallback(() => {
-    if (textareaRef.current) {
-      const textarea = textareaRef.current;
-      textarea.style.height = "auto";
-      const newHeight = Math.min(textarea.scrollHeight, 120);
-      textarea.style.height = `${newHeight}px`;
-
-      // Scroll al bottom del textarea si es muy alto
-      if (textarea.scrollHeight > 120) {
-        textarea.scrollTop = textarea.scrollHeight - 120;
-      }
-    }
-  }, []);
-
-  const resetTextareaHeight = useCallback(() => {
-    if (textareaRef.current) {
-      textareaRef.current.style.height = "auto";
-    }
-  }, []);
-
-  // Scroll automático cuando llegan nuevos mensajes
   useEffect(() => {
     scrollToBottom();
   }, [messages, scrollToBottom]);
@@ -322,48 +264,15 @@ export default function ChatPage() {
     }
   };
 
-  const formatTime = (dateString: string) => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffMins = Math.floor(diffMs / 60000);
-
-    if (diffMins < 1) return "Ahora";
-    if (diffMins < 60) return `Hace ${diffMins} min`;
-
-    const diffHours = Math.floor(diffMins / 60);
-    if (diffHours < 24) return `Hace ${diffHours} h`;
-
-    const diffDays = Math.floor(diffHours / 24);
-    if (diffDays === 1) return "Ayer";
-
-    return date.toLocaleDateString("es-ES", {
-      day: "2-digit",
-      month: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
-
   // ==================== RENDER ====================
   return (
-
     <div className={styles.container}>
-      {/* SIDEBAR INTEGRADO (NO FIXED) */}
-      <aside
-        className={`${styles.sidebar} ${!isSidebarOpen ? styles.sidebarClosed : ""
-          } ${isMobile && isSidebarOpen ? styles.sidebarOpen : ""}`}
-      >
+      {/* SIDEBAR */}
+      <aside className={`${styles.sidebar} ${!isSidebarOpen ? styles.sidebarClosed : ""} ${isMobile && isSidebarOpen ? styles.sidebarOpen : ""}`}>
         <div className={styles.sidebarHeader}>
           <h2 className={styles.sidebarTitle}>Conversaciones</h2>
-          <button
-            className={styles.newChatButton}
-            onClick={handleNewChat}
-            disabled={isGuest}
-            style={isGuest ? { opacity: 0.5, pointerEvents: 'none' } : undefined}
-          >
-            <Plus size={18} />
-            Nuevo chat
+          <button className={styles.newChatButton} onClick={handleNewChat} disabled={isGuest} style={isGuest ? { opacity: 0.5, pointerEvents: 'none' } : undefined}>
+            <Plus size={18} /> Nuevo chat
           </button>
         </div>
 
@@ -376,25 +285,12 @@ export default function ChatPage() {
             </div>
           ) : (
             chats.map((chat) => (
-              <div
-                key={chat.id}
-                className={`${styles.chatItem} ${currentChat?.id === chat.id ? styles.active : ""
-                  }`}
-                onClick={() => handleSelectChat(chat)}
-              >
+              <div key={chat.id} className={`${styles.chatItem} ${currentChat?.id === chat.id ? styles.active : ""}`} onClick={() => handleSelectChat(chat)}>
                 <MessageSquare size={18} />
                 <div className={styles.chatInfo}>
-                  <span className={styles.chatTitle}>
-                    {chat.title || `Chat ${chat.id}`}
-                  </span>
+                  <span className={styles.chatTitle}>{chat.title || `Chat ${chat.id}`}</span>
                 </div>
-                <button
-                  className={styles.deleteButton}
-                  onClick={(e) => handleDeleteChat(chat.id, e)}
-                  aria-label="Eliminar chat"
-                  disabled={isGuest}
-                  style={isGuest ? { opacity: 0.5, pointerEvents: 'none' } : undefined}
-                >
+                <button className={styles.deleteButton} onClick={(e) => handleDeleteChat(chat.id, e)} aria-label="Eliminar chat" disabled={isGuest} style={isGuest ? { opacity: 0.5, pointerEvents: 'none' } : undefined}>
                   <Trash2 size={16} />
                 </button>
               </div>
@@ -403,48 +299,26 @@ export default function ChatPage() {
         </div>
       </aside>
 
-      {/* BOTÓN TOGGLE MEJORADO */}
-      <button
-        className={`${styles.toggleButton} ${!isSidebarOpen ? styles.toggleButtonClosed : ""
-          }`}
-        onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-        aria-label={isSidebarOpen ? "Ocultar historial" : "Mostrar historial"}
-      >
-        {isSidebarOpen ? (
-          <PanelLeftClose size={18} />
-        ) : (
-          <PanelLeft size={18} />
-        )}
+      {/* TOGGLE BUTTON */}
+      <button className={`${styles.toggleButton} ${!isSidebarOpen ? styles.toggleButtonClosed : ""}`} onClick={() => setIsSidebarOpen(!isSidebarOpen)} aria-label={isSidebarOpen ? "Ocultar historial" : "Mostrar historial"}>
+        {isSidebarOpen ? <PanelLeftClose size={18} /> : <PanelLeft size={18} />}
       </button>
 
       {/* MAIN CONTENT */}
       <main className={styles.main}>
-        {/* MESSAGES ESTILO LIBRO */}
         <div className={styles.messages}>
-          {messages.length === 0 ? (
+          {messages.length === 0 && !isStreaming ? (
             <div className={styles.welcome}>
-              <div className={styles.welcomeIcon}>
-                <Bot size={48} />
-              </div>
+              <div className={styles.welcomeIcon}><Bot size={48} /></div>
               <h1>¡Hola! Soy Junior</h1>
               <p>¿Qué te gustaría preguntar hoy?</p>
               <div className={styles.suggestions}>
-                {suggestions.map((suggestion, index) => (
-                  <button
-                    key={index}
-                    className={styles.suggestionCard}
-                    onClick={() => setInputValue(suggestion.text)}
-                  >
-                    <span className={styles.suggestionIcon}>
-                      {suggestion.icon}
-                    </span>
+                {suggestions.map((s, i) => (
+                  <button key={i} className={styles.suggestionCard} onClick={() => setInputValue(s.text)}>
+                    <span className={styles.suggestionIcon}>{s.icon}</span>
                     <div className={styles.suggestionContent}>
-                      <span className={styles.suggestionTitle}>
-                        {suggestion.title}
-                      </span>
-                      <span className={styles.suggestionText}>
-                        {suggestion.text}
-                      </span>
+                      <span className={styles.suggestionTitle}>{s.title}</span>
+                      <span className={styles.suggestionText}>{s.text}</span>
                     </div>
                   </button>
                 ))}
@@ -453,50 +327,37 @@ export default function ChatPage() {
           ) : (
             <>
               {messages.map((msg) => (
-                <div
-                  key={msg.id}
-                  className={`${styles.message} ${msg.role === "user"
-                    ? styles.userMessage
-                    : styles.botMessage
-                    }`}
-                >
+                <div key={msg.id} className={`${styles.message} ${msg.role === "user" ? styles.userMessage : styles.botMessage}`}>
                   {msg.role === "user" ? (
                     <>
-                      <div className={styles.messageContent}>
-                        <div>
-                          {msg.content}
-                        </div>
-                      </div>
-                      <div className={styles.messageAvatar}>
-                        <User size={18} />
-                      </div>
+                      <div className={styles.messageContent}><div>{msg.content}</div></div>
+                      <div className={styles.messageAvatar}><User size={18} /></div>
                     </>
                   ) : (
                     <div className={styles.messageContentBot}>
                       <MarkdownRenderer content={msg.content} />
-                      <button
-                        className={styles.copyButton}
-                        onClick={() => handleCopyMessage(msg.content, msg.id)}
-                        title="Copiar respuesta"
-                      >
-                        {copiedId === msg.id ? (
-                          <Check size={14} />
-                        ) : (
-                          <Copy size={14} />
-                        )}
+                      <button className={styles.copyButton} onClick={() => handleCopyMessage(msg.content, msg.id)} title="Copiar respuesta">
+                        {copiedId === msg.id ? <Check size={14} /> : <Copy size={14} />}
                       </button>
                     </div>
                   )}
                 </div>
               ))}
 
-              {isLoading && (
+              {/* Streaming message - SEPARADO del array para evitar parpadeo */}
+              {isLoading && isStreaming && streamingContent && (
                 <div className={`${styles.message} ${styles.botMessage}`}>
-                  <div className={styles.typing}>
-                    <span></span>
-                    <span></span>
-                    <span></span>
+                  <div className={styles.messageContentBot}>
+                    <MarkdownRenderer content={streamingContent} />
+                    <div className={styles.streamingIndicator}><Loader size={14} className={styles.spin} /></div>
                   </div>
+                </div>
+              )}
+
+              {/* Loading indicator - solo cuando espera primer chunk */}
+              {isLoading && !isStreaming && !streamingContent && (
+                <div className={`${styles.message} ${styles.botMessage}`}>
+                  <div className={styles.typing}><span></span><span></span><span></span></div>
                 </div>
               )}
 
@@ -505,51 +366,23 @@ export default function ChatPage() {
           )}
         </div>
 
-        {/* INPUT CIRCULAR Y FLOTANTE (COMO TU PAGE) */}
+        {/* INPUT */}
         <div className={styles.inputArea}>
           <div className={styles.inputContainer}>
             <div className={styles.inputWrapper}>
-              <textarea
-                ref={textareaRef}
-                className={styles.textarea}
-                placeholder={isGuest ? "Inicia sesión para enviar mensajes..." : "Envía un mensaje..."}
-                value={inputValue}
-                onChange={(e) => {
-                  setInputValue(e.target.value);
-                  adjustTextareaHeight();
-                }}
-                onKeyDown={handleKeyDown}
-                rows={1}
-                disabled={isLoading || isGuest}
-                style={isGuest ? { opacity: 0.7 } : undefined}
-              />
-              <button
-                className={styles.sendButton}
-                onClick={handleSendMessage}
-                disabled={!inputValue.trim() || isLoading || isGuest}
-                style={isGuest ? { opacity: 0.5, pointerEvents: 'none' } : undefined}
-              >
-                {isLoading ? (
-                  <Loader size={18} className={styles.spin} />
-                ) : (
-                  <Send size={18} />
-                )}
+              <textarea ref={textareaRef} className={styles.textarea} placeholder={isGuest ? "Inicia sesión para enviar mensajes..." : "Envía un mensaje..."} value={inputValue} onChange={(e) => { setInputValue(e.target.value); adjustTextareaHeight(); }} onKeyDown={handleKeyDown} rows={1} disabled={isLoading || isGuest} style={isGuest ? { opacity: 0.7 } : undefined} />
+              <button className={styles.sendButton} onClick={handleSendMessage} disabled={!inputValue.trim() || isLoading || isGuest} style={isGuest ? { opacity: 0.5, pointerEvents: 'none' } : undefined}>
+                {isLoading ? <Loader size={18} className={styles.spin} /> : <Send size={18} />}
               </button>
             </div>
           </div>
-
         </div>
       </main>
 
-      {/* OVERLAY PARA MÓVIL */}
+      {/* OVERLAY MOBILE */}
       {isMobile && isSidebarOpen && (
-        <div
-          className={styles.overlay}
-          onClick={() => setIsSidebarOpen(false)}
-          aria-hidden="true"
-        />
+        <div className={styles.overlay} onClick={() => setIsSidebarOpen(false)} aria-hidden="true" />
       )}
     </div>
-
   );
 }

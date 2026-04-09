@@ -366,3 +366,22 @@
     font-size: 0.9rem;
   }
 }
+
+.creditPreview {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1rem;
+  margin: 0 1.5rem 1rem;
+  border-radius: 8px;
+  background: hsl(var(--muted));
+  color: hsl(var(--muted-foreground));
+  font-size: 0.8rem;
+  font-weight: 500;
+  justify-content: center;
+}
+
+.creditWarning {
+  color: hsl(var(--destructive));
+  font-weight: 600;
+}

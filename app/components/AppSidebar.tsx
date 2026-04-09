@@ -15,7 +15,7 @@ import {
   Settings,
 } from "lucide-react";
 import { apiService } from "@/services/apiService";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "@/hooks/useLocalToast";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import styles from "../styles/sidebar.module.css";
@@ -49,7 +49,6 @@ export function AppSidebar({
 }: AppSidebarProps) {
   const navigate = useRouter();
   const pathname = usePathname();
-  const { toast } = useToast();
   const [sidebarClosed, setSidebarClosed] = useState(collapsed);
   const [user, setUser] = useState<User | null>(null);
 
@@ -74,10 +73,7 @@ export function AppSidebar({
     apiService.logout();
     localStorage.removeItem("user");
     localStorage.removeItem("token");
-    toast({
-      title: "Sesión cerrada",
-      description: "Has cerrado sesión exitosamente",
-    });
+    toast.success("Sesión cerrada", "Has cerrado sesión exitosamente");
     navigate.push("/");
   };
 
@@ -205,13 +201,13 @@ export function AppSidebar({
         >
           <ThemeToggleSidebr isCollapse={collapsed} />
           <button
-            onClick={() => navigate.push("/study/settings")}
+            onClick={() => navigate.push("/study/espacio/general")}
             className={`
               ${styles.actionButton}
               ${sidebarClosed ? styles.actionButtonCollapsed : styles.actionButtonExpanded}
             `}
-            title="Configuración"
-            aria-label="Configuración"
+            title="Mi Espacio"
+            aria-label="Mi Espacio"
             type="button"
           >
             <div className={styles.actionButtonIconWrapper}>

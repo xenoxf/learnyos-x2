@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { apiService } from "@/services/apiService";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "@/hooks/useLocalToast";
 
 interface GoogleAuthButtonProps {
   onSuccess?: (user: { id: number; email: string; name: string }) => void;
@@ -24,7 +24,7 @@ interface GoogleAuthButtonProps {
 export function GoogleAuthButton({ onSuccess, onError }: GoogleAuthButtonProps) {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const { toast } = useToast();
+  ;
 
   const handleGoogleClick = async () => {
     try {
@@ -36,11 +36,7 @@ export function GoogleAuthButton({ onSuccess, onError }: GoogleAuthButtonProps) 
       window.location.href = url;
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Error al iniciar autenticación con Google";
-      toast({
-        title: "Error",
-        description: message,
-        variant: "destructive",
-      });
+      toast.success("Éxito");
       onError?.(message);
       setLoading(false);
     }

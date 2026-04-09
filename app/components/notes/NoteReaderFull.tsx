@@ -5,7 +5,7 @@ import { ArrowLeft, FileText } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import styles from "@/styles/noteReaderFull.module.css";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "@/hooks/useLocalToast";
 import { apiService } from "@/services/apiService";
 import type { NoteKlek } from "@/types";
 import { useRouter } from "next/navigation";
@@ -20,7 +20,7 @@ interface NoteReaderFullProps {
 
 export default function NoteReaderFull({ noteId }: NoteReaderFullProps) {
   const router = useRouter();
-  const { toast } = useToast();
+  ;
   const [note, setNote] = useState<NoteKlek | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -37,11 +37,7 @@ export default function NoteReaderFull({ noteId }: NoteReaderFullProps) {
         const message = err instanceof Error ? err.message : "Error al cargar nota";
         if (!cancelled) {
           setError(message);
-          toast({
-            variant: "destructive",
-            title: "Error",
-            description: message,
-          });
+          toast.info("", );
         }
       } finally {
         if (!cancelled) setLoading(false);

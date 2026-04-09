@@ -9,12 +9,12 @@ import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { MessageSquare, X, Send, User } from "lucide-react";
 import { apiService } from "@/services/apiService";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "@/hooks/useLocalToast";
 import styles from "@/styles/components/GlobalChatWidget.module.css";
 import type { GlobalChatMessage } from "@/types/globalChat";
 
 export function GlobalChatWidget() {
-  const { toast } = useToast();
+  ;
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<GlobalChatMessage[]>([]);
   const [newMessage, setNewMessage] = useState("");
@@ -56,16 +56,9 @@ export function GlobalChatWidget() {
       await apiService.sendGlobalChatMessage(newMessage.trim());
       setNewMessage("");
       await loadMessages();
-      toast({
-        title: "Mensaje enviado",
-        description: "Tu mensaje ha sido publicado",
-      });
+      toast.info("", "");
     } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "No se pudo enviar el mensaje",
-      });
+      toast.info("", "");
     } finally {
       setSending(false);
     }

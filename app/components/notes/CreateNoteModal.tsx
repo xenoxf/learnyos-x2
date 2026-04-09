@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { toast } from "@/hooks/useLocalToast";
 import { apiService } from "@/services/apiService";
 import styles from "@/styles/notes/createNoteModal.module.css";
@@ -18,6 +18,7 @@ export default function CreateNoteModal({
   onNoteCreated,
 }: CreateNoteModalProps) {
   const [loading, setLoading] = useState(false);
+  const [creditsStatus, setCreditsStatus] = useState<{ remaining: number; total: number } | null>(null);
   const [formData, setFormData] = useState<GenerateNoteData>({
     reference: "",
     numberOfNotes: 3,
@@ -25,6 +26,15 @@ export default function CreateNoteModal({
     acceso: "public",
   });
   const router = useRouter();
+
+  useEffect(() => {
+    apiService.getCreditsStatus().then((status) => {
+      setCreditsStatus({ remaining: status.remaining, total: status.total });
+    }).catch(() => {});
+  }, []);
+
+  const estimatedCost = apiService.estimateNoteCost(formData.levelOfDetail, formData.reference || "");
+  const canAfford = creditsStatus ? creditsStatus.remaining >= estimatedCost : true;
 
   const handleCreate = async () => {
     if (!formData.reference?.trim()) {
@@ -105,7 +115,7 @@ export default function CreateNoteModal({
           <div className={styles.formGroup}>
             <label className={styles.label}>Referencia</label>
             <textarea
-              placeholder="Sobre que quieres tu quiz? expresate."
+              placeholder="Sobre qué quieres tus notas? Expresate libremente."
               value={formData.reference}
               onChange={(e) => setFormData({ ...formData, reference: e.target.value })}
               className={styles.textarea}
@@ -167,7 +177,7 @@ export default function CreateNoteModal({
           </button>
           <button
             onClick={handleCreate}
-            disabled={loading || !formData.reference?.trim()}
+            disabled={loading || !formData.reference?.trim() || !canAfford}
             className={styles.confirmBtn}
           >
             {loading ? (
@@ -183,6 +193,17 @@ export default function CreateNoteModal({
             )}
           </button>
         </div>
+
+        {creditsStatus && (
+          <div className={styles.creditPreview}>
+            <span>Costo: ~{estimatedCost} créditos</span>
+            <span>•</span>
+            <span>Tus créditos: {creditsStatus.remaining}/{creditsStatus.total}</span>
+            {!canAfford && (
+              <span className={styles.creditWarning}>Crédito insuficiente</span>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

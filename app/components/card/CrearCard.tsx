@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { apiService } from "@/services/apiService";
 import styles from "@/styles/flashCards/crearCard.module.css";
 import { X, Loader, Sparkles } from "lucide-react";
@@ -16,7 +16,18 @@ export default function CrearCard({ onClose, onCardCreated }: CrearCardProps) {
   const [quantity, setQuantity] = useState(3);
   const [acceso, setAcceso] = useState("public");
   const [loading, setLoading] = useState(false);
+  const [creditsStatus, setCreditsStatus] = useState<{ remaining: number; total: number } | null>(null);
   const router = useRouter();
+
+  // Load credits status on mount
+  React.useEffect(() => {
+    apiService.getCreditsStatus().then((status) => {
+      setCreditsStatus({ remaining: status.remaining, total: status.total });
+    }).catch(() => {});
+  }, []);
+
+  const estimatedCost = apiService.estimateFlashcardCost(quantity, reference || "");
+  const canAfford = creditsStatus ? creditsStatus.remaining >= estimatedCost : true;
 
   const handleCreate = async () => {
     if (!reference.trim()) {
@@ -163,7 +174,7 @@ export default function CrearCard({ onClose, onCardCreated }: CrearCardProps) {
           </button>
           <button
             onClick={handleCreate}
-            disabled={loading || !reference.trim()}
+            disabled={loading || !reference.trim() || !canAfford}
             className={styles.confirmBtn}
           >
             {loading ? (
@@ -179,6 +190,19 @@ export default function CrearCard({ onClose, onCardCreated }: CrearCardProps) {
             )}
           </button>
         </div>
+
+        {creditsStatus && (
+          <div className={styles.creditPreview}>
+            <span>Costo: ~{estimatedCost} créditos</span>
+            <span>•</span>
+            <span>Tus créditos: {creditsStatus.remaining}/{creditsStatus.total}</span>
+            {!canAfford && (
+              <span className={styles.creditWarning}>
+                Crédito insuficiente
+              </span>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

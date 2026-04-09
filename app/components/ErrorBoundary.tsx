@@ -1,7 +1,7 @@
 "use client"
 
 import React, { ReactNode, Component, ErrorInfo } from 'react';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from '@/hooks/useLocalToast';
 import { AlertCircle } from 'lucide-react';
 
 interface Props {

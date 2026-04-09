@@ -4,27 +4,19 @@ import React from "react";
 import { X, UserX, ArrowBigLeft, ArrowLeft } from "lucide-react";
 import { apiService } from "@/services/apiService";
 import { useRouter } from "next/navigation";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "@/hooks/useLocalToast";
 import styles from "@/styles/guestBanner.module.css";
 
 export function GuestBanner() {
   const router = useRouter();
-  const { toast } = useToast();
 
   const handleDismiss = async () => {
     try {
       await apiService.logout();
-      toast({
-        title: "Sesión de invitado cerrada",
-        description: "Puedes iniciar sesión o continuar como invitado.",
-      });
+      toast.info("Sesión de invitado cerrada", "Puedes iniciar sesión o continuar como invitado");
       router.push("/auth");
     } catch {
-      toast({
-        title: "Error",
-        description: "No se pudo cerrar la sesión.",
-        variant: "destructive",
-      });
+      toast.error("Error", "No se pudo cerrar la sesión");
     }
   };
 

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, useMemo, useRef } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import QuizCard from "./QuizCard";
 import CreateQuizModal from "./CreateQuizModal";
 import {
@@ -33,7 +33,6 @@ const QUIZ_CONFIG = {
 
 export default function QuizGrid({}: QuizGridProps) {
   const [isSearching, setIsSearching] = useState(false);
-  const viewModeRef = useRef<ViewMode>('public');
 
   const {
     searchValue,
@@ -51,10 +50,9 @@ export default function QuizGrid({}: QuizGridProps) {
     isGuest,
   } = useStudyGrid<ExamDeck & StudyGridBaseItem>({
     actions: {
-      onLoad: useCallback(async () => {
-        const currentViewMode = viewModeRef.current;
+      onLoad: useCallback(async (mode: ViewMode) => {
         const data =
-          currentViewMode === "private"
+          mode === "private"
             ? await apiService.getExamsPrivate()
             : await apiService.getExamsPublic();
         return data as (ExamDeck & StudyGridBaseItem)[];
@@ -64,11 +62,6 @@ export default function QuizGrid({}: QuizGridProps) {
     config: QUIZ_CONFIG,
     defaultViewMode: "public",
   });
-
-  // Actualizar ref cuando viewMode cambie
-  useEffect(() => {
-    viewModeRef.current = viewMode;
-  }, [viewMode]);
 
   // Búsqueda con debounce optimizado
   const handleSearch = useCallback(async (query: string) => {

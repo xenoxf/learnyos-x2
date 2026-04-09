@@ -3,13 +3,13 @@
 import React, { Suspense, useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { apiService } from "@/services/apiService";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "@/hooks/useLocalToast";
 import { Loader2 } from "lucide-react";
 
 function CallbackContent() {
   const params = useSearchParams();
   const router = useRouter();
-  const { toast } = useToast();
+  ;
   const [status, setStatus] = useState<"loading" | "ok" | "error">("loading");
 
   useEffect(() => {
@@ -18,11 +18,7 @@ function CallbackContent() {
     const code = params.get("code");
 
     if (error) {
-      toast({
-        title: "Error de autenticación",
-        description: error === "google_failed" ? "Error al autenticarse con Google." : error,
-        variant: "destructive",
-      });
+      toast.error("Error de autenticación", error === "google_failed" ? "Error al autenticarse con Google." : error);
       setStatus("error");
       router.replace("/auth");
       return;
@@ -35,6 +31,7 @@ function CallbackContent() {
         try {
           const user = { email, name: email.split("@")[0], id: 0 };
           localStorage.setItem("user", JSON.stringify(user));
+          localStorage.removeItem("isGuest");
         } catch (_) {}
       }
       setStatus("ok");
@@ -48,17 +45,14 @@ function CallbackContent() {
         .then((res) => {
           if (res.user && typeof window !== "undefined") {
             localStorage.setItem("user", JSON.stringify(res.user));
+            localStorage.removeItem("isGuest");
           }
           setStatus("ok");
           router.replace("/study");
         })
         .catch((err: unknown) => {
           const msg = err instanceof Error ? err.message : "Error durante la autenticación con Google.";
-          toast({
-            title: "Error",
-            description: msg,
-            variant: "destructive",
-          });
+          toast.success("Éxito");
           setStatus("error");
           router.replace("/auth");
         });
@@ -66,11 +60,7 @@ function CallbackContent() {
     }
 
     setStatus("error");
-    toast({
-      title: "Error",
-      description: "No se recibió token ni código de autenticación.",
-      variant: "destructive",
-    });
+    toast.error("Error", "Algo salió mal");
     router.replace("/auth");
   }, [params, router, toast]);
 

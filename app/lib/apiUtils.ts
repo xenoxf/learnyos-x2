@@ -229,8 +229,8 @@ export const formatRelativeDate = (date: Date | string): string => {
 /**
  * Verificar si el usuario está autenticado
  */
-export const isUserAuthenticated = (): boolean => {
-  return apiService.isAuthenticated();
+export const isUserAuthenticated = async (): Promise<boolean> => {
+  return await apiService.isAuthenticated();
 };
 
 /**

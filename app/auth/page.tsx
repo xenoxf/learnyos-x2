@@ -18,7 +18,7 @@ import {
 } from "lucide-react";
 import { apiService } from "@/services/apiService";
 import type { LoginInput, RegisterInput } from "@/types";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "@/hooks/useLocalToast";
 import styles from "@/styles/auth.module.css";
 import Link from "next/link";
 import type { Metadata } from "next";
@@ -40,11 +40,7 @@ function AuthContent() {
   // Mostrar toast de errores
   useEffect(() => {
     if (formError) {
-      toast({
-        title: "Error",
-        description: formError,
-        duration: 4000,
-      });
+      toast.error("Error", formError);
     }
   }, [formError]);
 
@@ -156,15 +152,6 @@ function AuthContent() {
 
       <div className={styles.auth}>
         <div className={styles.containerTitle}>
-          <div className={styles.logo}>
-            <Image
-              src="/logo-100x100.png"
-              alt="LearnYos Logo"
-              width={100}
-              height={100}
-              className={styles.logoImage}
-            />
-          </div>
           <h1 className={styles.appTitle}>LearnYos</h1>
         </div>
 
@@ -305,7 +292,7 @@ function AuthContent() {
               Términos y Condiciones
             </a>
             {' '}y{' '}
-            <a href="/terms.html" target="_blank" rel="noopener noreferrer" className={styles.footerLink}>
+            <a href="/privacy.html" target="_blank" rel="noopener noreferrer" className={styles.footerLink}>
               Política de Privacidad
             </a>
           </p>

@@ -318,19 +318,20 @@
 }
 
 .userMessage {
-  width: 100%;
   display: flex;
   flex-direction: row;
   justify-content: flex-end;
+  align-items: flex-end;
   gap: 0.75rem;
+  max-width: 80%;
+  margin-left: auto;
 }
 
 .userMessage .messageContent {
   display: flex;
-  width: fit-content;
-  max-width: min(80%, 600px);
   flex-direction: column;
   align-items: flex-end;
+  max-width: 100%;
   overflow-wrap: break-word;
   word-wrap: break-word;
   word-break: break-word;
@@ -342,7 +343,6 @@
   padding: 0.7rem;
   background: hsl(var(--background) * 0.4);
   color: hsl(var(--foreground));
-  width: fit-content;
   max-width: 100%;
   border-radius: 10px;
   overflow-wrap: break-word;
@@ -350,6 +350,16 @@
   word-break: break-word;
   hyphens: auto;
   white-space: pre-wrap;
+  text-align: left;
+  direction: ltr;
+}
+
+.userMessage .messageAvatar {
+  order: 2;
+}
+
+.userMessage .messageContent {
+  order: 1;
 }
 
 .botMessage {
@@ -380,13 +390,8 @@
   color: hsl(var(--foreground));
   padding: 0.25rem 0;
   min-width: 0;
-  /* Prevenir desbordamiento de texto */
   overflow-wrap: break-word;
   word-wrap: break-word;
-}
-
-.userMessage .messageContent {
-  text-align: right;
 }
 
 /* Mensaje del bot - sin avatar, ancho completo */
@@ -451,11 +456,32 @@
   position: sticky;
   bottom: 0;
   z-index: 10;
-  background: linear-gradient(to top,
-      hsl(var(--background)) 70%,
-      transparent);
+  background: linear-gradient(
+    to top,
+    hsl(var(--background)) 0%,
+    hsl(var(--background)) 60%,
+    transparent 100%
+  );
   padding: 1rem 2rem 1.25rem;
   width: 100%;
+}
+
+/* Shadow overlay above the input */
+.inputArea::before {
+  content: "";
+  position: absolute;
+  top: -32px;
+  left: 0;
+  right: 0;
+  height: 32px;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    hsl(var(--background) / 0.4) 50%,
+    hsl(var(--background)) 100%
+  );
+  pointer-events: none;
+  z-index: -1;
 }
 
 .inputContainer {
@@ -475,7 +501,11 @@
   width: 100%;
   border-radius: 24px;
   padding: 0.625rem 0.625rem 0.625rem 1.25rem;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06), 0 4px 24px rgba(0, 0, 0, 0.04);
+  box-shadow:
+    0 -2px 8px hsl(var(--background) / 0.3),
+    0 -4px 16px hsl(var(--background) / 0.2),
+    0 2px 12px rgba(0, 0, 0, 0.06),
+    0 4px 24px rgba(0, 0, 0, 0.04);
   transition: all 0.2s ease;
   backdrop-filter: blur(12px);
   overflow: hidden;
@@ -486,7 +516,11 @@
 
 .inputWrapper:focus-within {
   border-color: hsl(var(--primary) / 0.8);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08), 0 8px 32px rgba(0, 0, 0, 0.06);
+  box-shadow:
+    0 -2px 8px hsl(var(--background) / 0.3),
+    0 -4px 16px hsl(var(--background) / 0.2),
+    0 4px 20px rgba(0, 0, 0, 0.08),
+    0 8px 32px rgba(0, 0, 0, 0.06);
   background: hsl(var(--background));
 }
 
@@ -974,4 +1008,29 @@
 
 .messageText {
   line-height: 1.6;
+}
+
+.streamingIndicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.75rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  background: hsl(var(--muted));
+  color: hsl(var(--muted-foreground));
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.streamingIndicator::after {
+  content: "Generando...";
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.spin {
+  animation: spin 1s linear infinite;
 }

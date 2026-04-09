@@ -51,7 +51,7 @@ export interface ExamQuestion {
   correctAnswer?: string;
 }
 
-/** 
+/**
  * Exam DECK - Solo metadata para listar en grids
  * NO incluye: questions, code, userId, score, createdAt
  */
@@ -65,10 +65,13 @@ export interface ExamDeck {
   totalQuestions: number;
   estimatedTime?: string;
   code?: string;
+  creatorName: string;
+  likesCount: number;
+  userLiked: boolean;
   canDelete?: boolean;
 }
 
-/** 
+/**
  * Exam KLEK - Datos completos para jugar/responder
  * NO incluye: code, userId, score (datos internos)
  */
@@ -81,6 +84,7 @@ export interface ExamKlek {
   difficulty: DifficultyLevel;
   totalQuestions: number;
   questions: ExamQuestion[];
+  creatorName?: string;
   canDelete?: boolean;
 }
 
@@ -100,7 +104,7 @@ export interface FlashCardKlek {
   hint?: string;
 }
 
-/** 
+/**
  * FlashCard DECK - Solo metadata para listar en grids
  * NO incluye: code, userId, createdAt
  */
@@ -113,6 +117,9 @@ export interface CardsDeck {
   tema?: string;
   totalCards?: number;
   flashcards?: FlashCardKlek[];
+  creatorName: string;
+  likesCount: number;
+  userLiked: boolean;
   canDelete?: boolean;
 }
 
@@ -170,7 +177,7 @@ export interface NoteContentKlek {
   order?: number;
 }
 
-/** 
+/**
  * Note DECK - Solo metadata para listar en grids
  * NO incluye: noteContents completo, userId, levelOfDetail, createdAt
  */
@@ -183,6 +190,9 @@ export interface NoteDeck {
   acceso?: string;
   code?: string;
   contentsCount?: number;
+  creatorName: string;
+  likesCount: number;
+  userLiked: boolean;
   canDelete?: boolean;
 }
 
@@ -311,9 +321,19 @@ export interface PomodoroConfig {
  */
 export interface ApiErrorResponse {
   message: string;
-  details: string;
-  errorCode: string;
+  details?: string;
+  errorCode?: string;
   rawResponse?: any;
+}
+
+// ==================== STREAMING ====================
+
+export interface StreamChunk {
+  type: 'credits' | 'chunk' | 'done';
+  content?: string;
+  remaining?: number;
+  total?: number;
+  messageId?: number;
 }
 
 /**

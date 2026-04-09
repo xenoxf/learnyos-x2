@@ -5,7 +5,7 @@ import { ArrowLeft, FileText } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import styles from "@/styles/notes/noteDetail.module.css";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "@/hooks/useLocalToast";
 import { apiService } from "@/services/apiService";
 import type { NoteKlek } from "@/types";
 import {
@@ -19,7 +19,7 @@ interface NoteDetailProps {
 }
 
 export default function NoteDetail({ noteId, onBack }: NoteDetailProps) {
-  const { toast } = useToast();
+  ;
   const [note, setNote] = useState<NoteKlek | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -33,11 +33,7 @@ export default function NoteDetail({ noteId, onBack }: NoteDetailProps) {
       } catch (err) {
         const message =
           err instanceof Error ? err.message : "Error al cargar nota";
-        toast({
-          variant: "destructive",
-          title: "Error",
-          description: message,
-        });
+        toast.info("", );
         onBack();
       } finally {
         if (!cancelled) setLoading(false);

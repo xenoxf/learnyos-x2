@@ -1,67 +1,65 @@
 "use client";
 
-import React from "react";
+import React, { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { Trash2, FileText, Tag, BookOpen } from "lucide-react";
+import { Trash2, FileText, Tag, BookOpen, Heart, User } from "lucide-react";
 import { apiService } from "@/services/apiService";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "@/hooks/useLocalToast";
 import styles from "@/styles/notes/noteCard.module.css";
 import type { NoteDeck } from "@/types";
 
 interface NoteCardProps {
   note: NoteDeck & { canDelete?: boolean };
   onNoteDeleted?: () => void;
+  isEspacio?: boolean;
+  onShowOptions?: () => void;
 }
 
 export default function NoteCard({
   note,
   onNoteDeleted,
+  isEspacio,
+  onShowOptions,
 }: NoteCardProps) {
   const router = useRouter();
-  const { toast } = useToast();
+  ;
+  const [likesCount, setLikesCount] = useState(note.likesCount || 0);
+  const [userLiked, setUserLiked] = useState(note.userLiked || false);
+  const [isLiking, setIsLiking] = useState(false);
+
   const isOwner = note.canDelete ?? false;
 
-  const handleDelete = async (e: React.MouseEvent) => {
+  const handleDelete = useCallback(async (e: React.MouseEvent) => {
     e.stopPropagation();
 
     if (!isOwner) {
-      toast({
-        variant: "destructive",
-        title: "No permitido",
-        description: "Solo puedes eliminar tus propias notas",
-      });
+      toast.error("No permitido", "Solo puedes eliminar tus propias notas");
       return;
     }
+  }, [isOwner]);
 
-    const confirm = window.confirm(
-      "¿Estás seguro de que deseas eliminar esta nota? Esta acción no se puede deshacer."
-    );
-
-    if (confirm) {
-      try {
-        await apiService.deleteNote(note.id);
-        toast({
-          title: "Éxito",
-          description: "Nota eliminada correctamente",
-        });
-        if (onNoteDeleted) {
-          onNoteDeleted();
-        }
-      } catch (err) {
-        const message =
-          err instanceof Error ? err.message : "Error al eliminar nota";
-        toast({
-          variant: "destructive",
-          title: "Error",
-          description: message,
-        });
-      }
+  const handleLike = useCallback(async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (isLiking) return;
+    try {
+      setIsLiking(true);
+      const result = await apiService.toggleNoteLike(note.id);
+      setLikesCount(result.count);
+      setUserLiked(result.liked);
+    } catch {
+      // Silent fail for likes
+    } finally {
+      setIsLiking(false);
     }
-  };
+  }, [note.id, isLiking]);
 
-  const handleCardClick = () => {
-    router.push(`/study/notes/${note.id}`);
-  };
+  const handleCardClick = useCallback(() => {
+    if (isEspacio && onShowOptions) {
+      onShowOptions();
+    } else {
+      router.push(`/study/notes/${note.id}`);
+    }
+  }, [isEspacio, onShowOptions, router, note.id]);
 
 
   return (
@@ -81,7 +79,7 @@ export default function NoteCard({
           <FileText size={20} className={styles.icon} />
           <h3 className={styles.cardTitle}>{note.title}</h3>
         </div>
-        {isOwner && (
+        {isOwner && !isEspacio && (
           <button
             className={styles.deleteBtn}
             onClick={handleDelete}
@@ -98,7 +96,6 @@ export default function NoteCard({
         {note.description || "Sin descripción"}
       </p>
 
-      {/* Información de la nota (no los contenidos) */}
       <div className={styles.cardMeta}>
         {note.area && (
           <div className={styles.metaItem}>
@@ -114,16 +111,39 @@ export default function NoteCard({
         )}
         <div className={styles.metaItem}>
           <span className={styles.levelBadge}>
-            {note.contentsCount} sección          </span>
+            {note.contentsCount} sección
+          </span>
         </div>
       </div>
 
-      <div className={styles.cardFooter}>
+      <div className={styles.cardCreator}>
+        <User size={12} />
+        <span>{note.creatorName}</span>
+      </div>
 
-        {/* Solo mostrar el code si es el dueño */}
-        {isOwner && note.code ? (
+      <div className={styles.cardFooter}>
+        {!isOwner && (
+          <button
+            className={`${styles.likeBtn} ${userLiked ? styles.likeBtnActive : ""}`}
+            onClick={handleLike}
+            disabled={isLiking}
+            title="Me gusta"
+            aria-label="Me gusta"
+            type="button"
+          >
+            <Heart size={14} fill={userLiked ? "currentColor" : "none"} />
+            <span>{likesCount}</span>
+          </button>
+        )}
+        {isOwner && (
+          <span className={styles.likesCount}>
+            <Heart size={14} fill="currentColor" />
+            <span>{likesCount}</span>
+          </span>
+        )}
+        {isOwner && note.code && (
           <span className={styles.noteCode}>{note.code}</span>
-        ) : null}
+        )}
       </div>
     </div>
   );

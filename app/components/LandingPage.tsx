@@ -7,7 +7,7 @@ import { ThemeToggle } from "./ThemeToggle";
 import { apiService } from "@/services/apiService";
 import { useRouter } from "next/navigation";
 import LoadingModal from "./loadingModal";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "@/hooks/useLocalToast";
 import Image from "next/image";
 import {
   Brain,
@@ -29,7 +29,7 @@ export const LandingPage: React.FC = () => {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const { toast } = useToast();
+  ;
 
   const handleOpenAuth = () => {
     const token =
@@ -56,11 +56,7 @@ export const LandingPage: React.FC = () => {
       router.push("/study");
     } catch (_error) {
       setLoading(false);
-      toast({
-        title: "Error",
-        description: "No se pudo iniciar como invitado. Intenta de nuevo.",
-        variant: "destructive",
-      });
+      toast.error("Error", "Algo salió mal");
     }
   };
 

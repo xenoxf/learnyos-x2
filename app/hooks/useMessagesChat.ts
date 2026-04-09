@@ -19,7 +19,7 @@ export const useMessagesChat = () => {
   const { data: chats = [], isLoading: isLoadingChats } = useQuery<Chat[]>({
     queryKey: ['chats'],
     queryFn: () => apiService.getChats(),
-    enabled: apiService.isAuthenticated(),
+    enabled: !!localStorage.getItem('token'),
   });
 
   const sendMessageMutation = useMutation<SendMessageResponse, unknown, SendMessageData>({

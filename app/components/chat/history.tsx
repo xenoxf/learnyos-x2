@@ -3,13 +3,7 @@
 import React from "react";
 import type { Chat } from "@/types";
 import styles from "@/styles/chatHistory.module.css";
-import {
-  MessageSquare,
-  Plus,
-  Trash2,
-  PanelLeftClose,
-  PanelLeft,
-} from "lucide-react";
+import { MessageSquare, Plus, Trash2, Sparkles } from "lucide-react";
 
 interface HistoryProps {
   chats: Chat[];
@@ -32,65 +26,58 @@ export default function History({
   isOpen,
   onToggle,
   isMobile = false,
-  isCollapse,
 }: HistoryProps) {
   return (
     <>
-      <button
-        className={styles[`toggleButton ${isCollapse ? "bajo" : "alto"}`]}
-        onClick={onToggle}
-        aria-label={isOpen ? "Ocultar historial" : "Mostrar historial"}
-        title={isOpen ? "Ocultar" : "Mostrar conversaciones"}
-      >
-        {isOpen ? (
-          <PanelLeftClose size={22} className={styles.doorIcon} />
-        ) : (
-          <PanelLeft size={22} className={styles.doorIcon} />
-        )}
-      </button>
-
-      <aside
-        className={`${styles.sidebar} ${isCollapse ? styles.kl : styles.lk} ${isOpen ? styles.open : styles.closed}`}
-      >
+      <aside className={`${styles.sidebar} ${isOpen ? styles.open : styles.closed}`}>
         <div className={styles.sidebarHeader}>
-          <h2 className={styles.sidebarTitle}>Conversaciones</h2>
+          <div className={styles.headerTop}>
+            <div className={styles.headerIcon}>
+              <Sparkles size={18} />
+            </div>
+            <h2 className={styles.sidebarTitle}>Historial</h2>
+          </div>
           <button className={styles.newChatButton} onClick={handleNewChat}>
-            <Plus size={18} />
-            Nuevo chat
+            <Plus size={16} />
+            <span>Nuevo chat</span>
           </button>
         </div>
 
         <div className={styles.chatList}>
           {chats.length === 0 ? (
             <div className={styles.emptyChats}>
-              <MessageSquare size={40} />
-              <p>No hay conversaciones</p>
-              <span>Crea un nuevo chat para empezar</span>
+              <div className={styles.emptyIcon}>
+                <MessageSquare size={32} />
+              </div>
+              <p>Sin conversaciones</p>
+              <span>Inicia un chat para empezar</span>
             </div>
           ) : (
-            chats.map((chat) => (
-              <div
-                key={chat.id}
-                className={`${styles.chatItem} ${
-                  currentChat?.id === chat.id ? styles.active : ""
-                }`}
-                onClick={() => handleSelectChat(chat)}
-              >
-                <MessageSquare size={18} />
-                <div className={styles.chatInfo}>
-                  <span className={styles.chatTitle}>
-                    {chat.title || `Chat ${chat.id}`}
-                  </span>
-                </div>
-                <button
-                  className={styles.deleteButton}
-                  onClick={(e) => handleDeleteChat(chat.id, e)}
-                  aria-label="Eliminar chat"
+            <div className={styles.chatItems}>
+              {chats.map((chat) => (
+                <div
+                  key={chat.id}
+                  className={`${styles.chatItem} ${currentChat?.id === chat.id ? styles.active : ""}`}
+                  onClick={() => handleSelectChat(chat)}
                 >
-                  <Trash2 size={16} />
-                </button>
-              </div>
-            ))
+                  <div className={styles.chatItemIcon}>
+                    <MessageSquare size={16} />
+                  </div>
+                  <div className={styles.chatInfo}>
+                    <span className={styles.chatTitle}>
+                      {chat.title || `Chat ${chat.id}`}
+                    </span>
+                  </div>
+                  <button
+                    className={styles.deleteButton}
+                    onClick={(e) => handleDeleteChat(chat.id, e)}
+                    aria-label="Eliminar chat"
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                </div>
+              ))}
+            </div>
           )}
         </div>
       </aside>

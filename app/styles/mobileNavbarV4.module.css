@@ -1,0 +1,105 @@
+/* ==================== MOBILE NAVBAR V4 - FLOATING PILL ==================== */
+.navbar {
+  position: fixed;
+  bottom: 1rem;
+  bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  will-change: transform, opacity;
+}
+
+.navbarHidden {
+  transform: translateX(-50%) translateY(100px);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.navbarInner {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.375rem;
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  border-radius: 1rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(12px);
+}
+
+.navItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.5rem 0.875rem;
+  border-radius: 0.75rem;
+  color: hsl(var(--muted-foreground));
+  text-decoration: none;
+  transition: all 0.2s ease;
+  position: relative;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.navItem:hover {
+  color: hsl(var(--foreground));
+  background: hsl(var(--accent) / 0.3);
+}
+
+.navItemActive {
+  color: hsl(var(--primary));
+  background: hsl(var(--primary) / 0.12);
+}
+
+.navItemActive::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: hsl(var(--primary));
+}
+
+.navItem span {
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  line-height: 1;
+}
+
+/* ==================== RESPONSIVE ==================== */
+@media (max-width: 380px) {
+  .navItem {
+    padding: 0.5rem 0.625rem;
+  }
+
+  .navItem span {
+    font-size: 0.5625rem;
+  }
+
+  .navbarInner {
+    gap: 0.125rem;
+    padding: 0.25rem;
+  }
+}
+
+@media (max-width: 340px) {
+  .navItem span {
+    display: none;
+  }
+
+  .navItem {
+    padding: 0.625rem 0.75rem;
+  }
+}
+
+/* Safe area support */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .navbar {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+}

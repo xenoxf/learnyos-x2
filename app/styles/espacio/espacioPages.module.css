@@ -1,0 +1,665 @@
+/* ==================== ESPACIO PAGES ==================== */
+.espacioPageHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid hsl(var(--border));
+}
+
+.espacioPageTitle {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: hsl(var(--foreground));
+  margin: 0;
+}
+
+.userInfo {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.userAvatar {
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.userAvatarPlaceholder {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: hsl(var(--primary) / 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: hsl(var(--primary));
+}
+
+.userName {
+  font-weight: 500;
+  font-size: 0.9rem;
+  color: hsl(var(--foreground));
+}
+
+/* ==================== TAB CONTENT ==================== */
+.tabContent {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* ==================== CARDS ==================== */
+.card {
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  border-radius: 1rem;
+  overflow: hidden;
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid hsl(var(--border));
+  background: hsl(var(--accent) / 0.1);
+}
+
+.cardIcon {
+  color: hsl(var(--primary));
+}
+
+.cardTitle {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: hsl(var(--foreground));
+  margin: 0;
+}
+
+.cardBody {
+  padding: 1.5rem;
+}
+
+/* ==================== INFO ITEMS ==================== */
+.infoGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+}
+
+.infoItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.infoLabel {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: hsl(var(--muted-foreground));
+  font-weight: 500;
+}
+
+.infoValue {
+  font-size: 1rem;
+  font-weight: 500;
+  color: hsl(var(--foreground));
+  margin: 0;
+}
+
+/* ==================== LOGOUT ==================== */
+.logoutButton {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1.5rem;
+  background: hsl(var(--destructive) / 0.1);
+  border: 1px solid hsl(var(--destructive) / 0.3);
+  border-radius: 0.5rem;
+  color: hsl(var(--destructive));
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.logoutButton:hover {
+  background: hsl(var(--destructive));
+  color: hsl(var(--destructive-foreground));
+}
+
+/* ==================== VERSION ==================== */
+.versionInfo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.versionLabel {
+  font-size: 0.9rem;
+  color: hsl(var(--muted-foreground));
+}
+
+.versionValue {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: hsl(var(--foreground));
+}
+
+.legalLinks {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding-top: 1rem;
+  border-top: 1px solid hsl(var(--border));
+}
+
+.legalLinkItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: hsl(var(--accent) / 0.2);
+  border: 1px solid hsl(var(--border));
+  border-radius: 0.5rem;
+  color: hsl(var(--foreground));
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.15s ease;
+}
+
+.legalLinkItem:hover {
+  background: hsl(var(--accent) / 0.4);
+  border-color: hsl(var(--primary) / 0.3);
+}
+
+/* ==================== CREDITS ==================== */
+.creditsHero {
+  text-align: center;
+  padding: 2rem;
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  border-radius: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.creditsHero svg {
+  color: hsl(var(--primary));
+}
+
+.creditsHero h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.creditsHero p {
+  font-size: 0.9rem;
+  color: hsl(var(--muted-foreground));
+  margin: 0;
+}
+
+.creditsMainCard {
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  border-radius: 1rem;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.creditsMainHeader {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.creditsMainHeader svg {
+  color: hsl(var(--primary));
+}
+
+.creditsMainLabel {
+  font-size: 0.85rem;
+  color: hsl(var(--muted-foreground));
+}
+
+.creditsMainNumbers {
+  display: flex;
+  align-items: baseline;
+  gap: 0.25rem;
+}
+
+.creditsRemaining {
+  font-size: 2rem;
+  font-weight: 700;
+  color: hsl(var(--primary));
+}
+
+.creditsSeparator {
+  font-size: 1.25rem;
+  color: hsl(var(--muted-foreground));
+}
+
+.creditsTotal {
+  font-size: 1.25rem;
+  color: hsl(var(--muted-foreground));
+}
+
+.creditsProgressBar {
+  height: 8px;
+  background: hsl(var(--muted));
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.creditsProgressFill {
+  height: 100%;
+  background: linear-gradient(90deg, hsl(var(--primary)), hsl(var(--primary) / 0.7));
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.creditsPercentage {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: hsl(var(--muted-foreground));
+}
+
+.creditsCostsCard {
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  border-radius: 1rem;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.creditsCostsCard h3 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.creditsCostsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+}
+
+.creditsCostItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: hsl(var(--accent) / 0.2);
+  border-radius: 0.75rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.creditsCostItem svg {
+  color: hsl(var(--primary));
+}
+
+.creditsCostValue {
+  font-size: 0.8rem;
+  color: hsl(var(--muted-foreground));
+}
+
+/* ==================== ITEMS LIST ==================== */
+.itemsList {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1rem;
+}
+
+.itemCard {
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  position: relative;
+}
+
+.itemCard:hover {
+  border-color: hsl(var(--primary) / 0.5);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.itemCardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.itemCardTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0;
+  color: hsl(var(--foreground));
+}
+
+.itemCardDesc {
+  font-size: 0.85rem;
+  color: hsl(var(--muted-foreground));
+  margin: 0 0 0.75rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.itemCardMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.itemBadge {
+  font-size: 0.75rem;
+  padding: 0.2rem 0.5rem;
+  background: hsl(var(--accent) / 0.3);
+  border-radius: 4px;
+  color: hsl(var(--muted-foreground));
+}
+
+.diffBadge {
+  font-size: 0.75rem;
+  padding: 0.2rem 0.5rem;
+  background: hsl(var(--primary) / 0.15);
+  border-radius: 4px;
+  color: hsl(var(--primary));
+  text-transform: capitalize;
+}
+
+.itemLikes {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.75rem;
+  color: hsl(var(--muted-foreground));
+}
+
+.itemCardFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.78rem;
+  color: hsl(var(--muted-foreground));
+}
+
+.itemCreator {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.itemCode {
+  font-family: monospace;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.itemArrow {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: hsl(var(--muted-foreground));
+  opacity: 0.5;
+}
+
+/* ==================== CARD OPTIONS MODAL ==================== */
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: hsl(var(--background) / 0.8);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.modalContent {
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  border-radius: 1rem;
+  width: 100%;
+  max-width: 420px;
+  overflow: hidden;
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid hsl(var(--border));
+}
+
+.modalTitle {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.modalClose {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  color: hsl(var(--muted-foreground));
+  cursor: pointer;
+  font-size: 1.25rem;
+  border-radius: 6px;
+}
+
+.modalClose:hover {
+  background: hsl(var(--accent) / 0.3);
+}
+
+.modalBody {
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.modalInfo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.9rem;
+}
+
+.modalInfoLabel {
+  color: hsl(var(--muted-foreground));
+  font-weight: 500;
+}
+
+.modalInfoValue {
+  color: hsl(var(--foreground));
+  font-weight: 500;
+}
+
+.modalCode {
+  font-family: monospace;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  background: hsl(var(--muted));
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+}
+
+.modalActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 1rem 1.5rem 1.25rem;
+  border-top: 1px solid hsl(var(--border));
+}
+
+.modalActionBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1rem;
+  background: hsl(var(--accent) / 0.2);
+  border: 1px solid hsl(var(--border));
+  border-radius: 0.5rem;
+  color: hsl(var(--foreground));
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.modalActionBtn:hover {
+  background: hsl(var(--accent) / 0.4);
+}
+
+.modalActionBtnDanger {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1rem;
+  background: hsl(var(--destructive) / 0.1);
+  border: 1px solid hsl(var(--destructive) / 0.3);
+  border-radius: 0.5rem;
+  color: hsl(var(--destructive));
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.modalActionBtnDanger:hover {
+  background: hsl(var(--destructive));
+  color: hsl(var(--destructive-foreground));
+}
+
+/* ==================== STATES ==================== */
+.loadingState, .emptyState, .errorState, .guestMessage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 3rem 1.5rem;
+  text-align: center;
+  color: hsl(var(--muted-foreground));
+}
+
+.spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.emptyIcon {
+  opacity: 0.3;
+}
+
+.retryButton {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.25rem;
+  background: hsl(var(--primary) / 0.15);
+  border: 1px solid hsl(var(--primary) / 0.3);
+  border-radius: 0.5rem;
+  color: hsl(var(--primary));
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.comingSoon {
+  color: hsl(var(--muted-foreground));
+  font-style: italic;
+}
+
+/* ==================== TERMS ==================== */
+.termsContent {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.termsContent h3 {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: hsl(var(--foreground));
+  margin: 0;
+}
+
+.termsContent p {
+  font-size: 0.9rem;
+  color: hsl(var(--muted-foreground));
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* ==================== RESPONSIVE ==================== */
+@media (max-width: 768px) {
+  .espacioPageHeader {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+
+  .espacioPageTitle {
+    font-size: 1.5rem;
+  }
+
+  .itemsList {
+    grid-template-columns: 1fr;
+  }
+
+  .creditsCostsGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .modalContent {
+    max-width: 100%;
+  }
+
+  .modalActions {
+    flex-direction: column;
+  }
+
+  .modalActionBtn, .modalActionBtnDanger {
+    justify-content: center;
+  }
+}

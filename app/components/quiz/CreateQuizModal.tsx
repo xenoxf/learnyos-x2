@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { toast } from "@/hooks/useLocalToast";
 import { apiService } from "@/services/apiService";
 import styles from "@/styles/quiz/createQuizModal.module.css";
@@ -15,6 +15,7 @@ export default function CreateQuizModal({
   onQuizCreated,
 }: CreateQuizModalProps) {
   const [loading, setLoading] = useState(false);
+  const [creditsStatus, setCreditsStatus] = useState<{ remaining: number; total: number } | null>(null);
   const [formData, setFormData] = useState<GenerateExamData>({
     reference: '',
     numberOfQuestions: 10,
@@ -22,6 +23,15 @@ export default function CreateQuizModal({
     acceso: "private",
   });
   const router = useRouter();
+
+  useEffect(() => {
+    apiService.getCreditsStatus().then((status) => {
+      setCreditsStatus({ remaining: status.remaining, total: status.total });
+    }).catch(() => {});
+  }, []);
+
+  const estimatedCost = apiService.estimateExamCost(formData.numberOfQuestions, formData.difficulty, formData.reference || "");
+  const canAfford = creditsStatus ? creditsStatus.remaining >= estimatedCost : true;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -175,12 +185,23 @@ export default function CreateQuizModal({
             <button
               type="submit"
               className={styles.submitBtn}
-              disabled={loading}
+              disabled={loading || !canAfford}
             >
               {loading ? "Creando..." : "Crear Quiz"}
             </button>
           </div>
         </form>
+
+        {creditsStatus && (
+          <div className={styles.creditPreview}>
+            <span>Costo: ~{estimatedCost} créditos</span>
+            <span>•</span>
+            <span>Tus créditos: {creditsStatus.remaining}/{creditsStatus.total}</span>
+            {!canAfford && (
+              <span className={styles.creditWarning}>Crédito insuficiente</span>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

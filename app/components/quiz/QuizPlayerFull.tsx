@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { ChevronLeft, ChevronRight, RotateCcw, Check, X, BookOpen, TrendingUp, ArrowLeft } from "lucide-react";
 import styles from "@/styles/quiz/quizPlayerFull.module.css";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "@/hooks/useLocalToast";
 import { apiService } from "@/services/apiService";
 import type { ExamKlek, ExamQuestion } from "@/types";
 import MarkdownRenderer from "../MarkdownRenderer";
@@ -21,7 +21,7 @@ interface QuestionResult {
 
 export default function QuizPlayerFull({ quizId }: QuizPlayerFullProps) {
   const router = useRouter();
-  const { toast } = useToast();
+  ;
   const [quiz, setQuiz] = useState<ExamKlek | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedAnswers, setSelectedAnswers] = useState<Record<number, number>>({});
@@ -50,11 +50,7 @@ export default function QuizPlayerFull({ quizId }: QuizPlayerFullProps) {
         const message = err instanceof Error ? err.message : "Error al cargar quiz";
         console.error('Quiz loading error:', err);
         setError(message);
-        toast({
-          variant: "destructive",
-          title: "Error al cargar",
-          description: message,
-        });
+        toast.info("", );
       } finally {
         setLoading(false);
       }
@@ -97,9 +93,27 @@ export default function QuizPlayerFull({ quizId }: QuizPlayerFullProps) {
     setShowImmediateFeedback(false);
   }, []);
 
-  const handleSubmit = useCallback(() => {
+  const handleSubmit = useCallback(async () => {
+    // Record attempt
+    if (quiz) {
+      const correctCount = quiz.questions.filter((q) => {
+        const selectedId = selectedAnswers[q.id || 0];
+        const correctOption = q.options.find((o) => o.isCorrect);
+        return selectedId === correctOption?.id;
+      }).length;
+      try {
+        await apiService.recordExamAttempt({
+          examId: quiz.id,
+          correctAnswers: correctCount,
+          totalQuestions: quiz.questions.length,
+          examTitle: quiz.title,
+        });
+      } catch {
+        // Silent fail - don't block results
+      }
+    }
     setShowResults(true);
-  }, []);
+  }, [quiz, selectedAnswers]);
 
   const handleConfirmAnswer = useCallback(() => {
     setShowImmediateFeedback(true);
@@ -235,7 +249,6 @@ export default function QuizPlayerFull({ quizId }: QuizPlayerFullProps) {
   const correctOption = currentQuestion.options.find((o) => o.isCorrect);
 
   if (showResults) {
-    const score = calculateScore;
     const correctCount = results.questionResults.filter((r) => r.isCorrect).length;
 
     return (
@@ -252,8 +265,8 @@ export default function QuizPlayerFull({ quizId }: QuizPlayerFullProps) {
           <div className={styles.resultsContent}>
             <div className={styles.scoreSection}>
               <div className={styles.scoreCircle}>
-                <div className={styles.scoreValue}>{score}%</div>
-                <div className={styles.scoreLabel}>Puntuación</div>
+                <div className={styles.scoreValue}>{correctCount}/{totalQuestions}</div>
+                <div className={styles.scoreLabel}>Buenas</div>
               </div>
 
               <p className={styles.scoreDetail}>

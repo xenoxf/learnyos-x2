@@ -5,10 +5,11 @@
 
 "use client";
 
-import React, { useState, useCallback, useMemo, useEffect, useRef } from "react";
+import React, { useState, useCallback, useMemo, useEffect } from "react";
 import { Plus, Globe, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { apiService } from "@/services/apiService";
 import styles from "@/styles/components/studyGrid.module.css";
 
 export type ViewMode = "private" | "public";
@@ -22,7 +23,7 @@ export interface StudyGridBaseItem {
 }
 
 export interface StudyGridActions<T extends StudyGridBaseItem> {
-  onLoad: () => Promise<T[]>;
+  onLoad: (viewMode: ViewMode) => Promise<T[]>;
   onItemOpen?: (item: T) => void;
   onItemDeleted?: () => Promise<void>;
   onCreateClick?: () => void;
@@ -64,22 +65,13 @@ export function useStudyGrid<T extends StudyGridBaseItem & { code?: string | nul
   const [loading, setLoading] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>(defaultViewMode);
   const [showCreate, setShowCreate] = useState(false);
-  const [codeSearchResult, setCodeSearchResult] = useState<T | null>(null);
-  const [isCodeSearch, setIsCodeSearch] = useState(false);
   const [isGuest, setIsGuest] = useState(false);
-  const viewModeRef = useRef(viewMode);
 
-  // Detectar si es invitado
   useEffect(() => {
     if (typeof window !== "undefined") {
-      setIsGuest(localStorage.getItem("isGuest") === "true");
+      setIsGuest(apiService.isGuest());
     }
   }, []);
-
-  // Keep ref updated
-  useEffect(() => {
-    viewModeRef.current = viewMode;
-  }, [viewMode]);
 
   const currentUserId = useMemo(() => {
     if (typeof window === "undefined") return null;
@@ -93,57 +85,34 @@ export function useStudyGrid<T extends StudyGridBaseItem & { code?: string | nul
 
   const filterItems = useCallback(
     (itemsToFilter: (T & { canDelete?: boolean })[], term: string) => {
-      // Si el término parece un código (5 caracteres alfanuméricos), buscar por código
-      const isCodePattern = /^[A-Z0-9]{5}$/i.test(term.trim());
-
-      if (isCodePattern && term.trim().length === 5) {
-        // Búsqueda por código - se hace en backend
-        setIsCodeSearch(true);
-        return; // Se maneja en loadCodeSearch
+      const trimmed = term.trim().toLowerCase();
+      if (!trimmed) {
+        setItems(itemsToFilter);
+        return;
       }
 
-      // Búsqueda normal por texto - frontend filter
-      setIsCodeSearch(false);
-      setCodeSearchResult(null);
       const filtered = itemsToFilter.filter(
-        (item) =>
-          item.title.toLowerCase().includes(term.toLowerCase()) ||
-          item.description?.toLowerCase().includes(term.toLowerCase()),
+        (item) => {
+          const anyItem = item as any;
+          return (
+            anyItem.title?.toLowerCase().includes(trimmed) ||
+            anyItem.description?.toLowerCase().includes(trimmed) ||
+            anyItem.area?.toLowerCase().includes(trimmed) ||
+            anyItem.tema?.toLowerCase().includes(trimmed)
+          );
+        },
       );
       setItems(filtered);
     },
     [],
   );
 
-  const loadCodeSearch = useCallback(async (code: string) => {
-    try {
-      setLoading(true);
-      // Aquí se haría la petición al backend para buscar por código
-      // Por ahora, filtramos en frontend por el code
-      const found = allItems.find(
-        (item) => item.code?.toUpperCase() === code.toUpperCase()
-      );
-      if (found) {
-        setCodeSearchResult(found);
-        setItems([found]);
-      } else {
-        setCodeSearchResult(null);
-        setItems([]);
-      }
-    } catch {
-      setItems([]);
-    } finally {
-      setLoading(false);
-    }
-  }, [allItems]);
-
   const loadItems = useCallback(async () => {
-    // Prevenir múltiples peticiones simultáneas
     if (loading) return;
 
     try {
       setLoading(true);
-      const data = await actions.onLoad();
+      const data = await actions.onLoad(viewMode);
       const typedData = data.map((item) => ({
         ...item,
         canDelete: Boolean(
@@ -152,18 +121,10 @@ export function useStudyGrid<T extends StudyGridBaseItem & { code?: string | nul
       }));
       setAllItems(typedData);
 
-      // Si hay búsqueda por código activa, mantenerla
-      if (isCodeSearch && searchValue) {
-        loadCodeSearch(searchValue);
+      if (searchValue.trim()) {
+        filterItems(typedData, searchValue);
       } else {
-        // Filtrado normal por texto
-        const filtered = typedData.filter(
-          (item) =>
-            searchValue === "" ||
-            item.title.toLowerCase().includes(searchValue.toLowerCase()) ||
-            item.description?.toLowerCase().includes(searchValue.toLowerCase()),
-        );
-        setItems(filtered);
+        setItems(typedData);
       }
     } catch {
       setAllItems([]);
@@ -171,26 +132,20 @@ export function useStudyGrid<T extends StudyGridBaseItem & { code?: string | nul
     } finally {
       setLoading(false);
     }
-  }, [actions.onLoad, currentUserId, searchValue, isCodeSearch, loadCodeSearch, config.entityPlural, loading]);
+  }, [actions.onLoad, currentUserId, searchValue, viewMode, filterItems, loading]);
 
-  // Load items on mount and when viewMode changes
   useEffect(() => {
     loadItems();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [viewMode]);
 
-  // Handle search input changes
   useEffect(() => {
     if (searchValue.trim().length === 0) {
-      // Resetear a todos los items si búsqueda vacía
-      setIsCodeSearch(false);
-      setCodeSearchResult(null);
       setItems(allItems);
-    } else if (!isCodeSearch) {
-      // Filtrado por texto en frontend
+    } else {
       filterItems(allItems, searchValue);
     }
-  }, [searchValue, allItems, isCodeSearch, filterItems]);
+  }, [searchValue, allItems, filterItems]);
 
   const handleCreateClick = useCallback(() => {
     if (isGuest) {
@@ -217,18 +172,13 @@ export function useStudyGrid<T extends StudyGridBaseItem & { code?: string | nul
   }, [actions.onItemDeleted, loadItems]);
 
   const resultText = useMemo(() => {
-    if (isCodeSearch && searchValue) {
-      return codeSearchResult
-        ? `Código "${searchValue}" encontrado`
-        : `No se encontró ningún ${config.entitySingular} con el código "${searchValue}"`;
-    }
     if (allItems.length === 0) {
       return viewMode === "private"
         ? config.emptyPrivateText
         : config.emptyPublicText;
     }
     return items.length === 0 ? config.emptySearchText : "";
-  }, [allItems.length, items.length, viewMode, config, isCodeSearch, searchValue, codeSearchResult]);
+  }, [allItems.length, items.length, viewMode, config]);
 
   return {
     searchValue,
@@ -245,8 +195,6 @@ export function useStudyGrid<T extends StudyGridBaseItem & { code?: string | nul
     handleCloseModal,
     handleItemDeleted,
     loadItems,
-    isCodeSearch,
-    codeSearchResult,
     isGuest,
   };
 }

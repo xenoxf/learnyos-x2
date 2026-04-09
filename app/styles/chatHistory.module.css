@@ -1,429 +1,328 @@
-/* chatHistory.module.css - Historial con funcionalidad de minimizar sin fixed */
+/* chatHistory.module.css - Professional History Design */
 
 .container {
-    display: flex;
-    height: 100%;
-    width: 180px;
-    position: relative;
+  display: flex;
+  height: 100%;
+  width: 100%;
+  position: relative;
 }
 
-/* Botón toggle - AHORA SÍ FUNCIONA PARA MINIMIZAR */
-.toggleButton {
-    position: fixed;
-    top: 10px;
-    transform: translateY(-50%);
-    width: 28px;
-    height: 48px;
-    left: auto;
-    border: none;
-    border-radius: 0 8px 8px 0;
-    background: hsl(var(--primary));
-    color: hsl(var(--primary-foreground));
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s ease;
-    z-index: 10;
-    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.bajo {
-    left: 80px !important;
-}
-
-.alto {
-    left: 220px !important;
-}
-
-.kl {
-    margin-left: 80px !important;
-}
-.lk {
-    margin-left: 220px !important;
-}
-
-.toggleButton:hover {
-    width: 32px;
-    background: hsl(var(--primary) / 0.9);
-    padding-left: 4px;
-}
-
-.toggleButton:active {
-    transform: translateY(-50%) scale(0.95);
-}
-
-.doorIcon {
-    flex-shrink: 0;
-    transition: transform 0.2s ease;
-}
-
-.toggleButton:hover .doorIcon {
-    transform: scale(1.1);
-}
-
-/* Sidebar - AHORA USA POSITION RELATIVE PARA MANTENER EL FLUJO */
+/* ==================== SIDEBAR ==================== */
 .sidebar {
-    width: 280px;
-    height: 100%;
-    background: hsl(var(--background));
-    border-right: 1px solid hsl(var(--border));
-    display: flex;
-    flex-direction: column;
-    transition:
-        width 0.3s ease,
-        margin 0.3s ease;
-    position: fixed;
-    top: 0;
-    left: auto;
-    flex-shrink: 0;
-    overflow: hidden; /* Importante para cuando está cerrado */
-}
-
-.sidebar.closed {
-    width: 0;
-    border-right: none;
-}
-
-.sidebar.closed .sidebarHeader,
-.sidebar.closed .chatList,
-.sidebar.closed .sidebarFooter {
-    opacity: 0;
-    visibility: hidden;
-    transition:
-        opacity 0.2s ease,
-        visibility 0.2s ease;
+  width: 260px;
+  height: 100%;
+  background: hsl(var(--card));
+  border-right: 1px solid hsl(var(--border));
+  display: flex;
+  flex-direction: column;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  flex-shrink: 0;
+  overflow: hidden;
+  position: relative;
 }
 
 .sidebar.open {
-    width: 280px;
-    border-right: 1px solid hsl(var(--border));
+  width: 260px;
+  opacity: 1;
+  visibility: visible;
 }
 
-.sidebar.open .sidebarHeader,
-.sidebar.open .chatList,
-.sidebar.open .sidebarFooter {
-    opacity: 1;
-    visibility: visible;
-    transition:
-        opacity 0.3s ease 0.1s,
-        visibility 0.3s ease 0.1s;
+.sidebar.closed {
+  width: 0;
+  opacity: 0;
+  visibility: hidden;
+  border-right: none;
 }
 
-/* Header del sidebar */
+/* ==================== HEADER ==================== */
 .sidebarHeader {
-    padding: 1.25rem;
-    border-bottom: 1px solid hsl(var(--border));
-    flex-shrink: 0;
-    transition:
-        opacity 0.2s ease,
-        visibility 0.2s ease;
+  padding: 1rem;
+  border-bottom: 1px solid hsl(var(--border));
+  flex-shrink: 0;
+  background: hsl(var(--card));
+}
+
+.headerTop {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 0.85rem;
+}
+
+.headerIcon {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary) / 0.7));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: hsl(var(--primary-foreground));
+  flex-shrink: 0;
 }
 
 .sidebarTitle {
-    font-size: 1.125rem;
-    font-weight: 600;
-    color: hsl(var(--foreground));
-    margin: 0 0 1rem 0;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: hsl(var(--foreground));
+  margin: 0;
+  letter-spacing: -0.01em;
 }
 
-/* Botón nuevo chat */
+/* ==================== NEW CHAT BUTTON ==================== */
 .newChatButton {
-    width: 100%;
-    padding: 0.75rem;
-    background: hsl(var(--primary));
-    color: hsl(var(--primary-foreground));
-    border: none;
-    border-radius: 10px;
-    font-weight: 500;
-    font-size: 0.9375rem;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    transition: all 0.2s;
+  width: 100%;
+  padding: 0.65rem 0.85rem;
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  border: none;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: all 0.15s ease;
 }
 
 .newChatButton:hover {
-    background: hsl(var(--primary) / 0.9);
+  background: hsl(var(--primary) / 0.9);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px hsl(var(--primary) / 0.3);
 }
 
 .newChatButton:active {
-    transform: scale(0.98);
+  transform: translateY(0) scale(0.98);
 }
 
-/* Lista de chats */
+/* ==================== CHAT LIST ==================== */
 .chatList {
-    flex: 1;
-    overflow-y: auto;
-    padding: 1rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    transition:
-        opacity 0.2s ease,
-        visibility 0.2s ease;
-    min-width: 260px; /* Evita que los elementos se compriman */
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
 }
 
-/* Estado vacío */
+.chatItems {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+/* ==================== EMPTY STATE ==================== */
 .emptyChats {
-    text-align: center;
-    padding: 2rem 1rem;
-    color: hsl(var(--muted-foreground));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2.5rem 1rem;
+  text-align: center;
+  gap: 0.75rem;
 }
 
-.emptyChats svg {
-    margin-bottom: 1rem;
-    opacity: 0.5;
+.emptyIcon {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: hsl(var(--muted) / 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: hsl(var(--muted-foreground));
+  opacity: 0.6;
 }
 
 .emptyChats p {
-    font-weight: 500;
-    margin-bottom: 0.25rem;
-    color: hsl(var(--foreground));
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: hsl(var(--foreground));
+  margin: 0;
 }
 
 .emptyChats span {
-    font-size: 0.8125rem;
-    opacity: 0.8;
+  font-size: 0.78rem;
+  color: hsl(var(--muted-foreground));
+  line-height: 1.4;
 }
 
-/* Item de chat */
+/* ==================== CHAT ITEM ==================== */
 .chatItem {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 0.875rem 1rem;
-    background: hsl(var(--muted) / 0.3);
-    border: 1px solid transparent;
-    border-radius: 10px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    position: relative;
-    white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.7rem 0.85rem;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  position: relative;
+  overflow: hidden;
 }
 
 .chatItem:hover {
-    background: hsl(var(--muted) / 0.5);
-    border-color: hsl(var(--border));
+  background: hsl(var(--accent) / 0.4);
+  border-color: hsl(var(--border) / 0.5);
 }
 
 .chatItem.active {
-    background: hsl(var(--primary) / 0.1);
-    border-color: hsl(var(--primary));
+  background: hsl(var(--primary) / 0.12);
+  border-color: hsl(var(--primary) / 0.25);
 }
 
-.chatItem svg:first-child {
-    color: hsl(var(--primary));
-    flex-shrink: 0;
-    width: 18px;
-    height: 18px;
+.chatItem.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 60%;
+  background: hsl(var(--primary));
+  border-radius: 0 2px 2px 0;
+}
+
+.chatItemIcon {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: hsl(var(--muted) / 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: hsl(var(--muted-foreground));
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+}
+
+.chatItem:hover .chatItemIcon {
+  background: hsl(var(--accent) / 0.5);
+}
+
+.chatItem.active .chatItemIcon {
+  background: hsl(var(--primary) / 0.2);
+  color: hsl(var(--primary));
 }
 
 .chatInfo {
-    flex: 1;
-    min-width: 0;
-    overflow: hidden;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .chatTitle {
-    display: block;
-    font-weight: 500;
-    font-size: 0.875rem;
-    color: hsl(var(--foreground));
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    margin-bottom: 0.125rem;
+  display: block;
+  font-weight: 500;
+  font-size: 0.82rem;
+  color: hsl(var(--foreground));
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.3;
 }
 
-.messageCount {
-    font-size: 0.6875rem;
-    color: hsl(var(--muted-foreground));
+.chatItem.active .chatTitle {
+  color: hsl(var(--primary));
+  font-weight: 600;
 }
 
-/* Botón eliminar */
+/* ==================== DELETE BUTTON ==================== */
 .deleteButton {
-    opacity: 0;
-    width: 28px;
-    height: 28px;
-    border-radius: 6px;
-    border: none;
-    background: hsl(var(--destructive) / 0.1);
-    color: hsl(var(--destructive));
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s;
-    flex-shrink: 0;
+  opacity: 0;
+  width: 26px;
+  height: 26px;
+  border-radius: 7px;
+  border: none;
+  background: hsl(var(--destructive) / 0.08);
+  color: hsl(var(--destructive));
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
 }
 
 .chatItem:hover .deleteButton,
 .chatItem:focus-within .deleteButton {
-    opacity: 1;
+  opacity: 1;
 }
 
 .deleteButton:hover {
-    background: hsl(var(--destructive));
-    color: white;
-    transform: scale(1.05);
+  background: hsl(var(--destructive) / 0.2);
+  transform: scale(1.05);
 }
 
-/* Footer del sidebar */
-.sidebarFooter {
-    padding: 1rem 1.25rem;
-    border-top: 1px solid hsl(var(--border));
-    flex-shrink: 0;
-    transition:
-        opacity 0.2s ease,
-        visibility 0.2s ease;
+.deleteButton:active {
+  transform: scale(0.95);
 }
 
-.userInfo {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    margin-bottom: 0.5rem;
-}
-
-.userAvatar {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    background: linear-gradient(
-        135deg,
-        hsl(var(--primary)),
-        hsl(var(--primary) / 0.8)
-    );
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-weight: 600;
-    flex-shrink: 0;
-}
-
-.userDetails {
-    flex: 1;
-    min-width: 0;
-    overflow: hidden;
-}
-
-.userName {
-    display: block;
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: hsl(var(--foreground));
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.userEmail {
-    display: block;
-    font-size: 0.75rem;
-    color: hsl(var(--muted-foreground));
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-/* Botón de salir */
-.logoutButton {
-    width: 100%;
-    padding: 0.5rem;
-    border-radius: 8px;
-    border: 1px solid hsl(var(--border));
-    background: transparent;
-    color: hsl(var(--muted-foreground));
-    font-size: 0.75rem;
-    cursor: pointer;
-    transition: all 0.2s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.375rem;
-}
-
-.logoutButton:hover {
-    background: hsl(var(--destructive) / 0.1);
-    color: hsl(var(--destructive));
-    border-color: hsl(var(--destructive) / 0.3);
-}
-
-/* Overlay para móvil */
+/* ==================== OVERLAY ==================== */
 .overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.4);
-    backdrop-filter: blur(4px);
-    z-index: 100;
-    animation: fadeIn 0.2s ease;
+  position: fixed;
+  inset: 0;
+  background: hsl(var(--background) / 0.5);
+  backdrop-filter: blur(2px);
+  z-index: 100;
 }
 
-/* Animaciones */
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-    }
-    to {
-        opacity: 1;
-    }
+/* ==================== SCROLLBAR ==================== */
+.chatList::-webkit-scrollbar {
+  width: 4px;
 }
 
-@keyframes slideIn {
-    from {
-        opacity: 0;
-        transform: translateX(-10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateX(0);
-    }
+.chatList::-webkit-scrollbar-track {
+  background: transparent;
 }
 
-.chatItem {
-    animation: slideIn 0.3s ease;
+.chatList::-webkit-scrollbar-thumb {
+  background: hsl(var(--border));
+  border-radius: 4px;
 }
 
-/* Media queries para responsive */
+.chatList::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground));
+}
+
+/* ==================== RESPONSIVE ==================== */
 @media (max-width: 768px) {
-    .sidebar {
-        position: fixed;
-        top: 0;
-        left: 0;
-        height: 100vh;
-        z-index: 110;
-        box-shadow: 2px 0 20px rgba(0, 0, 0, 0.15);
-    }
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    z-index: 200;
+    box-shadow: 4px 0 24px hsl(var(--background) / 0.8);
+  }
 
-    .sidebar.closed {
-        transform: translateX(-100%);
-        width: 280px; /* Mantiene el ancho en móvil cuando está cerrado */
-    }
+  .sidebar.closed {
+    transform: translateX(-100%);
+    width: 280px;
+  }
 
-    .sidebar.open {
-        transform: translateX(0);
-        width: 280px;
-    }
-
-    .toggleButton {
-        display: none; /* Ocultamos el botón toggle en móvil porque usamos menú hamburguesa */
-    }
+  .sidebar.open {
+    transform: translateX(0);
+    width: 280px;
+  }
 }
 
-/* Mejoras de accesibilidad */
-.toggleButton:focus-visible,
+/* ==================== ACCESSIBILITY ==================== */
 .newChatButton:focus-visible,
 .deleteButton:focus-visible,
-.chatItem:focus-visible,
-.logoutButton:focus-visible {
-    outline: 2px solid hsl(var(--primary));
-    outline-offset: 2px;
+.chatItem:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sidebar,
+  .chatItem,
+  .newChatButton,
+  .deleteButton {
+    transition: none;
+  }
 }

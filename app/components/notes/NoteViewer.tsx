@@ -5,7 +5,7 @@ import { ChevronDown, ChevronUp, FileText } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import styles from "@/styles/notes/noteViewer.module.css";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "@/hooks/useLocalToast";
 import { apiService } from "@/services/apiService";
 import type { NoteKlek } from "@/types";
 import {
@@ -19,7 +19,7 @@ interface NoteViewerProps {
 }
 
 export default function NoteViewer({ noteId, onClose }: NoteViewerProps) {
-  const { toast } = useToast();
+  ;
   const [note, setNote] = useState<NoteKlek | null>(null);
   const [loading, setLoading] = useState(true);
   const [expandedSections, setExpandedSections] = useState<Record<number, boolean>>({});
@@ -34,11 +34,7 @@ export default function NoteViewer({ noteId, onClose }: NoteViewerProps) {
       } catch (err) {
         const message =
           err instanceof Error ? err.message : "Error al cargar nota";
-        toast({
-          variant: "destructive",
-          title: "Error",
-          description: message,
-        });
+        toast.info("", );
         onClose();
       } finally {
         if (!cancelled) setLoading(false);

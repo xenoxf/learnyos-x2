@@ -1,7 +1,9 @@
-import React, { useState } from "react";
-import { Trash2, Tag, BookOpen } from "lucide-react";
+"use client";
+
+import React, { useState, useCallback } from "react";
+import { Trash2, Tag, BookOpen, Heart, User } from "lucide-react";
 import { apiService } from "@/services/apiService";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "@/hooks/useLocalToast";
 import styles from "@/styles/flashCards/card.module.css";
 import type { CardsDeck } from "@/types";
 
@@ -9,59 +11,48 @@ interface CardProps {
   card: CardsDeck & { canDelete?: boolean };
   onCardDeleted?: () => void;
   onOpen: () => void;
+  isEspacio?: boolean;
+  onShowOptions?: () => void;
 }
 
-const CardContent: React.FC<CardProps> = ({ card, onCardDeleted, onOpen }) => {
-  const { toast } = useToast();
+const CardContent: React.FC<CardProps> = ({ card, onCardDeleted, onOpen, isEspacio, onShowOptions }) => {
+  ;
+  const [likesCount, setLikesCount] = useState(card.likesCount || 0);
+  const [userLiked, setUserLiked] = useState(card.userLiked || false);
+  const [isLiking, setIsLiking] = useState(false);
 
   const isOwner = card.canDelete ?? false;
 
-  const handleDelete = async () => {
+  const handleDelete = useCallback(async (e: React.MouseEvent) => {
+    e.stopPropagation();
     if (!isOwner) {
-      toast({
-        variant: "destructive",
-        title: "No permitido",
-        description: "Solo puedes eliminar tus propios mazos",
-      });
+      toast.error("No permitido", "Solo puedes eliminar tus propios mazos");
       return;
     }
+  }, [isOwner]);
 
-    const confirm = window.confirm(
-      "¿Estás seguro de que deseas eliminar este mazo? Esta acción no se puede deshacer.",
-    );
-    if (confirm) {
-      try {
-        await apiService.deleteCard(card.id);
-        toast({
-          title: "Éxito",
-          description: "Mazo eliminado correctamente",
-        });
-        if (onCardDeleted) {
-          onCardDeleted();
-        }
-      } catch (err) {
-        const message =
-          err instanceof Error ? err.message : "Error al eliminar mazo";
-        toast({
-          variant: "destructive",
-          title: "Error",
-          description: message,
-        });
-      }
-    }
-  };
-
-  const handleOpen = async () => {
+  const handleLike = useCallback(async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (isLiking) return;
     try {
-      onOpen();
-    } catch (e: any) {
-      toast({
-        title: "Error",
-        description: e.message,
-        variant: "destructive",
-      });
+      setIsLiking(true);
+      const result = await apiService.toggleFlashcardLike(card.id);
+      setLikesCount(result.count);
+      setUserLiked(result.liked);
+    } catch {
+      // Silent fail for likes
+    } finally {
+      setIsLiking(false);
     }
-  };
+  }, [card.id, isLiking]);
+
+  const handleOpen = useCallback(() => {
+    if (isEspacio && onShowOptions) {
+      onShowOptions();
+    } else {
+      onOpen();
+    }
+  }, [isEspacio, onShowOptions, onOpen]);
 
   return (
     <div
@@ -78,13 +69,10 @@ const CardContent: React.FC<CardProps> = ({ card, onCardDeleted, onOpen }) => {
     >
       <div className={styles.cardHeader}>
         <h3 className={styles.cardTitle}>{card.title}</h3>
-        {isOwner && (
+        {isOwner && !isEspacio && (
           <button
             className={styles.deleteBtn}
-            onClick={(e) => {
-              e.stopPropagation();
-              handleDelete();
-            }}
+            onClick={handleDelete}
             title="Eliminar mazo"
             aria-label="Eliminar mazo"
             type="button"
@@ -97,7 +85,6 @@ const CardContent: React.FC<CardProps> = ({ card, onCardDeleted, onOpen }) => {
         {card.description || "Sin descripción"}
       </p>
 
-      {/* Información del mazo */}
       <div className={styles.cardMeta}>
         {card.area && (
           <span className={styles.cardHint}>
@@ -120,14 +107,37 @@ const CardContent: React.FC<CardProps> = ({ card, onCardDeleted, onOpen }) => {
         <span className={styles.cardHint}>{card.totalCards} tarjetas</span>
       </div>
 
-      {/* Solo mostrar el code si es el dueño */}
+      <div className={styles.cardCreator}>
+        <User size={12} />
+        <span>{card.creatorName}</span>
+      </div>
+
       <div className={styles.cardFooter}>
-        {isOwner && card.code ? (
+        {!isOwner && (
+          <button
+            className={`${styles.likeBtn} ${userLiked ? styles.likeBtnActive : ""}`}
+            onClick={handleLike}
+            disabled={isLiking}
+            title="Me gusta"
+            aria-label="Me gusta"
+            type="button"
+          >
+            <Heart size={14} fill={userLiked ? "currentColor" : "none"} />
+            <span>{likesCount}</span>
+          </button>
+        )}
+        {isOwner && (
+          <span className={styles.cardLikesCount}>
+            <Heart size={14} fill="currentColor" />
+            <span>{likesCount}</span>
+          </span>
+        )}
+        {isOwner && card.code && (
           <span className={styles.cardCode}>{card.code}</span>
-        ) : null}
+        )}
       </div>
     </div>
   );
 };
 
-export default CardContent;
+export default React.memo(CardContent);

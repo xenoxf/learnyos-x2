@@ -134,6 +134,69 @@
   border: 1px solid hsl(var(--border));
 }
 
+/* ==================== CARD CREATOR ==================== */
+.cardCreator {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.78rem;
+  color: hsl(var(--muted-foreground));
+  padding-top: 0.5rem;
+  border-top: 1px solid hsl(var(--border) / 0.5);
+}
+
+.cardCreator svg {
+  flex-shrink: 0;
+  opacity: 0.7;
+}
+
+/* ==================== CARD FOOTER ==================== */
+.cardFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid hsl(var(--border) / 0.5);
+  flex-wrap: wrap;
+}
+
+.likeBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.3rem 0.6rem;
+  background: transparent;
+  border: 1px solid hsl(var(--border));
+  border-radius: 20px;
+  color: hsl(var(--muted-foreground));
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-size: 0.78rem;
+  font-weight: 500;
+}
+
+.likeBtn:hover {
+  border-color: hsl(var(--destructive) / 0.5);
+  color: hsl(var(--destructive));
+  background: hsl(var(--destructive) / 0.05);
+}
+
+.likeBtnActive {
+  border-color: hsl(var(--destructive) / 0.5);
+  color: hsl(var(--destructive));
+  background: hsl(var(--destructive) / 0.1);
+}
+
+.likesCount {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.78rem;
+  color: hsl(var(--muted-foreground));
+  font-weight: 500;
+}
+
 /* ==================== RESPONSIVE ==================== */
 @media (max-width: 768px) {
   .card {

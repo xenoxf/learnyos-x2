@@ -1,9 +1,11 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
-import { useRouter } from "next/navigation";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
+import { useRouter, usePathname } from "next/navigation";
+import Image from "next/image";
 import { AppSidebar } from "@/components/AppSidebar";
-import { MobileNavbar } from "@/components/MobileNavbar";
+import { MobileNavbarRight } from "@/components/MobileNavbarRight";
+import { MobileNavbarV4 } from "@/components/MobileNavbarV4";
 import { GuestBanner } from "@/components/GuestBanner";
 import { apiService } from "@/services/apiService";
 import { Loader2 } from "lucide-react";
@@ -15,112 +17,118 @@ interface DashboardLayoutProps {
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const router = useRouter();
-  const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [isCollapsed, setIsCollapsed] = useState(false);
-  const [mounted, setMounted] = useState(false);
+  const pathname = usePathname();
   const [isMobile, setIsMobile] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(true);
   const [isValidating, setIsValidating] = useState(true);
   const [isTokenValid, setIsTokenValid] = useState(false);
   const [isGuest, setIsGuest] = useState(false);
+  const [user, setUser] = useState<{ name?: string; email?: string; picture?: string } | null>(null);
 
-  // Detectar si es móvil
+  // Detect mobile
   useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth <= 768);
-    };
-
-    checkMobile();
-    window.addEventListener("resize", checkMobile);
-
-    return () => window.removeEventListener("resize", checkMobile);
+    const check = () => setIsMobile(window.innerWidth <= 768);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
   }, []);
 
-  // Función para verificar estado de autenticación
-  const checkAuthStatus = useCallback(() => {
+  // Load sidebar state
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("sidebar-collapsed");
+      if (saved !== null) setIsCollapsed(saved === "false");
+    } catch {}
+  }, []);
+
+  // Auth validation
+  const validateAuth = useCallback(async () => {
     if (typeof window === "undefined") return;
 
-    // Verificar si es invitado
-    const guestStatus = apiService.isGuest();
-    setIsGuest(guestStatus);
-
-    // Verificar token
     const token = localStorage.getItem("token");
-    if (token) {
-      apiService.verifyToken().then((isValid) => {
-        setIsTokenValid(isValid);
-        setIsValidating(false);
-      }).catch(() => {
-        setIsTokenValid(false);
-        setIsValidating(false);
-        // Limpiar token inválido y redirigir
+    const userStr = localStorage.getItem("user");
+
+    if (!token) {
+      setIsValidating(false);
+      setIsTokenValid(false);
+      return;
+    }
+
+    if (userStr) {
+      try {
+        const parsed = JSON.parse(userStr);
+        setUser(parsed);
+        setIsGuest(parsed?.isGuest === true);
+      } catch {
+        setIsGuest(false);
+      }
+    }
+
+    try {
+      const isValid = await apiService.verifyToken();
+      if (isValid) {
+        setIsTokenValid(true);
+      } else {
         apiService.logout();
-        router.push("/auth");
-      });
-    } else {
-      setIsTokenValid(false);
-      setIsValidating(false);
-      // Sin token, redirigir a auth
-      router.push("/auth");
-    }
-  }, [router]);
-
-  useEffect(() => {
-    setMounted(true);
-    try {
-      const savedState = localStorage.getItem("sidebar-collapsed");
-      if (savedState !== null) {
-        setIsCollapsed(savedState === "false");
+        setIsTokenValid(false);
+        setIsGuest(false);
+        setUser(null);
       }
-
-      // Verificar autenticación inicial
-      checkAuthStatus();
-    } catch (error) {
-      console.error("Error in layout initialization:", error);
-      setIsValidating(false);
-      setIsTokenValid(false);
-      router.push("/auth");
-    }
-  }, [checkAuthStatus, router]);
-
-  // Escuchar cambios en localStorage para actualizar el banner
-  useEffect(() => {
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === "isGuest" || e.key === "token") {
-        checkAuthStatus();
-      }
-    };
-
-    window.addEventListener("storage", handleStorageChange);
-
-    return () => {
-      window.removeEventListener("storage", handleStorageChange);
-    };
-  }, [checkAuthStatus]);
-
-  useEffect(() => {
-    if (!mounted) return;
-    try {
-      localStorage.setItem("sidebar-collapsed", String(isCollapsed));
     } catch {
-      // ignore
+      setIsTokenValid(true);
     }
-  }, [isCollapsed, mounted]);
 
-  // Redirigir si el token no es válido
+    setIsValidating(false);
+  }, []);
+
+  useEffect(() => {
+    validateAuth();
+  }, [validateAuth]);
+
+  // Redirect if no token
   useEffect(() => {
     if (!isValidating && !isTokenValid && typeof window !== "undefined") {
       const token = localStorage.getItem("token");
-      if (token) {
-        // Token inválido, limpiar y redirigir
-        apiService.logout();
+      if (!token) {
+        router.push("/auth");
       }
-      router.push("/auth");
     }
   }, [isValidating, isTokenValid, router]);
 
-  const handleToggleSidebar = () => {
-    setIsCollapsed(!isCollapsed);
-  };
+  // Sync guest status
+  useEffect(() => {
+    const handler = (e: StorageEvent) => {
+      if (e.key === "token" || e.key === "user") {
+        const newToken = localStorage.getItem("token");
+        const newUser = localStorage.getItem("user");
+        if (!newToken || !newUser) {
+          router.push("/auth");
+        } else {
+          try {
+            const parsed = JSON.parse(newUser);
+            setUser(parsed);
+            setIsGuest(parsed?.isGuest === true);
+            setIsTokenValid(true);
+          } catch {}
+        }
+      }
+    };
+    window.addEventListener("storage", handler);
+    return () => window.removeEventListener("storage", handler);
+  }, [router]);
+
+  // Save sidebar state
+  useEffect(() => {
+    try {
+      localStorage.setItem("sidebar-collapsed", String(isCollapsed));
+    } catch {}
+  }, [isCollapsed]);
+
+  const handleToggleSidebar = useCallback(() => {
+    setIsCollapsed((prev) => !prev);
+  }, []);
+
+  const guestBanner = useMemo(() => isGuest ? <GuestBanner /> : null, [isGuest]);
 
   if (isValidating) {
     return (
@@ -146,8 +154,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
   return (
     <div className={styles.dashboardLayout}>
-      {isGuest && <GuestBanner />}
-      
+      {guestBanner}
+
       {!isMobile && (
         <div
           className={`
@@ -161,18 +169,24 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
       <div
         className={`
-        ${styles.mainContent}
-        ${!isMobile && isCollapsed ? styles.mainContentExpanded : ""}
-        ${isMobile ? styles.mainContentMobile : ""}
-        ${isGuest ? styles.mainContentWithBanner : ""}
-      `}
+          ${styles.mainContent}
+          ${!isMobile && isCollapsed ? styles.mainContentExpanded : ""}
+          ${isMobile ? styles.mainContentMobile : ""}
+          ${isGuest ? styles.mainContentWithBanner : ""}
+        `}
       >
         <div className={styles.contentArea}>
           <div className={styles.contentWrapper}>{children}</div>
         </div>
       </div>
 
-      {isMobile && <MobileNavbar />}
+      {/* Mobile navbars */}
+      {isMobile && (
+        <>
+          <MobileNavbarV4 />
+          <MobileNavbarRight />
+        </>
+      )}
     </div>
   );
 }

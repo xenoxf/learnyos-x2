@@ -34,7 +34,7 @@ import styles from "@/styles/settings.module.css";
 import { toast } from "@/hooks/useLocalToast";
 import { Button } from "@/components/ui/button";
 
-type TabType = "general" | "credits" | "notes" | "flashcards" | "quizzes" | "terms";
+type TabType = "general" | "creditos" | "notes" | "flashcards" | "quizzes" | "terminos";
 
 interface ManageItem {
   id: number;
@@ -62,6 +62,46 @@ interface CreditsStatus {
     FLASHCARD_GENERATION: number;
     CHAT_MESSAGE: number;
   };
+  multipliers?: {
+    EXAM_PER_QUESTION: number;
+    EXAM_DIFFICULTY: { easy: number; medium: number; hard: number };
+    NOTE_DETAIL: { breve: number; medio: number; detallado: number };
+    FLASHCARD_PER_CARD: number;
+    TOPIC_LENGTH_THRESHOLD: number;
+  };
+}
+
+const DEFAULT_MULTIPLIERS = {
+  EXAM_PER_QUESTION: 0.5,
+  EXAM_DIFFICULTY: { easy: 1.0, medium: 1.3, hard: 1.7 },
+  NOTE_DETAIL: { breve: 1.0, medio: 1.4, detallado: 1.9 },
+  FLASHCARD_PER_CARD: 0.4,
+  TOPIC_LENGTH_THRESHOLD: 100,
+};
+
+function calculateExamCost(numberOfQuestions: number, difficulty: string, topic: string, costs: CreditsStatus['costs'], multipliers?: CreditsStatus['multipliers']): number {
+  const m = multipliers || DEFAULT_MULTIPLIERS;
+  const base = costs.EXAM_GENERATION;
+  const questionCost = numberOfQuestions * m.EXAM_PER_QUESTION;
+  const difficultyMult = m.EXAM_DIFFICULTY[difficulty as keyof typeof m.EXAM_DIFFICULTY] || 1.3;
+  const topicExtra = topic.length > m.TOPIC_LENGTH_THRESHOLD ? 1 : 0;
+  return Math.ceil((base + questionCost) * difficultyMult + topicExtra);
+}
+
+function calculateNoteCost(levelOfDetail: string, topic: string, costs: CreditsStatus['costs'], multipliers?: CreditsStatus['multipliers']): number {
+  const m = multipliers || DEFAULT_MULTIPLIERS;
+  const base = costs.NOTE_GENERATION;
+  const detailMult = m.NOTE_DETAIL[levelOfDetail as keyof typeof m.NOTE_DETAIL] || 1.4;
+  const topicExtra = topic.length > m.TOPIC_LENGTH_THRESHOLD ? 1 : 0;
+  return Math.ceil(base * detailMult + topicExtra);
+}
+
+function calculateFlashcardCost(numberOfCards: number, topic: string, costs: CreditsStatus['costs'], multipliers?: CreditsStatus['multipliers']): number {
+  const m = multipliers || DEFAULT_MULTIPLIERS;
+  const base = costs.FLASHCARD_GENERATION;
+  const cardCost = numberOfCards * m.FLASHCARD_PER_CARD;
+  const topicExtra = topic.length > m.TOPIC_LENGTH_THRESHOLD ? 1 : 0;
+  return Math.ceil(base + cardCost + topicExtra);
 }
 
 export default function SettingsPage() {
@@ -76,6 +116,7 @@ export default function SettingsPage() {
   const [user, setUser] = useState<any>(null);
   const [credits, setCredits] = useState<CreditsStatus | null>(null);
   const [creditsLoading, setCreditsLoading] = useState(false);
+  const [isGuest, setIsGuest] = useState(false);
 
   // Cargar datos de usuario
   useEffect(() => {
@@ -87,6 +128,7 @@ export default function SettingsPage() {
         // ignore
       }
     }
+    setIsGuest(apiService.isGuest());
   }, []);
 
   // Cargar créditos
@@ -104,7 +146,7 @@ export default function SettingsPage() {
 
   // Cargar items de gestión
   const loadItems = useCallback(async () => {
-    if (activeTab === "general" || activeTab === "credits" || activeTab === "terms") {
+    if (activeTab === "general" || activeTab === "creditos" || activeTab === "terminos") {
       setLoading(false);
       return;
     }
@@ -160,13 +202,11 @@ export default function SettingsPage() {
 
   // Cargar créditos cuando se abre la pestaña
   useEffect(() => {
-    if (activeTab === "credits") {
-      if(apiService.isGuest()) {
-        toast.error('Inicia Sesion', 'Acceso restringido')
-      }
-      else loadCredits();
+    if (activeTab === "creditos") {
+      if (isGuest) return;
+      loadCredits();
     }
-  }, [activeTab, loadCredits]);
+  }, [activeTab, isGuest, loadCredits]);
 
   const handleDelete = async (id: number, title: string) => {
     const confirmed = await alert.show({
@@ -218,13 +258,13 @@ export default function SettingsPage() {
 
       switch (activeTab) {
         case 'flashcards':
-          await apiService.deleteAllCards;
+          await apiService.deleteAllCards();
           break;
         case 'notes':
-          await apiService.deleteAllNotes;
+          await apiService.deleteAllNotes();
           break;
         case 'quizzes':
-          await apiService.deleteAllExams;
+          await apiService.deleteAllExams();
           break;
       }
 
@@ -422,7 +462,7 @@ export default function SettingsPage() {
           )}
 
           {/* CREDITS TAB */}
-          {activeTab === "credits" && apiService.isGuest() === false ? (
+          {activeTab === "creditos" && !isGuest ? (
             <div className={styles.creditsContent}>
               {/* Header de Créditos */}
               <section className={styles.creditsHero}>
@@ -490,9 +530,12 @@ export default function SettingsPage() {
                     <div className={styles.creditsCostsHeader}>
                       <Zap size={20} className={styles.creditsCostsIcon} />
                       <h3 className={styles.creditsCostsTitle}>
-                        Costo por Acción
+                        Costo Base por Acción
                       </h3>
                     </div>
+                    <p className={styles.creditsCostsNote}>
+                      Los costos finales se calculan dinámicamente según cantidad, dificultad y longitud del tema.
+                    </p>
                     <div className={styles.creditsCostsGrid}>
                       <div className={styles.creditsCostItem}>
                         <div className={styles.creditsCostIcon}>
@@ -503,7 +546,7 @@ export default function SettingsPage() {
                             Generar Quiz
                           </span>
                           <span className={styles.creditsCostValue}>
-                            {credits.costs.EXAM_GENERATION} créditos
+                            Desde {credits.costs.EXAM_GENERATION} créditos
                           </span>
                         </div>
                       </div>
@@ -516,7 +559,7 @@ export default function SettingsPage() {
                             Generar Notas
                           </span>
                           <span className={styles.creditsCostValue}>
-                            {credits.costs.NOTE_GENERATION} créditos
+                            Desde {credits.costs.NOTE_GENERATION} créditos
                           </span>
                         </div>
                       </div>
@@ -529,7 +572,7 @@ export default function SettingsPage() {
                             Generar Flashcards
                           </span>
                           <span className={styles.creditsCostValue}>
-                            {credits.costs.FLASHCARD_GENERATION} créditos
+                            Desde {credits.costs.FLASHCARD_GENERATION} créditos
                           </span>
                         </div>
                       </div>
@@ -619,10 +662,12 @@ export default function SettingsPage() {
                     <p>
                       Los créditos son gratuitos y se renuevan automáticamente cada
                       día a las 00:00 (hora local). No son acumulables entre días.
+                      El costo real de cada acción se calcula dinámicamente según
+                      cantidad, dificultad y longitud del tema.
                     </p>
                   </section>
                 </>
-              ) : ( 
+              ) : (
                 (<div className={styles.creditsError}>
                   <AlertTriangle size={32} />
                   <p>No se pudieron cargar los créditos</p>
@@ -634,32 +679,32 @@ export default function SettingsPage() {
                     <RefreshCw size={16} />
                     <span>Reintentar</span>
                   </button>
-                </div>) 
-                
+                </div>)
+
               )}
             </div>
-          ): (
-            <div className={styles.creditsError}>
-                  <AlertTriangle size={32} />
-                  <p>Eres un Invitado</p>
-                  <Button
-                    className={styles.creditsRetryButton}
-                    onClick={() => {apiService.logout(); router.push('/auth')}}
-                  >
-                    <RefreshCw size={16} />
-                    <span>Iniciar Sesion</span>
-                  </Button>
-                </div>
+          ) : (
+            <div className={styles.guestMessage}>
+              <AlertTriangle size={32} />
+              <h3>Funcionalidad restringida</h3>
+              <p>Inicia sesión para acceder a tus créditos y gestionar tu contenido.</p>
+              <Button
+                className={styles.guestActionBtn}
+                onClick={() => { apiService.logout(); router.push('/auth'); }}
+              >
+                <LogOut size={16} />
+                <span>Iniciar sesión</span>
+              </Button>
+            </div>
           )}
 
           {/* TERMS TAB */}
-          {activeTab === "terms" && (
+          {activeTab === "terminos" && (
             <div className={styles.termsContent}>
               <div className={styles.termsHeader}>
-                <Shield size={28} className={styles.termsIcon} />
                 <h2 className={styles.termsTitle}>Términos y Condiciones</h2>
                 <p className={styles.termsDate}>
-                  Última actualización: 30 de marzo del 2026
+                  Última actualización: 5 de abril de 2026
                 </p>
               </div>
 
@@ -667,96 +712,146 @@ export default function SettingsPage() {
                 <section className={styles.termsSection}>
                   <h3>1. Aceptación de los Términos</h3>
                   <p>
-                    Al acceder y utilizar LearnYos, aceptas estar legalmente
-                    vinculado por estos Términos y Condiciones de Uso.
+                    Al acceder y utilizar LearnYos, aceptas estar vinculado por estos Términos y Condiciones.
+                    Si no estás de acuerdo, no utilices la plataforma.
                   </p>
                 </section>
 
                 <section className={styles.termsSection}>
                   <h3>2. Descripción del Servicio</h3>
                   <p>
-                    LearnYos es una plataforma educativa impulsada por IA que
-                    proporciona herramientas para creación y gestión de contenido educativo.
+                    LearnYos es una plataforma educativa impulsada por inteligencia artificial que permite
+                    crear, gestionar y estudiar contenido educativo: quizzes tipo ICFES, notas de estudio,
+                    flashcards y chat educativo con tutor IA.
                   </p>
                 </section>
 
                 <section className={styles.termsSection}>
                   <h3>3. Sistema de Créditos</h3>
                   <p>
-                    La plataforma utiliza un sistema de créditos diarios para el uso de IA.
-                    Cada usuario recibe 100 créditos gratuitos cada día, los cuales no son
-                    acumulables. Los créditos se renuevan automáticamente a medianoche.
+                    La plataforma utiliza un sistema de créditos diarios para el uso de las funcionalidades de IA.
+                    Cada usuario registrado recibe créditos gratuitos cada día, los cuales se renuevan automáticamente
+                    a medianoche (hora local) y no son acumulables entre días.
+                  </p>
+                  <p style={{ marginTop: '0.5rem' }}>
+                    El costo de cada acción se calcula dinámicamente en función de:
                   </p>
                   <ul className={styles.termsList}>
-                    <li>Generar Quiz: 5 créditos</li>
-                    <li>Generar Notas: 4 créditos</li>
-                    <li>Generar Flashcards: 3 créditos</li>
-                    <li>Mensaje de Chat: 1 crédito</li>
+                    <li><strong>Quizzes:</strong> costo base + adicional por cada pregunta + multiplicador por nivel de dificultad</li>
+                    <li><strong>Notas:</strong> costo base + multiplicador por nivel de detalle (breve, medio, detallado)</li>
+                    <li><strong>Flashcards:</strong> costo base + adicional por cada tarjeta generada</li>
+                    <li><strong>Chat:</strong> costo fijo por mensaje</li>
                   </ul>
+                  <p style={{ marginTop: '0.5rem' }}>
+                    Los valores exactos pueden variar y se muestran en tiempo real en la sección de configuración.
+                  </p>
                 </section>
 
                 <section className={styles.termsSection}>
                   <h3>4. Cuenta de Usuario</h3>
                   <p>
-                    Eres responsable de mantener la confidencialidad de tu cuenta
-                    y de todas las actividades que ocurran bajo ella.
+                    Eres responsable de mantener la confidencialidad de tu cuenta y de todas las actividades
+                    que ocurran bajo ella. Debes notificar inmediatamente cualquier uso no autorizado.
+                  </p>
+                  <p style={{ marginTop: '0.5rem' }}>
+                    Los usuarios invitados (guest) tienen acceso limitado a la plataforma y no pueden
+                    generar contenido ni gestionar datos personales.
                   </p>
                 </section>
 
                 <section className={styles.termsSection}>
-                  <h3>5. Contenido Generado</h3>
+                  <h3>5. Contenido Generado por IA</h3>
                   <p>
-                    Eres responsable del contenido que creas. El contenido generado
-                    por IA debe ser verificado por el usuario.
+                    El contenido generado por inteligencia artificial es orientativo y debe ser verificado
+                    por el usuario. LearnYos no garantiza la exactitud, completitud o idoneidad del contenido
+                    generado por IA para fines académicos específicos.
+                  </p>
+                  <p style={{ marginTop: '0.5rem' }}>
+                    Eres responsable del uso que haces del contenido generado y de verificar su precisión
+                    antes de utilizarlo en contextos académicos formales.
                   </p>
                 </section>
 
                 <section className={styles.termsSection}>
-                  <h3>6. Privacidad</h3>
+                  <h3>6. Privacidad y Datos</h3>
                   <p>
-                    Los datos personales son tratados conforme a nuestra Política
-                    de Privacidad. El contenido privado solo es visible para ti.
+                    Los datos personales se tratan conforme a nuestra Política de Privacidad. El contenido
+                    privado (notas, flashcards, quizzes) solo es visible para su creador, salvo que el
+                    usuario decida hacerlo público explícitamente.
+                  </p>
+                  <p style={{ marginTop: '0.5rem' }}>
+                    Los datos de uso de IA (prompts y respuestas) se almacenan temporalmente para proporcionar
+                    contexto en conversaciones continuas y pueden ser utilizados para mejorar el servicio.
                   </p>
                 </section>
 
                 <section className={styles.termsSection}>
                   <h3>7. Uso Aceptable</h3>
+                  <p>No está permitido:</p>
                   <ul className={styles.termsList}>
-                    <li>No generar contenido ilegal u ofensivo</li>
-                    <li>No violar derechos de propiedad intelectual</li>
-                    <li>No interferir con el funcionamiento de la plataforma</li>
-                    <li>No intentar acceder a cuentas de otros usuarios</li>
+                    <li>Generar contenido ilegal, ofensivo o que viole derechos de terceros</li>
+                    <li>Violar derechos de propiedad intelectual o derechos de autor</li>
+                    <li>Interferir con el funcionamiento técnico de la plataforma</li>
+                    <li>Intentar acceder a cuentas o contenido de otros usuarios</li>
+                    <li>Utilizar la plataforma para fines distintos a los educativos</li>
+                    <li>Eludir los límites de créditos o restricciones técnicas</li>
                   </ul>
                 </section>
 
                 <section className={styles.termsSection}>
                   <h3>8. Propiedad Intelectual</h3>
                   <p>
-                    La plataforma y su contenido original son propiedad de LearnYos
-                    y están protegidos por leyes de derechos de autor.
+                    La plataforma LearnYos, su código fuente, diseño y contenido original son propiedad
+                    de LearnYos y están protegidos por leyes de derechos de autor y propiedad intelectual.
+                  </p>
+                  <p style={{ marginTop: '0.5rem' }}>
+                    El contenido que generes utilizando la plataforma es de tu propiedad. Sin embargo,
+                    concedemos a LearnYos una licencia no exclusiva para almacenar, procesar y mostrar
+                    dicho contenido dentro de la plataforma.
                   </p>
                 </section>
 
                 <section className={styles.termsSection}>
                   <h3>9. Limitación de Responsabilidad</h3>
                   <p>
-                    LearnYos se proporciona &quot;tal cual&quot; sin garantías.
-                    No nos hacemos responsables de daños derivados del uso.
+                    LearnYos se proporciona &quot;tal cual&quot; sin garantías de ningún tipo. No nos hacemos
+                    responsables de daños directos, indirectos, incidentales o consecuentes derivados del uso
+                    de la plataforma, incluyendo pero no limitándose a errores en el contenido generado por IA,
+                    interrupciones del servicio o pérdida de datos.
                   </p>
                 </section>
 
                 <section className={styles.termsSection}>
-                  <h3>10. Modificaciones</h3>
+                  <h3>10. Servicios de Terceros</h3>
                   <p>
-                    Nos reservamos el derecho de modificar estos términos en
-                    cualquier momento. Los cambios entran en vigor inmediatamente.
+                    LearnYos utiliza servicios de terceros para su funcionamiento, incluyendo pero no limitándose
+                    a proveedores de inteligencia artificial (Groq), autenticación (Google OAuth) y hosting.
+                    El uso de estos servicios está sujeto a sus propios términos y condiciones.
                   </p>
                 </section>
 
                 <section className={styles.termsSection}>
-                  <h3>11. Ley Aplicable</h3>
+                  <h3>11. Modificaciones</h3>
                   <p>
-                    Estos términos se rigen por las leyes de Colombia.
+                    Nos reservamos el derecho de modificar estos términos en cualquier momento. Los cambios
+                    entran en vigor inmediatamente tras su publicación en la plataforma. El uso continuado
+                    de LearnYos después de cualquier modificación constituye tu aceptación de los nuevos términos.
+                  </p>
+                </section>
+
+                <section className={styles.termsSection}>
+                  <h3>12. Ley Aplicable</h3>
+                  <p>
+                    Estos términos se rigen por las leyes de Colombia. Cualquier disputa relacionada con
+                    estos términos se resolverá ante los tribunales competentes de Colombia.
+                  </p>
+                </section>
+
+                <section className={styles.termsSection}>
+                  <h3>13. Contacto</h3>
+                  <p>
+                    Para preguntas sobre estos términos o el servicio, puedes contactarnos a través de
+                    los canales oficiales de LearnYos.
                   </p>
                 </section>
               </div>
@@ -764,7 +859,7 @@ export default function SettingsPage() {
           )}
 
           {/* NOTES / FLASHCARDS / QUIZZES TABS */}
-          {(activeTab === "notes" || activeTab === "flashcards" || activeTab === "quizzes") && apiService.isGuest() === false ?(
+          {(activeTab === "notes" || activeTab === "flashcards" || activeTab === "quizzes") && !isGuest ? (
             <div className={styles.manageContent}>
               <div className={styles.manageHeader}>
                 <div className={styles.manageHeaderLeft}>
@@ -846,18 +941,19 @@ export default function SettingsPage() {
                 </div>
               )}
             </div>
-          ): (
-            <div className={styles.creditsError}>
-                  <AlertTriangle size={32} />
-                  <p>Eres un invitado</p>
-                  <Button
-                    className={styles.creditsRetryButton}
-                    onClick={() => {apiService.logout(); router.push('/auth')}}
-                  >
-                    <RefreshCw size={16} />
-                    <span>Inciar Sesion</span>
-                  </Button>
-                </div>
+          ) : (
+            <div className={styles.guestMessage}>
+              <AlertTriangle size={32} />
+              <h3>Funcionalidad restringida</h3>
+              <p>Inicia sesión para gestionar tu contenido privado.</p>
+              <Button
+                className={styles.guestActionBtn}
+                onClick={() => { apiService.logout(); router.push('/auth'); }}
+              >
+                <LogOut size={16} />
+                <span>Iniciar sesión</span>
+              </Button>
+            </div>
           )}
         </main>
       </div>

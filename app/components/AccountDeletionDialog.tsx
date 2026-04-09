@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { apiService } from '@/services/apiService';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from '@/hooks/useLocalToast';
 import { Trash2, Loader2 } from 'lucide-react';
 
 interface AccountDeletionDialogProps {
@@ -27,25 +27,18 @@ export const AccountDeletionDialog: React.FC<AccountDeletionDialogProps> = ({
   user
 }) => {
   const [isLoading, setIsLoading] = useState(false);
-  const { toast } = useToast();
+  ;
 
   const handleDeleteRequest = async () => {
     setIsLoading(true);
     try {
       // Note: Backend doesn't have delete user endpoint yet
-      toast({
-        title: "Info",
-        description: "Función de eliminar cuenta pendiente en el backend",
-      });
+      toast.info("", "");
       // apiService.logout();
       // window.location.href = '/';
     } catch (error) {
       console.error('Error deleting account:', error);
-      toast({
-        title: "Error",
-        description: "No se pudo eliminar la cuenta. Inténtalo de nuevo.",
-        variant: "destructive",
-      });
+      toast.error("Error", "Algo salió mal");
     } finally {
       setIsLoading(false);
     }

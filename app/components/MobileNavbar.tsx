@@ -19,7 +19,7 @@ import {
   Book,
 } from "lucide-react";
 import { apiService } from "@/services/apiService";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "@/hooks/useLocalToast";
 import styles from "@/styles/mobileNavbar.module.css";
 import Link from "next/link";
 import { ThemeToggleSidebr } from "./ThemeToogleSidebr";
@@ -42,7 +42,7 @@ const ALL_NAV_ITEMS: MenuItem[] = [
 export function MobileNavbar() {
   const router = useRouter();
   const pathname = usePathname();
-  const { toast } = useToast();
+  ;
 
   const [visibleCount, setVisibleCount] = useState(ALL_NAV_ITEMS.length);
   const [showMoreMenu, setShowMoreMenu] = useState(false);
@@ -155,12 +155,12 @@ export function MobileNavbar() {
   const handleLogout = useCallback(async () => {
     try {
       await apiService.logout();
-      toast({ title: "Sesión cerrada" });
+      toast.success("Sesión cerrada", "Has cerrado sesión correctamente");
       router.push("/auth");
     } catch {
-      toast({ title: "Error", variant: "destructive" });
+      toast.error("Error", "No se pudo cerrar la sesión");
     }
-  }, [router, toast]);
+  }, [router]);
 
   const visibleItems = useMemo(
     () => ALL_NAV_ITEMS.slice(0, visibleCount),
@@ -275,12 +275,12 @@ export function MobileNavbar() {
             </div>
 
             <Link
-              href="/study/settings"
+              href="/study/espacio/general"
               className={styles.moreMenuItem}
               onClick={() => setShowMoreMenu(false)}
             >
               <Settings2 size={16} />
-              <span>Configuración</span>
+              <span>Mi Espacio</span>
             </Link>
           </div>
         </div>

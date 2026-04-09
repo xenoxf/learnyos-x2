@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, useMemo, useRef } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import CardContent from "./Card";
 import CrearCard from "./CrearCard";
 import {
@@ -35,7 +35,6 @@ const CARDS_CONFIG = {
 
 export default function CardGrid({ onCardSelect }: CardGridProps) {
   const [isSearching, setIsSearching] = useState(false);
-  const viewModeRef = useRef<ViewMode>('public');
 
   const {
     searchValue,
@@ -54,10 +53,9 @@ export default function CardGrid({ onCardSelect }: CardGridProps) {
     isGuest,
   } = useStudyGrid<CardsDeck & StudyGridBaseItem>({
     actions: {
-      onLoad: useCallback(async () => {
-        const currentViewMode = viewModeRef.current;
+      onLoad: useCallback(async (mode: ViewMode) => {
         const data =
-          currentViewMode === "private"
+          mode === "private"
             ? await apiService.getFlashcardsPrivate()
             : await apiService.getFlashcardsPublic();
         const validCards = (data || []).filter(
@@ -72,11 +70,6 @@ export default function CardGrid({ onCardSelect }: CardGridProps) {
     config: CARDS_CONFIG,
     defaultViewMode: "public",
   });
-
-  // Actualizar ref cuando viewMode cambie
-  useEffect(() => {
-    viewModeRef.current = viewMode;
-  }, [viewMode]);
 
   // Búsqueda con debounce optimizado
   const handleSearch = useCallback(async (query: string) => {

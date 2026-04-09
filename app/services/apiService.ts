@@ -21,7 +21,7 @@ import {
 } from "@/types";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
-const API_KEY = process.env.NEXT_BACKEND_API_KEY;
+const API_KEY = process.env.NEXT_PUBLIC_BACKEND_API_KEY;
 
 class ApiService {
   private token: string | null = null;
@@ -140,7 +140,10 @@ class ApiService {
 
     this.setToken(token);
     if (typeof window !== "undefined") {
-      localStorage.setItem("user", JSON.stringify(user));
+      // Ensure user object has isGuest explicitly set to false
+      const userWithGuestFlag = { ...user, isGuest: false };
+      localStorage.setItem("user", JSON.stringify(userWithGuestFlag));
+      localStorage.removeItem("isGuest");
     }
 
     return { token, user };
@@ -158,7 +161,10 @@ class ApiService {
 
     this.setToken(token);
     if (typeof window !== "undefined") {
-      localStorage.setItem("user", JSON.stringify(user));
+      // Ensure user object has isGuest explicitly set to false
+      const userWithGuestFlag = { ...user, isGuest: false };
+      localStorage.setItem("user", JSON.stringify(userWithGuestFlag));
+      localStorage.removeItem("isGuest");
     }
 
     return { token, user };
@@ -231,7 +237,9 @@ class ApiService {
     if (response.token && response.user) {
       this.setToken(response.token);
       if (typeof window !== "undefined") {
-        localStorage.setItem("user", JSON.stringify(response.user));
+        const userWithGuestFlag = { ...response.user, isGuest: false };
+        localStorage.setItem("user", JSON.stringify(userWithGuestFlag));
+        localStorage.removeItem("isGuest");
       }
     }
     return response;
@@ -251,7 +259,9 @@ class ApiService {
     if (response.token) {
       this.setToken(response.token);
       if (typeof window !== "undefined") {
-        localStorage.setItem("user", JSON.stringify(response.user));
+        const userWithGuestFlag = { ...response.user, isGuest: false };
+        localStorage.setItem("user", JSON.stringify(userWithGuestFlag));
+        localStorage.removeItem("isGuest");
       }
     }
     return response;
@@ -273,7 +283,26 @@ class ApiService {
 
   isGuest(): boolean {
     if (typeof window === "undefined") return false;
-    return localStorage.getItem("isGuest") === "true";
+    const token = localStorage.getItem("token");
+    const userStr = localStorage.getItem("user");
+    if (!token || !userStr) return true;
+    try {
+      const user = JSON.parse(userStr);
+      return user?.isGuest === true;
+    } catch {
+      return true;
+    }
+  }
+
+  getCurrentUser(): User | null {
+    if (typeof window === "undefined") return null;
+    const userStr = localStorage.getItem("user");
+    if (!userStr) return null;
+    try {
+      return JSON.parse(userStr) as User;
+    } catch {
+      return null;
+    }
   }
 
   // ==================== NOTES ====================
@@ -431,10 +460,9 @@ class ApiService {
     });
   }
 
+  /** @deprecated Use getFlashcardsPrivate instead */
   async getCardsPrivates(): Promise<CardsDeck[]> {
-    return await this.request<CardsDeck[]>("/flash-cards/private", {
-      method: "GET",
-    });
+    return this.getFlashcardsPrivate();
   }
 
   async createCard(data: Partial<CardKlek>): Promise<CardKlek> {
@@ -529,6 +557,67 @@ class ApiService {
     await this.request<void>('/exams/all', {method: 'DELETE'});
   }
 
+  // ==================== EXAMS LOCKED ====================
+
+  async getExamLocked(id: number): Promise<ExamKlek> {
+    return this.request<ExamKlek>(`/exams/locked/${id}`, { method: "GET" });
+  }
+
+  // ==================== FLASHCARDS LOCKED ====================
+
+  async getCardLocked(id: number): Promise<CardKlek> {
+    return this.request<CardKlek>(`/flash-cards/locked/${id}`, { method: "GET" });
+  }
+
+  // ==================== NOTES LOCKED ====================
+
+  async getNoteLocked(id: number): Promise<NoteKlek> {
+    return this.request<NoteKlek>(`/notes/locked/${id}`, { method: "GET" });
+  }
+
+  // ==================== LIKES ====================
+
+  async toggleExamLike(id: number): Promise<{ liked: boolean; count: number }> {
+    return this.request<{ liked: boolean; count: number }>(`/likes/exams/${id}`, { method: "POST" });
+  }
+
+  async toggleFlashcardLike(id: number): Promise<{ liked: boolean; count: number }> {
+    return this.request<{ liked: boolean; count: number }>(`/likes/flashcards/${id}`, { method: "POST" });
+  }
+
+  async toggleNoteLike(id: number): Promise<{ liked: boolean; count: number }> {
+    return this.request<{ liked: boolean; count: number }>(`/likes/notes/${id}`, { method: "POST" });
+  }
+
+  async getExamLikes(id: number): Promise<{ count: number; userLiked: boolean }> {
+    return this.request<{ count: number; userLiked: boolean }>(`/likes/exams/${id}`, { method: "GET" });
+  }
+
+  async getFlashcardLikes(id: number): Promise<{ count: number; userLiked: boolean }> {
+    return this.request<{ count: number; userLiked: boolean }>(`/likes/flashcards/${id}`, { method: "GET" });
+  }
+
+  async getNoteLikes(id: number): Promise<{ count: number; userLiked: boolean }> {
+    return this.request<{ count: number; userLiked: boolean }>(`/likes/notes/${id}`, { method: "GET" });
+  }
+
+  // ==================== EXAM ATTEMPTS ====================
+
+  async recordExamAttempt(data: { examId: number; correctAnswers: number; totalQuestions: number; examTitle: string }): Promise<void> {
+    await this.request<void>("/exam-attempts", {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+  }
+
+  async getExamAttempts(): Promise<any[]> {
+    return this.request<any[]>("/exam-attempts", { method: "GET" });
+  }
+
+  async getExamAttemptStats(): Promise<{ totalAttempts: number; avgCorrect: number; bestScore: number; totalQuestions: number }> {
+    return this.request("/exam-attempts/stats", { method: "GET" });
+  }
+
   // ==================== CHATS ====================
 
   async getChats(): Promise<Chat[]> {
@@ -559,21 +648,71 @@ class ApiService {
     });
   }
 
+  /**
+   * Send message with streaming response (SSE)
+   * Returns an AsyncIterable of StreamChunk objects
+   */
+  async *sendMessageStream(data: SendMessageData): AsyncIterable<import("@/types").StreamChunk> {
+    const headers: HeadersInit = {
+      "Content-Type": "application/json",
+      Accept: "text/event-stream",
+    };
+    if (API_KEY) {
+      (headers as Record<string, string>)["x-api-key"] = API_KEY;
+    }
+    const token = this.getToken();
+    if (token) {
+      (headers as Record<string, string>)["Authorization"] = `Bearer ${token}`;
+    }
+
+    const response = await fetch(`${API_BASE_URL}/messages/send/stream`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || `Error: ${response.status}`);
+    }
+
+    const reader = response.body?.getReader();
+    if (!reader) throw new Error("Streaming not soportado en este navegador");
+
+    const decoder = new TextDecoder();
+    let buffer = "";
+
+    try {
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n");
+        buffer = lines.pop() || "";
+
+        for (const line of lines) {
+          if (line.startsWith("data: ")) {
+            try {
+              const parsed = JSON.parse(line.slice(6));
+              yield parsed as import("@/types").StreamChunk;
+            } catch {
+              // Ignore malformed SSE events
+            }
+          }
+        }
+      }
+    } finally {
+      reader.releaseLock();
+    }
+  }
+
   async deleteChat(chatId: number): Promise<void> {
     await this.request<void>(`/messages/chat/${chatId}`, { method: "DELETE" });
   }
 
   async deleteAllChats(): Promise<void> {
     await this.request<void>('/messages/chat/all', {method: 'DELETE'});
-  }
-
-  // ==================== GROQ (AI) ====================
-
-  async generateWithGroq(prompt: string): Promise<{ content: string }> {
-    return this.request<{ content: string }>("/groq/generate", {
-      method: "POST",
-      body: JSON.stringify({ prompt }),
-    });
   }
 
   // ==================== GLOBAL CHAT ====================
@@ -619,6 +758,31 @@ class ApiService {
     return this.request("/credits/status", {
       method: "GET",
     });
+  }
+
+  /**
+   * Estimate credit cost for generating content (preview before generation)
+   */
+  estimateExamCost(numberOfQuestions: number, difficulty: string, reference: string): number {
+    const base = 3;
+    const questionCost = numberOfQuestions * 0.5;
+    const diffMult: Record<string, number> = { easy: 1.0, medium: 1.3, hard: 1.7 };
+    const topicExtra = reference.length > 100 ? 1 : 0;
+    return Math.ceil((base + questionCost) * (diffMult[difficulty] || 1.3) + topicExtra);
+  }
+
+  estimateNoteCost(levelOfDetail: string, reference: string): number {
+    const base = 2;
+    const detailMult: Record<string, number> = { breve: 1.0, medio: 1.4, detallado: 1.9 };
+    const topicExtra = reference.length > 100 ? 1 : 0;
+    return Math.ceil(base * (detailMult[levelOfDetail] || 1.4) + topicExtra);
+  }
+
+  estimateFlashcardCost(quantity: number, reference: string): number {
+    const base = 2;
+    const cardCost = quantity * 0.4;
+    const topicExtra = reference.length > 100 ? 1 : 0;
+    return Math.ceil(base + cardCost + topicExtra);
   }
 
   // ==================== HELPER METHODS ====================

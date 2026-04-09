@@ -5,7 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Code, Zap, Copy } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from '@/hooks/useLocalToast';
 
 interface CodeGeneratorCardProps {
   onGenerateCode: (prompt: string, language?: string) => void;
@@ -13,7 +13,7 @@ interface CodeGeneratorCardProps {
 }
 
 const CodeGeneratorCard: React.FC<CodeGeneratorCardProps> = ({ onGenerateCode, isLoading }) => {
-  const { toast } = useToast();
+  ;
 
   const quickPrompts = [
     { label: 'React Component', prompt: 'Crea un componente React funcional con TypeScript', language: 'tsx' },
@@ -26,10 +26,7 @@ const CodeGeneratorCard: React.FC<CodeGeneratorCardProps> = ({ onGenerateCode, i
 
   const copyPrompt = (prompt: string) => {
     navigator.clipboard.writeText(prompt);
-    toast({
-      title: "Prompt copiado",
-      description: "Puedes pegarlo en el chat para usarlo",
-    });
+    toast.info("", "");
   };
 
   return (
