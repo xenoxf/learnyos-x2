@@ -8,7 +8,6 @@ import { MobileNavbarRight } from "@/components/MobileNavbarRight";
 import { MobileNavbarV4 } from "@/components/MobileNavbarV4";
 import { GuestBanner } from "@/components/GuestBanner";
 import { apiService } from "@/services/apiService";
-import { Loader2 } from "lucide-react";
 import styles from "@/styles/layout.module.css";
 
 interface DashboardLayoutProps {
@@ -20,8 +19,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const pathname = usePathname();
   const [isMobile, setIsMobile] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(true);
-  const [isValidating, setIsValidating] = useState(true);
-  const [isTokenValid, setIsTokenValid] = useState(false);
+  const [isTokenValid, setIsTokenValid] = useState(true);
   const [isGuest, setIsGuest] = useState(false);
   const [user, setUser] = useState<{ name?: string; email?: string; picture?: string } | null>(null);
 
@@ -38,64 +36,61 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     try {
       const saved = localStorage.getItem("sidebar-collapsed");
       if (saved !== null) setIsCollapsed(saved === "false");
-    } catch {}
+    } catch { }
   }, []);
 
-  // Auth validation
-  const validateAuth = useCallback(async () => {
+  // Auth validation - NO loading screen, validate silently in background
+  useEffect(() => {
     if (typeof window === "undefined") return;
 
     const token = localStorage.getItem("token");
     const userStr = localStorage.getItem("user");
 
+    // No token - redirect to auth
     if (!token) {
-      setIsValidating(false);
       setIsTokenValid(false);
       return;
     }
 
+    // User has token - show content immediately, validate in background
     if (userStr) {
       try {
         const parsed = JSON.parse(userStr);
         setUser(parsed);
-        setIsGuest(parsed?.isGuest === true);
+        const guestStatus = parsed?.isGuest === true;
+        setIsGuest(guestStatus);
+
+        // If guest, skip token verification (guests can browse public content)
+        if (guestStatus) {
+          setIsTokenValid(true);
+          return;
+        }
       } catch {
         setIsGuest(false);
       }
     }
 
-    try {
-      const isValid = await apiService.verifyToken();
-      if (isValid) {
-        setIsTokenValid(true);
-      } else {
-        apiService.logout();
+    // Validate token silently for non-guest users
+    apiService.verifyToken().then((isValid) => {
+      if (!isValid) {
         setIsTokenValid(false);
-        setIsGuest(false);
-        setUser(null);
       }
-    } catch {
-      setIsTokenValid(true);
-    }
-
-    setIsValidating(false);
+    }).catch(() => {
+      // Network error - assume token is valid
+    });
   }, []);
 
+  // Redirect only if no token at all
   useEffect(() => {
-    validateAuth();
-  }, [validateAuth]);
-
-  // Redirect if no token
-  useEffect(() => {
-    if (!isValidating && !isTokenValid && typeof window !== "undefined") {
+    if (!isTokenValid && typeof window !== "undefined") {
       const token = localStorage.getItem("token");
       if (!token) {
         router.push("/auth");
       }
     }
-  }, [isValidating, isTokenValid, router]);
+  }, [isTokenValid, router]);
 
-  // Sync guest status
+  // Sync guest status across tabs
   useEffect(() => {
     const handler = (e: StorageEvent) => {
       if (e.key === "token" || e.key === "user") {
@@ -109,7 +104,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             setUser(parsed);
             setIsGuest(parsed?.isGuest === true);
             setIsTokenValid(true);
-          } catch {}
+          } catch { }
         }
       }
     };
@@ -121,7 +116,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   useEffect(() => {
     try {
       localStorage.setItem("sidebar-collapsed", String(isCollapsed));
-    } catch {}
+    } catch { }
   }, [isCollapsed]);
 
   const handleToggleSidebar = useCallback(() => {
@@ -130,26 +125,9 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
   const guestBanner = useMemo(() => isGuest ? <GuestBanner /> : null, [isGuest]);
 
-  if (isValidating) {
-    return (
-      <div className={styles.loadingContainer}>
-        <div className={styles.spinner}>
-          <Loader2 className="animate-spin w-10 h-10 text-primary" />
-          <p>Validando sesión...</p>
-        </div>
-      </div>
-    );
-  }
-
+  // No loading screen - render content immediately
   if (!isTokenValid) {
-    return (
-      <div className={styles.loadingContainer}>
-        <div className={styles.spinner}>
-          <Loader2 className="animate-spin w-10 h-10 text-primary" />
-          <p>Redirigiendo...</p>
-        </div>
-      </div>
-    );
+    return null;
   }
 
   return (
@@ -183,7 +161,6 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       {/* Mobile navbars */}
       {isMobile && (
         <>
-          <MobileNavbarV4 />
           <MobileNavbarRight />
         </>
       )}

@@ -104,7 +104,7 @@ export default function QuizCard({
         {quiz.area && (
           <div className={styles.metaItem}>
             <Tag size={16} />
-            <span>{quiz.area}</span>
+            <span>Área: {quiz.area}</span>
           </div>
         )}
       </div>

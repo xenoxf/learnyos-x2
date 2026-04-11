@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { RefreshCw, AlertTriangle, FileText } from "lucide-react";
 import { apiService } from "@/services/apiService";
 import { toast } from "@/hooks/useLocalToast";
-import { CardMetadataModal, type CardMetadata } from "@/components/espacio/CardMetadataModal";
+import { FuncionesCardModal, type FuncionesCardData } from "@/components/espacio/FuncionesCardModal";
 import styles from "@/styles/espacio/espacioPages.module.css";
 
 interface ManageItem {
@@ -25,7 +25,7 @@ export default function FuncionesQuizzesPage() {
   const [items, setItems] = useState<ManageItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [deletingId, setDeletingId] = useState<number | null>(null);
-  const [selectedForModal, setSelectedForModal] = useState<CardMetadata | null>(null);
+  const [selectedForModal, setSelectedForModal] = useState<FuncionesCardData | null>(null);
 
   const loadItems = useCallback(async () => {
     try {
@@ -84,7 +84,7 @@ export default function FuncionesQuizzesPage() {
   return (
     <>
       {selectedForModal && (
-        <CardMetadataModal
+        <FuncionesCardModal
           card={selectedForModal}
           onClose={() => setSelectedForModal(null)}
           onViewContent={handleViewContent}
@@ -124,13 +124,14 @@ export default function FuncionesQuizzesPage() {
             </div>
             <p className={styles.itemCardDesc}>{item.description || "Sin descripción"}</p>
             <div className={styles.itemCardMeta}>
+              {item.area && <span className={styles.itemBadge}>Área: {item.area}</span>}
+              {item.tema && <span className={styles.itemBadge}>Tema: {item.tema}</span>}
               {item.totalQuestions && (
-                <span className={styles.itemBadge}>
+                <span className={styles.diffBadge}>
                   {item.totalQuestions} preguntas
                 </span>
               )}
               {item.difficulty && <span className={styles.diffBadge}>{item.difficulty}</span>}
-              {item.area && <span className={styles.itemBadge}>{item.area}</span>}
             </div>
             <div className={styles.itemCardFooter}>
               <span className={styles.itemCreator}>

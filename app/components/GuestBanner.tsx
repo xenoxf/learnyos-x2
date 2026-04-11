@@ -1,24 +1,35 @@
 "use client";
 
-import React from "react";
-import { X, UserX, ArrowBigLeft, ArrowLeft } from "lucide-react";
+import React, { useState } from "react";
+import { X, UserX, ArrowBigLeft, ArrowLeft, LogIn } from "lucide-react";
 import { apiService } from "@/services/apiService";
 import { useRouter } from "next/navigation";
 import { toast } from "@/hooks/useLocalToast";
+import LoadingModal from "@/components/loadingModal";
 import styles from "@/styles/guestBanner.module.css";
 
 export function GuestBanner() {
   const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleDismiss = async () => {
+    if (isLoading) return;
+    
     try {
+      setIsLoading(true);
       await apiService.logout();
       toast.info("Sesión de invitado cerrada", "Puedes iniciar sesión o continuar como invitado");
       router.push("/auth");
     } catch {
       toast.error("Error", "No se pudo cerrar la sesión");
+    } finally {
+      setIsLoading(false);
     }
   };
+
+  if (isLoading) {
+    return <LoadingModal />;
+  }
 
   return (
     <div className={styles.guestBanner}>
@@ -31,6 +42,7 @@ export function GuestBanner() {
         onClick={handleDismiss}
         aria-label="Cerrar banner de invitado"
         type="button"
+        disabled={isLoading}
       >
         <ArrowLeft size={19} />
       </button>

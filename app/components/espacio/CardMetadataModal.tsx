@@ -12,6 +12,10 @@ import {
   Eye,
   Trash2,
   ClipboardCopy,
+  Check,
+  Sparkles,
+  Code,
+  Info,
 } from "lucide-react";
 import { toast } from "@/hooks/useLocalToast";
 import styles from "@/styles/espacio/cardMetadataModal.module.css";
@@ -59,7 +63,6 @@ export function CardMetadataModal({
     }
   }, [card.code]);
 
-  // Close on Escape key
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
@@ -72,40 +75,57 @@ export function CardMetadataModal({
     };
   }, [onClose]);
 
-  const getTypeLabel = (type: string) => {
-    switch (type) {
+  const getTypeConfig = () => {
+    switch (card.type) {
       case "flashcard":
-        return "FLASHCARD";
+        return {
+          label: "FLASHCARD",
+          emoji: "🃏",
+          gradient: "from-blue-500 to-cyan-500",
+          bgColor: "bg-blue-500/10",
+          borderColor: "border-blue-500/20",
+        };
       case "quiz":
-        return "QUIZ";
+        return {
+          label: "QUIZ",
+          emoji: "❓",
+          gradient: "from-purple-500 to-pink-500",
+          bgColor: "bg-purple-500/10",
+          borderColor: "border-purple-500/20",
+        };
       case "note":
-        return "NOTA";
-      default:
-        return type.toUpperCase();
+        return {
+          label: "NOTA",
+          emoji: "📝",
+          gradient: "from-green-500 to-emerald-500",
+          bgColor: "bg-green-500/10",
+          borderColor: "border-green-500/20",
+        };
     }
   };
 
-  const getTypeIcon = () => {
-    switch (card.type) {
-      case "flashcard":
-        return "🃏";
-      case "quiz":
-        return "❓";
-      case "note":
-        return "📝";
-      default:
-        return "📄";
-    }
+  const typeConfig = getTypeConfig();
+
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return null;
+    return new Date(dateString).toLocaleDateString("es-ES", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    });
   };
 
   return (
     <div className={styles.overlay} onClick={onClose}>
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
-        {/* Header */}
+        {/* Animated Background Gradient */}
+        <div className={styles.modalGradient} />
+
+        {/* Header with Type Badge */}
         <div className={styles.header}>
-          <div className={styles.headerLeft}>
-            <span className={styles.typeIcon}>{getTypeIcon()}</span>
-            <span className={styles.typeLabel}>{getTypeLabel(card.type)}</span>
+          <div className={styles.typeBadge}>
+            <span className={styles.typeEmoji}>{typeConfig.emoji}</span>
+            <span className={styles.typeLabel}>{typeConfig.label}</span>
           </div>
           <button
             className={styles.closeBtn}
@@ -117,9 +137,9 @@ export function CardMetadataModal({
           </button>
         </div>
 
-        {/* Content */}
+        {/* Scrollable Content */}
         <div className={styles.content}>
-          {/* Title & Description */}
+          {/* Title Section */}
           <div className={styles.titleSection}>
             <h2 className={styles.title}>{card.title}</h2>
             {card.description && (
@@ -127,130 +147,127 @@ export function CardMetadataModal({
             )}
           </div>
 
-          {/* Metadata Grid */}
+          {/* Quick Stats Bar */}
+          <div className={styles.statsBar}>
+            {card.type === "flashcard" && card.totalCards && (
+              <div className={styles.statItem}>
+                <Hash size={16} />
+                <span className={styles.statValue}>{card.totalCards}</span>
+                <span className={styles.statLabel}>Tarjetas</span>
+              </div>
+            )}
+            {card.type === "quiz" && card.totalQuestions && (
+              <div className={styles.statItem}>
+                <Hash size={16} />
+                <span className={styles.statValue}>{card.totalQuestions}</span>
+                <span className={styles.statLabel}>Preguntas</span>
+              </div>
+            )}
+            {card.type === "note" && card.contentsCount && (
+              <div className={styles.statItem}>
+                <Hash size={16} />
+                <span className={styles.statValue}>{card.contentsCount}</span>
+                <span className={styles.statLabel}>Secciones</span>
+              </div>
+            )}
+            {card.likesCount !== undefined && (
+              <div className={styles.statItem}>
+                <Heart size={16} />
+                <span className={styles.statValue}>{card.likesCount}</span>
+                <span className={styles.statLabel}>Likes</span>
+              </div>
+            )}
+          </div>
+
+          {/* Metadata Grid - Redesigned */}
           <div className={styles.metadataGrid}>
             {card.area && (
-              <div className={styles.metaItem}>
-                <Tag size={16} />
-                <div>
+              <div className={styles.metaCard}>
+                <div className={styles.metaCardIcon}>
+                  <Tag size={18} />
+                </div>
+                <div className={styles.metaCardContent}>
                   <span className={styles.metaLabel}>Área</span>
                   <span className={styles.metaValue}>{card.area}</span>
                 </div>
               </div>
             )}
-            
             {card.tema && (
-              <div className={styles.metaItem}>
-                <BookOpen size={16} />
-                <div>
+              <div className={styles.metaCard}>
+                <div className={styles.metaCardIcon}>
+                  <BookOpen size={18} />
+                </div>
+                <div className={styles.metaCardContent}>
                   <span className={styles.metaLabel}>Tema</span>
                   <span className={styles.metaValue}>{card.tema}</span>
                 </div>
               </div>
             )}
-            
             {card.creatorName && (
-              <div className={styles.metaItem}>
-                <User size={16} />
-                <div>
-                  <span className={styles.metaLabel}>Creado por</span>
+              <div className={styles.metaCard}>
+                <div className={styles.metaCardIcon}>
+                  <User size={18} />
+                </div>
+                <div className={styles.metaCardContent}>
+                  <span className={styles.metaLabel}>Creador</span>
                   <span className={styles.metaValue}>{card.creatorName}</span>
                 </div>
               </div>
             )}
-            
-            {card.likesCount !== undefined && (
-              <div className={styles.metaItem}>
-                <Heart size={16} />
-                <div>
-                  <span className={styles.metaLabel}>Likes</span>
-                  <span className={styles.metaValue}>{card.likesCount}</span>
+            {card.difficulty && (
+              <div className={styles.metaCard}>
+                <div className={styles.metaCardIcon}>
+                  <Sparkles size={18} />
                 </div>
-              </div>
-            )}
-            
-            {card.type === "flashcard" && card.totalCards && (
-              <div className={styles.metaItem}>
-                <Hash size={16} />
-                <div>
-                  <span className={styles.metaLabel}>Tarjetas</span>
-                  <span className={styles.metaValue}>{card.totalCards}</span>
-                </div>
-              </div>
-            )}
-            
-            {card.type === "quiz" && card.totalQuestions && (
-              <div className={styles.metaItem}>
-                <Hash size={16} />
-                <div>
-                  <span className={styles.metaLabel}>Preguntas</span>
-                  <span className={styles.metaValue}>{card.totalQuestions}</span>
-                </div>
-              </div>
-            )}
-            
-            {card.type === "quiz" && card.difficulty && (
-              <div className={styles.metaItem}>
-                <Hash size={16} />
-                <div>
+                <div className={styles.metaCardContent}>
                   <span className={styles.metaLabel}>Dificultad</span>
                   <span className={styles.metaValue}>{card.difficulty}</span>
                 </div>
               </div>
             )}
-            
-            {card.type === "note" && card.contentsCount && (
-              <div className={styles.metaItem}>
-                <Hash size={16} />
-                <div>
-                  <span className={styles.metaLabel}>Secciones</span>
-                  <span className={styles.metaValue}>{card.contentsCount}</span>
-                </div>
-              </div>
-            )}
-            
             {card.createdAt && (
-              <div className={styles.metaItem}>
-                <Calendar size={16} />
-                <div>
+              <div className={styles.metaCard}>
+                <div className={styles.metaCardIcon}>
+                  <Calendar size={18} />
+                </div>
+                <div className={styles.metaCardContent}>
                   <span className={styles.metaLabel}>Creado</span>
                   <span className={styles.metaValue}>
-                    {new Date(card.createdAt).toLocaleDateString("es-ES")}
+                    {formatDate(card.createdAt)}
                   </span>
                 </div>
               </div>
             )}
           </div>
 
-          {/* Code Section - inline with metadata style */}
+          {/* Code Section - Enhanced */}
           {card.code && (
             <div className={styles.codeSection}>
-              <div className={styles.codeItem}>
-                <Hash size={16} />
-                <div>
-                  <span className={styles.metaLabel}>Código de acceso</span>
-                  <div className={styles.codeContainer}>
-                    <code className={styles.code}>{card.code}</code>
-                    <button
-                      className={styles.copyCodeBtn}
-                      onClick={handleCopyCode}
-                      type="button"
-                      aria-label="Copiar código"
-                    >
-                      {copied ? (
-                        <span className={styles.copiedText}>✓</span>
-                      ) : (
-                        <ClipboardCopy size={14} />
-                      )}
-                    </button>
-                  </div>
-                </div>
+              <div className={styles.codeHeader}>
+                <Code size={16} />
+                <span className={styles.codeTitle}>Código de acceso</span>
               </div>
+              <div className={styles.codeBox}>
+                <code className={styles.code}>{card.code}</code>
+                <button
+                  className={styles.copyBtn}
+                  onClick={handleCopyCode}
+                  type="button"
+                  aria-label="Copiar código"
+                >
+                  {copied ? <Check size={16} /> : <ClipboardCopy size={16} />}
+                </button>
+              </div>
+              {copied && (
+                <div className={styles.copiedMessage}>
+                  ✓ Código copiado al portapapeles
+                </div>
+              )}
             </div>
           )}
         </div>
 
-        {/* Footer Actions */}
+        {/* Footer Actions - Redesigned */}
         <div className={styles.footer}>
           <button
             className={styles.primaryAction}
@@ -260,10 +277,9 @@ export function CardMetadataModal({
             }}
             type="button"
           >
-            <Eye size={18} />
+            <Eye size={20} />
             <span>Ver contenido</span>
           </button>
-          
           {isOwner && onDelete && (
             <button
               className={styles.dangerAction}
@@ -273,7 +289,7 @@ export function CardMetadataModal({
               }}
               type="button"
             >
-              <Trash2 size={16} />
+              <Trash2 size={18} />
               <span>Eliminar</span>
             </button>
           )}

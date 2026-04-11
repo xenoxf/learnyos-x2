@@ -86,22 +86,11 @@ const CardContent: React.FC<CardProps> = ({ card, onCardDeleted, onOpen, isEspac
       </p>
 
       <div className={styles.cardMeta}>
-        {card.area && (
+        {(card.area || card.tema) && (
           <span className={styles.cardHint}>
-            <Tag
-              size={14}
-              style={{ marginRight: "4px", verticalAlign: "middle" }}
-            />
-            {card.area}
-          </span>
-        )}
-        {card.tema && (
-          <span className={styles.cardHint}>
-            <BookOpen
-              size={14}
-              style={{ marginRight: "4px", verticalAlign: "middle" }}
-            />
-            {card.tema}
+            {card.area && <><Tag size={14} style={{ marginRight: "3px", verticalAlign: "middle" }} />Área: {card.area}</>}
+            {card.area && card.tema && <br />}
+            {card.tema && <><BookOpen size={14} style={{ marginRight: "3px", verticalAlign: "middle" }} />Tema: {card.tema}</>}
           </span>
         )}
         <span className={styles.cardHint}>{card.totalCards} tarjetas</span>

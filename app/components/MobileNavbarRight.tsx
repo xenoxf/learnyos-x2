@@ -42,15 +42,6 @@ export function MobileNavbarRight() {
     setIsOpen(false);
   }, []);
 
-  const handleLogout = useCallback(async () => {
-    try {
-      await apiService.logout();
-      toast.success("Sesión cerrada", "Has cerrado sesión correctamente");
-      router.push("/auth");
-    } catch {
-      toast.error("Error", "No se pudo cerrar la sesión");
-    }
-  }, [router]);
 
   // Close on route change
   useEffect(() => {
@@ -102,27 +93,20 @@ export function MobileNavbarRight() {
             <div className={styles.sidebarDivider} />
 
             <div className={styles.sidebarFooter}>
-              <div className={styles.sidebarThemeToggle}>
-                <ThemeToggleSidebr isCollapse={false} />
-              </div>
-
               <Link
-                href="/study/espacio/general"
+                href="/study/espacio"
                 className={styles.sidebarItem}
                 onClick={handleClose}
               >
                 <Settings2 size={20} />
                 <span>Mi Espacio</span>
               </Link>
+              <div className={styles.sidebarThemeToggle}>
+                <ThemeToggleSidebr isCollapse={false} />
+              </div>
 
-              <button
-                className={`${styles.sidebarItem} ${styles.logoutItem}`}
-                onClick={handleLogout}
-                type="button"
-              >
-                <LogOut size={20} />
-                <span>Cerrar Sesión</span>
-              </button>
+
+
             </div>
           </div>
         </>

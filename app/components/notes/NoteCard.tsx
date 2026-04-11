@@ -97,22 +97,15 @@ export default function NoteCard({
       </p>
 
       <div className={styles.cardMeta}>
-        {note.area && (
+        {(note.area || note.tema) && (
           <div className={styles.metaItem}>
-            <Tag size={14} />
-            <span>{note.area}</span>
-          </div>
-        )}
-        {note.tema && (
-          <div className={styles.metaItem}>
-            <BookOpen size={14} />
-            <span>{note.tema}</span>
+            {note.area && <><Tag size={14} />Área: {note.area}</>}
+            {note.area && note.tema && <span style={{ margin: "0 4px" }}>·</span>}
+            {note.tema && <><BookOpen size={14} />Tema: {note.tema}</>}
           </div>
         )}
         <div className={styles.metaItem}>
-          <span className={styles.levelBadge}>
-            {note.contentsCount} sección
-          </span>
+          <span className={styles.levelBadge}>{note.contentsCount} sección</span>
         </div>
       </div>
 

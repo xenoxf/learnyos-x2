@@ -396,6 +396,27 @@ body,
   -moz-osx-font-smoothing: grayscale;
   margin: 0;
   padding: 0;
+  min-height: 100vh;
+  overflow-x: hidden;
+  /* Prevenir FOUC - ocultar hasta que CSS cargue */
+  visibility: visible;
+}
+
+/* Mejorar rendering de imágenes para prevenir layout shift */
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  cursor: pointer;
+  font-family: inherit;
 }
 
 /* ============================================

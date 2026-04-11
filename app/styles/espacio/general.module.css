@@ -1,149 +1,9 @@
-/* ==================== GENERAL PAGE ==================== */
+/* ==================== GENERAL PAGE - REDESIGNED ==================== */
 .container {
   max-width: 800px;
   margin: 0 auto;
-  padding: 0 0.5rem;
-}
-
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 2rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid hsl(var(--border));
-}
-
-.title {
-  font-size: 1.75rem;
-  font-weight: 700;
-  color: hsl(var(--foreground));
-  margin: 0;
-}
-
-.userBadge {
-  display: flex;
-  align-items: center;
-  gap: 0.625rem;
-}
-
-.userAvatar {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  object-fit: cover;
-}
-
-.userAvatarPlaceholder {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: hsl(var(--primary) / 0.15);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  font-size: 0.875rem;
-  color: hsl(var(--primary));
-}
-
-.userName {
-  font-weight: 500;
-  font-size: 0.9rem;
-  color: hsl(var(--muted-foreground));
-}
-
-/* ==================== CARDS ==================== */
-.card {
-  background: hsl(var(--card));
-  border: 1px solid hsl(var(--border));
-  border-radius: 1rem;
-  overflow: hidden;
-  margin-bottom: 1rem;
-}
-
-.cardHeader {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 1.125rem 1.5rem;
-  border-bottom: 1px solid hsl(var(--border));
-  background: hsl(var(--accent) / 0.06);
-}
-
-.cardIcon {
-  color: hsl(var(--primary));
-}
-
-.cardTitle {
-  font-size: 1rem;
-  font-weight: 600;
-  color: hsl(var(--foreground));
-  margin: 0;
-}
-
-.cardBody {
-  padding: 1.25rem 1.5rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-/* ==================== INFO ROWS ==================== */
-.infoRow {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.625rem 0;
-  border-bottom: 1px solid hsl(var(--border) / 0.5);
-}
-
-.infoRow:last-child {
-  border-bottom: none;
-}
-
-.infoItem {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.infoIcon {
-  color: hsl(var(--muted-foreground));
-}
-
-.infoLabel {
-  font-size: 0.85rem;
-  color: hsl(var(--muted-foreground));
-  font-weight: 500;
-}
-
-.infoValue {
-  font-size: 0.9rem;
-  font-weight: 500;
-  color: hsl(var(--foreground));
-}
-
-/* ==================== LOGOUT BUTTON ==================== */
-.logoutButton {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.625rem;
-  padding: 0.75rem 1.25rem;
-  background: hsl(var(--destructive) / 0.08);
-  border: 1px solid hsl(var(--destructive) / 0.2);
-  border-radius: 0.625rem;
-  color: hsl(var(--destructive));
-  font-weight: 500;
-  font-size: 0.9rem;
-  cursor: pointer;
-  transition: all 0.15s ease;
-  width: fit-content;
-}
-
-.logoutButton:hover {
-  background: hsl(var(--destructive) / 0.12);
-  border-color: hsl(var(--destructive) / 0.35);
+  padding: 1.5rem 1rem;
+  padding-bottom: 120px; /* Space for mobile navbar */
 }
 
 /* ==================== LOADING ==================== */
@@ -152,46 +12,508 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  min-height: 400px;
   gap: 1rem;
-  padding: 4rem 1.5rem;
   color: hsl(var(--muted-foreground));
 }
 
 .spinner {
   animation: spin 1s linear infinite;
+  color: hsl(var(--primary));
 }
 
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
 
+/* ==================== PROFILE HEADER ==================== */
+.profileHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  border-radius: 1.25rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.profileInfo {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.profileAvatar {
+  position: relative;
+}
+
+.userAvatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid hsl(var(--primary));
+}
+
+.userAvatarPlaceholder {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary) / 0.7));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 1.5rem;
+  color: hsl(var(--primary-foreground));
+  border: 3px solid hsl(var(--primary));
+}
+
+.verifiedBadge {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 22px;
+  height: 22px;
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 800;
+  border: 2px solid hsl(var(--card));
+}
+
+.profileDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.profileName {
+  font-size: 1.375rem;
+  font-weight: 800;
+  color: hsl(var(--foreground));
+  margin: 0;
+}
+
+.profileEmail {
+  font-size: 0.875rem;
+  color: hsl(var(--muted-foreground));
+  margin: 0;
+}
+
+.guestBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.25rem 0.625rem;
+  background: hsl(var(--warning) / 0.15);
+  border: 1px solid hsl(var(--warning) / 0.3);
+  border-radius: 1rem;
+  color: hsl(var(--warning));
+  font-size: 0.7rem;
+  font-weight: 700;
+  margin-top: 0.25rem;
+}
+
+/* Remove membership badge styles */
+
+/* ==================== UPGRADE BANNER ==================== */
+.upgradeBanner {
+  padding: 1.25rem;
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  border-radius: 1rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.upgradeContent {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.875rem;
+  flex: 1;
+}
+
+.upgradeIcon {
+  color: hsl(var(--primary));
+  flex-shrink: 0;
+  margin-top: 0.125rem;
+}
+
+.upgradeText {
+  flex: 1;
+}
+
+.upgradeText h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: hsl(var(--foreground));
+  margin: 0 0 0.25rem 0;
+}
+
+.upgradeText p {
+  font-size: 0.8rem;
+  color: hsl(var(--muted-foreground));
+  margin: 0;
+  line-height: 1.4;
+}
+
+.upgradeButton {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  border: none;
+  border-radius: 0.75rem;
+  font-weight: 700;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.upgradeButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px hsl(var(--primary) / 0.3);
+}
+
+/* ==================== SECTION TITLES ==================== */
+.sectionTitle {
+  font-size: 1.125rem;
+  font-weight: 800;
+  color: hsl(var(--foreground));
+  margin: 0 0 1rem 0;
+}
+
+/* ==================== QUICK ACTIONS ==================== */
+.quickActions {
+  margin-bottom: 2rem;
+}
+
+.actionsGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+}
+
+.actionCard {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.25rem;
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  border-radius: 1rem;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  text-align: left;
+  width: 100%;
+}
+
+.actionCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  border-color: hsl(var(--primary) / 0.3);
+}
+
+.actionIcon {
+  width: 48px;
+  height: 48px;
+  border-radius: 0.875rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.actionIconfrom-yellow-500to-orange-500 {
+  background: linear-gradient(135deg, hsl(var(--warning) / 0.15), hsl(var(--warning) / 0.08));
+  color: hsl(var(--warning));
+}
+
+.actionIconfrom-green-500to-emerald-500 {
+  background: linear-gradient(135deg, hsl(var(--success) / 0.15), hsl(var(--success) / 0.08));
+  color: hsl(var(--success));
+}
+
+.actionIconfrom-purple-500to-pink-500 {
+  background: linear-gradient(135deg, hsl(var(--primary) / 0.15), hsl(var(--primary) / 0.08));
+  color: hsl(var(--primary));
+}
+
+.actionInfo {
+  flex: 1;
+}
+
+.actionTitle {
+  font-size: 1rem;
+  font-weight: 700;
+  color: hsl(var(--foreground));
+  margin: 0 0 0.25rem 0;
+}
+
+.actionDescription {
+  font-size: 0.8rem;
+  color: hsl(var(--muted-foreground));
+  margin: 0;
+}
+
+.actionArrow {
+  color: hsl(var(--muted-foreground));
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+
+.actionCard:hover .actionArrow {
+  transform: translateX(4px);
+  color: hsl(var(--primary));
+}
+
+/* ==================== ACCOUNT SECTION ==================== */
+.accountSection {
+  margin-bottom: 2rem;
+}
+
+.infoCard {
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  border-radius: 1rem;
+  overflow: hidden;
+}
+
+.infoItem {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.25rem;
+}
+
+.infoIconWrapper {
+  width: 40px;
+  height: 40px;
+  border-radius: 0.75rem;
+  background: hsl(var(--muted) / 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: hsl(var(--primary));
+  flex-shrink: 0;
+}
+
+.infoContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.infoLabel {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: hsl(var(--muted-foreground));
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.infoValue {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: hsl(var(--foreground));
+}
+
+.infoDivider {
+  height: 1px;
+  background: hsl(var(--border));
+  margin: 0 1.25rem;
+}
+
+/* ==================== LEGAL SECTION ==================== */
+.legalSection {
+  margin-bottom: 2rem;
+}
+
+.legalGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 0.875rem;
+}
+
+.legalCard {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.25rem;
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  border-radius: 1rem;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.legalCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+  border-color: hsl(var(--primary) / 0.3);
+}
+
+.legalIcon {
+  width: 44px;
+  height: 44px;
+  border-radius: 0.875rem;
+  background: hsl(var(--muted) / 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: hsl(var(--primary));
+  flex-shrink: 0;
+}
+
+.legalInfo {
+  flex: 1;
+}
+
+.legalInfo h3 {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: hsl(var(--foreground));
+  margin: 0 0 0.25rem 0;
+}
+
+.legalInfo p {
+  font-size: 0.75rem;
+  color: hsl(var(--muted-foreground));
+  margin: 0;
+}
+
+/* ==================== ABOUT SECTION ==================== */
+.aboutSection {
+  margin-bottom: 2rem;
+}
+
+.aboutCard {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.25rem;
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  border-radius: 1rem;
+}
+
+.aboutIcon {
+  width: 44px;
+  height: 44px;
+  border-radius: 0.875rem;
+  background: hsl(var(--muted) / 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: hsl(var(--primary));
+  flex-shrink: 0;
+}
+
+.aboutInfo h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: hsl(var(--foreground));
+  margin: 0 0 0.25rem 0;
+}
+
+.version {
+  font-size: 0.8rem;
+  color: hsl(var(--muted-foreground));
+  margin: 0;
+}
+
+/* ==================== LOGOUT BUTTON ==================== */
+.logoutButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.625rem;
+  width: 100%;
+  padding: 1rem;
+  background: hsl(var(--destructive) / 0.08);
+  border: 1px solid hsl(var(--destructive) / 0.2);
+  border-radius: 1rem;
+  color: hsl(var(--destructive));
+  font-weight: 700;
+  font-size: 0.9375rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.logoutButton:hover {
+  background: hsl(var(--destructive) / 0.12);
+  border-color: hsl(var(--destructive) / 0.35);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px hsl(var(--destructive) / 0.15);
+}
+
 /* ==================== RESPONSIVE ==================== */
-@media (max-width: 640px) {
+@media (max-width: 768px) {
   .container {
-    padding: 0 0.25rem;
+    padding: 1rem 0.75rem;
+    padding-bottom: 120px;
   }
 
-  .header {
+  .profileHeader {
     flex-direction: column;
     align-items: flex-start;
-    gap: 0.75rem;
-    margin-bottom: 1.5rem;
+    gap: 1rem;
   }
 
-  .title {
-    font-size: 1.5rem;
+  .membershipBadge {
+    align-self: flex-start;
   }
 
-  .cardHeader {
-    padding: 1rem 1.25rem;
+  .upgradeBanner {
+    flex-direction: column;
+    align-items: stretch;
   }
 
-  .cardBody {
-    padding: 1rem 1.25rem;
-  }
-
-  .logoutButton {
-    width: 100%;
+  .upgradeButton {
     justify-content: center;
+  }
+
+  .legalGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 0.875rem 0.625rem;
+    padding-bottom: 120px;
+  }
+
+  .profileName {
+    font-size: 1.25rem;
+  }
+
+  .userAvatar,
+  .userAvatarPlaceholder {
+    width: 56px;
+    height: 56px;
+  }
+
+  .actionCard {
+    padding: 1rem;
+  }
+
+  .actionIcon {
+    width: 44px;
+    height: 44px;
   }
 }

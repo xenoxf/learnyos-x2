@@ -11,7 +11,7 @@
   display: flex;
   flex-direction: column;
   gap: 0.875rem;
-  min-height: 260px;
+  height: fit-content;
 }
 
 .card::before {
@@ -214,7 +214,6 @@
 @media (max-width: 768px) {
   .card {
     padding: 1.25rem;
-    min-height: 240px;
     gap: 0.75rem;
   }
 

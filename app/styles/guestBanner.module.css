@@ -9,7 +9,7 @@
   top: 12px;
   left: 50%;
   transform: translateX(-50%);
-  z-index: 1000;
+  z-index: 200;
   background: hsl(var(--primary));
   display: flex;
   align-items: center;

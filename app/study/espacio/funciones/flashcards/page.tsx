@@ -5,7 +5,7 @@ import { RefreshCw, AlertTriangle, FileText } from "lucide-react";
 import { apiService } from "@/services/apiService";
 import { toast } from "@/hooks/useLocalToast";
 import CardKlekComponent from "@/components/card/CardKlek";
-import { CardMetadataModal, type CardMetadata } from "@/components/espacio/CardMetadataModal";
+import { FuncionesCardModal, type FuncionesCardData } from "@/components/espacio/FuncionesCardModal";
 import styles from "@/styles/espacio/espacioPages.module.css";
 
 interface ManageItem {
@@ -27,7 +27,7 @@ export default function FuncionesFlashcardsPage() {
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const [selectedItem, setSelectedItem] = useState<ManageItem | null>(null);
   const [showKlek, setShowKlek] = useState(false);
-  const [selectedForModal, setSelectedForModal] = useState<CardMetadata | null>(null);
+  const [selectedForModal, setSelectedForModal] = useState<FuncionesCardData | null>(null);
   const [deletingFromModal, setDeletingFromModal] = useState<number | null>(null);
 
   const loadItems = useCallback(async () => {
@@ -96,7 +96,7 @@ export default function FuncionesFlashcardsPage() {
       )}
 
       {selectedForModal && (
-        <CardMetadataModal
+        <FuncionesCardModal
           card={selectedForModal}
           onClose={() => setSelectedForModal(null)}
           onViewContent={handleViewContent}
@@ -136,8 +136,9 @@ export default function FuncionesFlashcardsPage() {
             </div>
             <p className={styles.itemCardDesc}>{item.description || "Sin descripción"}</p>
             <div className={styles.itemCardMeta}>
-              {item.area && <span className={styles.itemBadge}>{item.area}</span>}
-              {item.totalCards && <span>{item.totalCards} tarjetas</span>}
+              {item.area && <span className={styles.itemBadge}>Área: {item.area}</span>}
+              {item.tema && <span className={styles.itemBadge}>Tema: {item.tema}</span>}
+              {item.totalCards && <span className={styles.diffBadge}>{item.totalCards} tarjetas</span>}
             </div>
             <div className={styles.itemCardFooter}>
               <span className={styles.itemCreator}>

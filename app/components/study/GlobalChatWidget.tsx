@@ -14,13 +14,14 @@ import styles from "@/styles/components/GlobalChatWidget.module.css";
 import type { GlobalChatMessage } from "@/types/globalChat";
 
 export function GlobalChatWidget() {
-  ;
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<GlobalChatMessage[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [sending, setSending] = useState(false);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const isNearBottomRef = useRef(true);
 
   const loadMessages = async () => {
     try {
@@ -44,9 +45,22 @@ export function GlobalChatWidget() {
     return undefined;
   }, [isOpen]);
 
+  // Scroll inteligente: solo auto-scroll si el usuario está cerca del fondo
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (isNearBottomRef.current) {
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
   }, [messages]);
+
+  // Detectar scroll del usuario
+  const handleMessagesScroll = () => {
+    const container = messagesContainerRef.current;
+    if (!container) return;
+    
+    const threshold = 100;
+    const distanceFromBottom = container.scrollHeight - container.scrollTop - container.clientHeight;
+    isNearBottomRef.current = distanceFromBottom <= threshold;
+  };
 
   const handleSend = async () => {
     if (!newMessage.trim() || sending) return;
@@ -118,7 +132,7 @@ export function GlobalChatWidget() {
             </button>
           </div>
 
-          <div className={styles.messagesContainer}>
+          <div className={styles.messagesContainer} ref={messagesContainerRef} onScroll={handleMessagesScroll}>
             {loading && messages.length === 0 ? (
               <div className={styles.loadingState}>
                 <p>Cargando mensajes...</p>

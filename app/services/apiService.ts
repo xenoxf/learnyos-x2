@@ -23,8 +23,18 @@ import {
 const API_BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 const API_KEY = process.env.NEXT_PUBLIC_BACKEND_API_KEY;
 
+// Cache for GET requests to reduce API calls
+interface CacheEntry<T> {
+  data: T;
+  timestamp: number;
+  expiresIn: number; // milliseconds
+}
+
 class ApiService {
   private token: string | null = null;
+  private cache = new Map<string, CacheEntry<any>>();
+  private pendingRequests = new Map<string, Promise<any>>();
+  private searchTimeouts = new Map<string, NodeJS.Timeout>();
 
   constructor() {
     if (typeof window !== "undefined") {
@@ -47,6 +57,60 @@ class ApiService {
       }
     }
     return this.token;
+  }
+
+  // Cache management
+  private getCache<T>(key: string): T | null {
+    const entry = this.cache.get(key);
+    if (!entry) return null;
+    
+    const now = Date.now();
+    if (now - entry.timestamp > entry.expiresIn) {
+      this.cache.delete(key);
+      return null;
+    }
+    
+    return entry.data;
+  }
+
+  private setCache<T>(key: string, data: T, expiresIn: number = 60000): void {
+    this.cache.set(key, {
+      data,
+      timestamp: Date.now(),
+      expiresIn,
+    });
+  }
+
+  private clearCache(): void {
+    this.cache.clear();
+  }
+
+  // Debounced search for specific endpoints
+  private debounceSearch<T>(
+    endpoint: string, 
+    options: RequestInit,
+    delay: number = 500
+  ): Promise<T> {
+    return new Promise((resolve, reject) => {
+      // Clear existing timeout
+      const existingTimeout = this.searchTimeouts.get(endpoint);
+      if (existingTimeout) {
+        clearTimeout(existingTimeout);
+      }
+
+      // Set new timeout
+      const timeout = setTimeout(async () => {
+        try {
+          this.searchTimeouts.delete(endpoint);
+          const result = await this.request<T>(endpoint, options);
+          resolve(result);
+        } catch (error) {
+          reject(error);
+        }
+      }, delay);
+
+      this.searchTimeouts.set(endpoint, timeout);
+    });
   }
 
   // make the request method generic so callers get a typed return value without casting
@@ -213,6 +277,11 @@ class ApiService {
 
   async verifyToken(): Promise<boolean> {
     try {
+      const token = this.getToken();
+      if (!token) {
+        return false;
+      }
+      
       const result = await this.request<{ valid: boolean }>(
         "/auth/verify_token",
         {
@@ -221,6 +290,13 @@ class ApiService {
       );
       return result.valid === true;
     } catch (error) {
+      // If token is invalid or expired, clear it
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        localStorage.removeItem("isGuest");
+        this.token = null;
+      }
       return false;
     }
   }
@@ -312,7 +388,13 @@ class ApiService {
   }
 
   async getNotesPublic(): Promise<NoteDeck[]> {
-    return this.request<NoteDeck[]>("/notes/public", { method: "GET" });
+    const cacheKey = 'notes_public';
+    const cached = this.getCache<NoteDeck[]>(cacheKey);
+    if (cached) return cached;
+    
+    const data = await this.request<NoteDeck[]>("/notes/public", { method: "GET" });
+    this.setCache(cacheKey, data, 120000); // Cache for 2 minutes
+    return data;
   }
 
   async getNotesPrivate(): Promise<NoteDeck[]> {
@@ -331,9 +413,8 @@ class ApiService {
       offset: String(offset),
       searchInContent: String(searchInContent),
     });
-    return this.request<NoteDeck[]>(`/notes/search?${params.toString()}`, {
-      method: "GET",
-    });
+    const endpoint = `/notes/search?${params.toString()}`;
+    return this.debounceSearch<NoteDeck[]>(endpoint, { method: "GET" }, 500);
   }
 
   async getNote(id: number): Promise<NoteKlek> {
@@ -406,7 +487,13 @@ class ApiService {
   }
 
   async getFlashcardsPublic(): Promise<CardsDeck[]> {
-    return this.request<CardsDeck[]>("/flash-cards/public", { method: "GET" });
+    const cacheKey = 'flashcards_public';
+    const cached = this.getCache<CardsDeck[]>(cacheKey);
+    if (cached) return cached;
+    
+    const data = await this.request<CardsDeck[]>("/flash-cards/public", { method: "GET" });
+    this.setCache(cacheKey, data, 120000); // Cache for 2 minutes
+    return data;
   }
 
   async getFlashcardsPrivate(): Promise<CardsDeck[]> {
@@ -425,9 +512,8 @@ class ApiService {
       offset: String(offset),
       searchInCards: String(searchInCards),
     });
-    return this.request<CardsDeck[]>(`/flash-cards/search?${params.toString()}`, {
-      method: "GET",
-    });
+    const endpoint = `/flash-cards/search?${params.toString()}`;
+    return this.debounceSearch<CardsDeck[]>(endpoint, { method: "GET" }, 500);
   }
 
   async getFlashcard(id: number): Promise<CardKlek> {
@@ -497,7 +583,13 @@ class ApiService {
   }
 
   async getExamsPublic(): Promise<ExamDeck[]> {
-    return this.request<ExamDeck[]>("/exams/public", { method: "GET" });
+    const cacheKey = 'exams_public';
+    const cached = this.getCache<ExamDeck[]>(cacheKey);
+    if (cached) return cached;
+    
+    const data = await this.request<ExamDeck[]>("/exams/public", { method: "GET" });
+    this.setCache(cacheKey, data, 120000); // Cache for 2 minutes
+    return data;
   }
 
   async getExamsPrivate(): Promise<ExamDeck[]> {
@@ -520,9 +612,8 @@ class ApiService {
       offset: String(offset),
       searchInQuestions: String(searchInQuestions),
     });
-    return this.request<ExamDeck[]>(`/exams/search?${params.toString()}`, {
-      method: "GET",
-    });
+    const endpoint = `/exams/search?${params.toString()}`;
+    return this.debounceSearch<ExamDeck[]>(endpoint, { method: "GET" }, 500);
   }
 
   async getExam(id: number): Promise<ExamKlek> {

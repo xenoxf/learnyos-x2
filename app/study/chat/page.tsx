@@ -37,7 +37,6 @@ export default function ChatPage() {
   const [copiedId, setCopiedId] = useState<number | null>(null);
   const [isGuest, setIsGuest] = useState(false);
 
-  const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   // ==================== DETECTAR GUEST ====================
@@ -244,18 +243,43 @@ export default function ChatPage() {
     }
   };
 
-  // ==================== SCROLL ====================
-  const scrollToBottom = useCallback(() => {
-    requestAnimationFrame(() => {
-      if (messagesEndRef.current) {
-        messagesEndRef.current.scrollIntoView({ behavior: "auto", block: "end" });
-      }
-    });
+  // ==================== SCROLL INTELIGENTE ====================
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const isNearBottomRef = useRef(true);
+  const [shouldAutoScroll, setShouldAutoScroll] = useState(true);
+
+  // Detectar si el usuario está cerca del fondo
+  const checkIfNearBottom = useCallback(() => {
+    const container = messagesContainerRef.current;
+    if (!container) return;
+    
+    const threshold = 150; // px desde el fondo
+    const distanceFromBottom = container.scrollHeight - container.scrollTop - container.clientHeight;
+    isNearBottomRef.current = distanceFromBottom <= threshold;
+    setShouldAutoScroll(isNearBottomRef.current);
   }, []);
 
+  // Scroll automático - solo si el usuario está cerca del fondo
+  const scrollToBottom = useCallback(() => {
+    if (!shouldAutoScroll) return;
+    
+    requestAnimationFrame(() => {
+      if (messagesEndRef.current) {
+        messagesEndRef.current.scrollIntoView({ behavior: "smooth", block: "end" });
+      }
+    });
+  }, [shouldAutoScroll]);
+
+  // Escuchar scroll del usuario
+  const handleMessagesScroll = useCallback(() => {
+    checkIfNearBottom();
+  }, [checkIfNearBottom]);
+
+  // Auto-scroll cuando llegan nuevos mensajes
   useEffect(() => {
     scrollToBottom();
-  }, [messages, scrollToBottom]);
+  }, [messages, streamingContent, scrollToBottom]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -306,7 +330,7 @@ export default function ChatPage() {
 
       {/* MAIN CONTENT */}
       <main className={styles.main}>
-        <div className={styles.messages}>
+        <div className={styles.messages} ref={messagesContainerRef} onScroll={handleMessagesScroll}>
           {messages.length === 0 && !isStreaming ? (
             <div className={styles.welcome}>
               <div className={styles.welcomeIcon}><Bot size={48} /></div>

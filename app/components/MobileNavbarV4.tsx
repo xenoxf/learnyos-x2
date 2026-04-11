@@ -8,6 +8,9 @@ import { toast } from "@/hooks/useLocalToast";
 import { ThemeToggleSidebr } from "./ThemeToogleSidebr";
 import styles from "@/styles/mobileNavbarV4.module.css";
 import Link from "next/link";
+import { ThemeToggle } from "./ThemeToggle";
+import { ThemeSelector } from "./ThemeSelector";
+import { tree } from "next/dist/build/templates/app-page";
 
 interface NavItem {
   title: string;
@@ -67,28 +70,25 @@ export function MobileNavbarV4() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  return (
-    <nav className={`${styles.navbar} ${isHidden ? styles.navbarHidden : ""}`}>
-      <div className={styles.navbarInner}>
-        {NAV_ITEMS.map((item) => {
-          const Icon = item.icon;
-          const active = isActive(item.url);
-          return (
-            <Link
-              key={item.url}
-              href={item.url}
-              className={`${styles.navItem} ${active ? styles.navItemActive : ""}`}
-            >
-              <Icon size={22} />
-              <span>{item.title}</span>
-            </Link>
-          );
-        })}
-        <Link href="/study/espacio/general" className={styles.navItem}>
-          <Settings2 size={22} />
-          <span>Espacio</span>
+  return (<nav className={styles.navbarInner}>
+    {NAV_ITEMS.map((item) => {
+      const Icon = item.icon;
+      const active = isActive(item.url);
+      return (
+        <Link
+          key={item.url}
+          href={item.url}
+          className={`${styles.navItem} ${active ? styles.navItemActive : ""}`}
+        >
+          <Icon size={22} />
+          <span>{item.title}</span>
         </Link>
-      </div>
-    </nav>
-  );
+      );
+    })}
+    <Link href="/study/espacio/general" className={styles.navItem}>
+      <Settings2 size={22} />
+      <span>Espacio</span>
+    </Link>
+    <ThemeToggleSidebr isCollapse={true} />
+  </nav>);
 }

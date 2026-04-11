@@ -6,7 +6,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Política de Privacidad - LearnYos</title>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
       line-height: 1.7;
@@ -16,6 +21,7 @@
       max-width: 820px;
       margin: 0 auto;
     }
+
     .back-link {
       display: inline-flex;
       align-items: center;
@@ -26,18 +32,24 @@
       margin-bottom: 1.5rem;
       transition: color 0.15s;
     }
-    .back-link:hover { color: #000; }
+
+    .back-link:hover {
+      color: #000;
+    }
+
     h1 {
       font-size: 2rem;
       font-weight: 800;
       color: #1a1a2e;
       margin-bottom: 0.5rem;
     }
+
     .subtitle {
       font-size: 0.9rem;
       color: #888;
       margin-bottom: 2.5rem;
     }
+
     h2 {
       font-size: 1.25rem;
       font-weight: 700;
@@ -46,28 +58,44 @@
       padding-bottom: 0.4rem;
       border-bottom: 2px solid #e0e7ff;
     }
+
     h3 {
       font-size: 1.05rem;
       font-weight: 600;
       color: #1a1a2e;
       margin: 1rem 0 0.5rem;
     }
+
     p {
       font-size: 0.95rem;
       color: #333;
       margin-bottom: 0.75rem;
     }
+
     ul {
       margin: 0.5rem 0 1rem 1.5rem;
     }
+
     li {
       font-size: 0.95rem;
       color: #333;
       margin-bottom: 0.4rem;
     }
-    li strong { color: #1a1a2e; }
-    a { color: #6366f1; text-decoration: underline; text-underline-offset: 2px; }
-    a:hover { opacity: 0.8; }
+
+    li strong {
+      color: #1a1a2e;
+    }
+
+    a {
+      color: #6366f1;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    a:hover {
+      opacity: 0.8;
+    }
+
     .footer {
       margin-top: 3rem;
       padding-top: 1.5rem;
@@ -76,19 +104,31 @@
       color: #888;
       font-size: 0.85rem;
     }
+
     @media (max-width: 640px) {
-      body { padding: 1.5rem 1rem; }
-      h1 { font-size: 1.6rem; }
-      h2 { font-size: 1.1rem; }
-      p, li { font-size: 0.9rem; }
+      body {
+        padding: 1.5rem 1rem;
+      }
+
+      h1 {
+        font-size: 1.6rem;
+      }
+
+      h2 {
+        font-size: 1.1rem;
+      }
+
+      p,
+      li {
+        font-size: 0.9rem;
+      }
     }
   </style>
 </head>
 
 <body>
-  <a href="/" class="back-link">← Volver a LearnYos</a>
   <h1>Política de Privacidad</h1>
-  <p class="subtitle">Última actualización: Abril 2026 · Versión 1.0.0</p>
+  <p class="subtitle">Última actualización: Abril 2026</p>
 
   <h2>1. Identidad del Responsable del Tratamiento</h2>
   <ul>
@@ -104,49 +144,66 @@
 
   <h3>2.1 Datos Proporcionados Directamente por el Usuario</h3>
   <ul>
-    <li><strong>Nombre/Nickname:</strong> El nombre que usted elija durante el registro. Es visible para otros usuarios como creador de contenido.</li>
-    <li><strong>Correo electrónico:</strong> Necesario para la autenticación, recuperación de cuenta y comunicaciones relacionadas con el servicio.</li>
-    <li><strong>Contraseña:</strong> Almacenada de forma cifrada mediante hash bcrypt con 10 rondas de salt. LearnYos nunca almacena contraseñas en texto plano.</li>
-    <li><strong>Foto de perfil:</strong> Si se registra mediante Google OAuth, se obtiene la URL de su foto de perfil de Google.</li>
+    <li><strong>Nombre/Nickname:</strong> El nombre que usted elija durante el registro. Es visible para otros usuarios
+      como creador de contenido.</li>
+    <li><strong>Correo electrónico:</strong> Necesario para la autenticación, recuperación de cuenta y comunicaciones
+      relacionadas con el servicio.</li>
+    <li><strong>Contraseña:</strong> Almacenada de forma cifrada mediante hash bcrypt con 10 rondas de salt. LearnYos
+      nunca almacena contraseñas en texto plano.</li>
+    <li><strong>Foto de perfil:</strong> Si se registra mediante Google OAuth, se obtiene la URL de su foto de perfil de
+      Google.</li>
   </ul>
 
   <h3>2.2 Datos Recopilados Automáticamente</h3>
   <ul>
-    <li><strong>Datos de uso:</strong> Quizzes generados, flashcards creadas, notas escritas, mensajes enviados al chat IA y al chat global.</li>
+    <li><strong>Datos de uso:</strong> Quizzes generados, flashcards creadas, notas escritas, mensajes enviados al chat
+      IA y al chat global.</li>
     <li><strong>Datos de créditos:</strong> Registro diario de créditos consumidos, desglosados por tipo de acción.</li>
     <li><strong>Datos de interacción:</strong> Likes otorgados a contenido de otros usuarios.</li>
-    <li><strong>Datos técnicos:</strong> Dirección IP, tipo de navegador, sistema operativo, idioma preferido, timestamps de acceso.</li>
-    <li><strong>Almacenamiento local:</strong> Token de autenticación JWT, preferencias de interfaz (tema claro/oscuro), estado del sidebar.</li>
+    <li><strong>Datos técnicos:</strong> Dirección IP, tipo de navegador, sistema operativo, idioma preferido,
+      timestamps de acceso.</li>
+    <li><strong>Almacenamiento local:</strong> Token de autenticación JWT, preferencias de interfaz (tema claro/oscuro),
+      estado del sidebar.</li>
   </ul>
 
   <h3>2.3 Datos de Terceros (Google OAuth)</h3>
-  <p>Si usted elige registrarse mediante Google OAuth, LearnYos recibe de Google: nombre completo, correo electrónico verificado, URL de foto de perfil e identificador único de Google. LearnYos no tiene acceso a su contraseña de Google, contactos, archivos ni ningún otro dato.</p>
+  <p>Si usted elige registrarse mediante Google OAuth, LearnYos recibe de Google: nombre completo, correo electrónico
+    verificado, URL de foto de perfil e identificador único de Google. LearnYos no tiene acceso a su contraseña de
+    Google, contactos, archivos ni ningún otro dato.</p>
 
   <h3>2.4 Datos de Invitados</h3>
-  <p>Los usuarios invitados (guest) no tienen datos almacenados en la base de datos. Se genera un identificador temporal y un token JWT con expiración de 24 horas. No se recopila información personal de los invitados.</p>
+  <p>Los usuarios invitados (guest) no tienen datos almacenados en la base de datos. Se genera un identificador temporal
+    y un token JWT con expiración de 24 horas. No se recopila información personal de los invitados.</p>
 
   <h2>3. Finalidades del Tratamiento</h2>
   <ul>
-    <li><strong>Autenticación y autorización:</strong> Verificar su identidad y permitir el acceso seguro a la Plataforma.</li>
+    <li><strong>Autenticación y autorización:</strong> Verificar su identidad y permitir el acceso seguro a la
+      Plataforma.</li>
     <li><strong>Prestación del servicio:</strong> Generar, almacenar y mostrar su contenido educativo.</li>
-    <li><strong>Gestión de créditos:</strong> Controlar el consumo diario de créditos para el uso de servicios de IA.</li>
-    <li><strong>Interacción social:</strong> Mostrar su nombre como creador de contenido, permitir likes y chat global.</li>
-    <li><strong>Chat con IA:</strong> Procesar sus preguntas y generar respuestas educativas mediante Google Gemini.</li>
+    <li><strong>Gestión de créditos:</strong> Controlar el consumo diario de créditos para el uso de servicios de IA.
+    </li>
+    <li><strong>Interacción social:</strong> Mostrar su nombre como creador de contenido, permitir likes y chat global.
+    </li>
+    <li><strong>Chat con IA:</strong> Procesar sus preguntas y generar respuestas educativas mediante Google Gemini.
+    </li>
     <li><strong>Seguridad:</strong> Prevenir abusos, ataques de fuerza bruta, y uso indebido.</li>
     <li><strong>Mejora del servicio:</strong> Analizar patrones de uso anónimos para mejorar la experiencia.</li>
   </ul>
-  <p><strong>LearnYos NO utiliza sus datos para:</strong> publicidad dirigida, venta a terceros, creación de perfiles de comportamiento o toma de decisiones automatizadas.</p>
+  <p><strong>LearnYos NO utiliza sus datos para:</strong> publicidad dirigida, venta a terceros, creación de perfiles de
+    comportamiento o toma de decisiones automatizadas.</p>
 
   <h2>4. Base Legal del Tratamiento</h2>
   <ul>
     <li><strong>Ejecución de un contrato:</strong> Necesario para prestar los Servicios solicitados al registrarse.</li>
-    <li><strong>Consentimiento:</strong> Al crear una cuenta y utilizar LearnYos, usted otorga su consentimiento explícito.</li>
+    <li><strong>Consentimiento:</strong> Al crear una cuenta y utilizar LearnYos, usted otorga su consentimiento
+      explícito.</li>
     <li><strong>Interés legítimo:</strong> Garantizar la seguridad de la Plataforma y prevenir abusos.</li>
   </ul>
 
   <h2>5. Almacenamiento y Seguridad de los Datos</h2>
   <h3>5.1 Dónde se almacenan</h3>
-  <p>Los datos personales se almacenan en una base de datos PostgreSQL gestionada por <strong>Aiven Cloud</strong>. La conexión está cifrada mediante <strong>SSL/TLS</strong>.</p>
+  <p>Los datos personales se almacenan en una base de datos PostgreSQL gestionada por <strong>Aiven Cloud</strong>. La
+    conexión está cifrada mediante <strong>SSL/TLS</strong>.</p>
 
   <h3>5.2 Medidas de seguridad técnicas</h3>
   <ul>
@@ -156,13 +213,16 @@
     <li><strong>API Key:</strong> Todas las solicitudes al backend requieren una clave de API válida.</li>
     <li><strong>Rate limiting:</strong> Protección contra ataques de fuerza bruta y denegación de servicio.</li>
     <li><strong>Helmet Security:</strong> Headers que previenen ataques XSS, clickjacking y sniffing.</li>
-    <li><strong>Sanitización:</strong> Todo el contenido del usuario se sanitiza para prevenir inyección de código malicioso.</li>
+    <li><strong>Sanitización:</strong> Todo el contenido del usuario se sanitiza para prevenir inyección de código
+      malicioso.</li>
   </ul>
 
   <h2>6. Retención de los Datos</h2>
   <ul>
-    <li><strong>Datos de cuenta:</strong> Mientras su cuenta esté activa. Al eliminar su cuenta, todos sus datos serán eliminados.</li>
-    <li><strong>Contenido generado:</strong> Se mantiene mientras su cuenta esté activa o hasta que usted lo elimine.</li>
+    <li><strong>Datos de cuenta:</strong> Mientras su cuenta esté activa. Al eliminar su cuenta, todos sus datos serán
+      eliminados.</li>
+    <li><strong>Contenido generado:</strong> Se mantiene mientras su cuenta esté activa o hasta que usted lo elimine.
+    </li>
     <li><strong>Registro de créditos:</strong> Se eliminan automáticamente después de 7 días.</li>
     <li><strong>Mensajes de chat IA:</strong> Se conservan mientras la conversación esté activa.</li>
     <li><strong>Mensajes del chat global:</strong> Se conservan hasta que el usuario los elimine.</li>
@@ -173,7 +233,8 @@
   <p>LearnYos <strong>NO vende, alquila ni cede</strong> datos personales a terceros con fines comerciales.</p>
   <ul>
     <li><strong>Google (OAuth):</strong> Para autenticación. Google procesa datos conforme a su propia política.</li>
-    <li><strong>Google (Gemini API):</strong> Los prompts enviados al chat con IA se procesan mediante Google Gemini 2.0 Flash.</li>
+    <li><strong>Google (Gemini API):</strong> Los prompts enviados al chat con IA se procesan mediante Google Gemini 2.0
+      Flash.</li>
     <li><strong>Aiven Cloud:</strong> Proveedor de infraestructura de base de datos.</li>
     <li><strong>Vercel:</strong> Proveedor de hosting del frontend.</li>
   </ul>
@@ -185,7 +246,8 @@
     <li><strong>Derecho de supresión:</strong> Solicitar la eliminación de su cuenta y datos asociados.</li>
     <li><strong>Derecho a la portabilidad:</strong> Solicitar una copia de sus datos en formato estructurado.</li>
     <li><strong>Derecho de oposición:</strong> Oponerse al tratamiento para fines específicos.</li>
-    <li><strong>Derecho a la limitación:</strong> Solicitar que se limite el tratamiento en determinadas circunstancias.</li>
+    <li><strong>Derecho a la limitación:</strong> Solicitar que se limite el tratamiento en determinadas circunstancias.
+    </li>
   </ul>
   <p>Para ejercer estos derechos: <strong>xenooxf@gmail.com</strong>. Respuesta en máximo 30 días hábiles.</p>
 
@@ -200,19 +262,25 @@
 
   <h2>10. Inteligencia Artificial y Contenido Generado</h2>
   <ul>
-    <li><strong>Prompts enviados a la IA:</strong> Se procesan por Google Gemini y pueden ser retenidos conforme a su política.</li>
-    <li><strong>Contenido generado:</strong> Se almacena en la base de datos de LearnYos según su configuración de visibilidad.</li>
-    <li><strong>Precisión:</strong> LearnYos no garantiza la exactitud total del contenido generado por IA. Verifique con fuentes oficiales.</li>
+    <li><strong>Prompts enviados a la IA:</strong> Se procesan por Google Gemini y pueden ser retenidos conforme a su
+      política.</li>
+    <li><strong>Contenido generado:</strong> Se almacena en la base de datos de LearnYos según su configuración de
+      visibilidad.</li>
+    <li><strong>Precisión:</strong> LearnYos no garantiza la exactitud total del contenido generado por IA. Verifique
+      con fuentes oficiales.</li>
   </ul>
 
   <h2>11. Menores de Edad</h2>
-  <p>Si usted es menor de edad, le recomendamos utilizar la Plataforma bajo la supervisión de un padre, tutor o responsable legal. LearnYos no recopila intencionadamente datos de menores sin consentimiento de un responsable.</p>
+  <p>Si usted es menor de edad, le recomendamos utilizar la Plataforma bajo la supervisión de un padre, tutor o
+    responsable legal. LearnYos no recopila intencionadamente datos de menores sin consentimiento de un responsable.</p>
 
   <h2>12. Transferencias Internacionales de Datos</h2>
-  <p>Los datos se procesan en servidores de Aiven Cloud que pueden tener ubicaciones en múltiples jurisdicciones. LearnYos garantiza que todas las transferencias se realizan conforme a las disposiciones legales aplicables.</p>
+  <p>Los datos se procesan en servidores de Aiven Cloud que pueden tener ubicaciones en múltiples jurisdicciones.
+    LearnYos garantiza que todas las transferencias se realizan conforme a las disposiciones legales aplicables.</p>
 
   <h2>13. Modificaciones de esta Política</h2>
-  <p>LearnYos se reserva el derecho de modificar esta Política en cualquier momento. Las modificaciones entran en vigor inmediatamente después de su publicación. Se recomienda revisar esta página periódicamente.</p>
+  <p>LearnYos se reserva el derecho de modificar esta Política en cualquier momento. Las modificaciones entran en vigor
+    inmediatamente después de su publicación. Se recomienda revisar esta página periódicamente.</p>
 
   <h2>14. Contacto</h2>
   <p>Para preguntas sobre esta Política de Privacidad:</p>

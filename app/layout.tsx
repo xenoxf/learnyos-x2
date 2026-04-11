@@ -13,7 +13,7 @@ export const viewport: Viewport = {
   userScalable: true,
   viewportFit: "cover",
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: light)", color: "#ffe6eb" },
     { media: "(prefers-color-scheme: dark)", color: "#09090b" },
   ],
 };
@@ -186,6 +186,31 @@ export default function RootLayout({
           href="https://fonts.gstatic.com"
           crossOrigin="anonymous"
         />
+
+        {/* CSS crítico inline - evita FOUC */}
+        <style dangerouslySetInnerHTML={{
+          __html: `
+            *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+            html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+            body {
+              background-color: hsl(0 0% 100%);
+              color: hsl(0 0% 3.9%);
+              font-family: Arial, Helvetica, sans-serif;
+              line-height: 1.5;
+              -webkit-font-smoothing: antialiased;
+              -moz-osx-font-smoothing: grayscale;
+              min-height: 100vh;
+              overflow-x: hidden;
+            }
+            .dark body {
+              background-color: hsl(0 0% 3.9%);
+              color: hsl(0 0% 98%);
+            }
+            img { max-width: 100%; height: auto; display: block; }
+            a { color: inherit; text-decoration: none; }
+            button { cursor: pointer; font-family: inherit; }
+          `
+        }} />
 
         {/* 🔥 SEO estructurado */}
         <Script

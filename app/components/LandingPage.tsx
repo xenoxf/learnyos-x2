@@ -29,15 +29,45 @@ export const LandingPage: React.FC = () => {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  ;
 
-  const handleOpenAuth = () => {
-    const token =
-      typeof window !== "undefined" ? localStorage.getItem("token") : null;
-    if (token) {
-      router.push("/study");
-      return;
+  const handleOpenAuth = async () => {
+    if (typeof window === "undefined") return;
+
+    const token = localStorage.getItem("token");
+    const userStr = localStorage.getItem("user");
+
+    // Si tiene token Y datos de usuario, verificar y redirigir
+    if (token && userStr) {
+      setLoading(true);
+      try {
+        const user = JSON.parse(userStr);
+
+        // Si es guest, redirigir directamente
+        if (user?.isGuest === true) {
+          router.push("/study");
+          return;
+        }
+
+        // Verificar token con el backend
+        const isValid = await apiService.verifyToken();
+        if (isValid) {
+          router.push("/study");
+          return;
+        }
+
+        // Token inválido, limpiar y mostrar modal
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+      } catch {
+        // Error en verificación, limpiar y mostrar modal
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+      } finally {
+        setLoading(false);
+      }
     }
+
+    // Sin sesión válida, mostrar modal de auth
     setShowAuthModal(true);
   };
 
