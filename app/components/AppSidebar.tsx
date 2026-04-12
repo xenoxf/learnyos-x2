@@ -201,7 +201,7 @@ export function AppSidebar({
         >
           <ThemeToggleSidebr isCollapse={collapsed} />
           <button
-            onClick={() => navigate.push("/study/espacio/general")}
+            onClick={() => navigate.push("/study/espacio")}
             className={`
               ${styles.actionButton}
               ${sidebarClosed ? styles.actionButtonCollapsed : styles.actionButtonExpanded}
