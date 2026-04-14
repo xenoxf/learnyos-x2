@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { apiService } from "@/services/apiService";
 import type { User } from "@/types";
+import { authService } from "@/services/authService";
 
 interface AuthState {
   user: User | null;
@@ -19,7 +19,7 @@ export function useAuth() {
 
   useEffect(() => {
     const initAuth = () => {
-      const user = apiService.getUser();
+      const user = authService.getUser();
       setAuthState({
         user: user || null,
         isAuthenticated: !!user,
@@ -30,25 +30,22 @@ export function useAuth() {
     initAuth();
   }, []);
 
-  const updateUser = useCallback(
-    async (data: { name?: string }) => {
-      try {
-        const updated = await apiService.updateUser(data);
-        setAuthState((prev) => ({
-          ...prev,
-          user: updated,
-        }));
-        return updated;
-      } catch (error) {
-        console.error("Error updating user:", error);
-        throw error;
-      }
-    },
-    []
-  );
+  const updateUser = useCallback(async (data: { name?: string }) => {
+    try {
+      const updated = await authService.updateUser(data);
+      setAuthState((prev) => ({
+        ...prev,
+        user: updated,
+      }));
+      return updated;
+    } catch (error) {
+      console.error("Error updating user:", error);
+      throw error;
+    }
+  }, []);
 
   const logout = useCallback(() => {
-    apiService.logout();
+    authService.logout();
     setAuthState({
       user: null,
       isAuthenticated: false,

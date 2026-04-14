@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { useCallback, useState } from 'react';
-import type { User, AuthResponse } from '@/types';
-import { apiService } from '@/services/apiService';
-import { useToast } from './use-toast';
+import { useCallback, useState } from "react";
+import type { User, AuthResponse } from "@/types";
+import { useToast } from "./use-toast";
+import { authService } from "@/services/authService";
 
 interface GoogleToken {
   email: string;
@@ -14,24 +14,24 @@ interface GoogleToken {
 
 function decodeJWT(token: string): GoogleToken {
   try {
-    const parts = token.split('.');
+    const parts = token.split(".");
     if (parts.length !== 3) {
-      throw new Error('Invalid token format');
+      throw new Error("Invalid token format");
     }
 
     const decoded = JSON.parse(
-      atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')),
+      atob(parts[1].replace(/-/g, "+").replace(/_/g, "/")),
     );
 
     return decoded as GoogleToken;
   } catch (error) {
-    throw new Error('Failed to decode JWT');
+    throw new Error("Failed to decode JWT");
   }
 }
 
 export function useGoogleAuth() {
   const { toast } = useToast();
-  const [user, setUser] = useState<User | null>(apiService.getUser());
+  const [user, setUser] = useState<User | null>(authService.getUser());
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -42,16 +42,16 @@ export function useGoogleAuth() {
 
       try {
         if (!idToken) {
-          throw new Error('No credential received from Google');
+          throw new Error("No credential received from Google");
         }
 
         const decoded = decodeJWT(idToken);
 
         if (!decoded.email) {
-          throw new Error('No email in Google token');
+          throw new Error("No email in Google token");
         }
 
-        const authResponse = await apiService.loginWithGoogle({
+        const authResponse = await authService.loginWithGoogle({
           idToken,
           email: decoded.email,
           name: decoded.name,
@@ -63,14 +63,14 @@ export function useGoogleAuth() {
           return authResponse;
         }
 
-        throw new Error('No token in response');
+        throw new Error("No token in response");
       } catch (err: any) {
-        const errorMsg = err?.message || 'Error al autenticarse con Google';
+        const errorMsg = err?.message || "Error al autenticarse con Google";
         setError(errorMsg);
         toast({
-          title: 'Error',
+          title: "Error",
           description: errorMsg,
-          variant: 'destructive',
+          variant: "destructive",
         });
         throw err;
       } finally {
@@ -81,12 +81,12 @@ export function useGoogleAuth() {
   );
 
   const handleGoogleError = useCallback(() => {
-    const errorMsg = 'Error al autenticarse con Google';
+    const errorMsg = "Error al autenticarse con Google";
     setError(errorMsg);
     toast({
-      title: 'Error',
+      title: "Error",
       description: errorMsg,
-      variant: 'destructive',
+      variant: "destructive",
     });
   }, [toast]);
 

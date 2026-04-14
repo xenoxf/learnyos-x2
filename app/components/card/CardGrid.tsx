@@ -11,9 +11,9 @@ import {
   type ViewMode,
 } from "@/components/study/StudyGrid";
 import type { CardsDeck } from "@/types";
-import { apiService } from "@/services/apiService";
 import { Skeleton } from "@/components/ui/skeleton";
 import styles from "@/styles/card/CardGrid.module.css";
+import { cardsService } from "@/services/cardsService";
 
 interface CardGridProps {
   onCardSelect?: (cardId: number) => void;
@@ -26,8 +26,7 @@ const CARDS_CONFIG = {
   createButtonText: "Crear Mazo",
   privateTabText: "Privados",
   publicTabText: "Publicos",
-  emptyPrivateText:
-    "No tienes mazos privados todavía. Crea uno para comenzar.",
+  emptyPrivateText: "No tienes mazos privados todavía. Crea uno para comenzar.",
   emptyPublicText: "Aún no hay mazos públicos disponibles.",
   emptySearchText: "No se encontraron mazos con esa búsqueda",
   loadingText: "Cargando mazos...",
@@ -56,16 +55,19 @@ export default function CardGrid({ onCardSelect }: CardGridProps) {
       onLoad: useCallback(async (mode: ViewMode) => {
         const data =
           mode === "private"
-            ? await apiService.getFlashcardsPrivate()
-            : await apiService.getFlashcardsPublic();
+            ? await cardsService.getFlashcardsPrivate()
+            : await cardsService.getFlashcardsPublic();
         const validCards = (data || []).filter(
           (card: any) => card.id && card.title,
         ) as (CardsDeck & StudyGridBaseItem)[];
         return validCards;
       }, []),
-      onItemOpen: useCallback((card) => {
-        onCardSelect?.(card.id);
-      }, [onCardSelect]),
+      onItemOpen: useCallback(
+        (card) => {
+          onCardSelect?.(card.id);
+        },
+        [onCardSelect],
+      ),
     },
     config: CARDS_CONFIG,
     defaultViewMode: "public",
@@ -76,7 +78,7 @@ export default function CardGrid({ onCardSelect }: CardGridProps) {
     if (query.trim().length >= 2) {
       setIsSearching(true);
       try {
-        await apiService.searchFlashcards(query, 20, 0, true);
+        await cardsService.searchFlashcards(query, 20, 0, true);
       } catch (error) {
         console.error("Error en búsqueda:", error);
       } finally {
@@ -95,29 +97,33 @@ export default function CardGrid({ onCardSelect }: CardGridProps) {
 
   const isSearchActive = useMemo(
     () => searchValue.trim().length >= 2,
-    [searchValue]
+    [searchValue],
   );
 
   // Memoizar renderizado de cards
-  const renderCard = useCallback((card: CardsDeck & StudyGridBaseItem) => (
-    <CardContent
-      key={card.id}
-      card={card}
-      onCardDeleted={handleItemDeleted}
-      onOpen={() => onCardSelect?.(card.id)}
-    />
-  ), [handleItemDeleted, onCardSelect]);
+  const renderCard = useCallback(
+    (card: CardsDeck & StudyGridBaseItem) => (
+      <CardContent
+        key={card.id}
+        card={card}
+        onCardDeleted={handleItemDeleted}
+        onOpen={() => onCardSelect?.(card.id)}
+      />
+    ),
+    [handleItemDeleted, onCardSelect],
+  );
 
   // Memoizar skeleton array
   const skeletons = useMemo(
-    () => Array.from({ length: 6 }).map((_, i) => (
-      <div key={i} className={styles.skeletonCard}>
-        <Skeleton className={styles.skeletonTitle} />
-        <Skeleton className={styles.skeletonDescription} />
-        <Skeleton className={styles.skeletonMeta} />
-      </div>
-    )),
-    []
+    () =>
+      Array.from({ length: 6 }).map((_, i) => (
+        <div key={i} className={styles.skeletonCard}>
+          <Skeleton className={styles.skeletonTitle} />
+          <Skeleton className={styles.skeletonDescription} />
+          <Skeleton className={styles.skeletonMeta} />
+        </div>
+      )),
+    [],
   );
 
   return (
@@ -135,16 +141,12 @@ export default function CardGrid({ onCardSelect }: CardGridProps) {
 
         {/* Loading state - Initial load (al entrar a la página) */}
         {loading && !isSearchActive && (
-          <div className={styles.grid}>
-            {skeletons}
-          </div>
+          <div className={styles.grid}>{skeletons}</div>
         )}
 
         {/* Search loading */}
         {isSearching && isSearchActive && (
-          <div className={styles.grid}>
-            {skeletons}
-          </div>
+          <div className={styles.grid}>{skeletons}</div>
         )}
 
         {/* Normal display - Solo cuando no está cargando */}

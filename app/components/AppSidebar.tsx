@@ -14,19 +14,39 @@ import {
   Sparkles,
   Settings,
 } from "lucide-react";
-import { apiService } from "@/services/apiService";
 import { toast } from "@/hooks/useLocalToast";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import styles from "../styles/sidebar.module.css";
 import { ThemeToggleSidebr } from "./ThemeToogleSidebr";
+import { authService } from "@/services/authService";
 
 const menuItems = [
-  { title: "Klerk", url: "/study", icon: LayoutDashboard, description: "Dashboard" },
-  { title: "Junior IA", url: "/study/chat", icon: MessageSquare, description: "Chat con IA" },
+  {
+    title: "Klerk",
+    url: "/study",
+    icon: LayoutDashboard,
+    description: "Dashboard",
+  },
+  {
+    title: "Junior IA",
+    url: "/study/chat",
+    icon: MessageSquare,
+    description: "Chat con IA",
+  },
   { title: "Quiz", url: "/study/quiz", icon: Brain, description: "Exámenes" },
-  { title: "Flashcards", url: "/study/flashcards", icon: CreditCard, description: "Tarjetas" },
-  { title: "Notas", url: "/study/notes", icon: NotebookPen, description: "Apuntes" },
+  {
+    title: "Flashcards",
+    url: "/study/flashcards",
+    icon: CreditCard,
+    description: "Tarjetas",
+  },
+  {
+    title: "Notas",
+    url: "/study/notes",
+    icon: NotebookPen,
+    description: "Apuntes",
+  },
 ];
 
 interface AppSidebarProps {
@@ -70,7 +90,7 @@ export function AppSidebar({
   }, []);
 
   const handleLogout = () => {
-    apiService.logout();
+    authService.logout();
     localStorage.removeItem("user");
     localStorage.removeItem("token");
     toast.success("Sesión cerrada", "Has cerrado sesión exitosamente");

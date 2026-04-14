@@ -1,1 +1,0 @@
-// Este archivo está deprecado. Usar apiService.verifyToken() directamente

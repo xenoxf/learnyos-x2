@@ -209,6 +209,20 @@ export default function RootLayout({
             img { max-width: 100%; height: auto; display: block; }
             a { color: inherit; text-decoration: none; }
             button { cursor: pointer; font-family: inherit; }
+            
+            /* Auth page critical CSS - prevents FOUC */
+            .authPage { width: 100%; height: 100dvh; height: 100vh; display: flex; justify-content: center; align-items: center; flex-direction: column; background-color: hsl(var(--background, 0 0% 100%)); color: hsl(var(--foreground, 0 0% 3.9%)); }
+            .auth { width: 100%; max-width: 460px; display: flex; justify-content: center; align-items: center; flex-direction: column; }
+            .containerTitle { width: 100%; margin-bottom: 1.5rem; text-align: center; }
+            .appTitle { font-size: 1.875rem; font-weight: 900; color: hsl(var(--foreground, 0 0% 3.9%)); margin: 0.5rem 0 0 0; }
+            .authWindow { width: 100%; background-color: hsl(var(--card, 0 0% 100%)); color: hsl(var(--card-foreground, 0 0% 3.9%)); border: 1px solid hsl(var(--border, 0 0% 89.8%)); border-radius: 0.5rem; box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1); }
+            .cardTitle { font-size: 1.5rem; font-weight: 700; color: hsl(var(--foreground, 0 0% 3.9%)); }
+            .cardContent { display: flex; flex-direction: column; gap: 1.5rem; }
+            .authBtnVolver { background-color: hsl(var(--primary, 0 0% 9%)); color: hsl(var(--primary-foreground, 0 0% 98%)); position: absolute; top: 1rem; left: 1rem; width: 2.5rem; height: 2.5rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; border: none; z-index: 10; }
+            .divider { display: flex; align-items: center; gap: 1rem; }
+            .dividerLine { flex: 1; height: 1px; background: hsl(var(--border, 0 0% 89.8%)); }
+            .dividerText { font-size: 0.875rem; color: hsl(var(--muted-foreground, 0 0% 45.1%)); white-space: nowrap; }
+            @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
           `
         }} />
 

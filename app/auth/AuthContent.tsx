@@ -16,11 +16,11 @@ import {
   EyeOff,
   ArrowBigLeft,
 } from "lucide-react";
-import { apiService } from "@/services/apiService";
 import type { LoginInput, RegisterInput } from "@/types";
 import { toast } from "@/hooks/useLocalToast";
 import styles from "@/styles/auth.module.css";
 import Link from "next/link";
+import { authService } from "@/services/authService";
 
 export function AuthContent() {
   const router = useRouter();
@@ -55,7 +55,7 @@ export function AuthContent() {
         return;
       }
 
-      if (!apiService.isValidEmail(email)) {
+      if (!authService.isValidEmail(email)) {
         setFormError("Por favor, ingresa un email válido");
         setLoading(false);
         return;
@@ -66,7 +66,7 @@ export function AuthContent() {
         password: password,
       };
 
-      const response = await apiService.login(loginData);
+      const response = await authService.login(loginData);
 
       if (response && response.token && response.user) {
         router.push("/study");
@@ -97,7 +97,7 @@ export function AuthContent() {
         return;
       }
 
-      if (!apiService.isValidEmail(email)) {
+      if (!authService.isValidEmail(email)) {
         setFormError("Por favor, ingresa un email válido");
         setLoading(false);
         return;
@@ -115,7 +115,7 @@ export function AuthContent() {
         name: name.trim(),
       };
 
-      const response = await apiService.register(registerData);
+      const response = await authService.register(registerData);
 
       if (response && response.token && response.user) {
         router.push("/study");
@@ -286,12 +286,22 @@ export function AuthContent() {
 
         <div className={styles.footer}>
           <p>
-            Al continuar, aceptas nuestros{' '}
-            <a href="/terms.html" target="_blank" rel="noopener noreferrer" className={styles.footerLink}>
+            Al continuar, aceptas nuestros{" "}
+            <a
+              href="/terms.html"
+              target="_blank"
+              rel="noopener noreferrer"
+              className={styles.footerLink}
+            >
               Términos y Condiciones
-            </a>
-            {' '}y{' '}
-            <a href="/privacy.html" target="_blank" rel="noopener noreferrer" className={styles.footerLink}>
+            </a>{" "}
+            y{" "}
+            <a
+              href="/privacy.html"
+              target="_blank"
+              rel="noopener noreferrer"
+              className={styles.footerLink}
+            >
               Política de Privacidad
             </a>
           </p>

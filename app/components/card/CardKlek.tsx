@@ -1,14 +1,10 @@
 import type { CardKlek } from "@/types";
 import React, { useState, useEffect, useCallback } from "react";
-import {
-  ChevronLeft,
-  ChevronRight,
-  RotateCcw,
-} from "lucide-react";
+import { ChevronLeft, ChevronRight, RotateCcw } from "lucide-react";
 import styles from "@/styles/flashCards/CardKlek.module.css";
 import { toast } from "@/hooks/useLocalToast";
-import { apiService } from "@/services/apiService";
 import MarkdownRenderer from "../MarkdownRenderer";
+import { cardsService } from "@/services/cardsService";
 
 interface CardKlekProps {
   cardId: number;
@@ -16,7 +12,6 @@ interface CardKlekProps {
 }
 
 const CardKlekComponent: React.FC<CardKlekProps> = ({ cardId, onClose }) => {
-  ;
   const [card, setCard] = useState<CardKlek | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
@@ -27,13 +22,13 @@ const CardKlekComponent: React.FC<CardKlekProps> = ({ cardId, onClose }) => {
     try {
       setLoading(true);
       setError(null);
-      const data = await apiService.getCardKlek(cardId);
+      const data = await cardsService.getCardKlek(cardId);
       setCard(data);
     } catch (err) {
       const message =
         err instanceof Error ? err.message : "Error al cargar mazo";
       setError(message);
-      toast.info("", );
+      toast.info("");
     } finally {
       setLoading(false);
     }
@@ -99,7 +94,11 @@ const CardKlekComponent: React.FC<CardKlekProps> = ({ cardId, onClose }) => {
           </div>
           <div className={styles.emptyContent}>
             <p>{error || "No se pudo cargar el mazo"}</p>
-            <button className={styles.retryBtn} onClick={loadCard} type="button">
+            <button
+              className={styles.retryBtn}
+              onClick={loadCard}
+              type="button"
+            >
               Reintentar
             </button>
           </div>
@@ -162,7 +161,10 @@ const CardKlekComponent: React.FC<CardKlekProps> = ({ cardId, onClose }) => {
             <div className={styles.flashCardFace}>
               <div className={styles.faceContent}>
                 <span className={styles.faceLabel}>Pregunta</span>
-                <p className={styles.faceText}> <MarkdownRenderer content={currentCard.front} /></p>
+                <p className={styles.faceText}>
+                  {" "}
+                  <MarkdownRenderer content={currentCard.front} />
+                </p>
               </div>
             </div>
 
@@ -170,7 +172,9 @@ const CardKlekComponent: React.FC<CardKlekProps> = ({ cardId, onClose }) => {
             <div className={styles.flashCardFace}>
               <div className={styles.faceContent}>
                 <span className={styles.faceLabel}>Respuesta</span>
-                <p className={styles.faceText}><MarkdownRenderer content={currentCard.back} /></p>
+                <p className={styles.faceText}>
+                  <MarkdownRenderer content={currentCard.back} />
+                </p>
               </div>
             </div>
           </div>

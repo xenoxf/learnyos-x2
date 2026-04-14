@@ -4,7 +4,7 @@ const LoadingModal = () => {
   return (
     <div className={styles.container}>
       <div className={styles.spinnerWrapper}>
-        <div className={styles.radialSpinner} />
+        <div className={styles.loader} />
       </div>
     </div>
   );

@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { apiService } from "@/services/apiService";
 import styles from "@/styles/flashCards/crearCard.module.css";
 import { X, Loader, Sparkles } from "lucide-react";
 import { toast } from "@/hooks/useLocalToast";
 import type { ApiErrorResponse } from "@/types";
 import { useRouter } from "next/navigation";
+import { cardsService } from "@/services/cardsService";
+import { creditsService } from "@/services/creditsService";
 
 interface CrearCardProps {
   onClose: () => void;
@@ -16,33 +17,50 @@ export default function CrearCard({ onClose, onCardCreated }: CrearCardProps) {
   const [quantity, setQuantity] = useState(3);
   const [acceso, setAcceso] = useState("public");
   const [loading, setLoading] = useState(false);
-  const [creditsStatus, setCreditsStatus] = useState<{ remaining: number; total: number } | null>(null);
+  const [creditsStatus, setCreditsStatus] = useState<{
+    remaining: number;
+    total: number;
+  } | null>(null);
   const router = useRouter();
 
   // Load credits status on mount
   React.useEffect(() => {
-    apiService.getCreditsStatus().then((status) => {
-      setCreditsStatus({ remaining: status.remaining, total: status.total });
-    }).catch(() => {});
+    creditsService
+      .getStatus()
+      .then((status) => {
+        setCreditsStatus({ remaining: status.remaining, total: status.total });
+      })
+      .catch(() => {});
   }, []);
 
-  const estimatedCost = apiService.estimateFlashcardCost(quantity, reference || "");
-  const canAfford = creditsStatus ? creditsStatus.remaining >= estimatedCost : true;
+  const estimatedCost = creditsService.estimateFlashcardCost(
+    quantity,
+    reference || "",
+  );
+  const canAfford = creditsStatus
+    ? creditsStatus.remaining >= estimatedCost
+    : true;
 
   const handleCreate = async () => {
     if (!reference.trim()) {
-      toast.error("Validación", "Por favor, proporciona un texto de referencia");
+      toast.error(
+        "Validación",
+        "Por favor, proporciona un texto de referencia",
+      );
       return;
     }
 
     if (quantity < 2 || quantity > 20) {
-      toast.error("Cantidad inválida", "La cantidad debe estar entre 2 y 20 tarjetas");
+      toast.error(
+        "Cantidad inválida",
+        "La cantidad debe estar entre 2 y 20 tarjetas",
+      );
       return;
     }
 
     try {
       setLoading(true);
-      await apiService.generateFlashcards({
+      await cardsService.generateFlashcards({
         reference,
         quantity,
         acceso,
@@ -71,7 +89,7 @@ export default function CrearCard({ onClose, onCardCreated }: CrearCardProps) {
         rawResponse = errorData.rawResponse;
       } else if (err instanceof Error) {
         message = err.message;
-      } else if (typeof err === 'string') {
+      } else if (typeof err === "string") {
         message = err;
       }
 
@@ -80,22 +98,23 @@ export default function CrearCard({ onClose, onCardCreated }: CrearCardProps) {
 
       // Agregar información según el código de error
       if (rawResponse) {
-        console.error('Raw response from AI:', rawResponse);
-        
-        if (errorCode === 'INVALID_AI_RESPONSE') {
+        console.error("Raw response from AI:", rawResponse);
+
+        if (errorCode === "INVALID_AI_RESPONSE") {
           errorDescription = `${details} La IA devolvió una respuesta con formato inesperado.`;
-        } else if (errorCode === 'NO_CARDS_GENERATED') {
+        } else if (errorCode === "NO_CARDS_GENERATED") {
           errorDescription = `${details} Intenta con un tema más específico o detallado.`;
-        } else if (errorCode === 'MISSING_METADATA') {
+        } else if (errorCode === "MISSING_METADATA") {
           errorDescription = `${details} La IA generó tarjetas pero sin título para el mazo.`;
-        } else if (errorCode === 'INVALID_CARD_FORMAT') {
+        } else if (errorCode === "INVALID_CARD_FORMAT") {
           errorDescription = `${details} Las tarjetas generadas no tienen frente o reverso.`;
         }
       }
 
       // Fallback para errores antiguos
-      if (message.includes('Invalid AI response') && !details) {
-        errorDescription = "La IA no pudo generar las tarjetas correctamente. Intenta con otro tema.";
+      if (message.includes("Invalid AI response") && !details) {
+        errorDescription =
+          "La IA no pudo generar las tarjetas correctamente. Intenta con otro tema.";
       }
 
       toast.error("Error al generar tarjetas", errorDescription, 8000);
@@ -157,8 +176,12 @@ export default function CrearCard({ onClose, onCardCreated }: CrearCardProps) {
                 className={styles.select}
                 disabled={loading}
               >
-                <option title="Solo tu podras usarlas" value="private">Privado</option>
-                <option title="Todos podran usarlas" value="public">Público</option>
+                <option title="Solo tu podras usarlas" value="private">
+                  Privado
+                </option>
+                <option title="Todos podran usarlas" value="public">
+                  Público
+                </option>
               </select>
             </div>
           </div>
@@ -195,11 +218,11 @@ export default function CrearCard({ onClose, onCardCreated }: CrearCardProps) {
           <div className={styles.creditPreview}>
             <span>Costo: ~{estimatedCost} créditos</span>
             <span>•</span>
-            <span>Tus créditos: {creditsStatus.remaining}/{creditsStatus.total}</span>
+            <span>
+              Tus créditos: {creditsStatus.remaining}/{creditsStatus.total}
+            </span>
             {!canAfford && (
-              <span className={styles.creditWarning}>
-                Crédito insuficiente
-              </span>
+              <span className={styles.creditWarning}>Crédito insuficiente</span>
             )}
           </div>
         )}

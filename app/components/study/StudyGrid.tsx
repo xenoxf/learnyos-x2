@@ -9,8 +9,8 @@ import React, { useState, useCallback, useMemo, useEffect } from "react";
 import { Plus, Globe, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { apiService } from "@/services/apiService";
 import styles from "@/styles/components/studyGrid.module.css";
+import { authService } from "@/services/authService";
 
 export type ViewMode = "private" | "public";
 
@@ -50,7 +50,9 @@ export interface StudyGridProps<T extends StudyGridBaseItem> {
   createModal?: React.ReactNode;
 }
 
-export function useStudyGrid<T extends StudyGridBaseItem & { code?: string | null }>({
+export function useStudyGrid<
+  T extends StudyGridBaseItem & { code?: string | null },
+>({
   actions,
   config,
   defaultViewMode = "public",
@@ -69,7 +71,7 @@ export function useStudyGrid<T extends StudyGridBaseItem & { code?: string | nul
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-      setIsGuest(apiService.isGuest());
+      setIsGuest(authService.isGuest());
     }
   }, []);
 
@@ -91,17 +93,15 @@ export function useStudyGrid<T extends StudyGridBaseItem & { code?: string | nul
         return;
       }
 
-      const filtered = itemsToFilter.filter(
-        (item) => {
-          const anyItem = item as any;
-          return (
-            anyItem.title?.toLowerCase().includes(trimmed) ||
-            anyItem.description?.toLowerCase().includes(trimmed) ||
-            anyItem.area?.toLowerCase().includes(trimmed) ||
-            anyItem.tema?.toLowerCase().includes(trimmed)
-          );
-        },
-      );
+      const filtered = itemsToFilter.filter((item) => {
+        const anyItem = item as any;
+        return (
+          anyItem.title?.toLowerCase().includes(trimmed) ||
+          anyItem.description?.toLowerCase().includes(trimmed) ||
+          anyItem.area?.toLowerCase().includes(trimmed) ||
+          anyItem.tema?.toLowerCase().includes(trimmed)
+        );
+      });
       setItems(filtered);
     },
     [],
@@ -132,7 +132,14 @@ export function useStudyGrid<T extends StudyGridBaseItem & { code?: string | nul
     } finally {
       setLoading(false);
     }
-  }, [actions.onLoad, currentUserId, searchValue, viewMode, filterItems, loading]);
+  }, [
+    actions.onLoad,
+    currentUserId,
+    searchValue,
+    viewMode,
+    filterItems,
+    loading,
+  ]);
 
   useEffect(() => {
     loadItems();
@@ -219,7 +226,6 @@ export function StudyGridHeader({
   return (
     <header className={styles.header}>
       <div className={styles.headerLeft}>
-
         <div className={styles.searchSection}>
           <Input
             className={styles.searchInput}
@@ -230,12 +236,14 @@ export function StudyGridHeader({
           />
         </div>
         <div className={styles.createBtnWrapper}>
-          <Button 
-            onClick={onCreateClick} 
-            className={styles.createBtn} 
+          <Button
+            onClick={onCreateClick}
+            className={styles.createBtn}
             type="button"
             disabled={isGuest}
-            style={isGuest ? { opacity: 0.5, pointerEvents: 'none' } : undefined}
+            style={
+              isGuest ? { opacity: 0.5, pointerEvents: "none" } : undefined
+            }
           >
             <Plus size={20} />
             {config.createButtonText}
@@ -259,7 +267,6 @@ export function StudyGridHeader({
           <Globe size={16} /> {config.publicTabText}
         </button>
       </div>
-
     </header>
   );
 }
@@ -290,7 +297,9 @@ export function StudyGridContent<T extends StudyGridBaseItem>({
           <p>{resultText}</p>
         </div>
       ) : (
-        <div className={styles.grid}>{items.map((item) => renderCard(item))}</div>
+        <div className={styles.grid}>
+          {items.map((item) => renderCard(item))}
+        </div>
       )}
     </div>
   );

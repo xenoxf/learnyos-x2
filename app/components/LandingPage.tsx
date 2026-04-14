@@ -4,17 +4,14 @@ import styles from "@/styles/landing.module.css";
 import { Button } from "./ui/button";
 import { AuthFG } from "./AuthFG";
 import { ThemeToggle } from "./ThemeToggle";
-import { apiService } from "@/services/apiService";
 import { useRouter } from "next/navigation";
 import LoadingModal from "./loadingModal";
-import { toast } from "@/hooks/useLocalToast";
 import Image from "next/image";
 import {
   Brain,
   FileText,
   Layers,
   Sparkles,
-  Languages,
   Target,
   CheckCircle2,
   ArrowRight,
@@ -24,69 +21,86 @@ import {
   BarChart3,
   Shield,
 } from "lucide-react";
+import { authService } from "@/services/authService";
 
 export const LandingPage: React.FC = () => {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
+  // Handle "Comenzar" / "Comenzar Gratis" button
   const handleOpenAuth = async () => {
     if (typeof window === "undefined") return;
 
     const token = localStorage.getItem("token");
     const userStr = localStorage.getItem("user");
 
-    // Si tiene token Y datos de usuario, verificar y redirigir
+    // If has token AND user data, validate and redirect
     if (token && userStr) {
       setLoading(true);
       try {
         const user = JSON.parse(userStr);
 
-        // Si es guest, redirigir directamente
+        // If guest, redirect directly (guests can browse)
         if (user?.isGuest === true) {
           router.push("/study");
           return;
         }
 
-        // Verificar token con el backend
-        const isValid = await apiService.verifyToken();
+        // Verify token with backend
+        const isValid = await authService.verifyToken();
         if (isValid) {
           router.push("/study");
           return;
         }
 
-        // Token inválido, limpiar y mostrar modal
+        // Token invalid, clear and show auth modal
         localStorage.removeItem("token");
         localStorage.removeItem("user");
+        localStorage.removeItem("refreshToken");
       } catch {
-        // Error en verificación, limpiar y mostrar modal
         localStorage.removeItem("token");
         localStorage.removeItem("user");
+        localStorage.removeItem("refreshToken");
       } finally {
         setLoading(false);
       }
     }
 
-    // Sin sesión válida, mostrar modal de auth
+    // No valid session, show auth modal
     setShowAuthModal(true);
   };
 
+  // Handle "Comenzar como invitado" button
   const handleLoginAsGuest = async () => {
+    if (typeof window === "undefined") return;
+
+    const token = localStorage.getItem("token");
+    const userStr = localStorage.getItem("user");
+
+    // If already has a valid token (user or guest), redirect to study
+    if (token && userStr) {
+      setLoading(true);
+      try {
+        const isValid = await authService.verifyToken();
+        if (isValid) {
+          router.push("/study");
+          return;
+        }
+      } catch {
+        // Token invalid, fall through to guest login
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    // No valid token, login as guest
     setLoading(true);
     try {
-      const token =
-        typeof window !== "undefined" ? localStorage.getItem("token") : null;
-      if (token) {
-        setLoading(false);
-        router.push("/study");
-        return;
-      }
-      await apiService.loginAsGuest();
-      setLoading(false);
+      await authService.loginAsGuest();
       router.push("/study");
-    } catch (_error) {
+    } catch {
       setLoading(false);
-      toast.error("Error", "Algo salió mal");
     }
   };
 
@@ -127,7 +141,7 @@ export const LandingPage: React.FC = () => {
           "El contenido se adapta a tu velocidad y nivel de comprensión.",
       },
     ],
-    []
+    [],
   );
 
   const benefits = useMemo(
@@ -151,7 +165,7 @@ export const LandingPage: React.FC = () => {
         icon: Sparkles,
       },
     ],
-    []
+    [],
   );
 
   const tools = useMemo(
@@ -161,31 +175,34 @@ export const LandingPage: React.FC = () => {
         name: "Quizzes",
         description: "Pon a prueba tu conocimiento",
         image: "/tools/quiz-preview.png",
-        imageAlt: "Vista previa de quiz con preguntas de opción múltiple en la plataforma LearnYos"
+        imageAlt:
+          "Vista previa de quiz con preguntas de opción múltiple en la plataforma LearnYos",
       },
       {
         icon: Layers,
         name: "Flashcards",
         description: "Memoriza de forma efectiva",
         image: "/tools/flashcards-preview.png",
-        imageAlt: "Tarjetas de estudio flashcards mostrando frente y reverso con sistema de repaso espaciado"
+        imageAlt:
+          "Tarjetas de estudio flashcards mostrando frente y reverso con sistema de repaso espaciado",
       },
       {
         icon: PenTool,
         name: "Notas",
         description: "Organiza tu aprendizaje",
         image: "/tools/notes-preview.png",
-        imageAlt: "Notas de estudio organizadas con formato markdown y secciones estructuradas"
+        imageAlt:
+          "Notas de estudio organizadas con formato markdown y secciones estructuradas",
       },
       {
         icon: BarChart3,
         name: "Junior IA",
-        description: 'Aprende con Junior',
+        description: "Aprende con Junior",
         image: "/tools/quiz.png",
-        imageAlt: "Chat IA para usar como tutor en tu aprendizaje"
+        imageAlt: "Chat IA para usar como tutor en tu aprendizaje",
       },
     ],
-    []
+    [],
   );
 
   return (
@@ -206,7 +223,9 @@ export const LandingPage: React.FC = () => {
               </div>
               <div className={styles.brandInfo}>
                 <span className={styles.brandName}>LearnYos</span>
-                <div className={styles.brandSubtitle}>Tu compañero de estudio</div>
+                <div className={styles.brandSubtitle}>
+                  Tu compañero de estudio
+                </div>
               </div>
             </div>
             <div className={styles.headerActions}>
@@ -243,8 +262,9 @@ export const LandingPage: React.FC = () => {
                   <span className={styles.heroTitleGradient}>inteligente</span>
                 </h1>
                 <p className={styles.heroDescription}>
-                  LearnYos te ayuda a aprender mejor con herramientas diseñadas para potenciar tu estudio.
-                  Crea quizzes, flashcards y notas al instante.
+                  LearnYos te ayuda a aprender mejor con herramientas diseñadas
+                  para potenciar tu estudio. Crea quizzes, flashcards y notas al
+                  instante.
                 </p>
               </div>
               <div className={styles.heroCTA}>
@@ -278,7 +298,7 @@ export const LandingPage: React.FC = () => {
           </div>
         </section>
 
-        {/* Tools Section - Premium Showcase */}
+        {/* Tools Section */}
         <section className={styles.toolsSection} aria-labelledby="tools-title">
           <div className={styles.toolsSectionContent}>
             <div className={styles.toolsHeader}>
@@ -309,7 +329,9 @@ export const LandingPage: React.FC = () => {
                         <ToolIcon size={28} aria-hidden="true" />
                       </div>
                       <h3 className={styles.panelTitle}>{tool.name}</h3>
-                      <p className={styles.panelDescription}>{tool.description}</p>
+                      <p className={styles.panelDescription}>
+                        {tool.description}
+                      </p>
                       <div className={styles.panelCTA}>
                         <span>Probar ahora</span>
                         <ArrowRight size={16} />
@@ -411,10 +433,7 @@ export const LandingPage: React.FC = () => {
                     className={styles.benefitCard}
                     role="listitem"
                   >
-                    <div
-                      className={styles.benefitIcon}
-                      aria-hidden="true"
-                    >
+                    <div className={styles.benefitIcon} aria-hidden="true">
                       <BenefitIcon size={32} />
                     </div>
                     <h3 className={styles.benefitTitle}>{benefit.title}</h3>
@@ -429,15 +448,18 @@ export const LandingPage: React.FC = () => {
         </section>
 
         {/* Security Section */}
-        <section className={styles.securitySection} aria-labelledby="security-title">
+        <section
+          className={styles.securitySection}
+          aria-labelledby="security-title"
+        >
           <div className={styles.securityContent}>
             <Shield className={styles.securityIcon} size={48} />
             <h2 id="security-title" className={styles.securityTitle}>
               Tu privacidad es primero
             </h2>
             <p className={styles.securityText}>
-              Tus datos están protegidos y nunca compartimos tu información con terceros.
-              Estudia con tranquilidad.
+              Tus datos están protegidos y nunca compartimos tu información con
+              terceros. Estudia con tranquilidad.
             </p>
           </div>
         </section>
@@ -479,12 +501,18 @@ export const LandingPage: React.FC = () => {
               <span className={styles.footerBrandName}>LearnYos</span>
             </div>
             <div className={styles.footerLinks}>
-              <a href="/terms.html" target="_blank" rel="noopener noreferrer" className={styles.footerLink}>
+              <a
+                href="/terms.html"
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.footerLink}
+              >
                 Términos y Condiciones
               </a>
             </div>
             <p className={styles.footerCopy}>
-              © {new Date().getFullYear()} LearnYos. Todos los derechos reservados.
+              © {new Date().getFullYear()} LearnYos. Todos los derechos
+              reservados.
             </p>
           </div>
         </footer>

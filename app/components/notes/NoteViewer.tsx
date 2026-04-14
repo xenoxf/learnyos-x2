@@ -6,12 +6,12 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import styles from "@/styles/notes/noteViewer.module.css";
 import { toast } from "@/hooks/useLocalToast";
-import { apiService } from "@/services/apiService";
 import type { NoteKlek } from "@/types";
 import {
   normalizeNoteContentBody,
   noteSectionHeading,
 } from "@/lib/noteContent";
+import { notesService } from "@/services/notesService";
 
 interface NoteViewerProps {
   noteId: number;
@@ -19,22 +19,23 @@ interface NoteViewerProps {
 }
 
 export default function NoteViewer({ noteId, onClose }: NoteViewerProps) {
-  ;
   const [note, setNote] = useState<NoteKlek | null>(null);
   const [loading, setLoading] = useState(true);
-  const [expandedSections, setExpandedSections] = useState<Record<number, boolean>>({});
+  const [expandedSections, setExpandedSections] = useState<
+    Record<number, boolean>
+  >({});
 
   useEffect(() => {
     let cancelled = false;
     const loadNote = async () => {
       try {
         setLoading(true);
-        const data = await apiService.getNote(noteId);
+        const data = await notesService.getNote(noteId);
         if (!cancelled) setNote(data);
       } catch (err) {
         const message =
           err instanceof Error ? err.message : "Error al cargar nota";
-        toast.info("", );
+        toast.info("");
         onClose();
       } finally {
         if (!cancelled) setLoading(false);
@@ -85,10 +86,18 @@ export default function NoteViewer({ noteId, onClose }: NoteViewerProps) {
 
   return (
     <div className={styles.overlay} onClick={onClose}>
-      <div className={styles.modal} onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true" aria-labelledby="note-title">
+      <div
+        className={styles.modal}
+        onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="note-title"
+      >
         <div className={styles.header}>
           <div className={styles.headerLeft}>
-            <h2 id="note-title" className={styles.title}>{note.title}</h2>
+            <h2 id="note-title" className={styles.title}>
+              {note.title}
+            </h2>
             {note.description ? (
               <p className={styles.description}>{note.description}</p>
             ) : null}
@@ -106,7 +115,11 @@ export default function NoteViewer({ noteId, onClose }: NoteViewerProps) {
         <div className={styles.contentContainer}>
           {sections.length === 0 ? (
             <div className={styles.emptyContent}>
-              <FileText size={48} className={styles.emptyIcon} aria-hidden="true" />
+              <FileText
+                size={48}
+                className={styles.emptyIcon}
+                aria-hidden="true"
+              />
               <p>No hay contenido en esta nota</p>
             </div>
           ) : (
@@ -122,8 +135,6 @@ export default function NoteViewer({ noteId, onClose }: NoteViewerProps) {
 
                 return (
                   <article key={content.id} className={styles.contentItem}>
-
-
                     <div
                       id={`content-${content.id}`}
                       className={`${styles.contentBody} ${styles.contentBodyExpanded}`}
@@ -141,7 +152,6 @@ export default function NoteViewer({ noteId, onClose }: NoteViewerProps) {
             </div>
           )}
         </div>
-
       </div>
     </div>
   );

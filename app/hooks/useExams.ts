@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { apiService } from "@/services/apiService";
 import type { ExamDeck } from "@/types";
+import { quizzesService } from "@/services/quizzesService";
 
 export function useExams() {
   const [exams, setExams] = useState<ExamDeck[]>([]);
@@ -14,7 +14,7 @@ export function useExams() {
       try {
         setLoading(true);
         setError(null);
-        const data = await apiService.getExams();
+        const data = await quizzesService.getExams();
         setExams(Array.isArray(data) ? data : []);
       } catch (err: any) {
         setError(err.message || "Error al cargar exámenes");
@@ -32,13 +32,16 @@ export function useExams() {
   };
 
   const removeExam = async (examId: number) => {
-    await apiService.deleteExam(examId);
-    const exams = await apiService.getExams();
+    await quizzesService.deleteExam(examId);
+    const exams = await quizzesService.getExams();
     setExams(exams);
   };
 
   const updateExamScore = async (examId: number, score: number) => {
-    const exams: ExamDeck[] = await apiService.updateExamScore(examId, score);
+    const exams: ExamDeck[] = await quizzesService.updateExamScore(
+      examId,
+      score,
+    );
     setExams(exams);
   };
 

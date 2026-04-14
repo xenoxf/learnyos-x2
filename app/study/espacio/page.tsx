@@ -16,24 +16,29 @@ import {
   Sparkles,
   ArrowRight,
 } from "lucide-react";
-import { apiService } from "@/services/apiService";
 import { toast } from "@/hooks/useLocalToast";
 import styles from "@/styles/espacio/general.module.css";
+import { authService } from "@/services/authService";
 
 export default function GeneralPage() {
   const router = useRouter();
-  const [user, setUser] = useState<{ name?: string; email?: string; picture?: string; isGuest?: boolean } | null>(null);
+  const [user, setUser] = useState<{
+    name?: string;
+    email?: string;
+    picture?: string;
+    isGuest?: boolean;
+  } | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const userData = apiService.getUser();
+    const userData = authService.getUser();
     setUser(userData);
     setLoading(false);
   }, []);
 
   const handleLogout = useCallback(async () => {
     try {
-      await apiService.logout();
+      await authService.logout();
       toast.success("Sesión cerrada", "Has cerrado sesión exitosamente");
       router.push("/auth");
     } catch {
@@ -84,7 +89,14 @@ export default function GeneralPage() {
         <div className={styles.profileInfo}>
           <div className={styles.profileAvatar}>
             {user?.picture ? (
-              <Image src={user.picture} alt="" className={styles.userAvatar} width={64} height={64} unoptimized />
+              <Image
+                src={user.picture}
+                alt=""
+                className={styles.userAvatar}
+                width={64}
+                height={64}
+                unoptimized
+              />
             ) : (
               <div className={styles.userAvatarPlaceholder}>{initial}</div>
             )}
@@ -112,16 +124,20 @@ export default function GeneralPage() {
             return (
               <button
                 key={action.href}
-                className={`${styles.actionCard} ${styles[`actionCard${action.color.replace(/\s/g, '')}`]}`}
+                className={`${styles.actionCard} ${styles[`actionCard${action.color.replace(/\s/g, "")}`]}`}
                 onClick={() => router.push(action.href)}
                 type="button"
               >
-                <div className={`${styles.actionIcon} ${styles[`actionIcon${action.color.replace(/\s/g, '')}`]}`}>
+                <div
+                  className={`${styles.actionIcon} ${styles[`actionIcon${action.color.replace(/\s/g, "")}`]}`}
+                >
                   <Icon size={24} />
                 </div>
                 <div className={styles.actionInfo}>
                   <h3 className={styles.actionTitle}>{action.title}</h3>
-                  <p className={styles.actionDescription}>{action.description}</p>
+                  <p className={styles.actionDescription}>
+                    {action.description}
+                  </p>
                 </div>
                 <ArrowRight size={18} className={styles.actionArrow} />
               </button>
@@ -140,7 +156,9 @@ export default function GeneralPage() {
             </div>
             <div className={styles.infoContent}>
               <span className={styles.infoLabel}>Nombre</span>
-              <span className={styles.infoValue}>{user?.name || "Sin nombre"}</span>
+              <span className={styles.infoValue}>
+                {user?.name || "Sin nombre"}
+              </span>
             </div>
           </div>
           <div className={styles.infoDivider} />
@@ -150,7 +168,9 @@ export default function GeneralPage() {
             </div>
             <div className={styles.infoContent}>
               <span className={styles.infoLabel}>Correo Electrónico</span>
-              <span className={styles.infoValue}>{user?.email || "Sin correo"}</span>
+              <span className={styles.infoValue}>
+                {user?.email || "Sin correo"}
+              </span>
             </div>
           </div>
         </div>

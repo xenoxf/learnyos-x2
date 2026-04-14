@@ -16,12 +16,12 @@ import {
   EyeOff,
   ArrowBigLeft,
 } from "lucide-react";
-import { apiService } from "@/services/apiService";
 import type { LoginInput, RegisterInput } from "@/types";
 import { toast } from "@/hooks/useLocalToast";
 import styles from "@/styles/auth.module.css";
 import Link from "next/link";
 import type { Metadata } from "next";
+import { authService } from "@/services/authService";
 
 function AuthContent() {
   const router = useRouter();
@@ -56,7 +56,7 @@ function AuthContent() {
         return;
       }
 
-      if (!apiService.isValidEmail(email)) {
+      if (!authService.isValidEmail(email)) {
         setFormError("Por favor, ingresa un email válido");
         setLoading(false);
         return;
@@ -67,7 +67,7 @@ function AuthContent() {
         password: password,
       };
 
-      const response = await apiService.login(loginData);
+      const response = await authService.login(loginData);
 
       if (response && response.token && response.user) {
         router.push("/study");
@@ -98,7 +98,7 @@ function AuthContent() {
         return;
       }
 
-      if (!apiService.isValidEmail(email)) {
+      if (!authService.isValidEmail(email)) {
         setFormError("Por favor, ingresa un email válido");
         setLoading(false);
         return;
@@ -116,7 +116,7 @@ function AuthContent() {
         name: name.trim(),
       };
 
-      const response = await apiService.register(registerData);
+      const response = await authService.register(registerData);
 
       if (response && response.token && response.user) {
         router.push("/study");
@@ -163,6 +163,17 @@ function AuthContent() {
           </CardHeader>
 
           <CardContent className={styles.cardContent}>
+            <GoogleAuthButton
+              onError={handleGoogleError}
+              onSuccess={handleGoogleSuccess}
+            />
+
+            <div className={styles.divider}>
+              <span className={styles.dividerLine} />
+              <span className={styles.dividerText}>o</span>
+              <span className={styles.dividerLine} />
+            </div>
+
             {(error || formError) && (
               <div className={styles.errorAlert}>
                 <AlertCircle className={styles.errorIcon} />
@@ -287,12 +298,22 @@ function AuthContent() {
 
         <div className={styles.footer}>
           <p>
-            Al continuar, aceptas nuestros{' '}
-            <a href="/terms.html" target="_blank" rel="noopener noreferrer" className={styles.footerLink}>
+            Al continuar, aceptas nuestros{" "}
+            <a
+              href="/terms.html"
+              target="_blank"
+              rel="noopener noreferrer"
+              className={styles.footerLink}
+            >
               Términos y Condiciones
-            </a>
-            {' '}y{' '}
-            <a href="/privacy.html" target="_blank" rel="noopener noreferrer" className={styles.footerLink}>
+            </a>{" "}
+            y{" "}
+            <a
+              href="/privacy.html"
+              target="_blank"
+              rel="noopener noreferrer"
+              className={styles.footerLink}
+            >
               Política de Privacidad
             </a>
           </p>

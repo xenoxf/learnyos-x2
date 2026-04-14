@@ -2,11 +2,14 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import { RefreshCw, AlertTriangle, FileText } from "lucide-react";
-import { apiService } from "@/services/apiService";
 import { toast } from "@/hooks/useLocalToast";
 import CardKlekComponent from "@/components/card/CardKlek";
-import { FuncionesCardModal, type FuncionesCardData } from "@/components/espacio/FuncionesCardModal";
+import {
+  FuncionesCardModal,
+  type FuncionesCardData,
+} from "@/components/espacio/FuncionesCardModal";
 import styles from "@/styles/espacio/espacioPages.module.css";
+import { cardsService } from "@/services/cardsService";
 
 interface ManageItem {
   id: number;
@@ -27,19 +30,30 @@ export default function FuncionesFlashcardsPage() {
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const [selectedItem, setSelectedItem] = useState<ManageItem | null>(null);
   const [showKlek, setShowKlek] = useState(false);
-  const [selectedForModal, setSelectedForModal] = useState<FuncionesCardData | null>(null);
-  const [deletingFromModal, setDeletingFromModal] = useState<number | null>(null);
+  const [selectedForModal, setSelectedForModal] =
+    useState<FuncionesCardData | null>(null);
+  const [deletingFromModal, setDeletingFromModal] = useState<number | null>(
+    null,
+  );
 
   const loadItems = useCallback(async () => {
     try {
       setLoading(true);
-      const cards = await apiService.getFlashcardsPrivate();
-      setItems(cards.map((c: any) => ({
-        id: c.id, title: c.title, description: c.description,
-        code: c.code, totalCards: c.totalCards, area: c.area, tema: c.tema,
-        creatorName: c.creatorName, likesCount: c.likesCount || 0,
-        createdAt: c.createdAt,
-      })));
+      const cards = await cardsService.getFlashcardsPrivate();
+      setItems(
+        cards.map((c: any) => ({
+          id: c.id,
+          title: c.title,
+          description: c.description,
+          code: c.code,
+          totalCards: c.totalCards,
+          area: c.area,
+          tema: c.tema,
+          creatorName: c.creatorName,
+          likesCount: c.likesCount || 0,
+          createdAt: c.createdAt,
+        })),
+      );
     } catch {
       toast.error("Error", "No se pudieron cargar las flashcards");
     } finally {
@@ -55,7 +69,7 @@ export default function FuncionesFlashcardsPage() {
     try {
       setDeletingId(id);
       setDeletingFromModal(id);
-      await apiService.deleteCard(id);
+      await cardsService.deleteCard(id);
       toast.success("Eliminado", "Flashcard eliminada correctamente");
       setItems((prev) => prev.filter((item) => item.id !== id));
       setSelectedForModal(null);
@@ -67,17 +81,25 @@ export default function FuncionesFlashcardsPage() {
     }
   }, []);
 
-  const handleViewContent = useCallback((id: number) => {
-    setSelectedForModal(null);
-    const item = items.find((i) => i.id === id);
-    if (item) {
-      setSelectedItem(item);
-      setShowKlek(true);
-    }
-  }, [items]);
+  const handleViewContent = useCallback(
+    (id: number) => {
+      setSelectedForModal(null);
+      const item = items.find((i) => i.id === id);
+      if (item) {
+        setSelectedItem(item);
+        setShowKlek(true);
+      }
+    },
+    [items],
+  );
 
   if (loading) {
-    return <div className={styles.loadingState}><RefreshCw size={24} className={styles.spinner} /><p>Cargando flashcards...</p></div>;
+    return (
+      <div className={styles.loadingState}>
+        <RefreshCw size={24} className={styles.spinner} />
+        <p>Cargando flashcards...</p>
+      </div>
+    );
   }
 
   if (items.length === 0) {
@@ -92,7 +114,10 @@ export default function FuncionesFlashcardsPage() {
   return (
     <>
       {showKlek && selectedItem && (
-        <CardKlekComponent cardId={selectedItem.id} onClose={() => setShowKlek(false)} />
+        <CardKlekComponent
+          cardId={selectedItem.id}
+          onClose={() => setShowKlek(false)}
+        />
       )}
 
       {selectedForModal && (
@@ -110,10 +135,12 @@ export default function FuncionesFlashcardsPage() {
           <div
             key={item.id}
             className={styles.itemCard}
-            onClick={() => setSelectedForModal({
-              ...item,
-              type: "flashcard",
-            })}
+            onClick={() =>
+              setSelectedForModal({
+                ...item,
+                type: "flashcard",
+              })
+            }
             role="button"
             tabIndex={0}
             onKeyDown={(e) => {
@@ -134,20 +161,28 @@ export default function FuncionesFlashcardsPage() {
                 ) : null}
               </div>
             </div>
-            <p className={styles.itemCardDesc}>{item.description || "Sin descripción"}</p>
+            <p className={styles.itemCardDesc}>
+              {item.description || "Sin descripción"}
+            </p>
             <div className={styles.itemCardMeta}>
-              {item.area && <span className={styles.itemBadge}>Área: {item.area}</span>}
-              {item.tema && <span className={styles.itemBadge}>Tema: {item.tema}</span>}
-              {item.totalCards && <span className={styles.diffBadge}>{item.totalCards} tarjetas</span>}
+              {item.area && (
+                <span className={styles.itemBadge}>Área: {item.area}</span>
+              )}
+              {item.tema && (
+                <span className={styles.itemBadge}>Tema: {item.tema}</span>
+              )}
+              {item.totalCards && (
+                <span className={styles.diffBadge}>
+                  {item.totalCards} tarjetas
+                </span>
+              )}
             </div>
             <div className={styles.itemCardFooter}>
               <span className={styles.itemCreator}>
                 {item.creatorName || "Anónimo"}
               </span>
               {item.code && (
-                <span className={styles.itemCode}>
-                  {item.code}
-                </span>
+                <span className={styles.itemCode}>{item.code}</span>
               )}
             </div>
           </div>

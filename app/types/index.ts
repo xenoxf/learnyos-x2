@@ -123,7 +123,7 @@ export interface CardsDeck {
   canDelete?: boolean;
 }
 
-/** 
+/**
  * FlashCard KLEK - Datos completos para estudiar
  * NO incluye: code, userId, createdAt (datos internos)
  */
@@ -156,7 +156,7 @@ export interface Message {
 
 export type LevelOfDetail = "breve" | "medio" | "detallado" | "alto";
 
-/** 
+/**
  * Contenido de nota DECK - Solo metadata
  * NO incluye: content completo, userId
  */
@@ -165,7 +165,7 @@ export interface NoteContentDeck {
   tema?: string;
 }
 
-/** 
+/**
  * Contenido de nota KLEK - Contenido completo para leer
  * NO incluye: userId (datos internos)
  */
@@ -196,7 +196,7 @@ export interface NoteDeck {
   canDelete?: boolean;
 }
 
-/** 
+/**
  * Note KLEK - Contenido completo para leer
  * NO incluye: code, userId, levelOfDetail (datos internos)
  */
@@ -329,7 +329,7 @@ export interface ApiErrorResponse {
 // ==================== STREAMING ====================
 
 export interface StreamChunk {
-  type: 'credits' | 'chunk' | 'done';
+  type: "credits" | "chunk" | "done";
   content?: string;
   remaining?: number;
   total?: number;
@@ -341,22 +341,43 @@ export interface StreamChunk {
  */
 export enum ApiErrorCodes {
   // Exams
-  INVALID_AI_RESPONSE = 'INVALID_AI_RESPONSE',
-  NO_QUESTIONS_GENERATED = 'NO_QUESTIONS_GENERATED',
-  MISSING_METADATA = 'MISSING_METADATA',
-  INCOMPLETE_METADATA = 'INCOMPLETE_METADATA',
-  INVALID_QUESTION_FORMAT = 'INVALID_QUESTION_FORMAT',
-  EXAM_GENERATION_ERROR = 'EXAM_GENERATION_ERROR',
+  INVALID_AI_RESPONSE = "INVALID_AI_RESPONSE",
+  NO_QUESTIONS_GENERATED = "NO_QUESTIONS_GENERATED",
+  MISSING_METADATA = "MISSING_METADATA",
+  INCOMPLETE_METADATA = "INCOMPLETE_METADATA",
+  INVALID_QUESTION_FORMAT = "INVALID_QUESTION_FORMAT",
+  EXAM_GENERATION_ERROR = "EXAM_GENERATION_ERROR",
   // Notes
-  NO_CONTENT_GENERATED = 'NO_CONTENT_GENERATED',
-  NOTE_GENERATION_ERROR = 'NOTE_GENERATION_ERROR',
+  NO_CONTENT_GENERATED = "NO_CONTENT_GENERATED",
+  NOTE_GENERATION_ERROR = "NOTE_GENERATION_ERROR",
   // Flashcards
-  NO_CARDS_GENERATED = 'NO_CARDS_GENERATED',
-  INVALID_CARD_FORMAT = 'INVALID_CARD_FORMAT',
-  FLASHCARDS_GENERATION_ERROR = 'FLASHCARDS_GENERATION_ERROR',
+  NO_CARDS_GENERATED = "NO_CARDS_GENERATED",
+  INVALID_CARD_FORMAT = "INVALID_CARD_FORMAT",
+  FLASHCARDS_GENERATION_ERROR = "FLASHCARDS_GENERATION_ERROR",
 }
 
 // Analizando backend para seguridad y ownership
 // flash-cards.controller.ts - POST generate devuelve {message}
 // flash-cards.service.ts - remove() valida userId
 // Necesito verificar si getFlashcard() devuelve el userId para validar ownership
+
+// CREDITS
+
+export interface CreditsStatus {
+  remaining: number;
+  total: number;
+  used: number;
+  percentageUsed: number;
+  breakdown: {
+    examGenerations: number;
+    noteGenerations: number;
+    flashcardGenerations: number;
+    chatMessages: number;
+  };
+  costs: {
+    EXAM_GENERATION: number;
+    NOTE_GENERATION: number;
+    FLASHCARD_GENERATION: number;
+    CHAT_MESSAGE: number;
+  };
+}

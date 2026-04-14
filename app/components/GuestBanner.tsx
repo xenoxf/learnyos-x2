@@ -2,11 +2,11 @@
 
 import React, { useState } from "react";
 import { X, UserX, ArrowBigLeft, ArrowLeft, LogIn } from "lucide-react";
-import { apiService } from "@/services/apiService";
 import { useRouter } from "next/navigation";
 import { toast } from "@/hooks/useLocalToast";
 import LoadingModal from "@/components/loadingModal";
 import styles from "@/styles/guestBanner.module.css";
+import { authService } from "@/services/authService";
 
 export function GuestBanner() {
   const router = useRouter();
@@ -14,11 +14,14 @@ export function GuestBanner() {
 
   const handleDismiss = async () => {
     if (isLoading) return;
-    
+
     try {
       setIsLoading(true);
-      await apiService.logout();
-      toast.info("Sesión de invitado cerrada", "Puedes iniciar sesión o continuar como invitado");
+      await authService.logout();
+      toast.info(
+        "Sesión de invitado cerrada",
+        "Puedes iniciar sesión o continuar como invitado",
+      );
       router.push("/auth");
     } catch {
       toast.error("Error", "No se pudo cerrar la sesión");
@@ -35,7 +38,8 @@ export function GuestBanner() {
     <div className={styles.guestBanner}>
       <UserX size={16} className={styles.guestBannerIcon} />
       <span className={styles.guestBannerText}>
-        <p className={styles["mode-text"]} >Modo invitado · </p>  inicia sesión para participar en nuestra comunidad
+        <p className={styles["mode-text"]}>Modo invitado · </p> inicia sesión
+        para participar en nuestra comunidad
       </span>
       <button
         className={styles.guestBannerClose}

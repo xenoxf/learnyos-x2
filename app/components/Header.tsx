@@ -1,12 +1,8 @@
 import React from "react";
 import Image from "next/image";
-import { LandingThemeSelector } from "./LandingThemeSelector";
 import styles from "@/styles/header.module.css";
 import Link from "next/link";
-import { ThemeSelector } from "./ThemeSelector";
 import { ThemeToggle } from "./ThemeToggle";
-import { useAuth } from "@/hooks/useAuth";
-import { useRouter } from "next/navigation";
 import { Button } from "./ui/button";
 
 export default function Header() {

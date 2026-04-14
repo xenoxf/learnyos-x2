@@ -24,12 +24,16 @@
   will-change: auto;
   -webkit-tap-highlight-color: transparent;
 }
+
 /* Mejorar rendering de elementos animados */
 @keyframes float {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: translateY(0px) scale(1);
     opacity: 0.5;
   }
+
   50% {
     transform: translateY(-30px) scale(1.2);
     opacity: 0.8;
@@ -37,10 +41,13 @@
 }
 
 @keyframes pulse {
-  0%, 100% {
+
+  0%,
+  100% {
     opacity: 0.3;
     transform: scale(1);
   }
+
   50% {
     opacity: 0.5;
     transform: scale(1.1);
@@ -58,6 +65,7 @@
     opacity: 0;
     transform: translateY(-8px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -102,6 +110,7 @@
   --border: 0 0% 89.8%;
   --input: 0 0% 89.8%;
   --ring: 0 0% 3.9%;
+  --heart: 0 84.2% 60.2%;
 
   /* Colores de gráficos */
   --chart-1: 12 76% 61%;
@@ -195,6 +204,7 @@
   --sidebar-accent-foreground: 0 0% 98%;
   --sidebar-border: 0 0% 14.9%;
   --sidebar-ring: 0 0% 83.1%;
+  --heart: white;
 
   /* Acentos semánticos - Dark theme */
   --success: 142 76% 45%;
@@ -663,8 +673,10 @@ button {
 }
 
 .h-screen {
-  height: 100dvh; /* Dynamic viewport height para móviles */
-  height: 100vh; /* Fallback para navegadores antiguos */
+  height: 100dvh;
+  /* Dynamic viewport height para móviles */
+  height: 100vh;
+  /* Fallback para navegadores antiguos */
 }
 
 .h-auto {
@@ -724,8 +736,10 @@ button {
 }
 
 .min-h-screen {
-  min-height: 100dvh; /* Dynamic viewport height para móviles */
-  min-height: 100vh; /* Fallback para navegadores antiguos */
+  min-height: 100dvh;
+  /* Dynamic viewport height para móviles */
+  min-height: 100vh;
+  /* Fallback para navegadores antiguos */
 }
 
 .min-h-full {
@@ -2283,7 +2297,7 @@ html {
   padding-bottom: 56.25%;
 }
 
-.aspect-w-16.aspect-h-9 > * {
+.aspect-w-16.aspect-h-9>* {
   position: absolute;
   top: 0;
   left: 0;

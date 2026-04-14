@@ -2,7 +2,7 @@
  * ============================================
  * LocalToaster - Componente de Notificaciones
  * ============================================
- * 
+ *
  * Componente que renderiza las notificaciones/toasts
  * usando CSS puro y variables globales para soporte de temas.
  */
@@ -11,7 +11,7 @@
 
 import React, { useCallback } from "react";
 import { useLocalToast, Toast, ToastType } from "@/hooks/useLocalToast";
-import styles from "./LocalToaster.module.css";
+import styles from "../styles/LocalToaster.module.css";
 import { CheckCircle, AlertCircle, Info, X } from "lucide-react";
 
 interface LocalToasterProps {
@@ -85,7 +85,9 @@ export const LocalToaster: React.FC<LocalToasterProps> = ({
           aria-live="polite"
         >
           <div className={styles.toastContent}>
-            <div className={`${styles.toastIcon} ${getIconColorClasses(toast.type)}`}>
+            <div
+              className={`${styles.toastIcon} ${getIconColorClasses(toast.type)}`}
+            >
               <ToastIcon type={toast.type} />
             </div>
             <div className={styles.toastText}>
@@ -93,7 +95,9 @@ export const LocalToaster: React.FC<LocalToasterProps> = ({
                 <div className={styles.toastTitle}>{toast.title}</div>
               )}
               {toast.description && (
-                <div className={styles.toastDescription}>{toast.description}</div>
+                <div className={styles.toastDescription}>
+                  {toast.description}
+                </div>
               )}
             </div>
             <button

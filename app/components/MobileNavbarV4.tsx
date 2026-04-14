@@ -2,15 +2,22 @@
 
 import React, { useCallback, useEffect, useState, useRef } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { Book, MessageSquare, Brain, CreditCard, NotebookPen, Settings2, LogOut, Home } from "lucide-react";
-import { apiService } from "@/services/apiService";
+import {
+  Book,
+  MessageSquare,
+  Brain,
+  CreditCard,
+  NotebookPen,
+  Settings2,
+  LogOut,
+  Home,
+} from "lucide-react";
 import { toast } from "@/hooks/useLocalToast";
 import { ThemeToggleSidebr } from "./ThemeToogleSidebr";
 import styles from "@/styles/mobileNavbarV4.module.css";
 import Link from "next/link";
-import { ThemeToggle } from "./ThemeToggle";
-import { ThemeSelector } from "./ThemeSelector";
 import { tree } from "next/dist/build/templates/app-page";
+import { authService } from "@/services/authService";
 
 interface NavItem {
   title: string;
@@ -34,13 +41,14 @@ export function MobileNavbarV4() {
   const tickingRef = useRef(false);
 
   const isActive = useCallback(
-    (url: string) => url === "/study" ? pathname === url : pathname?.startsWith(url + "/"),
+    (url: string) =>
+      url === "/study" ? pathname === url : pathname?.startsWith(url + "/"),
     [pathname],
   );
 
   const handleLogout = useCallback(async () => {
     try {
-      await apiService.logout();
+      await authService.logout();
       toast.success("Sesión cerrada", "Has cerrado sesión correctamente");
       router.push("/auth");
     } catch {
@@ -70,25 +78,27 @@ export function MobileNavbarV4() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  return (<nav className={styles.navbarInner}>
-    {NAV_ITEMS.map((item) => {
-      const Icon = item.icon;
-      const active = isActive(item.url);
-      return (
-        <Link
-          key={item.url}
-          href={item.url}
-          className={`${styles.navItem} ${active ? styles.navItemActive : ""}`}
-        >
-          <Icon size={22} />
-          <span>{item.title}</span>
-        </Link>
-      );
-    })}
-    <Link href="/study/espacio/general" className={styles.navItem}>
-      <Settings2 size={22} />
-      <span>Espacio</span>
-    </Link>
-    <ThemeToggleSidebr isCollapse={true} />
-  </nav>);
+  return (
+    <nav className={styles.navbarInner}>
+      {NAV_ITEMS.map((item) => {
+        const Icon = item.icon;
+        const active = isActive(item.url);
+        return (
+          <Link
+            key={item.url}
+            href={item.url}
+            className={`${styles.navItem} ${active ? styles.navItemActive : ""}`}
+          >
+            <Icon size={22} />
+            <span>{item.title}</span>
+          </Link>
+        );
+      })}
+      <Link href="/study/espacio/general" className={styles.navItem}>
+        <Settings2 size={22} />
+        <span>Espacio</span>
+      </Link>
+      <ThemeToggleSidebr isCollapse={true} />
+    </nav>
+  );
 }

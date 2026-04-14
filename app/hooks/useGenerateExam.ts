@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useCallback } from 'react';
-import { apiService } from '@/services/apiService';
-import type { ExamKlek, GenerateExamData } from '@/types';
+import { useState, useCallback } from "react";
+import type { ExamKlek, GenerateExamData } from "@/types";
+import { quizzesService } from "@/services/quizzesService";
 
 export function useGenerateExam() {
   const [exam, setExam] = useState<ExamKlek | null>(null);
@@ -13,11 +13,11 @@ export function useGenerateExam() {
     try {
       setLoading(true);
       setError(null);
-      const result = await apiService.generateExam(data);
+      const result = await quizzesService.generateExam(data);
       setExam(result);
       return result;
     } catch (err: any) {
-      setError(err.message || 'Error al generar examen');
+      setError(err.message || "Error al generar examen");
       throw err;
     } finally {
       setLoading(false);

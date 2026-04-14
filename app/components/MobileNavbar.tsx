@@ -1,7 +1,6 @@
 "use client";
 
-import React,
-{
+import React, {
   useState,
   useCallback,
   useEffect,
@@ -18,11 +17,11 @@ import {
   Settings2,
   Book,
 } from "lucide-react";
-import { apiService } from "@/services/apiService";
 import { toast } from "@/hooks/useLocalToast";
 import styles from "@/styles/mobileNavbar.module.css";
 import Link from "next/link";
 import { ThemeToggleSidebr } from "./ThemeToogleSidebr";
+import { authService } from "@/services/authService";
 
 interface MenuItem {
   title: string;
@@ -42,8 +41,6 @@ const ALL_NAV_ITEMS: MenuItem[] = [
 export function MobileNavbar() {
   const router = useRouter();
   const pathname = usePathname();
-  ;
-
   const [visibleCount, setVisibleCount] = useState(ALL_NAV_ITEMS.length);
   const [showMoreMenu, setShowMoreMenu] = useState(false);
   const [menuPosition, setMenuPosition] = useState({ right: 16, bottom: 60 });
@@ -64,8 +61,9 @@ export function MobileNavbar() {
 
     const items = nav.querySelectorAll(`.${styles.navItem}`);
 
-    itemWidthsRef.current = Array.from(items, el =>
-      el.getBoundingClientRect().width + 4
+    itemWidthsRef.current = Array.from(
+      items,
+      (el) => el.getBoundingClientRect().width + 4,
     );
 
     if (moreButtonRef.current) {
@@ -138,7 +136,8 @@ export function MobileNavbar() {
         menuRef.current?.contains(target) ||
         moreButtonRef.current?.contains(target) ||
         isDropdownMenu // 👈 AGREGAR ESTA VERIFICACIÓN
-      ) return;
+      )
+        return;
 
       setShowMoreMenu(false);
     };
@@ -154,7 +153,7 @@ export function MobileNavbar() {
 
   const handleLogout = useCallback(async () => {
     try {
-      await apiService.logout();
+      await authService.logout();
       toast.success("Sesión cerrada", "Has cerrado sesión correctamente");
       router.push("/auth");
     } catch {
@@ -178,11 +177,11 @@ export function MobileNavbar() {
     [pathname],
   );
 
-  const hasActiveHidden = hiddenItems.some(i => isActive(i.url));
+  const hasActiveHidden = hiddenItems.some((i) => isActive(i.url));
 
   const toggleMenu = useCallback((e: any) => {
     e.stopPropagation();
-    setShowMoreMenu(p => !p);
+    setShowMoreMenu((p) => !p);
   }, []);
 
   // 📍 Posición menú
@@ -199,7 +198,7 @@ export function MobileNavbar() {
 
   return (
     <nav ref={navRef} className={styles.bottomNav}>
-      {visibleItems.map(item => {
+      {visibleItems.map((item) => {
         const Icon = item.icon;
 
         return (
@@ -242,7 +241,7 @@ export function MobileNavbar() {
           {hiddenItems.length > 0 && (
             <>
               <div className={styles.moreMenuSection}>
-                {hiddenItems.map(item => {
+                {hiddenItems.map((item) => {
                   const Icon = item.icon;
 
                   return (

@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -9,11 +9,9 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { Button } from '@/components/ui/button';
-import { apiService } from '@/services/apiService';
-import { toast } from '@/hooks/useLocalToast';
-import { Trash2, Loader2 } from 'lucide-react';
+} from "@/components/ui/alert-dialog";
+import { toast } from "@/hooks/useLocalToast";
+import { Trash2, Loader2 } from "lucide-react";
 
 interface AccountDeletionDialogProps {
   isOpen: boolean;
@@ -24,11 +22,9 @@ interface AccountDeletionDialogProps {
 export const AccountDeletionDialog: React.FC<AccountDeletionDialogProps> = ({
   isOpen,
   onClose,
-  user
+  user,
 }) => {
   const [isLoading, setIsLoading] = useState(false);
-  ;
-
   const handleDeleteRequest = async () => {
     setIsLoading(true);
     try {
@@ -37,7 +33,7 @@ export const AccountDeletionDialog: React.FC<AccountDeletionDialogProps> = ({
       // apiService.logout();
       // window.location.href = '/';
     } catch (error) {
-      console.error('Error deleting account:', error);
+      console.error("Error deleting account:", error);
       toast.error("Error", "Algo salió mal");
     } finally {
       setIsLoading(false);
@@ -53,15 +49,14 @@ export const AccountDeletionDialog: React.FC<AccountDeletionDialogProps> = ({
             Eliminar cuenta
           </AlertDialogTitle>
           <AlertDialogDescription>
-            ¿Estás seguro de que deseas eliminar tu cuenta permanentemente?
-            Esta acción <strong>no se puede deshacer</strong>.
-            Todos tus datos, incluyendo conversaciones, notas y configuraciones, se perderán para siempre.
+            ¿Estás seguro de que deseas eliminar tu cuenta permanentemente? Esta
+            acción <strong>no se puede deshacer</strong>. Todos tus datos,
+            incluyendo conversaciones, notas y configuraciones, se perderán para
+            siempre.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel onClick={onClose}>
-            Cancelar
-          </AlertDialogCancel>
+          <AlertDialogCancel onClick={onClose}>Cancelar</AlertDialogCancel>
           <AlertDialogAction
             onClick={handleDeleteRequest}
             disabled={isLoading}

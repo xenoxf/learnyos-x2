@@ -6,13 +6,13 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import styles from "@/styles/noteReaderFull.module.css";
 import { toast } from "@/hooks/useLocalToast";
-import { apiService } from "@/services/apiService";
 import type { NoteKlek } from "@/types";
 import { useRouter } from "next/navigation";
 import {
   normalizeNoteContentBody,
   noteSectionHeading,
 } from "@/lib/noteContent";
+import { notesService } from "@/services/notesService";
 
 interface NoteReaderFullProps {
   noteId: number;
@@ -20,7 +20,6 @@ interface NoteReaderFullProps {
 
 export default function NoteReaderFull({ noteId }: NoteReaderFullProps) {
   const router = useRouter();
-  ;
   const [note, setNote] = useState<NoteKlek | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -31,13 +30,14 @@ export default function NoteReaderFull({ noteId }: NoteReaderFullProps) {
       try {
         setLoading(true);
         setError(null);
-        const data = await apiService.getNote(noteId);
+        const data = await notesService.getNote(noteId);
         if (!cancelled) setNote(data);
       } catch (err) {
-        const message = err instanceof Error ? err.message : "Error al cargar nota";
+        const message =
+          err instanceof Error ? err.message : "Error al cargar nota";
         if (!cancelled) {
           setError(message);
-          toast.info("", );
+          toast.info("");
         }
       } finally {
         if (!cancelled) setLoading(false);
@@ -57,7 +57,7 @@ export default function NoteReaderFull({ noteId }: NoteReaderFullProps) {
   }, [note]);
 
   const handleBack = () => {
-    router.push('/study/notes');
+    router.push("/study/notes");
   };
 
   if (loading) {
@@ -76,8 +76,14 @@ export default function NoteReaderFull({ noteId }: NoteReaderFullProps) {
       <div className={styles.fullPageContainer}>
         <div className={styles.errorState}>
           <h2 className={styles.errorTitle}>Error al cargar la nota</h2>
-          <p className={styles.errorMessage}>{error || 'No se encontró la nota'}</p>
-          <button onClick={handleBack} className={styles.backButton} type="button">
+          <p className={styles.errorMessage}>
+            {error || "No se encontró la nota"}
+          </p>
+          <button
+            onClick={handleBack}
+            className={styles.backButton}
+            type="button"
+          >
             <ArrowLeft size={18} />
             Volver a Notas
           </button>
@@ -91,7 +97,11 @@ export default function NoteReaderFull({ noteId }: NoteReaderFullProps) {
       <div className={styles.notePage}>
         {/* Header */}
         <div className={styles.pageHeader}>
-          <button onClick={handleBack} className={styles.backButtonSmall} type="button">
+          <button
+            onClick={handleBack}
+            className={styles.backButtonSmall}
+            type="button"
+          >
             <ArrowLeft size={18} />
             <span className={styles.backButtonText}>Volver</span>
           </button>

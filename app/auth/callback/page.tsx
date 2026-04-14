@@ -2,14 +2,14 @@
 
 import React, { Suspense, useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { apiService } from "@/services/apiService";
 import { toast } from "@/hooks/useLocalToast";
 import { Loader2 } from "lucide-react";
+import { authService } from "@/services/authService";
+import { httpClient } from "@/services/client";
 
 function CallbackContent() {
   const params = useSearchParams();
   const router = useRouter();
-  ;
   const [status, setStatus] = useState<"loading" | "ok" | "error">("loading");
 
   useEffect(() => {
@@ -18,14 +18,17 @@ function CallbackContent() {
     const code = params.get("code");
 
     if (error) {
-      toast.error("Error de autenticación", error === "google_failed" ? "Error al autenticarse con Google." : error);
+      toast.error(
+        "Error de autenticación",
+        error === "google_failed" ? "Error al autenticarse con Google." : error,
+      );
       setStatus("error");
       router.replace("/auth");
       return;
     }
 
     if (token) {
-      apiService.setToken(token);
+      httpClient.setToken(token);
       const email = params.get("email");
       if (email && typeof window !== "undefined") {
         try {
@@ -40,7 +43,7 @@ function CallbackContent() {
     }
 
     if (code) {
-      apiService
+      authService
         .googleAuthWithCode(code)
         .then((res) => {
           if (res.user && typeof window !== "undefined") {
@@ -51,7 +54,10 @@ function CallbackContent() {
           router.replace("/study");
         })
         .catch((err: unknown) => {
-          const msg = err instanceof Error ? err.message : "Error durante la autenticación con Google.";
+          const msg =
+            err instanceof Error
+              ? err.message
+              : "Error durante la autenticación con Google.";
           toast.error("Error", msg);
           setStatus("error");
           router.replace("/auth");
@@ -69,10 +75,14 @@ function CallbackContent() {
       {status === "loading" && (
         <>
           <Loader2 className="w-10 h-10 animate-spin text-primary" />
-          <p className="text-sm text-muted-foreground">Completando inicio de sesión...</p>
+          <p className="text-sm text-muted-foreground">
+            Completando inicio de sesión...
+          </p>
         </>
       )}
-      {status === "error" && <p className="text-sm text-muted-foreground">Redirigiendo...</p>}
+      {status === "error" && (
+        <p className="text-sm text-muted-foreground">Redirigiendo...</p>
+      )}
     </div>
   );
 }

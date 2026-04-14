@@ -2,8 +2,17 @@
 
 import React, { useState, useCallback, useEffect, useRef } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { Settings2, MessageSquare, Brain, CreditCard, NotebookPen, Book, LogOut, Menu, ChevronLeft } from "lucide-react";
-import { apiService } from "@/services/apiService";
+import {
+  Settings2,
+  MessageSquare,
+  Brain,
+  CreditCard,
+  NotebookPen,
+  Book,
+  LogOut,
+  Menu,
+  ChevronLeft,
+} from "lucide-react";
 import { toast } from "@/hooks/useLocalToast";
 import { ThemeToggleSidebr } from "./ThemeToogleSidebr";
 import styles from "@/styles/mobileNavbarRight.module.css";
@@ -30,7 +39,8 @@ export function MobileNavbarRight() {
   const sidebarRef = useRef<HTMLDivElement>(null);
 
   const isActive = useCallback(
-    (url: string) => url === "/study" ? pathname === url : pathname?.startsWith(url + "/"),
+    (url: string) =>
+      url === "/study" ? pathname === url : pathname?.startsWith(url + "/"),
     [pathname],
   );
 
@@ -41,7 +51,6 @@ export function MobileNavbarRight() {
   const handleClose = useCallback(() => {
     setIsOpen(false);
   }, []);
-
 
   // Close on route change
   useEffect(() => {
@@ -67,7 +76,12 @@ export function MobileNavbarRight() {
           <div ref={sidebarRef} className={styles.sidebar}>
             <div className={styles.sidebarHeader}>
               <span className={styles.sidebarTitle}>Menú</span>
-              <button className={styles.closeBtn} onClick={handleClose} type="button" aria-label="Cerrar">
+              <button
+                className={styles.closeBtn}
+                onClick={handleClose}
+                type="button"
+                aria-label="Cerrar"
+              >
                 <ChevronLeft size={20} />
               </button>
             </div>
@@ -104,9 +118,6 @@ export function MobileNavbarRight() {
               <div className={styles.sidebarThemeToggle}>
                 <ThemeToggleSidebr isCollapse={false} />
               </div>
-
-
-
             </div>
           </div>
         </>

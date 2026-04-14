@@ -1,14 +1,35 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, useMemo } from "react";
-import { useRouter, usePathname } from "next/navigation";
-import Image from "next/image";
-import { AppSidebar } from "@/components/AppSidebar";
-import { MobileNavbarRight } from "@/components/MobileNavbarRight";
-import { MobileNavbarV4 } from "@/components/MobileNavbarV4";
-import { GuestBanner } from "@/components/GuestBanner";
-import { apiService } from "@/services/apiService";
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  useMemo,
+  lazy,
+  Suspense,
+  useRef,
+} from "react";
+import { useRouter } from "next/navigation";
 import styles from "@/styles/layout.module.css";
+import { authService } from "@/services/authService";
+
+// Lazy load heavy components
+const AppSidebar = lazy(() =>
+  import("@/components/AppSidebar").then((m) => ({ default: m.AppSidebar })),
+);
+const MobileNavbarRight = lazy(() =>
+  import("@/components/MobileNavbarRight").then((m) => ({
+    default: m.MobileNavbarRight,
+  })),
+);
+const MobileNavbarV4 = lazy(() =>
+  import("@/components/MobileNavbarV4").then((m) => ({
+    default: m.MobileNavbarV4,
+  })),
+);
+const GuestBanner = lazy(() =>
+  import("@/components/GuestBanner").then((m) => ({ default: m.GuestBanner })),
+);
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -16,95 +37,93 @@ interface DashboardLayoutProps {
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const router = useRouter();
-  const pathname = usePathname();
   const [isMobile, setIsMobile] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(true);
-  const [isTokenValid, setIsTokenValid] = useState(true);
   const [isGuest, setIsGuest] = useState(false);
-  const [user, setUser] = useState<{ name?: string; email?: string; picture?: string } | null>(null);
+  const [hasToken, setHasToken] = useState(true);
+  const validatedRef = useRef(false);
 
-  // Detect mobile
+  // Detect mobile - only on mount and resize
   useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth <= 768);
-    check();
-    window.addEventListener("resize", check);
-    return () => window.removeEventListener("resize", check);
+    setIsMobile(window.innerWidth <= 768);
+    const handler = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener("resize", handler, { passive: true });
+    return () => window.removeEventListener("resize", handler);
   }, []);
 
-  // Load sidebar state
+  // Load sidebar state from localStorage
   useEffect(() => {
     try {
       const saved = localStorage.getItem("sidebar-collapsed");
-      if (saved !== null) setIsCollapsed(saved === "false");
-    } catch { }
+      if (saved !== null) setIsCollapsed(saved === "true");
+    } catch {
+      /* ignore */
+    }
   }, []);
 
-  // Auth validation - NO loading screen, validate silently in background
+  // Save sidebar state
   useEffect(() => {
-    if (typeof window === "undefined") return;
+    try {
+      localStorage.setItem("sidebar-collapsed", String(isCollapsed));
+    } catch {
+      /* ignore */
+    }
+  }, [isCollapsed]);
+
+  // Auth check - synchronous, no API call on layout load
+  useEffect(() => {
+    if (validatedRef.current) return;
+    validatedRef.current = true;
 
     const token = localStorage.getItem("token");
-    const userStr = localStorage.getItem("user");
-
-    // No token - redirect to auth
     if (!token) {
-      setIsTokenValid(false);
+      setHasToken(false);
+      router.push("/auth");
       return;
     }
 
-    // User has token - show content immediately, validate in background
-    if (userStr) {
-      try {
+    // Check guest status from localStorage
+    try {
+      const userStr = localStorage.getItem("user");
+      if (userStr) {
         const parsed = JSON.parse(userStr);
-        setUser(parsed);
-        const guestStatus = parsed?.isGuest === true;
-        setIsGuest(guestStatus);
-
-        // If guest, skip token verification (guests can browse public content)
-        if (guestStatus) {
-          setIsTokenValid(true);
-          return;
-        }
-      } catch {
-        setIsGuest(false);
+        setIsGuest(parsed?.isGuest === true);
       }
+    } catch {
+      /* ignore */
     }
 
-    // Validate token silently for non-guest users
-    apiService.verifyToken().then((isValid) => {
-      if (!isValid) {
-        setIsTokenValid(false);
-      }
-    }).catch(() => {
-      // Network error - assume token is valid
-    });
+    // Validate token in background (don't block render)
+    authService
+      .verifyToken()
+      .then((isValid) => {
+        if (!isValid) {
+          router.push("/auth");
+        }
+      })
+      .catch(() => {
+        // Network error - assume valid
+      });
+  }, [router]);
+
+  const handleToggleSidebar = useCallback(() => {
+    setIsCollapsed((prev) => !prev);
   }, []);
 
-  // Redirect only if no token at all
-  useEffect(() => {
-    if (!isTokenValid && typeof window !== "undefined") {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        router.push("/auth");
-      }
-    }
-  }, [isTokenValid, router]);
-
-  // Sync guest status across tabs
+  // Sync across tabs
   useEffect(() => {
     const handler = (e: StorageEvent) => {
       if (e.key === "token" || e.key === "user") {
         const newToken = localStorage.getItem("token");
-        const newUser = localStorage.getItem("user");
-        if (!newToken || !newUser) {
+        if (!newToken) {
           router.push("/auth");
         } else {
           try {
-            const parsed = JSON.parse(newUser);
-            setUser(parsed);
+            const parsed = JSON.parse(localStorage.getItem("user") || "{}");
             setIsGuest(parsed?.isGuest === true);
-            setIsTokenValid(true);
-          } catch { }
+          } catch {
+            /* ignore */
+          }
         }
       }
     };
@@ -112,57 +131,34 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     return () => window.removeEventListener("storage", handler);
   }, [router]);
 
-  // Save sidebar state
-  useEffect(() => {
-    try {
-      localStorage.setItem("sidebar-collapsed", String(isCollapsed));
-    } catch { }
-  }, [isCollapsed]);
-
-  const handleToggleSidebar = useCallback(() => {
-    setIsCollapsed((prev) => !prev);
-  }, []);
-
-  const guestBanner = useMemo(() => isGuest ? <GuestBanner /> : null, [isGuest]);
-
-  // No loading screen - render content immediately
-  if (!isTokenValid) {
-    return null;
-  }
+  if (!hasToken) return null;
 
   return (
     <div className={styles.dashboardLayout}>
-      {guestBanner}
-
       {!isMobile && (
         <div
-          className={`
-            ${styles.sidebarWrapper}
-            ${isCollapsed ? styles.sidebarWrapperCollapsed : styles.sidebarWrapperExpanded}
-          `}
+          className={`${styles.sidebarWrapper} ${isCollapsed ? styles.sidebarWrapperCollapsed : styles.sidebarWrapperExpanded}`}
         >
-          <AppSidebar collapsed={isCollapsed} onToggle={handleToggleSidebar} />
+          <Suspense fallback={<div className={styles.sidebarSkeleton} />}>
+            <AppSidebar
+              collapsed={isCollapsed}
+              onToggle={handleToggleSidebar}
+            />
+          </Suspense>
         </div>
       )}
 
       <div
-        className={`
-          ${styles.mainContent}
-          ${!isMobile && isCollapsed ? styles.mainContentExpanded : ""}
-          ${isMobile ? styles.mainContentMobile : ""}
-          ${isGuest ? styles.mainContentWithBanner : ""}
-        `}
+        className={`${styles.mainContent} ${isMobile ? styles.mainContentMobile : ""}`}
       >
-        <div className={styles.contentArea}>
-          <div className={styles.contentWrapper}>{children}</div>
-        </div>
+        <Suspense fallback={null}>{isGuest && <GuestBanner />}</Suspense>
+        {children}
       </div>
 
-      {/* Mobile navbars */}
       {isMobile && (
-        <>
+        <Suspense fallback={null}>
           <MobileNavbarRight />
-        </>
+        </Suspense>
       )}
     </div>
   );

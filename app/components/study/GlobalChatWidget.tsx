@@ -8,10 +8,11 @@
 import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { MessageSquare, X, Send, User } from "lucide-react";
-import { apiService } from "@/services/apiService";
 import { toast } from "@/hooks/useLocalToast";
 import styles from "@/styles/components/GlobalChatWidget.module.css";
 import type { GlobalChatMessage } from "@/types/globalChat";
+import { globalChatService } from "@/services/globalChatService";
+import { authService } from "@/services/authService";
 
 export function GlobalChatWidget() {
   const [isOpen, setIsOpen] = useState(false);
@@ -26,7 +27,7 @@ export function GlobalChatWidget() {
   const loadMessages = async () => {
     try {
       setLoading(true);
-      const data = await apiService.getGlobalChatMessages(50);
+      const data = await globalChatService.getMessages(50);
       setMessages(data.reverse()); // Mostrar más recientes primero
     } catch (error) {
       console.error("Error loading global chat:", error);
@@ -56,9 +57,10 @@ export function GlobalChatWidget() {
   const handleMessagesScroll = () => {
     const container = messagesContainerRef.current;
     if (!container) return;
-    
+
     const threshold = 100;
-    const distanceFromBottom = container.scrollHeight - container.scrollTop - container.clientHeight;
+    const distanceFromBottom =
+      container.scrollHeight - container.scrollTop - container.clientHeight;
     isNearBottomRef.current = distanceFromBottom <= threshold;
   };
 
@@ -67,7 +69,7 @@ export function GlobalChatWidget() {
 
     try {
       setSending(true);
-      await apiService.sendGlobalChatMessage(newMessage.trim());
+      await globalChatService.sendMessage(newMessage.trim());
       setNewMessage("");
       await loadMessages();
       toast.info("", "");
@@ -132,7 +134,11 @@ export function GlobalChatWidget() {
             </button>
           </div>
 
-          <div className={styles.messagesContainer} ref={messagesContainerRef} onScroll={handleMessagesScroll}>
+          <div
+            className={styles.messagesContainer}
+            ref={messagesContainerRef}
+            onScroll={handleMessagesScroll}
+          >
             {loading && messages.length === 0 ? (
               <div className={styles.loadingState}>
                 <p>Cargando mensajes...</p>
@@ -144,7 +150,7 @@ export function GlobalChatWidget() {
               </div>
             ) : (
               messages.map((msg) => {
-                const currentUser = apiService.getUser();
+                const currentUser = authService.getUser();
                 const isOwnMessage = currentUser?.id === msg.userId;
 
                 return (

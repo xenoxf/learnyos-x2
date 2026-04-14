@@ -1,13 +1,23 @@
 "use client";
 
 import React, { useState, useEffect, useMemo, useCallback } from "react";
-import { ChevronLeft, ChevronRight, RotateCcw, Check, X, BookOpen, TrendingUp, ArrowLeft } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  RotateCcw,
+  Check,
+  X,
+  BookOpen,
+  TrendingUp,
+  ArrowLeft,
+} from "lucide-react";
 import styles from "@/styles/quiz/quizPlayerFull.module.css";
 import { toast } from "@/hooks/useLocalToast";
-import { apiService } from "@/services/apiService";
 import type { ExamKlek, ExamQuestion } from "@/types";
 import MarkdownRenderer from "../MarkdownRenderer";
 import { useRouter } from "next/navigation";
+import { quizzesService } from "@/services/quizzesService";
+import { attemptsService } from "@/services/attemptsService";
 
 interface QuizPlayerFullProps {
   quizId: number;
@@ -21,11 +31,14 @@ interface QuestionResult {
 
 export default function QuizPlayerFull({ quizId }: QuizPlayerFullProps) {
   const router = useRouter();
-  ;
   const [quiz, setQuiz] = useState<ExamKlek | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [selectedAnswers, setSelectedAnswers] = useState<Record<number, number>>({});
-  const [answeredQuestions, setAnsweredQuestions] = useState<Set<number>>(new Set());
+  const [selectedAnswers, setSelectedAnswers] = useState<
+    Record<number, number>
+  >({});
+  const [answeredQuestions, setAnsweredQuestions] = useState<Set<number>>(
+    new Set(),
+  );
   const [showResults, setShowResults] = useState(false);
   const [showImmediateFeedback, setShowImmediateFeedback] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -35,22 +48,25 @@ export default function QuizPlayerFull({ quizId }: QuizPlayerFullProps) {
     const loadQuiz = async () => {
       try {
         setError(null);
-        const data = await apiService.getExamForPlay(quizId);
+        const data = await quizzesService.getExamForPlay(quizId);
 
         if (!data) {
-          throw new Error('El quiz no existe o no está disponible');
+          throw new Error("El quiz no existe o no está disponible");
         }
 
         if (!data.questions || data.questions.length === 0) {
-          throw new Error(`El quiz "${data.title}" no tiene preguntas. Total: ${data.totalQuestions || 0}`);
+          throw new Error(
+            `El quiz "${data.title}" no tiene preguntas. Total: ${data.totalQuestions || 0}`,
+          );
         }
 
         setQuiz(data);
       } catch (err: any) {
-        const message = err instanceof Error ? err.message : "Error al cargar quiz";
-        console.error('Quiz loading error:', err);
+        const message =
+          err instanceof Error ? err.message : "Error al cargar quiz";
+        console.error("Quiz loading error:", err);
         setError(message);
-        toast.info("", );
+        toast.info("");
       } finally {
         setLoading(false);
       }
@@ -58,14 +74,17 @@ export default function QuizPlayerFull({ quizId }: QuizPlayerFullProps) {
     loadQuiz();
   }, [quizId, toast]);
 
-  const handleSelectAnswer = useCallback((optionId: number, questionId: number) => {
-    if (!showImmediateFeedback) {
-      setSelectedAnswers((prev) => ({
-        ...prev,
-        [questionId]: optionId,
-      }));
-    }
-  }, [showImmediateFeedback]);
+  const handleSelectAnswer = useCallback(
+    (optionId: number, questionId: number) => {
+      if (!showImmediateFeedback) {
+        setSelectedAnswers((prev) => ({
+          ...prev,
+          [questionId]: optionId,
+        }));
+      }
+    },
+    [showImmediateFeedback],
+  );
 
   const handleNext = useCallback(() => {
     // Mark current question as answered (or skipped) before moving
@@ -102,7 +121,7 @@ export default function QuizPlayerFull({ quizId }: QuizPlayerFullProps) {
         return selectedId === correctOption?.id;
       }).length;
       try {
-        await apiService.recordExamAttempt({
+        await attemptsService.recordAttempt({
           examId: quiz.id,
           correctAnswers: correctCount,
           totalQuestions: quiz.questions.length,
@@ -120,7 +139,7 @@ export default function QuizPlayerFull({ quizId }: QuizPlayerFullProps) {
   }, []);
 
   const handleBack = useCallback(() => {
-    router.push('/study/quiz');
+    router.push("/study/quiz");
   }, [router]);
 
   const calculateScore = useMemo(() => {
@@ -138,7 +157,8 @@ export default function QuizPlayerFull({ quizId }: QuizPlayerFullProps) {
 
   // Calculate results for summary
   const results = useMemo(() => {
-    if (!quiz) return { questionResults: [], failedQuestions: [], failedTopics: [] };
+    if (!quiz)
+      return { questionResults: [], failedQuestions: [], failedTopics: [] };
 
     const questionResults: QuestionResult[] = [];
     const failedQuestions: QuestionResult[] = [];
@@ -148,7 +168,8 @@ export default function QuizPlayerFull({ quizId }: QuizPlayerFullProps) {
       const selectedId = selectedAnswers[q.id || 0];
       const correctOption = q.options.find((o) => o.isCorrect);
       // Consider unanswered questions as incorrect
-      const isCorrect = selectedId !== undefined && selectedId === correctOption?.id;
+      const isCorrect =
+        selectedId !== undefined && selectedId === correctOption?.id;
 
       const result: QuestionResult = {
         question: q,
@@ -191,7 +212,7 @@ export default function QuizPlayerFull({ quizId }: QuizPlayerFullProps) {
 
     recommendations.push(
       "Revisa las explicaciones de las preguntas falladas para entender tus errores.",
-      "Practica con ejercicios similares para fortalecer las áreas débiles."
+      "Practica con ejercicios similares para fortalecer las áreas débiles.",
     );
 
     return recommendations;
@@ -213,11 +234,10 @@ export default function QuizPlayerFull({ quizId }: QuizPlayerFullProps) {
       <div className={styles.fullPageContainer}>
         <div className={styles.errorState}>
           <h2 className={styles.errorTitle}>Error al cargar el quiz</h2>
-          <p className={styles.errorMessage}>{error || 'No se encontró el quiz'}</p>
-          <button
-            onClick={handleBack}
-            className={styles.backButton}
-          >
+          <p className={styles.errorMessage}>
+            {error || "No se encontró el quiz"}
+          </p>
+          <button onClick={handleBack} className={styles.backButton}>
             <ArrowLeft size={18} />
             Volver a quizzes
           </button>
@@ -245,17 +265,25 @@ export default function QuizPlayerFull({ quizId }: QuizPlayerFullProps) {
   }
 
   const selectedOptionId = selectedAnswers[currentQuestion.id || 0];
-  const selectedOption = currentQuestion.options.find((o) => o.id === selectedOptionId);
+  const selectedOption = currentQuestion.options.find(
+    (o) => o.id === selectedOptionId,
+  );
   const correctOption = currentQuestion.options.find((o) => o.isCorrect);
 
   if (showResults) {
-    const correctCount = results.questionResults.filter((r) => r.isCorrect).length;
+    const correctCount = results.questionResults.filter(
+      (r) => r.isCorrect,
+    ).length;
 
     return (
       <div className={styles.fullPageContainerFed}>
         <div className={styles.resultsPage}>
           <div className={styles.resultsHeader}>
-            <button onClick={handleBack} className={styles.backButtonSmall} type="button">
+            <button
+              onClick={handleBack}
+              className={styles.backButtonSmall}
+              type="button"
+            >
               <ArrowLeft size={20} />
               <span>Volver</span>
             </button>
@@ -265,12 +293,15 @@ export default function QuizPlayerFull({ quizId }: QuizPlayerFullProps) {
           <div className={styles.resultsContent}>
             <div className={styles.scoreSection}>
               <div className={styles.scoreCircle}>
-                <div className={styles.scoreValue}>{correctCount}/{totalQuestions}</div>
+                <div className={styles.scoreValue}>
+                  {correctCount}/{totalQuestions}
+                </div>
                 <div className={styles.scoreLabel}>Buenas</div>
               </div>
 
               <p className={styles.scoreDetail}>
-                Has acertado <strong>{correctCount}</strong> de <strong>{totalQuestions}</strong> preguntas
+                Has acertado <strong>{correctCount}</strong> de{" "}
+                <strong>{totalQuestions}</strong> preguntas
               </p>
             </div>
 
@@ -285,44 +316,66 @@ export default function QuizPlayerFull({ quizId }: QuizPlayerFullProps) {
                 <div className={styles.failedQuestionsList}>
                   {results.failedQuestions.map((result, idx) => {
                     const selectedOpt = result.question.options.find(
-                      (o) => o.id === result.selectedOptionId
+                      (o) => o.id === result.selectedOptionId,
                     );
-                    const correctOpt = result.question.options.find((o) => o.isCorrect);
+                    const correctOpt = result.question.options.find(
+                      (o) => o.isCorrect,
+                    );
 
                     return (
-                      <div key={result.question.id} className={styles.failedQuestionCard}>
+                      <div
+                        key={result.question.id}
+                        className={styles.failedQuestionCard}
+                      >
                         <div className={styles.failedQuestionHeader}>
-                          <span className={styles.questionNumber}>Pregunta {idx + 1}</span>
+                          <span className={styles.questionNumber}>
+                            Pregunta {idx + 1}
+                          </span>
                         </div>
 
                         <p className={styles.failedQuestionText}>
-                          <MarkdownRenderer content={result.question.question} />
+                          <MarkdownRenderer
+                            content={result.question.question}
+                          />
                         </p>
 
                         <div className={styles.answerComparison}>
                           <div className={styles.userAnswer}>
-                            <span className={styles.answerLabel}>Tu respuesta:</span>
+                            <span className={styles.answerLabel}>
+                              Tu respuesta:
+                            </span>
                             <span className={styles.incorrectText}>
                               <X size={16} />
-                              <MarkdownRenderer content={selectedOpt?.text || 'No respondida'} />
+                              <MarkdownRenderer
+                                content={selectedOpt?.text || "No respondida"}
+                              />
                             </span>
                           </div>
 
                           <div className={styles.correctAnswer}>
-                            <span className={styles.answerLabel}>Respuesta correcta:</span>
+                            <span className={styles.answerLabel}>
+                              Respuesta correcta:
+                            </span>
                             <span className={styles.correctText}>
                               <Check size={16} />
-                              <MarkdownRenderer content={correctOpt?.text || 'N/A'} />
+                              <MarkdownRenderer
+                                content={correctOpt?.text || "N/A"}
+                              />
                             </span>
                           </div>
                         </div>
 
                         {result.question.explanation && (
                           <div className={styles.explanationBox}>
-                            <BookOpen size={18} className={styles.explanationIcon} />
+                            <BookOpen
+                              size={18}
+                              className={styles.explanationIcon}
+                            />
                             <div>
                               <strong>Explicación:</strong>
-                              <MarkdownRenderer content={result.question.explanation} />
+                              <MarkdownRenderer
+                                content={result.question.explanation}
+                              />
                             </div>
                           </div>
                         )}
@@ -385,7 +438,11 @@ export default function QuizPlayerFull({ quizId }: QuizPlayerFullProps) {
       <div className={styles.quizPage}>
         {/* Header */}
         <div className={styles.pageHeader}>
-          <button onClick={handleBack} className={styles.backButtonSmall} type="button">
+          <button
+            onClick={handleBack}
+            className={styles.backButtonSmall}
+            type="button"
+          >
             <ArrowLeft size={18} />
             <span className={styles.backButtonText}>Volver</span>
           </button>
@@ -423,18 +480,26 @@ export default function QuizPlayerFull({ quizId }: QuizPlayerFullProps) {
                 return (
                   <button
                     key={option.id}
-                    className={`${styles.optionBtn} ${isSelected && !showFeedback ? styles.selected : ""
-                      } ${showCorrectState ? styles.correct : ""} ${showWrongState ? styles.incorrect : ""
-                      }`}
-                    onClick={() => handleSelectAnswer(option.id, currentQuestion.id || 0)}
+                    className={`${styles.optionBtn} ${
+                      isSelected && !showFeedback ? styles.selected : ""
+                    } ${showCorrectState ? styles.correct : ""} ${
+                      showWrongState ? styles.incorrect : ""
+                    }`}
+                    onClick={() =>
+                      handleSelectAnswer(option.id, currentQuestion.id || 0)
+                    }
                     disabled={showFeedback}
                     type="button"
                   >
                     <span className={styles.optionText}>
                       <MarkdownRenderer content={option.text} />
                     </span>
-                    {showCorrectState && <Check size={18} className={styles.iconCorrect} />}
-                    {showWrongState && <X size={18} className={styles.iconIncorrect} />}
+                    {showCorrectState && (
+                      <Check size={18} className={styles.iconCorrect} />
+                    )}
+                    {showWrongState && (
+                      <X size={18} className={styles.iconIncorrect} />
+                    )}
                   </button>
                 );
               })}
@@ -443,8 +508,13 @@ export default function QuizPlayerFull({ quizId }: QuizPlayerFullProps) {
             {/* Immediate Feedback Section */}
             {showImmediateFeedback && (
               <div className={styles.immediateFeedback}>
-                <div className={`${styles.feedbackHeader} ${selectedOption?.isCorrect ? styles.feedbackCorrect : styles.feedbackIncorrect
-                  }`}>
+                <div
+                  className={`${styles.feedbackHeader} ${
+                    selectedOption?.isCorrect
+                      ? styles.feedbackCorrect
+                      : styles.feedbackIncorrect
+                  }`}
+                >
                   {selectedOption?.isCorrect ? (
                     <>
                       <Check size={18} />
@@ -471,7 +541,9 @@ export default function QuizPlayerFull({ quizId }: QuizPlayerFullProps) {
                 {selectedOption?.feedback && (
                   <div className={styles.feedbackContent}>
                     <strong>
-                      {selectedOption.isCorrect ? 'Por qué es correcta:' : 'Por qué tu respuesta es incorrecta:'}
+                      {selectedOption.isCorrect
+                        ? "Por qué es correcta:"
+                        : "Por qué tu respuesta es incorrecta:"}
                     </strong>
                     <MarkdownRenderer content={selectedOption.feedback} />
                   </div>
@@ -481,7 +553,8 @@ export default function QuizPlayerFull({ quizId }: QuizPlayerFullProps) {
                   <div className={styles.correctAnswerInfo}>
                     <Check size={16} className={styles.checkIcon} />
                     <span>
-                      <strong>La respuesta correcta era:</strong> {correctOption.text}
+                      <strong>La respuesta correcta era:</strong>{" "}
+                      {correctOption.text}
                     </span>
                   </div>
                 )}
@@ -505,7 +578,7 @@ export default function QuizPlayerFull({ quizId }: QuizPlayerFullProps) {
 
             {!showImmediateFeedback ? (
               <button
-                className={`${styles.confirmButton} ${!selectedOptionId ? styles.disabled : ''}`}
+                className={`${styles.confirmButton} ${!selectedOptionId ? styles.disabled : ""}`}
                 onClick={handleConfirmAnswer}
                 disabled={!selectedOptionId}
                 type="button"
@@ -527,7 +600,11 @@ export default function QuizPlayerFull({ quizId }: QuizPlayerFullProps) {
 
           {currentIndex === totalQuestions - 1 && showImmediateFeedback && (
             <div className={styles.submitSection}>
-              <button className={styles.submitButton} onClick={handleSubmit} type="button">
+              <button
+                className={styles.submitButton}
+                onClick={handleSubmit}
+                type="button"
+              >
                 Finalizar y Ver Resultados Completos
               </button>
             </div>

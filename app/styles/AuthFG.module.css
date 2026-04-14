@@ -39,6 +39,7 @@
   position: fixed;
   top: 1rem;
   right: 1rem;
+  z-index: 2000;
 }
 
 /* Section 1 - Brand */

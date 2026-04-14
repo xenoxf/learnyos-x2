@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { apiService } from "@/services/apiService";
 import type { Chat, ChatMessage } from "@/types";
+import { chatsService } from "@/services/chatsService";
 
 export function useMessages() {
   const [chats, setChats] = useState<Chat[]>([]);
@@ -16,7 +16,7 @@ export function useMessages() {
       try {
         setLoading(true);
         setError(null);
-        const data = await apiService.getChats();
+        const data = await chatsService.getChats();
         setChats(Array.isArray(data) ? data : []);
       } catch (err: any) {
         setError(err.message || "Error al cargar chats");

@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { apiService } from '@/services/apiService';
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { authService } from "@/services/authService";
 
 export function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -11,39 +11,39 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const validateToken = async () => {
-      if (typeof window === 'undefined') {
+      if (typeof window === "undefined") {
         setIsValidating(false);
         return;
       }
 
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
 
       if (!token) {
         setIsTokenValid(false);
         setIsValidating(false);
-        router.push('/auth');
+        router.push("/auth");
         return;
       }
 
       try {
-        const isValid = await apiService.verifyToken();
+        const isValid = await authService.verifyToken();
 
         if (isValid) {
           setIsTokenValid(true);
         } else {
           setIsTokenValid(false);
-          localStorage.removeItem('token');
-          localStorage.removeItem('user');
-          localStorage.removeItem('isGuest');
-          router.push('/auth');
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
+          localStorage.removeItem("isGuest");
+          router.push("/auth");
         }
       } catch (error) {
-        console.error('Token verification error:', error);
+        console.error("Token verification error:", error);
         setIsTokenValid(false);
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-        localStorage.removeItem('isGuest');
-        router.push('/auth');
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        localStorage.removeItem("isGuest");
+        router.push("/auth");
       } finally {
         setIsValidating(false);
       }

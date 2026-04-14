@@ -6,12 +6,12 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import styles from "@/styles/notes/noteDetail.module.css";
 import { toast } from "@/hooks/useLocalToast";
-import { apiService } from "@/services/apiService";
 import type { NoteKlek } from "@/types";
 import {
   normalizeNoteContentBody,
   noteSectionHeading,
 } from "@/lib/noteContent";
+import { notesService } from "@/services/notesService";
 
 interface NoteDetailProps {
   noteId: number;
@@ -19,7 +19,6 @@ interface NoteDetailProps {
 }
 
 export default function NoteDetail({ noteId, onBack }: NoteDetailProps) {
-  ;
   const [note, setNote] = useState<NoteKlek | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -28,12 +27,12 @@ export default function NoteDetail({ noteId, onBack }: NoteDetailProps) {
     const loadNote = async () => {
       try {
         setLoading(true);
-        const data = await apiService.getNote(noteId);
+        const data = await notesService.getNote(noteId);
         if (!cancelled) setNote(data);
       } catch (err) {
         const message =
           err instanceof Error ? err.message : "Error al cargar nota";
-        toast.info("", );
+        toast.info("");
         onBack();
       } finally {
         if (!cancelled) setLoading(false);
@@ -90,7 +89,11 @@ export default function NoteDetail({ noteId, onBack }: NoteDetailProps) {
       <div className={styles.detailContentContainer}>
         {sections.length === 0 ? (
           <div className={styles.emptyDetail}>
-            <FileText size={48} className={styles.emptyDetailIcon} aria-hidden="true" />
+            <FileText
+              size={48}
+              className={styles.emptyDetailIcon}
+              aria-hidden="true"
+            />
             <p>No hay contenido en esta nota</p>
           </div>
         ) : (
@@ -118,7 +121,6 @@ export default function NoteDetail({ noteId, onBack }: NoteDetailProps) {
           </div>
         )}
       </div>
-
     </div>
   );
 }

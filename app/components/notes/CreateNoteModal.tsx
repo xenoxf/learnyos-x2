@@ -2,11 +2,12 @@
 
 import React, { useState, useEffect } from "react";
 import { toast } from "@/hooks/useLocalToast";
-import { apiService } from "@/services/apiService";
 import styles from "@/styles/notes/createNoteModal.module.css";
 import { X, Loader, Sparkles } from "lucide-react";
 import type { GenerateNoteData, ApiErrorResponse } from "@/types";
 import { useRouter } from "next/navigation";
+import { notesService } from "@/services/notesService";
+import { creditsService } from "@/services/creditsService";
 
 interface CreateNoteModalProps {
   onClose: () => void;
@@ -18,7 +19,10 @@ export default function CreateNoteModal({
   onNoteCreated,
 }: CreateNoteModalProps) {
   const [loading, setLoading] = useState(false);
-  const [creditsStatus, setCreditsStatus] = useState<{ remaining: number; total: number } | null>(null);
+  const [creditsStatus, setCreditsStatus] = useState<{
+    remaining: number;
+    total: number;
+  } | null>(null);
   const [formData, setFormData] = useState<GenerateNoteData>({
     reference: "",
     numberOfNotes: 3,
@@ -28,13 +32,21 @@ export default function CreateNoteModal({
   const router = useRouter();
 
   useEffect(() => {
-    apiService.getCreditsStatus().then((status) => {
-      setCreditsStatus({ remaining: status.remaining, total: status.total });
-    }).catch(() => {});
+    creditsService
+      .getStatus()
+      .then((status) => {
+        setCreditsStatus({ remaining: status.remaining, total: status.total });
+      })
+      .catch(() => {});
   }, []);
 
-  const estimatedCost = apiService.estimateNoteCost(formData.levelOfDetail, formData.reference || "");
-  const canAfford = creditsStatus ? creditsStatus.remaining >= estimatedCost : true;
+  const estimatedCost = creditsService.estimateNoteCost(
+    formData.levelOfDetail,
+    formData.reference || "",
+  );
+  const canAfford = creditsStatus
+    ? creditsStatus.remaining >= estimatedCost
+    : true;
 
   const handleCreate = async () => {
     if (!formData.reference?.trim()) {
@@ -44,7 +56,7 @@ export default function CreateNoteModal({
 
     try {
       setLoading(true);
-      await apiService.generateNote(formData);
+      await notesService.generateNote(formData);
       toast.success("Éxito", "Notas creadas correctamente");
       onNoteCreated();
       router.refresh();
@@ -64,7 +76,7 @@ export default function CreateNoteModal({
         rawResponse = errorData.rawResponse;
       } else if (err instanceof Error) {
         message = err.message;
-      } else if (typeof err === 'string') {
+      } else if (typeof err === "string") {
         message = err;
       }
 
@@ -73,20 +85,21 @@ export default function CreateNoteModal({
 
       // Agregar información según el código de error
       if (rawResponse) {
-        console.error('Raw response from AI:', rawResponse);
-        
-        if (errorCode === 'INVALID_AI_RESPONSE') {
+        console.error("Raw response from AI:", rawResponse);
+
+        if (errorCode === "INVALID_AI_RESPONSE") {
           errorDescription = `${details} La IA devolvió una respuesta con formato inesperado.`;
-        } else if (errorCode === 'MISSING_METADATA') {
+        } else if (errorCode === "MISSING_METADATA") {
           errorDescription = `${details} La IA generó contenido pero sin título.`;
-        } else if (errorCode === 'NO_CONTENT_GENERATED') {
+        } else if (errorCode === "NO_CONTENT_GENERATED") {
           errorDescription = `${details} Intenta con un tema más específico o detallado.`;
         }
       }
 
       // Fallback para errores antiguos
-      if (message.includes('metadata') && !details) {
-        errorDescription = "La IA no pudo generar las notas correctamente. Intenta con otro tema.";
+      if (message.includes("metadata") && !details) {
+        errorDescription =
+          "La IA no pudo generar las notas correctamente. Intenta con otro tema.";
       }
 
       toast.error("Error al crear notas", errorDescription, 8000);
@@ -110,14 +123,14 @@ export default function CreateNoteModal({
         </div>
 
         <div className={styles.content}>
-
-
           <div className={styles.formGroup}>
             <label className={styles.label}>Referencia</label>
             <textarea
               placeholder="Sobre qué quieres tus notas? Expresate libremente."
               value={formData.reference}
-              onChange={(e) => setFormData({ ...formData, reference: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, reference: e.target.value })
+              }
               className={styles.textarea}
               rows={5}
               disabled={loading}
@@ -132,7 +145,12 @@ export default function CreateNoteModal({
                 min="1"
                 max="10"
                 value={formData.numberOfNotes}
-                onChange={(e) => setFormData({ ...formData, numberOfNotes: parseInt(e.target.value) })}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    numberOfNotes: parseInt(e.target.value),
+                  })
+                }
                 className={styles.input}
                 disabled={loading}
               />
@@ -142,7 +160,15 @@ export default function CreateNoteModal({
               <label className={styles.label}>Nivel de detalle</label>
               <select
                 value={formData.levelOfDetail}
-                onChange={(e) => setFormData({ ...formData, levelOfDetail: e.target.value as "breve" | "medio" | "detallado" })}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    levelOfDetail: e.target.value as
+                      | "breve"
+                      | "medio"
+                      | "detallado",
+                  })
+                }
                 className={styles.select}
                 disabled={loading}
               >
@@ -157,12 +183,18 @@ export default function CreateNoteModal({
             <label className={styles.label}>Privacidad</label>
             <select
               value={formData.acceso}
-              onChange={(e) => setFormData({ ...formData, acceso: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, acceso: e.target.value })
+              }
               className={styles.select}
               disabled={loading}
             >
-              <option title="Solo tu podras usarlos" value="private">Privado</option>
-              <option title="La comunidad tambien podra usarlos" value="public">Público</option>
+              <option title="Solo tu podras usarlos" value="private">
+                Privado
+              </option>
+              <option title="La comunidad tambien podra usarlos" value="public">
+                Público
+              </option>
             </select>
           </div>
         </div>
@@ -198,7 +230,9 @@ export default function CreateNoteModal({
           <div className={styles.creditPreview}>
             <span>Costo: ~{estimatedCost} créditos</span>
             <span>•</span>
-            <span>Tus créditos: {creditsStatus.remaining}/{creditsStatus.total}</span>
+            <span>
+              Tus créditos: {creditsStatus.remaining}/{creditsStatus.total}
+            </span>
             {!canAfford && (
               <span className={styles.creditWarning}>Crédito insuficiente</span>
             )}

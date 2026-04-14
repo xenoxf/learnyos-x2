@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { apiService } from "@/services/apiService";
 import { toast } from "@/hooks/useLocalToast";
 import {
   Send,
@@ -20,6 +19,8 @@ import {
 import styles from "@/styles/chat.module.css";
 import type { ChatMessage, Chat } from "@/types";
 import { MarkdownRenderer } from "@/components/MarkdownRenderer";
+import { chatsService } from "@/services/chatsService";
+import { authService } from "@/services/authService";
 
 export const dynamic = "force-dynamic";
 
@@ -41,14 +42,22 @@ export default function ChatPage() {
 
   // ==================== DETECTAR GUEST ====================
   useEffect(() => {
-    setIsGuest(apiService.isGuest());
+    setIsGuest(authService.isGuest());
   }, []);
 
   // ==================== SUGERENCIAS ====================
   const suggestions = [
     { icon: "🧠", title: "Ciencia", text: "Explica la teoría cuántica" },
-    { icon: "🤖", title: "Tecnología", text: "¿Cómo funciona el machine learning?" },
-    { icon: "📚", title: "Historia", text: "Resumen de la Segunda Guerra Mundial" },
+    {
+      icon: "🤖",
+      title: "Tecnología",
+      text: "¿Cómo funciona el machine learning?",
+    },
+    {
+      icon: "📚",
+      title: "Historia",
+      text: "Resumen de la Segunda Guerra Mundial",
+    },
   ];
 
   // ==================== DETECTAR MÓVIL ====================
@@ -66,7 +75,7 @@ export default function ChatPage() {
   // ==================== CARGAR CHATS ====================
   const loadChats = useCallback(async () => {
     try {
-      const response = await apiService.getChats();
+      const response = await chatsService.getChats();
       setChats(Array.isArray(response) ? response : []);
     } catch {
       toast.error("Error", "No se pudieron cargar las conversaciones");
@@ -80,11 +89,23 @@ export default function ChatPage() {
   // ==================== CARGAR MENSAJES ====================
   const loadChatMessages = useCallback(async (chatId: number) => {
     try {
-      const response = await apiService.getChatMessages(chatId);
+      const response = await chatsService.getChatMessages(chatId);
       const messagesList = response.messages ?? [];
       const chatMessages: ChatMessage[] = messagesList.flatMap((m) => [
-        { id: m.id * 2, chatId: response.chatId, content: m.prompt, role: "user", createdAt: String(m.createdAt) },
-        { id: m.id * 2 + 1, chatId: response.chatId, content: m.response, role: "assistant", createdAt: String(m.createdAt) },
+        {
+          id: m.id * 2,
+          chatId: response.chatId,
+          content: m.prompt,
+          role: "user",
+          createdAt: String(m.createdAt),
+        },
+        {
+          id: m.id * 2 + 1,
+          chatId: response.chatId,
+          content: m.response,
+          role: "assistant",
+          createdAt: String(m.createdAt),
+        },
       ]);
       setMessages(chatMessages);
     } catch {
@@ -138,7 +159,7 @@ export default function ChatPage() {
     let newChatId: number | undefined;
 
     try {
-      for await (const chunk of apiService.sendMessageStream({
+      for await (const chunk of chatsService.sendMessageStream({
         prompt: messageContent,
         chatId: currentChat?.id,
       })) {
@@ -160,7 +181,9 @@ export default function ChatPage() {
         // Crear el objeto chat localmente con el ID que vino del backend
         const newChat: Chat = {
           id: newChatId,
-          title: messageContent.slice(0, 40) + (messageContent.length > 40 ? '...' : ''),
+          title:
+            messageContent.slice(0, 40) +
+            (messageContent.length > 40 ? "..." : ""),
           createdAt: new Date().toISOString(),
           messageCount: 1,
         };
@@ -183,7 +206,6 @@ export default function ChatPage() {
       if (!sendingToExistingChat) {
         await loadChats();
       }
-
     } catch {
       // Remover mensaje optimista en caso de error
       setMessages((prev) => prev.filter((m) => m.id !== userMessage.id));
@@ -193,7 +215,14 @@ export default function ChatPage() {
       setIsStreaming(false);
       setStreamingContent("");
     }
-  }, [isGuest, inputValue, isLoading, currentChat, loadChats, resetTextareaHeight]);
+  }, [
+    isGuest,
+    inputValue,
+    isLoading,
+    currentChat,
+    loadChats,
+    resetTextareaHeight,
+  ]);
 
   const handleNewChat = () => {
     if (isGuest) {
@@ -220,7 +249,7 @@ export default function ChatPage() {
       return;
     }
     try {
-      await apiService.deleteChat(chatId);
+      await chatsService.deleteChat(chatId);
       setChats((prev) => prev.filter((c) => c.id !== chatId));
       if (currentChat?.id === chatId) {
         setCurrentChat(null);
@@ -253,9 +282,10 @@ export default function ChatPage() {
   const checkIfNearBottom = useCallback(() => {
     const container = messagesContainerRef.current;
     if (!container) return;
-    
+
     const threshold = 150; // px desde el fondo
-    const distanceFromBottom = container.scrollHeight - container.scrollTop - container.clientHeight;
+    const distanceFromBottom =
+      container.scrollHeight - container.scrollTop - container.clientHeight;
     isNearBottomRef.current = distanceFromBottom <= threshold;
     setShouldAutoScroll(isNearBottomRef.current);
   }, []);
@@ -263,10 +293,13 @@ export default function ChatPage() {
   // Scroll automático - solo si el usuario está cerca del fondo
   const scrollToBottom = useCallback(() => {
     if (!shouldAutoScroll) return;
-    
+
     requestAnimationFrame(() => {
       if (messagesEndRef.current) {
-        messagesEndRef.current.scrollIntoView({ behavior: "smooth", block: "end" });
+        messagesEndRef.current.scrollIntoView({
+          behavior: "smooth",
+          block: "end",
+        });
       }
     });
   }, [shouldAutoScroll]);
@@ -292,10 +325,19 @@ export default function ChatPage() {
   return (
     <div className={styles.container}>
       {/* SIDEBAR */}
-      <aside className={`${styles.sidebar} ${!isSidebarOpen ? styles.sidebarClosed : ""} ${isMobile && isSidebarOpen ? styles.sidebarOpen : ""}`}>
+      <aside
+        className={`${styles.sidebar} ${!isSidebarOpen ? styles.sidebarClosed : ""} ${isMobile && isSidebarOpen ? styles.sidebarOpen : ""}`}
+      >
         <div className={styles.sidebarHeader}>
           <h2 className={styles.sidebarTitle}>Conversaciones</h2>
-          <button className={styles.newChatButton} onClick={handleNewChat} disabled={isGuest} style={isGuest ? { opacity: 0.5, pointerEvents: 'none' } : undefined}>
+          <button
+            className={styles.newChatButton}
+            onClick={handleNewChat}
+            disabled={isGuest}
+            style={
+              isGuest ? { opacity: 0.5, pointerEvents: "none" } : undefined
+            }
+          >
             <Plus size={18} /> Nuevo chat
           </button>
         </div>
@@ -309,12 +351,28 @@ export default function ChatPage() {
             </div>
           ) : (
             chats.map((chat) => (
-              <div key={chat.id} className={`${styles.chatItem} ${currentChat?.id === chat.id ? styles.active : ""}`} onClick={() => handleSelectChat(chat)}>
+              <div
+                key={chat.id}
+                className={`${styles.chatItem} ${currentChat?.id === chat.id ? styles.active : ""}`}
+                onClick={() => handleSelectChat(chat)}
+              >
                 <MessageSquare size={18} />
                 <div className={styles.chatInfo}>
-                  <span className={styles.chatTitle}>{chat.title || `Chat ${chat.id}`}</span>
+                  <span className={styles.chatTitle}>
+                    {chat.title || `Chat ${chat.id}`}
+                  </span>
                 </div>
-                <button className={styles.deleteButton} onClick={(e) => handleDeleteChat(chat.id, e)} aria-label="Eliminar chat" disabled={isGuest} style={isGuest ? { opacity: 0.5, pointerEvents: 'none' } : undefined}>
+                <button
+                  className={styles.deleteButton}
+                  onClick={(e) => handleDeleteChat(chat.id, e)}
+                  aria-label="Eliminar chat"
+                  disabled={isGuest}
+                  style={
+                    isGuest
+                      ? { opacity: 0.5, pointerEvents: "none" }
+                      : undefined
+                  }
+                >
                   <Trash2 size={16} />
                 </button>
               </div>
@@ -324,21 +382,35 @@ export default function ChatPage() {
       </aside>
 
       {/* TOGGLE BUTTON */}
-      <button className={`${styles.toggleButton} ${!isSidebarOpen ? styles.toggleButtonClosed : ""}`} onClick={() => setIsSidebarOpen(!isSidebarOpen)} aria-label={isSidebarOpen ? "Ocultar historial" : "Mostrar historial"}>
+      <button
+        className={`${styles.toggleButton} ${!isSidebarOpen ? styles.toggleButtonClosed : ""}`}
+        onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+        aria-label={isSidebarOpen ? "Ocultar historial" : "Mostrar historial"}
+      >
         {isSidebarOpen ? <PanelLeftClose size={18} /> : <PanelLeft size={18} />}
       </button>
 
       {/* MAIN CONTENT */}
       <main className={styles.main}>
-        <div className={styles.messages} ref={messagesContainerRef} onScroll={handleMessagesScroll}>
+        <div
+          className={styles.messages}
+          ref={messagesContainerRef}
+          onScroll={handleMessagesScroll}
+        >
           {messages.length === 0 && !isStreaming ? (
             <div className={styles.welcome}>
-              <div className={styles.welcomeIcon}><Bot size={48} /></div>
+              <div className={styles.welcomeIcon}>
+                <Bot size={48} />
+              </div>
               <h1>¡Hola! Soy Junior</h1>
               <p>¿Qué te gustaría preguntar hoy?</p>
               <div className={styles.suggestions}>
                 {suggestions.map((s, i) => (
-                  <button key={i} className={styles.suggestionCard} onClick={() => setInputValue(s.text)}>
+                  <button
+                    key={i}
+                    className={styles.suggestionCard}
+                    onClick={() => setInputValue(s.text)}
+                  >
                     <span className={styles.suggestionIcon}>{s.icon}</span>
                     <div className={styles.suggestionContent}>
                       <span className={styles.suggestionTitle}>{s.title}</span>
@@ -351,17 +423,32 @@ export default function ChatPage() {
           ) : (
             <>
               {messages.map((msg) => (
-                <div key={msg.id} className={`${styles.message} ${msg.role === "user" ? styles.userMessage : styles.botMessage}`}>
+                <div
+                  key={msg.id}
+                  className={`${styles.message} ${msg.role === "user" ? styles.userMessage : styles.botMessage}`}
+                >
                   {msg.role === "user" ? (
                     <>
-                      <div className={styles.messageContent}><div>{msg.content}</div></div>
-                      <div className={styles.messageAvatar}><User size={18} /></div>
+                      <div className={styles.messageContent}>
+                        <div>{msg.content}</div>
+                      </div>
+                      <div className={styles.messageAvatar}>
+                        <User size={18} />
+                      </div>
                     </>
                   ) : (
                     <div className={styles.messageContentBot}>
                       <MarkdownRenderer content={msg.content} />
-                      <button className={styles.copyButton} onClick={() => handleCopyMessage(msg.content, msg.id)} title="Copiar respuesta">
-                        {copiedId === msg.id ? <Check size={14} /> : <Copy size={14} />}
+                      <button
+                        className={styles.copyButton}
+                        onClick={() => handleCopyMessage(msg.content, msg.id)}
+                        title="Copiar respuesta"
+                      >
+                        {copiedId === msg.id ? (
+                          <Check size={14} />
+                        ) : (
+                          <Copy size={14} />
+                        )}
                       </button>
                     </div>
                   )}
@@ -373,7 +460,9 @@ export default function ChatPage() {
                 <div className={`${styles.message} ${styles.botMessage}`}>
                   <div className={styles.messageContentBot}>
                     <MarkdownRenderer content={streamingContent} />
-                    <div className={styles.streamingIndicator}><Loader size={14} className={styles.spin} /></div>
+                    <div className={styles.streamingIndicator}>
+                      <Loader size={14} className={styles.spin} />
+                    </div>
                   </div>
                 </div>
               )}
@@ -381,7 +470,11 @@ export default function ChatPage() {
               {/* Loading indicator - solo cuando espera primer chunk */}
               {isLoading && !isStreaming && !streamingContent && (
                 <div className={`${styles.message} ${styles.botMessage}`}>
-                  <div className={styles.typing}><span></span><span></span><span></span></div>
+                  <div className={styles.typing}>
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                  </div>
                 </div>
               )}
 
@@ -394,9 +487,37 @@ export default function ChatPage() {
         <div className={styles.inputArea}>
           <div className={styles.inputContainer}>
             <div className={styles.inputWrapper}>
-              <textarea ref={textareaRef} className={styles.textarea} placeholder={isGuest ? "Inicia sesión para enviar mensajes..." : "Envía un mensaje..."} value={inputValue} onChange={(e) => { setInputValue(e.target.value); adjustTextareaHeight(); }} onKeyDown={handleKeyDown} rows={1} disabled={isLoading || isGuest} style={isGuest ? { opacity: 0.7 } : undefined} />
-              <button className={styles.sendButton} onClick={handleSendMessage} disabled={!inputValue.trim() || isLoading || isGuest} style={isGuest ? { opacity: 0.5, pointerEvents: 'none' } : undefined}>
-                {isLoading ? <Loader size={18} className={styles.spin} /> : <Send size={18} />}
+              <textarea
+                ref={textareaRef}
+                className={styles.textarea}
+                placeholder={
+                  isGuest
+                    ? "Inicia sesión para enviar mensajes..."
+                    : "Envía un mensaje..."
+                }
+                value={inputValue}
+                onChange={(e) => {
+                  setInputValue(e.target.value);
+                  adjustTextareaHeight();
+                }}
+                onKeyDown={handleKeyDown}
+                rows={1}
+                disabled={isLoading || isGuest}
+                style={isGuest ? { opacity: 0.7 } : undefined}
+              />
+              <button
+                className={styles.sendButton}
+                onClick={handleSendMessage}
+                disabled={!inputValue.trim() || isLoading || isGuest}
+                style={
+                  isGuest ? { opacity: 0.5, pointerEvents: "none" } : undefined
+                }
+              >
+                {isLoading ? (
+                  <Loader size={18} className={styles.spin} />
+                ) : (
+                  <Send size={18} />
+                )}
               </button>
             </div>
           </div>
@@ -405,7 +526,11 @@ export default function ChatPage() {
 
       {/* OVERLAY MOBILE */}
       {isMobile && isSidebarOpen && (
-        <div className={styles.overlay} onClick={() => setIsSidebarOpen(false)} aria-hidden="true" />
+        <div
+          className={styles.overlay}
+          onClick={() => setIsSidebarOpen(false)}
+          aria-hidden="true"
+        />
       )}
     </div>
   );

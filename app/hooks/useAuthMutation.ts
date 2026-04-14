@@ -1,31 +1,35 @@
-'use client';
+"use client";
 
-import { useMutation } from '@tanstack/react-query';
-import { apiService } from '@/services/apiService';
-import type { AuthResponse, User } from '@/types';
+import { useMutation } from "@tanstack/react-query";
+import type { AuthResponse, User } from "@/types";
+import { authService } from "@/services/authService";
 
 export function useAuthMutation() {
   const loginMutation = useMutation({
     mutationFn: async (credentials: { email: string; password: string }) => {
-      return await apiService.login(credentials);
+      return await authService.login(credentials);
     },
   });
 
   const registerMutation = useMutation({
-    mutationFn: async (data: { name: string; email: string; password: string }) => {
-      return await apiService.register(data);
+    mutationFn: async (data: {
+      name: string;
+      email: string;
+      password: string;
+    }) => {
+      return await authService.register(data);
     },
   });
 
   const updateUserMutation = useMutation({
     mutationFn: async (data: { name?: string }) => {
-      return await apiService.updateUser(data);
+      return await authService.updateUser(data);
     },
   });
 
   const logoutMutation = useMutation({
     mutationFn: async () => {
-      apiService.logout();
+      authService.logout();
       return true;
     },
   });

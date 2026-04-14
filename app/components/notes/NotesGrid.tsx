@@ -11,11 +11,11 @@ import {
   type ViewMode,
 } from "@/components/study/StudyGrid";
 import type { NoteDeck } from "@/types";
-import { apiService } from "@/services/apiService";
 import { Skeleton } from "@/components/ui/skeleton";
 import styles from "@/styles/notes/NotesGrid.module.css";
+import { notesService } from "@/services/notesService";
 
-interface NotesGridProps { }
+interface NotesGridProps {}
 
 const NOTES_CONFIG = {
   entitySingular: "nota",
@@ -24,14 +24,13 @@ const NOTES_CONFIG = {
   createButtonText: "Crear Nota",
   privateTabText: "Privadas",
   publicTabText: "Publicas",
-  emptyPrivateText:
-    "No hay notas privadas disponibles. Crea una para empezar.",
+  emptyPrivateText: "No hay notas privadas disponibles. Crea una para empezar.",
   emptyPublicText: "No hay notas publicas disponibles.",
   emptySearchText: "No se encontraron notas con esa búsqueda",
   loadingText: "Cargando notas...",
 };
 
-export default function NotesGrid({ }: NotesGridProps) {
+export default function NotesGrid({}: NotesGridProps) {
   const [isSearching, setIsSearching] = useState(false);
 
   const {
@@ -53,11 +52,11 @@ export default function NotesGrid({ }: NotesGridProps) {
       onLoad: useCallback(async (mode: ViewMode) => {
         const data =
           mode === "private"
-            ? await apiService.getNotesPrivate()
-            : await apiService.getNotesPublic();
+            ? await notesService.getNotesPrivate()
+            : await notesService.getNotesPublic();
         return data as (NoteDeck & StudyGridBaseItem)[];
       }, []),
-      onItemOpen: useCallback(() => { }, []),
+      onItemOpen: useCallback(() => {}, []),
     },
     config: NOTES_CONFIG,
     defaultViewMode: "public",
@@ -68,7 +67,7 @@ export default function NotesGrid({ }: NotesGridProps) {
     if (query.trim().length >= 2) {
       setIsSearching(true);
       try {
-        await apiService.searchNotes(query, 20, 0, true);
+        await notesService.searchNotes(query, 20, 0, true);
       } catch (error) {
         console.error("Error en búsqueda:", error);
       } finally {
@@ -87,28 +86,28 @@ export default function NotesGrid({ }: NotesGridProps) {
 
   const isSearchActive = useMemo(
     () => searchValue.trim().length >= 2,
-    [searchValue]
+    [searchValue],
   );
 
   // Memoizar renderizado de notas
-  const renderCard = useCallback((note: NoteDeck & StudyGridBaseItem) => (
-    <NoteCard
-      key={note.id}
-      note={note}
-      onNoteDeleted={handleItemDeleted}
-    />
-  ), [handleItemDeleted]);
+  const renderCard = useCallback(
+    (note: NoteDeck & StudyGridBaseItem) => (
+      <NoteCard key={note.id} note={note} onNoteDeleted={handleItemDeleted} />
+    ),
+    [handleItemDeleted],
+  );
 
   // Memoizar skeleton array
   const skeletons = useMemo(
-    () => Array.from({ length: 6 }).map((_, i) => (
-      <div key={i} className={styles.skeletonCard}>
-        <Skeleton className={styles.skeletonTitle} />
-        <Skeleton className={styles.skeletonDescription} />
-        <Skeleton className={styles.skeletonMeta} />
-      </div>
-    )),
-    []
+    () =>
+      Array.from({ length: 6 }).map((_, i) => (
+        <div key={i} className={styles.skeletonCard}>
+          <Skeleton className={styles.skeletonTitle} />
+          <Skeleton className={styles.skeletonDescription} />
+          <Skeleton className={styles.skeletonMeta} />
+        </div>
+      )),
+    [],
   );
 
   return (
@@ -126,16 +125,12 @@ export default function NotesGrid({ }: NotesGridProps) {
 
         {/* Loading state - Initial load (al entrar a la página) */}
         {loading && !isSearchActive && (
-          <div className={styles.grid}>
-            {skeletons}
-          </div>
+          <div className={styles.grid}>{skeletons}</div>
         )}
 
         {/* Search loading */}
         {isSearching && isSearchActive && (
-          <div className={styles.grid}>
-            {skeletons}
-          </div>
+          <div className={styles.grid}>{skeletons}</div>
         )}
 
         {/* Normal display - Solo cuando no está cargando */}

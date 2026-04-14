@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { apiService } from "@/services/apiService";
 import type { NoteDeck } from "@/types";
+import { notesService } from "@/services/notesService";
 
 export function useNotes() {
   const [notes, setNotes] = useState<NoteDeck[]>([]);
@@ -14,7 +14,7 @@ export function useNotes() {
       try {
         setLoading(true);
         setError(null);
-        const data = await apiService.getNotes();
+        const data = await notesService.getNotes();
         setNotes(Array.isArray(data) ? data : []);
       } catch (err: any) {
         setError(err.message || "Error al cargar notas");

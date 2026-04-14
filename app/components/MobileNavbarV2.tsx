@@ -2,12 +2,20 @@
 
 import React, { useState, useCallback, useEffect, useRef } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { Settings2, MessageSquare, Brain, CreditCard, NotebookPen, Book, LogOut } from "lucide-react";
-import { apiService } from "@/services/apiService";
+import {
+  Settings2,
+  MessageSquare,
+  Brain,
+  CreditCard,
+  NotebookPen,
+  Book,
+  LogOut,
+} from "lucide-react";
 import { toast } from "@/hooks/useLocalToast";
 import { ThemeToggleSidebr } from "./ThemeToogleSidebr";
 import styles from "@/styles/mobileNavbarV2.module.css";
 import Link from "next/link";
+import { authService } from "@/services/authService";
 
 interface MenuItem {
   title: string;
@@ -32,7 +40,8 @@ export function MobileNavbarV2() {
   const btnRef = useRef<HTMLButtonElement>(null);
 
   const isActive = useCallback(
-    (url: string) => url === "/study" ? pathname === url : pathname?.startsWith(url + "/"),
+    (url: string) =>
+      url === "/study" ? pathname === url : pathname?.startsWith(url + "/"),
     [pathname],
   );
 
@@ -46,7 +55,7 @@ export function MobileNavbarV2() {
 
   const handleLogout = useCallback(async () => {
     try {
-      await apiService.logout();
+      await authService.logout();
       toast.success("Sesión cerrada", "Has cerrado sesión correctamente");
       router.push("/auth");
     } catch {
@@ -58,8 +67,12 @@ export function MobileNavbarV2() {
   useEffect(() => {
     if (!isOpen) return;
     const handler = (e: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node) &&
-          btnRef.current && !btnRef.current.contains(e.target as Node)) {
+      if (
+        menuRef.current &&
+        !menuRef.current.contains(e.target as Node) &&
+        btnRef.current &&
+        !btnRef.current.contains(e.target as Node)
+      ) {
         handleClose();
       }
     };
@@ -100,7 +113,15 @@ export function MobileNavbarV2() {
         type="button"
         aria-label="Menú"
       >
-        <svg viewBox="0 0 24 24" className={styles.dropIcon} fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <svg
+          viewBox="0 0 24 24"
+          className={styles.dropIcon}
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
           <path d="M19 12H5" />
           <path d="M12 19l-7-7 7-7" />
         </svg>
@@ -138,7 +159,11 @@ export function MobileNavbarV2() {
               <span>Mi Espacio</span>
             </Link>
 
-            <button className={styles.sidebarItem} onClick={handleLogout} type="button">
+            <button
+              className={styles.sidebarItem}
+              onClick={handleLogout}
+              type="button"
+            >
               <LogOut size={18} />
               <span>Cerrar Sesión</span>
             </button>

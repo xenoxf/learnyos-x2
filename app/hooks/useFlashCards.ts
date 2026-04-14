@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { apiService } from "@/services/apiService";
 import type { FlashCardKlek, CardsDeck, GenerateFlashCardData } from "@/types";
+import { cardsService } from "@/services/cardsService";
 
 export function useFlashCards() {
   const [flashcards, setFlashcards] = useState<FlashCardKlek[]>([]);
@@ -14,13 +14,16 @@ export function useFlashCards() {
       try {
         setLoading(true);
         setError(null);
-        const data = await apiService.getFlashcards();
+        const data = await cardsService.getFlashcards();
         // Filtramos solo los que tienen flashcards
         const cardsWithFlashcards = Array.isArray(data)
-          ? data.filter((card: CardsDeck) => card.flashcards && card.flashcards.length > 0)
+          ? data.filter(
+              (card: CardsDeck) =>
+                card.flashcards && card.flashcards.length > 0,
+            )
           : [];
         const allFlashcards = cardsWithFlashcards.flatMap(
-          (card: CardsDeck) => card.flashcards || []
+          (card: CardsDeck) => card.flashcards || [],
         );
         setFlashcards(Array.isArray(allFlashcards) ? allFlashcards : []);
       } catch (err: any) {
