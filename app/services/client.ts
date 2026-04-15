@@ -61,7 +61,10 @@ class HttpClient {
     return this.refreshToken;
   }
 
-  private getToken(): string | null {
+  /**
+   * Get the current token (for authService usage)
+   */
+  getToken(): string | null {
     if (typeof window !== "undefined") {
       this.syncFromStorage();
     }

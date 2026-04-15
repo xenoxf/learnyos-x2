@@ -45,7 +45,7 @@ export const authService = {
     if (data.name) {
       const response = await httpClient.request<User>("/users/name", {
         method: "PUT",
-        body: JSON.stringify(data.name),
+        body: JSON.stringify({ name: data.name }),
       });
       if (typeof window !== "undefined")
         localStorage.setItem("user", JSON.stringify(response));
@@ -56,7 +56,7 @@ export const authService = {
 
   async logout(): Promise<void> {
     try {
-      const token = httpClient["getToken"]();
+      const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
       if (token)
         await httpClient.request<void>("/auth/logout", { method: "POST" });
     } catch {
@@ -81,7 +81,7 @@ export const authService = {
 
   async verifyToken(): Promise<boolean> {
     try {
-      const token = httpClient["getToken"]();
+      const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
       if (!token) return false;
       const result = await httpClient.request<{ valid: boolean }>(
         "/auth/verify_token",
@@ -89,12 +89,9 @@ export const authService = {
       );
       return result.valid === true;
     } catch (err: any) {
-      // If 401, the auto-refresh in client.ts should have kicked in.
-      // Don't clear localStorage here — let the caller decide.
       if (err?.message?.includes("Sesión expirada")) {
         return false;
       }
-      // Network error or other — assume valid to avoid false logout
       return true;
     }
   },

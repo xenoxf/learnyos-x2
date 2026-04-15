@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { toast } from "@/hooks/useLocalToast";
 import styles from "@/styles/notes/createNoteModal.module.css";
-import { X, Loader, Sparkles } from "lucide-react";
+import { X, Loader, Sparkles, AlertTriangle, CheckCircle2 } from "lucide-react";
 import type { GenerateNoteData, ApiErrorResponse } from "@/types";
 import { useRouter } from "next/navigation";
 import { notesService } from "@/services/notesService";
@@ -29,6 +29,7 @@ export default function CreateNoteModal({
     levelOfDetail: "medio",
     acceso: "public",
   });
+  const [touched, setTouched] = useState({ reference: false });
   const router = useRouter();
 
   useEffect(() => {
@@ -47,9 +48,12 @@ export default function CreateNoteModal({
   const canAfford = creditsStatus
     ? creditsStatus.remaining >= estimatedCost
     : true;
+  const isValid = (formData.reference ?? "").trim().length > 0;
 
   const handleCreate = async () => {
-    if (!formData.reference?.trim()) {
+    setTouched({ reference: true });
+
+    if (!isValid) {
       toast.error("Error", "Debes proporcionar un tema o una referencia");
       return;
     }
@@ -67,7 +71,6 @@ export default function CreateNoteModal({
       let errorCode = "";
       let rawResponse = null;
 
-      // Manejar errores con estructura del backend
       if (err?.response?.data) {
         const errorData = err.response.data as ApiErrorResponse;
         message = errorData.message || message;
@@ -80,10 +83,8 @@ export default function CreateNoteModal({
         message = err;
       }
 
-      // Construir descripción detallada del error
       let errorDescription = details || message;
 
-      // Agregar información según el código de error
       if (rawResponse) {
         console.error("Raw response from AI:", rawResponse);
 
@@ -96,7 +97,6 @@ export default function CreateNoteModal({
         }
       }
 
-      // Fallback para errores antiguos
       if (message.includes("metadata") && !details) {
         errorDescription =
           "La IA no pudo generar las notas correctamente. Intenta con otro tema.";
@@ -109,29 +109,39 @@ export default function CreateNoteModal({
   };
 
   return (
-    <div className={styles.overlay}>
-      <div className={styles.modal}>
+    <div className={styles.overlay} onClick={onClose}>
+      <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
         <div className={styles.header}>
-          <h2 className={styles.title}>Generar Notas</h2>
+          <div className={styles.headerTitle}>
+            <Sparkles className={styles.headerIcon} size={20} />
+            <h2 className={styles.title}>Generar Notas con IA</h2>
+          </div>
           <button
             onClick={onClose}
             className={styles.closeBtn}
             aria-label="Cerrar"
           >
-            <X size={24} />
+            <X size={18} />
           </button>
         </div>
 
         <div className={styles.content}>
           <div className={styles.formGroup}>
-            <label className={styles.label}>Referencia</label>
+            <label className={styles.label}>
+              Tema o Referencia
+              {touched.reference && !isValid && (
+                <span className={styles.errorLabel}>Campo requerido</span>
+              )}
+            </label>
             <textarea
-              placeholder="Sobre qué quieres tus notas? Expresate libremente."
+              placeholder="¿Sobre qué quieres tus notas? Expresa tus ideas libremente..."
               value={formData.reference}
-              onChange={(e) =>
-                setFormData({ ...formData, reference: e.target.value })
-              }
-              className={styles.textarea}
+              onChange={(e) => {
+                setFormData({ ...formData, reference: e.target.value });
+                if (!touched.reference) setTouched({ reference: true });
+              }}
+              onBlur={() => setTouched({ reference: true })}
+              className={`${styles.textarea} ${touched.reference && !isValid ? styles.textareaError : ""}`}
               rows={5}
               disabled={loading}
             />
@@ -139,7 +149,7 @@ export default function CreateNoteModal({
 
           <div className={styles.formRow}>
             <div className={styles.formGroup}>
-              <label className={styles.label}>Número de notas</label>
+              <label className={styles.label}>Cantidad</label>
               <input
                 type="number"
                 min="1"
@@ -148,7 +158,7 @@ export default function CreateNoteModal({
                 onChange={(e) =>
                   setFormData({
                     ...formData,
-                    numberOfNotes: parseInt(e.target.value),
+                    numberOfNotes: parseInt(e.target.value) || 3,
                   })
                 }
                 className={styles.input}
@@ -189,12 +199,8 @@ export default function CreateNoteModal({
               className={styles.select}
               disabled={loading}
             >
-              <option title="Solo tu podras usarlos" value="private">
-                Privado
-              </option>
-              <option title="La comunidad tambien podra usarlos" value="public">
-                Público
-              </option>
+              <option value="private">Privado - Solo tú puedes usarlo</option>
+              <option value="public">Público - La comunidad también puede usarlo</option>
             </select>
           </div>
         </div>
@@ -209,17 +215,17 @@ export default function CreateNoteModal({
           </button>
           <button
             onClick={handleCreate}
-            disabled={loading || !formData.reference?.trim() || !canAfford}
+            disabled={loading || !isValid || !canAfford}
             className={styles.confirmBtn}
           >
             {loading ? (
               <>
-                <Loader size={18} className={styles.spinner} />
+                <Loader size={16} className={styles.spinner} />
                 Generando...
               </>
             ) : (
               <>
-                <Sparkles size={18} />
+                <Sparkles size={16} />
                 Generar Notas
               </>
             )}
@@ -227,14 +233,17 @@ export default function CreateNoteModal({
         </div>
 
         {creditsStatus && (
-          <div className={styles.creditPreview}>
+          <div className={`${styles.creditPreview} ${!canAfford ? styles.creditInsufficient : ""}`}>
+            {!canAfford ? (
+              <AlertTriangle size={14} />
+            ) : (
+              <CheckCircle2 size={14} />
+            )}
             <span>Costo: ~{estimatedCost} créditos</span>
-            <span>•</span>
-            <span>
-              Tus créditos: {creditsStatus.remaining}/{creditsStatus.total}
-            </span>
+            <span className={styles.creditDivider}>•</span>
+            <span>Disponibles: {creditsStatus.remaining}/{creditsStatus.total}</span>
             {!canAfford && (
-              <span className={styles.creditWarning}>Crédito insuficiente</span>
+              <span className={styles.creditWarning}>Créditos insuficientes</span>
             )}
           </div>
         )}

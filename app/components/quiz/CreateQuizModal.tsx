@@ -5,6 +5,7 @@ import type { GenerateExamData, ApiErrorResponse } from "@/types";
 import { useRouter } from "next/navigation";
 import { creditsService } from "@/services/creditsService";
 import { quizzesService } from "@/services/quizzesService";
+import { Sparkles, AlertTriangle, CheckCircle2 } from "lucide-react";
 
 interface CreateQuizModalProps {
   onClose: () => void;
@@ -26,6 +27,7 @@ export default function CreateQuizModal({
     difficulty: "medium",
     acceso: "private",
   });
+  const [touched, setTouched] = useState({ reference: false });
   const router = useRouter();
 
   useEffect(() => {
@@ -45,11 +47,13 @@ export default function CreateQuizModal({
   const canAfford = creditsStatus
     ? creditsStatus.remaining >= estimatedCost
     : true;
+  const isValid = formData.reference.trim().length >= 3;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setTouched({ reference: true });
 
-    if (!formData.reference || formData.reference.length < 3) {
+    if (!isValid) {
       toast.error(
         "Error",
         "Debes proporcionar un texto con más de 3 caracteres",
@@ -70,7 +74,6 @@ export default function CreateQuizModal({
       let errorCode = "";
       let rawResponse = null;
 
-      // Manejar errores con estructura del backend
       if (err?.response?.data) {
         const errorData = err.response.data as ApiErrorResponse;
         message = errorData.message || message;
@@ -83,14 +86,11 @@ export default function CreateQuizModal({
         message = err;
       }
 
-      // Construir descripción detallada del error
       let errorDescription = details || message;
 
-      // Agregar información de la respuesta raw si está disponible
       if (rawResponse) {
         console.error("Raw response from AI:", rawResponse);
 
-        // Mostrar información útil según el código de error
         if (errorCode === "INVALID_AI_RESPONSE") {
           errorDescription = `${details} La IA devolvo una respuesta con formato inesperado.`;
         } else if (errorCode === "NO_QUESTIONS_GENERATED") {
@@ -104,7 +104,6 @@ export default function CreateQuizModal({
         }
       }
 
-      // Mejorar mensajes de error específicos (fallback para errores antiguos)
       if (message.includes("metadata") && !details) {
         errorDescription =
           "La IA no pudo generar el quiz correctamente. Por favor, intenta con otro tema o referencia.";
@@ -123,29 +122,39 @@ export default function CreateQuizModal({
     <div className={styles.overlay} onClick={onClose}>
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
         <div className={styles.header}>
-          <h2 className={styles.title}>Crear Quiz</h2>
-          <button className={styles.closeBtn} onClick={onClose}>
+          <div className={styles.headerTitle}>
+            <Sparkles className={styles.headerIcon} size={20} />
+            <h2 className={styles.title}>Crear Quiz con IA</h2>
+          </div>
+          <button className={styles.closeBtn} onClick={onClose} aria-label="Cerrar">
             ✕
           </button>
         </div>
 
         <form className={styles.form} onSubmit={handleSubmit}>
           <div className={styles.formGroup}>
-            <label className={styles.label}>Referencia</label>
+            <label className={styles.label}>
+              Tema o Referencia
+              {touched.reference && !isValid && (
+                <span className={styles.errorLabel}>Mínimo 3 caracteres</span>
+              )}
+            </label>
             <textarea
-              className={styles.textarea}
-              placeholder="¿Que quieres?"
+              className={`${styles.textarea} ${touched.reference && !isValid ? styles.textareaError : ""}`}
+              placeholder="¿Qué quieres aprender? Escribe un tema, concepto o texto..."
               value={formData.reference}
-              onChange={(e) =>
-                setFormData({ ...formData, reference: e.target.value })
-              }
+              onChange={(e) => {
+                setFormData({ ...formData, reference: e.target.value });
+                if (!touched.reference) setTouched({ reference: true });
+              }}
+              onBlur={() => setTouched({ reference: true })}
               rows={4}
             />
           </div>
 
           <div className={styles.formRow}>
             <div className={styles.formGroup}>
-              <label className={styles.label}>Número de preguntas</label>
+              <label className={styles.label}>Preguntas</label>
               <input
                 type="number"
                 className={styles.input}
@@ -155,7 +164,7 @@ export default function CreateQuizModal({
                 onChange={(e) =>
                   setFormData({
                     ...formData,
-                    numberOfQuestions: parseInt(e.target.value),
+                    numberOfQuestions: parseInt(e.target.value) || 10,
                   })
                 }
               />
@@ -170,31 +179,25 @@ export default function CreateQuizModal({
                   setFormData({ ...formData, difficulty: e.target.value })
                 }
               >
-                <option value="easy">Fácil </option>
+                <option value="easy">Fácil</option>
                 <option value="medium">Medio</option>
                 <option value="hard">Difícil</option>
               </select>
             </div>
-            <div className={styles.formGroup}>
-              <label className={styles.label}>Privacidad</label>
-              <select
-                className={styles.select}
-                value={formData.acceso || "private"}
-                onChange={(e) =>
-                  setFormData({ ...formData, acceso: e.target.value })
-                }
-              >
-                <option title="Solo tu podras usarlo" value="private">
-                  Privado
-                </option>
-                <option
-                  title="La comunidad tambien podra usarlo"
-                  value="public"
-                >
-                  Publico
-                </option>
-              </select>
-            </div>
+          </div>
+
+          <div className={styles.formGroup}>
+            <label className={styles.label}>Privacidad</label>
+            <select
+              className={styles.select}
+              value={formData.acceso || "private"}
+              onChange={(e) =>
+                setFormData({ ...formData, acceso: e.target.value })
+              }
+            >
+              <option value="private">Privado - Solo tú puedes usarlo</option>
+              <option value="public">Público - La comunidad también puede usarlo</option>
+            </select>
           </div>
 
           <div className={styles.actions}>
@@ -209,7 +212,7 @@ export default function CreateQuizModal({
             <button
               type="submit"
               className={styles.submitBtn}
-              disabled={loading || !canAfford}
+              disabled={loading || !canAfford || !isValid}
             >
               {loading ? "Creando..." : "Crear Quiz"}
             </button>
@@ -217,14 +220,17 @@ export default function CreateQuizModal({
         </form>
 
         {creditsStatus && (
-          <div className={styles.creditPreview}>
+          <div className={`${styles.creditPreview} ${!canAfford ? styles.creditInsufficient : ""}`}>
+            {!canAfford ? (
+              <AlertTriangle size={14} />
+            ) : (
+              <CheckCircle2 size={14} />
+            )}
             <span>Costo: ~{estimatedCost} créditos</span>
-            <span>•</span>
-            <span>
-              Tus créditos: {creditsStatus.remaining}/{creditsStatus.total}
-            </span>
+            <span className={styles.creditDivider}>•</span>
+            <span>Disponibles: {creditsStatus.remaining}/{creditsStatus.total}</span>
             {!canAfford && (
-              <span className={styles.creditWarning}>Crédito insuficiente</span>
+              <span className={styles.creditWarning}>Créditos insuficientes</span>
             )}
           </div>
         )}
