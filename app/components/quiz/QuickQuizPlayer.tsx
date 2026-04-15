@@ -7,7 +7,7 @@ import { toast } from "@/hooks/useLocalToast";
 import type { QuickQuizKlek, QuickQuizQuestion } from "@/types";
 import MarkdownRenderer from "../MarkdownRenderer";
 import { useRouter } from "next/navigation";
-import { quickQuizzesService } from "@/services/quizzesService";
+import { quizzesService } from "@/services/quizzesService";
 import { attemptsService } from "@/services/attemptsService";
 
 interface QuickQuizPlayerProps {
@@ -34,7 +34,7 @@ export default function QuickQuizPlayer({ quizId }: QuickQuizPlayerProps) {
     const loadQuiz = async () => {
       try {
         setError(null);
-        const data = await quickQuizzesService.getQuizForPlay(quizId);
+        const data = await quizzesService.getExamForPlay(quizId);
         if (!data) throw new Error("El quiz no existe o no está disponible");
         if (!data.questions || data.questions.length === 0) {
           throw new Error(`El quiz "${data.title}" no tiene preguntas.`);

@@ -14,6 +14,8 @@ import {
   Hash,
   BookOpen,
   Sparkles,
+  Code,
+  Tag,
 } from "lucide-react";
 import Image from "next/image";
 import styles from "@/styles/espacio/espacioPages.module.css";
@@ -136,7 +138,9 @@ export default function RendimientoPage() {
             onClick={(e) => e.stopPropagation()}
           >
             <div className={styles.modalHeader}>
-              <h3 className={styles.modalTitle}>Detalle del Intento</h3>
+              <div className={styles.modalHeaderLeft}>
+                <h3 className={styles.modalTitle}>Detalle del Intento</h3>
+              </div>
               <button
                 className={styles.modalClose}
                 onClick={handleCloseDetail}
@@ -147,210 +151,166 @@ export default function RendimientoPage() {
               </button>
             </div>
             <div className={styles.modalBody}>
-              <h4
-                style={{
-                  fontSize: "1.1rem",
-                  fontWeight: 700,
-                  marginBottom: "0.75rem",
-                }}
-              >
+              {/* Exam Title */}
+              <h4 className={styles.attemptExamTitle}>
                 {selectedAttempt.examTitle}
               </h4>
 
+              {/* Quick Stats Card */}
+              <div className={styles.attemptQuickStats}>
+                <div className={styles.quickStat}>
+                  <div className={styles.quickStatIcon}>
+                    <Check size={20} />
+                  </div>
+                  <div className={styles.quickStatContent}>
+                    <span className={styles.quickStatLabel}>Correctas</span>
+                    <span className={styles.quickStatValue}>
+                      {selectedAttempt.correctAnswers}/{selectedAttempt.totalQuestions}
+                    </span>
+                  </div>
+                </div>
+                <div className={styles.quickStat}>
+                  <div className={styles.quickStatIcon}>
+                    <TrendingUp size={20} />
+                  </div>
+                  <div className={styles.quickStatContent}>
+                    <span className={styles.quickStatLabel}>Porcentaje</span>
+                    <span className={styles.quickStatValue}>
+                      {selectedAttempt.totalQuestions > 0
+                        ? Math.round(
+                            (selectedAttempt.correctAnswers /
+                              selectedAttempt.totalQuestions) *
+                              100,
+                          )
+                        : 0}
+                      %
+                    </span>
+                  </div>
+                </div>
+              </div>
+
               {/* Exam Metadata Grid */}
-              <div style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))",
-                gap: "0.75rem",
-                marginBottom: "1rem",
-                padding: "0.75rem",
-                background: "hsl(var(--muted) / 0.1)",
-                borderRadius: "0.5rem",
-              }}>
-                {selectedAttempt.examCode && (
-                  <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                    <Hash size={14} style={{ color: "hsl(var(--primary))" }} />
-                    <div>
-                      <div style={{ fontSize: "0.7rem", color: "hsl(var(--muted-foreground))" }}>Código</div>
-                      <div style={{ fontSize: "0.85rem", fontWeight: 600, fontFamily: "monospace" }}>{selectedAttempt.examCode}</div>
-                    </div>
+              {(selectedAttempt.examCode || selectedAttempt.examType || selectedAttempt.examDifficulty || selectedAttempt.examArea) && (
+                <div className={styles.attemptMetadataCard}>
+                  <div className={styles.attemptMetadataHeader}>
+                    <Hash size={16} />
+                    <span>Información del Examen</span>
                   </div>
-                )}
-                {selectedAttempt.examType && (
-                  <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                    <BookOpen size={14} style={{ color: "hsl(var(--primary))" }} />
-                    <div>
-                      <div style={{ fontSize: "0.7rem", color: "hsl(var(--muted-foreground))" }}>Tipo</div>
-                      <div style={{
-                        fontSize: "0.75rem",
-                        fontWeight: 700,
-                        textTransform: "uppercase",
-                        padding: "0.125rem 0.5rem",
-                        borderRadius: "4px",
-                        display: "inline-block",
-                        background: selectedAttempt.examType === 'icfes' ? 'hsl(217 91% 60% / 0.15)' : 'hsl(271 70% 50% / 0.15)',
-                        color: selectedAttempt.examType === 'icfes' ? 'hsl(217 91% 60%)' : 'hsl(271 70% 50%)',
-                      }}>
-                        {selectedAttempt.examType === 'icfes' ? 'ICFES' : 'Quiz'}
+                  <div className={styles.attemptMetadataGrid}>
+                    {selectedAttempt.examCode && (
+                      <div className={styles.attemptMetadataItem}>
+                        <div className={styles.attemptMetadataIcon}>
+                          <Code size={16} />
+                        </div>
+                        <div className={styles.attemptMetadataText}>
+                          <span className={styles.attemptMetadataLabel}>Código</span>
+                          <span className={styles.attemptMetadataCode}>{selectedAttempt.examCode}</span>
+                        </div>
                       </div>
-                    </div>
+                    )}
+                    {selectedAttempt.examType && (
+                      <div className={styles.attemptMetadataItem}>
+                        <div className={styles.attemptMetadataIcon}>
+                          <BookOpen size={16} />
+                        </div>
+                        <div className={styles.attemptMetadataText}>
+                          <span className={styles.attemptMetadataLabel}>Tipo</span>
+                          <span className={`${styles.attemptMetadataValue} ${styles[`type_${selectedAttempt.examType}`]}`}>
+                            {selectedAttempt.examType === 'icfes' ? 'ICFES' : 'Quiz'}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+                    {selectedAttempt.examDifficulty && (
+                      <div className={styles.attemptMetadataItem}>
+                        <div className={styles.attemptMetadataIcon}>
+                          <Sparkles size={16} />
+                        </div>
+                        <div className={styles.attemptMetadataText}>
+                          <span className={styles.attemptMetadataLabel}>Dificultad</span>
+                          <span className={`${styles.attemptMetadataValue} ${styles[`difficulty_${selectedAttempt.examDifficulty}`]}`}>
+                            {selectedAttempt.examDifficulty === 'easy' ? 'Fácil' : selectedAttempt.examDifficulty === 'medium' ? 'Medio' : 'Difícil'}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+                    {selectedAttempt.examArea && (
+                      <div className={styles.attemptMetadataItem}>
+                        <div className={styles.attemptMetadataIcon}>
+                          <Tag size={16} />
+                        </div>
+                        <div className={styles.attemptMetadataText}>
+                          <span className={styles.attemptMetadataLabel}>Área</span>
+                          <span className={styles.attemptMetadataValue}>{selectedAttempt.examArea}</span>
+                        </div>
+                      </div>
+                    )}
                   </div>
-                )}
-                {selectedAttempt.examDifficulty && (
-                  <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                    <Sparkles size={14} style={{ color: "hsl(var(--primary))" }} />
-                    <div>
-                      <div style={{ fontSize: "0.7rem", color: "hsl(var(--muted-foreground))" }}>Dificultad</div>
-                      <div style={{ fontSize: "0.85rem", fontWeight: 600, textTransform: "capitalize" }}>{selectedAttempt.examDifficulty}</div>
-                    </div>
+                </div>
+              )}
+
+              {/* User & Date Info */}
+              <div className={styles.attemptInfoGrid}>
+                <div className={styles.attemptInfo}>
+                  <div className={styles.attemptInfoIcon}>
+                    <User size={16} />
                   </div>
-                )}
-                {selectedAttempt.examArea && (
-                  <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                    <BookOpen size={14} style={{ color: "hsl(var(--primary))" }} />
-                    <div>
-                      <div style={{ fontSize: "0.7rem", color: "hsl(var(--muted-foreground))" }}>Área</div>
-                      <div style={{ fontSize: "0.85rem", fontWeight: 600 }}>{selectedAttempt.examArea}</div>
-                    </div>
+                  <div className={styles.attemptInfoContent}>
+                    <span className={styles.attemptInfoLabel}>Usuario</span>
+                    <span className={styles.attemptInfoValue}>
+                      {user?.picture ? (
+                        <Image
+                          src={user.picture}
+                          alt=""
+                          width={24}
+                          height={24}
+                          className={styles.attemptUserAvatar}
+                        />
+                      ) : (
+                        <div className={styles.attemptUserAvatarPlaceholder}>
+                          {user?.name?.[0]?.toUpperCase() || "U"}
+                        </div>
+                      )}
+                      {user?.name || "Usuario"}
+                    </span>
                   </div>
-                )}
+                </div>
+
+                <div className={styles.attemptInfo}>
+                  <div className={styles.attemptInfoIcon}>
+                    <Calendar size={16} />
+                  </div>
+                  <div className={styles.attemptInfoContent}>
+                    <span className={styles.attemptInfoLabel}>Fecha</span>
+                    <span className={styles.attemptInfoValue}>
+                      {new Date(selectedAttempt.attemptedAt).toLocaleDateString(
+                        "es-CO",
+                        {
+                          day: "numeric",
+                          month: "long",
+                          year: "numeric",
+                        },
+                      )}
+                    </span>
+                  </div>
+                </div>
               </div>
 
-              <div className={styles.modalInfo}>
-                <span className={styles.modalInfoLabel}>Usuario</span>
-                <span
-                  className={styles.modalInfoValue}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "0.5rem",
-                  }}
-                >
-                  {user?.picture ? (
-                    <Image
-                      src={user.picture}
-                      alt=""
-                      width={24}
-                      height={24}
-                      style={{ borderRadius: "50%" }}
-                    />
-                  ) : (
-                    <div
-                      style={{
-                        width: 24,
-                        height: 24,
-                        borderRadius: "50%",
-                        background: "hsl(var(--primary) / 0.2)",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        fontSize: "0.7rem",
-                        fontWeight: 700,
-                      }}
-                    >
-                      {user?.name?.[0]?.toUpperCase() || "U"}
-                    </div>
-                  )}
-                  {user?.name || "Usuario"}
-                </span>
-              </div>
-
-              <div className={styles.modalInfo}>
-                <span className={styles.modalInfoLabel}>Fecha</span>
-                <span className={styles.modalInfoValue}>
-                  {new Date(selectedAttempt.attemptedAt).toLocaleDateString(
-                    "es-CO",
-                    {
-                      day: "numeric",
-                      month: "long",
-                      year: "numeric",
-                    },
-                  )}
-                </span>
-              </div>
-
-              <div className={styles.modalInfo}>
-                <span className={styles.modalInfoLabel}>
-                  Respuestas correctas
-                </span>
-                <span className={styles.modalInfoValue}>
-                  {selectedAttempt.correctAnswers} /{" "}
-                  {selectedAttempt.totalQuestions}
-                </span>
-              </div>
-
-              <div className={styles.modalInfo}>
-                <span className={styles.modalInfoLabel}>Porcentaje</span>
-                <span className={styles.modalInfoValue}>
-                  {selectedAttempt.totalQuestions > 0
-                    ? Math.round(
-                        (selectedAttempt.correctAnswers /
-                          selectedAttempt.totalQuestions) *
-                          100,
-                      )
-                    : 0}
-                  %
-                </span>
-              </div>
-
-              {/* Feedback Visual */}
-              <div
-                style={{
-                  marginTop: "1rem",
-                  padding: "1rem",
-                  background: "hsl(var(--muted) / 0.15)",
-                  borderRadius: "0.75rem",
-                  border: "1px solid hsl(var(--border))",
-                }}
-              >
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    marginBottom: "0.75rem",
-                  }}
-                >
-                  <span
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "0.5rem",
-                      color: "hsl(var(--success))",
-                      fontWeight: 600,
-                    }}
-                  >
-                    <Check size={18} /> Correctas:{" "}
-                    {selectedAttempt.correctAnswers}
+              {/* Performance Visual */}
+              <div className={styles.attemptPerformance}>
+                <div className={styles.performanceHeader}>
+                  <span className={styles.performanceCorrect}>
+                    <Check size={16} /> {selectedAttempt.correctAnswers}
                   </span>
-                  <span
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "0.5rem",
-                      color: "hsl(var(--destructive))",
-                      fontWeight: 600,
-                    }}
-                  >
-                    <XCircle size={18} /> Incorrectas:{" "}
-                    {selectedAttempt.totalQuestions -
-                      selectedAttempt.correctAnswers}
+                  <span className={styles.performanceIncorrect}>
+                    <XCircle size={16} /> {selectedAttempt.totalQuestions - selectedAttempt.correctAnswers}
                   </span>
                 </div>
-                <div
-                  style={{
-                    height: "8px",
-                    background: "hsl(var(--muted))",
-                    borderRadius: "4px",
-                    overflow: "hidden",
-                  }}
-                >
+                <div className={styles.performanceBar}>
                   <div
+                    className={styles.performanceFill}
                     style={{
-                      height: "100%",
                       width: `${selectedAttempt.totalQuestions > 0 ? (selectedAttempt.correctAnswers / selectedAttempt.totalQuestions) * 100 : 0}%`,
-                      background:
-                        "linear-gradient(90deg, hsl(var(--success)), hsl(var(--success) / 0.7))",
-                      borderRadius: "4px",
                     }}
                   />
                 </div>

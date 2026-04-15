@@ -689,3 +689,323 @@
     justify-content: center;
   }
 }
+
+/* ==================== ATTEMPT MODAL IMPROVEMENTS ==================== */
+.attemptExamTitle {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: hsl(var(--foreground));
+  margin: 0 0 1rem 0;
+  line-height: 1.3;
+}
+
+.attemptQuickStats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0.875rem;
+  margin-bottom: 1rem;
+}
+
+.quickStat {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  padding: 1rem;
+  background: hsl(var(--muted) / 0.08);
+  border: 1px solid hsl(var(--border) / 0.25);
+  border-radius: 0.75rem;
+  transition: all 0.2s ease;
+}
+
+.quickStat:hover {
+  background: hsl(var(--muted) / 0.12);
+  border-color: hsl(var(--primary) / 0.2);
+  transform: translateY(-2px);
+}
+
+.quickStatIcon {
+  width: 44px;
+  height: 44px;
+  border-radius: 0.75rem;
+  background: hsl(var(--success) / 0.12);
+  color: hsl(var(--success));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.quickStat:last-child .quickStatIcon {
+  background: hsl(var(--primary) / 0.12);
+  color: hsl(var(--primary));
+}
+
+.quickStatContent {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex: 1;
+}
+
+.quickStatLabel {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: hsl(var(--muted-foreground));
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.quickStatValue {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: hsl(var(--foreground));
+}
+
+.attemptMetadataCard {
+  padding: 1.125rem;
+  background: linear-gradient(135deg, hsl(var(--primary) / 0.06), hsl(var(--muted) / 0.08));
+  border: 1px solid hsl(var(--primary) / 0.12);
+  border-radius: 0.875rem;
+  margin-bottom: 1rem;
+}
+
+.attemptMetadataHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  margin-bottom: 0.875rem;
+  color: hsl(var(--primary));
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+.attemptMetadataGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 0.75rem;
+}
+
+.attemptMetadataItem {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.875rem;
+  background: hsl(var(--background));
+  border: 1px solid hsl(var(--border));
+  border-radius: 0.625rem;
+  transition: all 0.2s ease;
+}
+
+.attemptMetadataItem:hover {
+  background: hsl(var(--primary) / 0.06);
+  border-color: hsl(var(--primary) / 0.2);
+  transform: translateY(-1px);
+}
+
+.attemptMetadataIcon {
+  width: 36px;
+  height: 36px;
+  border-radius: 0.625rem;
+  background: hsl(var(--primary) / 0.1);
+  color: hsl(var(--primary));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.attemptMetadataText {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.attemptMetadataLabel {
+  font-size: 0.625rem;
+  font-weight: 700;
+  color: hsl(var(--muted-foreground));
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.attemptMetadataValue {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: hsl(var(--foreground));
+}
+
+.attemptMetadataCode {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: hsl(var(--primary));
+  font-family: monospace;
+  letter-spacing: 0.05em;
+  background: hsl(var(--primary) / 0.1);
+  padding: 0.125rem 0.375rem;
+  border-radius: 0.375rem;
+  display: inline-block;
+}
+
+.type_icfes {
+  display: inline-block;
+  padding: 0.2rem 0.5rem;
+  background: hsl(217 91% 60% / 0.15);
+  color: hsl(217 91% 60%);
+  border-radius: 0.375rem;
+  font-weight: 700;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+}
+
+.type_quiz {
+  display: inline-block;
+  padding: 0.2rem 0.5rem;
+  background: hsl(271 70% 50% / 0.15);
+  color: hsl(271 70% 50%);
+  border-radius: 0.375rem;
+  font-weight: 700;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+}
+
+.difficulty_easy {
+  color: hsl(var(--success));
+  font-weight: 700;
+}
+
+.difficulty_medium {
+  color: hsl(var(--warning));
+  font-weight: 700;
+}
+
+.difficulty_hard {
+  color: hsl(var(--destructive));
+  font-weight: 700;
+}
+
+.attemptInfoGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.attemptInfo {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.875rem;
+  background: hsl(var(--muted) / 0.08);
+  border: 1px solid hsl(var(--border) / 0.25);
+  border-radius: 0.625rem;
+  transition: all 0.2s ease;
+}
+
+.attemptInfo:hover {
+  background: hsl(var(--muted) / 0.12);
+  border-color: hsl(var(--primary) / 0.2);
+}
+
+.attemptInfoIcon {
+  width: 36px;
+  height: 36px;
+  border-radius: 0.625rem;
+  background: hsl(var(--primary) / 0.1);
+  color: hsl(var(--primary));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.attemptInfoContent {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.attemptInfoLabel {
+  font-size: 0.625rem;
+  font-weight: 700;
+  color: hsl(var(--muted-foreground));
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.attemptInfoValue {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: hsl(var(--foreground));
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.attemptUserAvatar {
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.attemptUserAvatarPlaceholder {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: hsl(var(--primary) / 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: hsl(var(--primary));
+}
+
+.attemptPerformance {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: hsl(var(--muted) / 0.12);
+  border: 1px solid hsl(var(--border));
+  border-radius: 0.75rem;
+}
+
+.performanceHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.performanceCorrect {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: hsl(var(--success));
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.performanceIncorrect {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: hsl(var(--destructive));
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.performanceBar {
+  height: 10px;
+  background: hsl(var(--muted));
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.performanceFill {
+  height: 100%;
+  background: linear-gradient(90deg, hsl(var(--success)), hsl(var(--success) / 0.7));
+  border-radius: 6px;
+  transition: width 0.4s ease;
+}

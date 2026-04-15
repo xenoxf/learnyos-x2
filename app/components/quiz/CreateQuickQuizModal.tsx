@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { toast } from "@/hooks/useLocalToast";
 import styles from "@/styles/quiz/createQuickQuizModal.module.css";
-import type { GenerateExamData } from "@/types";
+import type { GenerateExamData, GenerateQuickQuizData } from "@/types";
 import { useRouter } from "next/navigation";
 import { creditsService } from "@/services/creditsService";
 import { quizzesService } from "@/services/quizzesService";
@@ -41,14 +41,20 @@ export default function CreateQuickQuizModal({
 
     try {
       setLoading(true);
-      const result = await quickQuizzesService.generateQuickQuiz(formData);
-      toast.success("Éxito", "Quiz rápido creado correctamente");
+      // Use regular quiz generation for now
+      const result = await quizzesService.generateExam({
+        reference: formData.topic,
+        numberOfQuestions: formData.numberOfQuestions,
+        difficulty: formData.difficulty,
+        acceso: formData.acceso,
+      });
+      toast.success("Éxito", "Quiz creado correctamente");
       onQuizCreated();
       router.refresh();
       onClose();
-      router.push(`/study/quick-quiz/${result.quizId}`);
+      router.push(`/study/quiz/${result.id}`);
     } catch (err: any) {
-      const message = err instanceof Error ? err.message : "Error al crear quiz rápido";
+      const message = err instanceof Error ? err.message : "Error al crear quiz";
       toast.error("Error", message, 6000);
     } finally {
       setLoading(false);

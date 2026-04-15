@@ -212,66 +212,80 @@ export function FuncionesCardModal({
             )}
           </div>
 
-          {/* Metadata Cards */}
-          <div className={styles.metadataList}>
-            {/* Primary Info Card */}
-            <div className={styles.infoCard}>
-              {(card.area || card.tema) && (
-                <div className={styles.topicSection}>
-                  {card.area && (
-                    <div className={styles.topicBadge}>
-                      <Tag size={14} />
-                      <span>{card.area}</span>
-                    </div>
-                  )}
-                  {card.tema && (
-                    <div className={styles.topicBadge}>
-                      <BookOpen size={14} />
-                      <span>{card.tema}</span>
-                    </div>
-                  )}
-                </div>
-              )}
+          {/* Primary Metadata Card - Topics */}
+          {(card.area || card.tema) && (
+            <div className={styles.metadataCard}>
+              <div className={styles.metadataHeader}>
+                <Tag size={16} />
+                <span className={styles.metadataTitle}>Información Académica</span>
+              </div>
+              <div className={styles.metadataBadges}>
+                {card.area && (
+                  <div className={styles.badge}>
+                    <span className={styles.badgeLabel}>Área:</span>
+                    <span className={styles.badgeValue}>{card.area}</span>
+                  </div>
+                )}
+                {card.tema && (
+                  <div className={styles.badge}>
+                    <span className={styles.badgeLabel}>Tema:</span>
+                    <span className={styles.badgeValue}>{card.tema}</span>
+                  </div>
+                )}
+              </div>
             </div>
+          )}
 
-            {/* Secondary Info Grid */}
-            <div className={styles.secondaryInfoGrid}>
-              {card.code && (
-                <div className={styles.infoItem}>
-                  <div className={styles.infoIcon}>
-                    <Code size={16} />
-                  </div>
-                  <div className={styles.infoContent}>
-                    <span className={styles.infoLabel}>Código</span>
-                    <span className={styles.infoCode}>{card.code}</span>
-                  </div>
+          {/* Secondary Metadata Grid - Quick Info */}
+          <div className={styles.metadataGrid}>
+            {card.code && (
+              <div className={styles.metadataItem}>
+                <div className={styles.metadataIcon}>
+                  <Code size={18} />
                 </div>
-              )}
-              {card.creatorName && (
-                <div className={styles.infoItem}>
-                  <div className={styles.infoIcon}>
-                    <User size={16} />
-                  </div>
-                  <div className={styles.infoContent}>
-                    <span className={styles.infoLabel}>Creador</span>
-                    <span className={styles.infoValue}>{card.creatorName}</span>
-                  </div>
+                <div className={styles.metadataText}>
+                  <span className={styles.metadataLabel}>Código</span>
+                  <span className={styles.metadataCode}>{card.code}</span>
                 </div>
-              )}
-              {card.createdAt && (
-                <div className={styles.infoItem}>
-                  <div className={styles.infoIcon}>
-                    <Calendar size={16} />
-                  </div>
-                  <div className={styles.infoContent}>
-                    <span className={styles.infoLabel}>Creado el</span>
-                    <span className={styles.infoValue}>
-                      {formatDate(card.createdAt)}
-                    </span>
-                  </div>
+              </div>
+            )}
+            {card.creatorName && (
+              <div className={styles.metadataItem}>
+                <div className={styles.metadataIcon}>
+                  <User size={18} />
                 </div>
-              )}
-            </div>
+                <div className={styles.metadataText}>
+                  <span className={styles.metadataLabel}>Creador</span>
+                  <span className={styles.metadataValue}>{card.creatorName}</span>
+                </div>
+              </div>
+            )}
+            {card.createdAt && (
+              <div className={styles.metadataItem}>
+                <div className={styles.metadataIcon}>
+                  <Calendar size={18} />
+                </div>
+                <div className={styles.metadataText}>
+                  <span className={styles.metadataLabel}>Creado el</span>
+                  <span className={styles.metadataValue}>
+                    {formatDate(card.createdAt)}
+                  </span>
+                </div>
+              </div>
+            )}
+            {card.type === "quiz" && card.difficulty && (
+              <div className={styles.metadataItem}>
+                <div className={styles.metadataIcon}>
+                  <Sparkles size={18} />
+                </div>
+                <div className={styles.metadataText}>
+                  <span className={styles.metadataLabel}>Dificultad</span>
+                  <span className={`${styles.metadataValue} ${styles.difficultyText}`}>
+                    {difficultyConfig?.label || card.difficulty}
+                  </span>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 

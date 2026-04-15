@@ -13,7 +13,7 @@ import {
 import type { QuickQuizDeck } from "@/types";
 import { Skeleton } from "@/components/ui/skeleton";
 import styles from "@/styles/quiz/quickQuizGrid.module.css";
-import { quickQuizzesService } from "@/services/quizzesService";
+import { quizzesService } from "@/services/quizzesService";
 
 const QUICK_QUIZ_CONFIG = {
   entitySingular: "quiz rápido",
@@ -51,8 +51,8 @@ export default function QuickQuizGrid() {
       onLoad: useCallback(async (mode: ViewMode) => {
         const data =
           mode === "private"
-            ? await quickQuizzesService.getQuizzesPrivate()
-            : await quickQuizzesService.getQuizzesPublic();
+            ? await quizzesService.getExamsPrivate()
+            : await quizzesService.getExamsPublic();
         return data as (QuickQuizDeck & StudyGridBaseItem)[];
       }, []),
       onItemOpen: useCallback(() => {}, []),
@@ -65,7 +65,7 @@ export default function QuickQuizGrid() {
     if (query.trim().length >= 2) {
       setIsSearching(true);
       try {
-        await quickQuizzesService.searchQuizzes(query, 20, 0, true);
+        await quizzesService.searchExams(query, 20, 0, true);
       } catch (error) {
         console.error("Error en búsqueda:", error);
       } finally {

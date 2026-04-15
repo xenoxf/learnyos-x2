@@ -101,6 +101,29 @@ export interface GenerateExamData {
   acceso?: string;
 }
 
+export interface GenerateQuickQuizData {
+  topic: string;
+  numberOfQuestions: number;
+  difficulty: string;
+  acceso?: string;
+}
+
+export interface QuickQuizDeck extends ExamDeck {
+  // Same as ExamDeck for now
+}
+
+export interface QuickQuizKlek extends ExamKlek {
+  // Same as ExamKlek for now
+}
+
+export interface QuickQuizQuestion extends ExamQuestion {
+  // Same as ExamQuestion for now
+}
+
+export interface QuickQuizOption extends ExamOption {
+  // Same as ExamOption for now
+}
+
 // ==================== FLASHCARDS ====================
 
 export interface FlashCardKlek {
