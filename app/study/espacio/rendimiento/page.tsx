@@ -10,6 +10,10 @@ import {
   X,
   Check,
   XCircle,
+  Calendar,
+  Hash,
+  BookOpen,
+  Sparkles,
 } from "lucide-react";
 import Image from "next/image";
 import styles from "@/styles/espacio/espacioPages.module.css";
@@ -152,6 +156,65 @@ export default function RendimientoPage() {
               >
                 {selectedAttempt.examTitle}
               </h4>
+
+              {/* Exam Metadata Grid */}
+              <div style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))",
+                gap: "0.75rem",
+                marginBottom: "1rem",
+                padding: "0.75rem",
+                background: "hsl(var(--muted) / 0.1)",
+                borderRadius: "0.5rem",
+              }}>
+                {selectedAttempt.examCode && (
+                  <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                    <Hash size={14} style={{ color: "hsl(var(--primary))" }} />
+                    <div>
+                      <div style={{ fontSize: "0.7rem", color: "hsl(var(--muted-foreground))" }}>Código</div>
+                      <div style={{ fontSize: "0.85rem", fontWeight: 600, fontFamily: "monospace" }}>{selectedAttempt.examCode}</div>
+                    </div>
+                  </div>
+                )}
+                {selectedAttempt.examType && (
+                  <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                    <BookOpen size={14} style={{ color: "hsl(var(--primary))" }} />
+                    <div>
+                      <div style={{ fontSize: "0.7rem", color: "hsl(var(--muted-foreground))" }}>Tipo</div>
+                      <div style={{
+                        fontSize: "0.75rem",
+                        fontWeight: 700,
+                        textTransform: "uppercase",
+                        padding: "0.125rem 0.5rem",
+                        borderRadius: "4px",
+                        display: "inline-block",
+                        background: selectedAttempt.examType === 'icfes' ? 'hsl(217 91% 60% / 0.15)' : 'hsl(271 70% 50% / 0.15)',
+                        color: selectedAttempt.examType === 'icfes' ? 'hsl(217 91% 60%)' : 'hsl(271 70% 50%)',
+                      }}>
+                        {selectedAttempt.examType === 'icfes' ? 'ICFES' : 'Quiz'}
+                      </div>
+                    </div>
+                  </div>
+                )}
+                {selectedAttempt.examDifficulty && (
+                  <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                    <Sparkles size={14} style={{ color: "hsl(var(--primary))" }} />
+                    <div>
+                      <div style={{ fontSize: "0.7rem", color: "hsl(var(--muted-foreground))" }}>Dificultad</div>
+                      <div style={{ fontSize: "0.85rem", fontWeight: 600, textTransform: "capitalize" }}>{selectedAttempt.examDifficulty}</div>
+                    </div>
+                  </div>
+                )}
+                {selectedAttempt.examArea && (
+                  <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                    <BookOpen size={14} style={{ color: "hsl(var(--primary))" }} />
+                    <div>
+                      <div style={{ fontSize: "0.7rem", color: "hsl(var(--muted-foreground))" }}>Área</div>
+                      <div style={{ fontSize: "0.85rem", fontWeight: 600 }}>{selectedAttempt.examArea}</div>
+                    </div>
+                  </div>
+                )}
+              </div>
 
               <div className={styles.modalInfo}>
                 <span className={styles.modalInfoLabel}>Usuario</span>

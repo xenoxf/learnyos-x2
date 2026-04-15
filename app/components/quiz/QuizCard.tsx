@@ -2,7 +2,7 @@
 
 import React, { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { Trash2, HelpCircle, Clock, Tag, Heart, User } from "lucide-react";
+import { Trash2, HelpCircle, Clock, Tag, Heart, User, BookOpen, ScrollText } from "lucide-react";
 import { toast } from "@/hooks/useLocalToast";
 import { isGuestUser } from "@/lib/auth-utils";
 import {
@@ -126,6 +126,21 @@ export default function QuizCard({
             <Clock size={16} />
             <span className={styles.difficultyBadge}>{quiz.difficulty}</span>
           </div>
+          {quiz.type && (
+            <div className={styles.metaItem}>
+              {quiz.type === 'icfes' ? (
+                <>
+                  <ScrollText size={16} />
+                  <span className={`${styles.typeBadge} ${styles.typeBadgeIcfes}`}>ICFES</span>
+                </>
+              ) : (
+                <>
+                  <BookOpen size={16} />
+                  <span className={`${styles.typeBadge} ${styles.typeBadgeQuiz}`}>Quiz</span>
+                </>
+              )}
+            </div>
+          )}
           {quiz.area && (
             <div className={styles.metaItem}>
               <Tag size={16} />

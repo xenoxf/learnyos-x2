@@ -88,12 +88,49 @@ export const authService = {
         { method: "GET" },
       );
       return result.valid === true;
-    } catch {
-      if (typeof window !== "undefined") {
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
-        localStorage.removeItem("isGuest");
+    } catch (err: any) {
+      // If 401, the auto-refresh in client.ts should have kicked in.
+      // Don't clear localStorage here — let the caller decide.
+      if (err?.message?.includes("Sesión expirada")) {
+        return false;
       }
+      // Network error or other — assume valid to avoid false logout
+      return true;
+    }
+  },
+
+  /**
+   * Attempt to refresh the session using the stored refresh token.
+   * Returns true if refresh was successful, false otherwise.
+   * This runs silently without blocking the UI.
+   */
+  async refreshSession(): Promise<boolean> {
+    try {
+      const refreshToken = httpClient.refreshTokenValue || localStorage.getItem("refreshToken");
+      if (!refreshToken) return false;
+
+      const response = await httpClient.request<{
+        token: string;
+        refreshToken: string;
+        user: User;
+      }>("/auth/refresh", {
+        method: "POST",
+        body: JSON.stringify({ refreshToken }),
+      });
+
+      if (response.token) {
+        httpClient.setToken(response.token, response.refreshToken);
+        if (typeof window !== "undefined" && response.user) {
+          localStorage.setItem(
+            "user",
+            JSON.stringify({ ...response.user, isGuest: false }),
+          );
+          localStorage.removeItem("isGuest");
+        }
+        return true;
+      }
+      return false;
+    } catch {
       return false;
     }
   },

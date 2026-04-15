@@ -47,6 +47,8 @@ export interface ExamQuestion {
   id?: number;
   question: string;
   explanation?: string;
+  contextId?: string;
+  contextContent?: string;
   options: ExamOption[];
   correctAnswer?: string;
 }
@@ -62,6 +64,7 @@ export interface ExamDeck {
   area?: string;
   tema?: string;
   difficulty?: string;
+  type?: 'quiz' | 'icfes';
   totalQuestions: number;
   estimatedTime?: string;
   code?: string;
@@ -82,10 +85,13 @@ export interface ExamKlek {
   area?: string;
   tema?: string;
   difficulty: DifficultyLevel;
+  type?: 'quiz' | 'icfes';
   totalQuestions: number;
   questions: ExamQuestion[];
   creatorName?: string;
   canDelete?: boolean;
+  code?: string;
+  createdAt?: string;
 }
 
 export interface GenerateExamData {

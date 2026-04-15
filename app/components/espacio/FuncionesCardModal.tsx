@@ -14,6 +14,8 @@ import {
   Sparkles,
   Code,
   ArrowRight,
+  Clock,
+  BarChart3,
 } from "lucide-react";
 import { toast } from "@/hooks/useLocalToast";
 import styles from "@/styles/espacio/funcionesCardModal.module.css";
@@ -27,7 +29,7 @@ export interface FuncionesCardData {
   tema?: string;
   creatorName?: string;
   likesCount?: number;
-  type: "flashcard" | "quiz" | "note";
+  type: "flashcard" | "quiz" | "icfes" | "note";
   totalCards?: number;
   totalQuestions?: number;
   contentsCount?: number;
@@ -95,6 +97,12 @@ export function FuncionesCardModal({
           icon: "❓",
           color: "purple",
         };
+      case "icfes":
+        return {
+          label: "ICFES",
+          icon: "📋",
+          color: "indigo",
+        };
       case "note":
         return {
           label: "Nota",
@@ -114,6 +122,18 @@ export function FuncionesCardModal({
       year: "numeric",
     });
   };
+
+  const getDifficultyConfig = (difficulty?: string) => {
+    if (!difficulty) return null;
+    const config = {
+      easy: { label: "Fácil", color: "success", icon: "✓" },
+      medium: { label: "Medio", color: "warning", icon: "◆" },
+      hard: { label: "Difícil", color: "destructive", icon: "✦" },
+    };
+    return config[difficulty as keyof typeof config] || null;
+  };
+
+  const difficultyConfig = getDifficultyConfig(card.difficulty);
 
   return (
     <div
@@ -158,7 +178,7 @@ export function FuncionesCardModal({
             )}
           </div>
 
-          {/* Stats Row */}
+          {/* Quick Stats */}
           <div className={styles.statsRow}>
             {card.type === "flashcard" && card.totalCards && (
               <div className={styles.statChip}>
@@ -166,15 +186,15 @@ export function FuncionesCardModal({
                 <span>{card.totalCards} tarjetas</span>
               </div>
             )}
-            {card.type === "quiz" && card.totalQuestions && (
+            {(card.type === "quiz" || card.type === "icfes") && card.totalQuestions && (
               <div className={styles.statChip}>
-                <Hash size={14} />
+                <BarChart3 size={14} />
                 <span>{card.totalQuestions} preguntas</span>
               </div>
             )}
             {card.type === "note" && card.contentsCount && (
               <div className={styles.statChip}>
-                <Hash size={14} />
+                <BookOpen size={14} />
                 <span>{card.contentsCount} secciones</span>
               </div>
             )}
@@ -184,62 +204,74 @@ export function FuncionesCardModal({
                 <span>{card.likesCount}</span>
               </div>
             )}
-            {card.difficulty && (
-              <div className={styles.statChip}>
+            {difficultyConfig && (
+              <div className={`${styles.statChip} ${styles[`difficulty_${difficultyConfig.color}`]}`}>
                 <Sparkles size={14} />
-                <span>{card.difficulty}</span>
+                <span>{difficultyConfig.label}</span>
               </div>
             )}
           </div>
 
           {/* Metadata Cards */}
           <div className={styles.metadataList}>
-            {card.area && (
-              <div className={styles.metaItem}>
-                <div className={styles.metaIcon}>
-                  <Tag size={18} />
+            {/* Primary Info Card */}
+            <div className={styles.infoCard}>
+              {(card.area || card.tema) && (
+                <div className={styles.topicSection}>
+                  {card.area && (
+                    <div className={styles.topicBadge}>
+                      <Tag size={14} />
+                      <span>{card.area}</span>
+                    </div>
+                  )}
+                  {card.tema && (
+                    <div className={styles.topicBadge}>
+                      <BookOpen size={14} />
+                      <span>{card.tema}</span>
+                    </div>
+                  )}
                 </div>
-                <div className={styles.metaContent}>
-                  <span className={styles.metaLabel}>Área</span>
-                  <span className={styles.metaValue}>{card.area}</span>
+              )}
+            </div>
+
+            {/* Secondary Info Grid */}
+            <div className={styles.secondaryInfoGrid}>
+              {card.code && (
+                <div className={styles.infoItem}>
+                  <div className={styles.infoIcon}>
+                    <Code size={16} />
+                  </div>
+                  <div className={styles.infoContent}>
+                    <span className={styles.infoLabel}>Código</span>
+                    <span className={styles.infoCode}>{card.code}</span>
+                  </div>
                 </div>
-              </div>
-            )}
-            {card.tema && (
-              <div className={styles.metaItem}>
-                <div className={styles.metaIcon}>
-                  <BookOpen size={18} />
+              )}
+              {card.creatorName && (
+                <div className={styles.infoItem}>
+                  <div className={styles.infoIcon}>
+                    <User size={16} />
+                  </div>
+                  <div className={styles.infoContent}>
+                    <span className={styles.infoLabel}>Creador</span>
+                    <span className={styles.infoValue}>{card.creatorName}</span>
+                  </div>
                 </div>
-                <div className={styles.metaContent}>
-                  <span className={styles.metaLabel}>Tema</span>
-                  <span className={styles.metaValue}>{card.tema}</span>
+              )}
+              {card.createdAt && (
+                <div className={styles.infoItem}>
+                  <div className={styles.infoIcon}>
+                    <Calendar size={16} />
+                  </div>
+                  <div className={styles.infoContent}>
+                    <span className={styles.infoLabel}>Creado el</span>
+                    <span className={styles.infoValue}>
+                      {formatDate(card.createdAt)}
+                    </span>
+                  </div>
                 </div>
-              </div>
-            )}
-            {card.creatorName && (
-              <div className={styles.metaItem}>
-                <div className={styles.metaIcon}>
-                  <User size={18} />
-                </div>
-                <div className={styles.metaContent}>
-                  <span className={styles.metaLabel}>Creador</span>
-                  <span className={styles.metaValue}>{card.creatorName}</span>
-                </div>
-              </div>
-            )}
-            {card.createdAt && (
-              <div className={styles.metaItem}>
-                <div className={styles.metaIcon}>
-                  <Calendar size={18} />
-                </div>
-                <div className={styles.metaContent}>
-                  <span className={styles.metaLabel}>Creado el</span>
-                  <span className={styles.metaValue}>
-                    {formatDate(card.createdAt)}
-                  </span>
-                </div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </div>
 

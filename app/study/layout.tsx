@@ -96,13 +96,17 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     // Validate token in background (don't block render)
     authService
       .verifyToken()
-      .then((isValid) => {
+      .then(async (isValid) => {
         if (!isValid) {
-          router.push("/auth");
+          // Token invalid — try to refresh before redirecting
+          const refreshed = await authService.refreshSession();
+          if (!refreshed) {
+            router.push("/auth");
+          }
         }
       })
       .catch(() => {
-        // Network error - assume valid
+        // Network error - assume valid, don't force logout
       });
   }, [router]);
 

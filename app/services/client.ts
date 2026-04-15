@@ -31,6 +31,18 @@ class HttpClient {
     }
   }
 
+  /**
+   * Sync tokens from localStorage (call on page load or tab switch)
+   */
+  syncFromStorage(): void {
+    if (typeof window !== "undefined") {
+      const storedToken = localStorage.getItem("token");
+      const storedRefresh = localStorage.getItem("refreshToken");
+      if (storedToken && storedToken !== this.token) this.token = storedToken;
+      if (storedRefresh && storedRefresh !== this.refreshToken) this.refreshToken = storedRefresh;
+    }
+  }
+
   setToken(token: string, refreshToken?: string): void {
     this.token = token;
     if (typeof window !== "undefined") {
@@ -42,12 +54,16 @@ class HttpClient {
     }
   }
 
+  /**
+   * Get the in-memory refresh token (for authService.refreshSession)
+   */
+  get refreshTokenValue(): string | null {
+    return this.refreshToken;
+  }
+
   private getToken(): string | null {
     if (typeof window !== "undefined") {
-      const storedToken = localStorage.getItem("token");
-      if (storedToken && storedToken !== this.token) this.token = storedToken;
-      const storedRefresh = localStorage.getItem("refreshToken");
-      if (storedRefresh && storedRefresh !== this.refreshToken) this.refreshToken = storedRefresh;
+      this.syncFromStorage();
     }
     return this.token;
   }
