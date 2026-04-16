@@ -1,10 +1,5 @@
-/**
- * Tipos globales para LearnYos Frontend
- * Sincronizados 100% con DTOs del Backend Klerk (NestJS)
- * SIN DISFRACES - Tipos exactos, nada de casting innecesario
- */
 
-// ==================== AUTHENTICATION ====================
+
 
 export interface User {
   id: number;
@@ -413,3 +408,17 @@ export interface CreditsStatus {
     CHAT_MESSAGE: number;
   };
 }
+
+
+/*
+ *  AQUI ESTARAN LOS TYPES QUE USO AL MOMENTO DE RENDERIZAR DATOS TEMPORALES
+ *
+ * */
+
+export type StatsHeroProps = {
+  totalAttempts: number;
+  avgCorrect: number;
+  bestScore: number;
+  totalQuestions: number;
+}
+

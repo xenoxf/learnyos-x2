@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import styles from '@/app/styles/ai-implementation.module.css';
+import styles from '@/styles/ai-implementation.module.css';
 import { MarkdownRenderer } from './MarkdownRenderer';
 
 export const AIImplementationStatus: React.FC = () => {

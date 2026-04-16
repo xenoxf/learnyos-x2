@@ -25,15 +25,13 @@ import styles from "@/styles/espacio/espacioPages.module.css";
 import { authService } from "@/services/authService";
 import { attemptsService } from "@/services/attemptsService";
 import { likesService } from "@/services/likesService";
+import { AttemptDetailModal } from "@/components/espacio/AttemptDetailModal";
+import { StatsHero } from "@/components/espacio/StatsHero";
+import { StatsHeroProps } from "@/types";
 
 export default function RendimientoPage() {
   const [attempts, setAttempts] = useState<any[]>([]);
-  const [attemptStats, setAttemptStats] = useState<{
-    totalAttempts: number;
-    avgCorrect: number;
-    bestScore: number;
-    totalQuestions: number;
-  } | null>(null);
+  const [attemptStats, setAttemptStats] = useState<StatsHeroProps | null>(null);
   const [loading, setLoading] = useState(true);
   const [isGuest, setIsGuest] = useState(false);
   const [user, setUser] = useState<any>(null);
@@ -47,7 +45,7 @@ export default function RendimientoPage() {
       if (userData) {
         try {
           setUser(JSON.parse(userData));
-        } catch {}
+        } catch { }
       }
     }
   }, []);
@@ -88,7 +86,7 @@ export default function RendimientoPage() {
     try {
       // Toggle like on exam
       await likesService.toggleExamLike(examId);
-      
+
       // Update local state
       setLikedAttempts((prev) => {
         const newSet = new Set(prev);
@@ -157,171 +155,15 @@ export default function RendimientoPage() {
 
       {/* Attempt Detail Modal - PRO UI */}
       {selectedAttempt && (
-        <div className={styles.modalOverlay} onClick={handleCloseDetail}>
-          <div
-            className={styles.modalContent}
-            style={{ maxWidth: "1000px" }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className={styles.modalHeader}>
-              <div className={styles.modalHeaderLeft}>
-                <Award size={20} className={styles.awardIcon} />
-                <h3 className={styles.modalTitle}>Análisis de Desempeño</h3>
-              </div>
-              <button
-                className={styles.modalClose}
-                onClick={handleCloseDetail}
-                type="button"
-              >
-                <X size={20} />
-              </button>
-            </div>
-
-            <div className={styles.modalBody}>
-              <div className={styles.mainGrid}>
-                {/* Left: Score Card */}
-                <div className={styles.leftColumn}>
-                  <div className={styles.heroSection}>
-                    <h2 className={styles.attemptExamTitle}>
-                      {selectedAttempt.examTitle}
-                    </h2>
-                    
-                    <div className={styles.mainDashboard}>
-                      <div className={styles.circularScore}>
-                        <span className={styles.percentageBig}>
-                          {selectedAttempt.totalQuestions > 0
-                            ? Math.round((selectedAttempt.correctAnswers / selectedAttempt.totalQuestions) * 100)
-                            : 0}%
-                        </span>
-                        <span className={styles.percentageSub}>Logrado</span>
-                      </div>
-
-                      <div className={styles.quickStatsRow}>
-                        <div className={styles.miniStat}>
-                          <div className={`${styles.miniIcon} ${styles.bgSuccess}`}>
-                            <Check size={16} />
-                          </div>
-                          <div className={styles.miniText}>
-                            <span className={styles.miniVal}>{selectedAttempt.correctAnswers}</span>
-                            <span className={styles.miniLab}>Correctas</span>
-                          </div>
-                        </div>
-                        <div className={styles.miniStat}>
-                          <div className={`${styles.miniIcon} ${styles.bgError}`}>
-                            <XCircle size={16} />
-                          </div>
-                          <div className={styles.miniText}>
-                            <span className={styles.miniVal}>{selectedAttempt.totalQuestions - selectedAttempt.correctAnswers}</span>
-                            <span className={styles.miniLab}>Erróneas</span>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className={styles.progressBarLarge}>
-                        <div 
-                          className={styles.progressFillLarge} 
-                          style={{ width: `${(selectedAttempt.correctAnswers / selectedAttempt.totalQuestions) * 100}%` }}
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  {selectedAttempt.userAnswers && (
-                    <button className={styles.actionBtnFull}>
-                      <Eye size={18} />
-                      <span>Revisar Pregunta por Pregunta</span>
-                    </button>
-                  )}
-                </div>
-
-                {/* Right: Detailed Metadata */}
-                <div className={styles.rightColumn}>
-                  <div className={styles.infoDetailsCard}>
-                    <div className={styles.detailSection}>
-                      <h4 className={styles.detailHeader}>
-                        <Hash size={14} /> Identificación
-                      </h4>
-                      <div className={styles.detailItem}>
-                        <span className={styles.detailLabel}>Código del Examen</span>
-                        <span className={styles.codePill}>{selectedAttempt.examCode || "N/A"}</span>
-                      </div>
-                    </div>
-
-                    <div className={styles.detailSection}>
-                      <h4 className={styles.detailHeader}>
-                        <BookOpen size={14} /> Academia
-                      </h4>
-                      <div className={styles.detailItem}>
-                        <span className={styles.detailLabel}>Área de conocimiento</span>
-                        <span className={styles.detailValue}>{selectedAttempt.examArea || "General"}</span>
-                      </div>
-                      <div className={styles.detailItem}>
-                        <span className={styles.detailLabel}>Tema específico</span>
-                        <span className={styles.detailValue}>{selectedAttempt.examTema || "Varios"}</span>
-                      </div>
-                      <div className={styles.detailItem}>
-                        <span className={styles.detailLabel}>Nivel de complejidad</span>
-                        <span className={`${styles.diffValue} ${styles[`text_${selectedAttempt.examDifficulty}`]}`}>
-                          {selectedAttempt.examDifficulty || "Media"}
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className={styles.detailSection}>
-                      <h4 className={styles.detailHeader}>
-                        <User size={14} /> Autoría y Registro
-                      </h4>
-                      <div className={styles.detailItem}>
-                        <span className={styles.detailLabel}>Creado por</span>
-                        <span className={styles.detailValue}>{selectedAttempt.examCreatorName || "Sistema LearnyOS"}</span>
-                      </div>
-                      <div className={styles.detailItem}>
-                        <span className={styles.detailLabel}>Realizado el</span>
-                        <span className={styles.detailValue}>
-                          {new Date(selectedAttempt.attemptedAt).toLocaleDateString("es-ES", {
-                            day: 'numeric', month: 'long', year: 'numeric'
-                          })}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <AttemptDetailModal attempt={selectedAttempt} onClose={handleCloseDetail} />
       )}
 
       <div className={styles.tabContent}>
         {attemptStats && attemptStats.totalAttempts > 0 && (
-          <section className={styles.statsHero}>
-            <div className={styles.statsHeroContent}>
-              <div className={styles.statsHeroHeader}>
-                <TrendingUp size={28} className={styles.statsIcon} />
-                <div>
-                  <h2>Estadísticas de Aprendizaje</h2>
-                  <p>Has completado {attemptStats.totalAttempts} desafíos</p>
-                </div>
-              </div>
-              <div className={styles.statsSummaryGrid}>
-                <div className={styles.summaryBox}>
-                  <span className={styles.summaryVal}>{attemptStats.avgCorrect.toFixed(1)}</span>
-                  <span className={styles.summaryLab}>Promedio Aciertos</span>
-                </div>
-                <div className={styles.summaryBox}>
-                  <span className={styles.summaryVal}>{attemptStats.bestScore}</span>
-                  <span className={styles.summaryLab}>Máximo Puntaje</span>
-                </div>
-                <div className={styles.summaryBox}>
-                  <span className={styles.summaryVal}>{attemptStats.totalQuestions}</span>
-                  <span className={styles.summaryLab}>Preguntas Totales</span>
-                </div>
-              </div>
-            </div>
-          </section>
+          <StatsHero bestScore={attemptStats.bestScore} totalAttempts={attemptStats.totalAttempts} avgCorrect={attemptStats.avgCorrect} totalQuestions={attemptStats.totalQuestions} />
         )}
 
-        {attempts.length === 0 ? (
+        {attempts.length < 1 ? (
           <div className={styles.emptyState}>
             <div className={styles.emptyIconCircle}>
               <FileText size={40} />

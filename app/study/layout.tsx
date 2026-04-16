@@ -156,7 +156,9 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         className={`${styles.mainContent} ${isMobile ? styles.mainContentMobile : ""}`}
       >
         <Suspense fallback={null}>{isGuest && <GuestBanner />}</Suspense>
-        {children}
+        <Suspense fallback={<div className="p-8 text-center">Cargando...</div>}>
+          {children}
+        </Suspense>
       </div>
 
       {isMobile && (

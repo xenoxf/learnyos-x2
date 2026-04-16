@@ -87,7 +87,12 @@ export const authService = {
         "/auth/verify_token",
         { method: "GET" },
       );
-      return result.valid === true;
+      if (result.valid === true) {
+        return true;
+      } else {
+        const refresh = await this.refreshSession();
+        return refresh;
+      }
     } catch (err: any) {
       if (err?.message?.includes("Sesión expirada")) {
         return false;

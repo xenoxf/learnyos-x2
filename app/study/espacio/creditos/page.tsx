@@ -14,7 +14,7 @@ import {
   RefreshCw,
 } from "lucide-react";
 import { toast } from "@/hooks/useLocalToast";
-import styles from "@/styles/espacio/espacioPages.module.css";
+import styles from "@/styles/espacio/creditos.module.css";
 import { CreditsStatus } from "@/types";
 import { creditsService } from "@/services/creditsService";
 import { authService } from "@/services/authService";
