@@ -21,12 +21,10 @@
   left: 0;
   right: 0;
   height: 3px;
-  background: linear-gradient(
-    90deg,
-    hsl(var(--primary)),
-    hsl(var(--primary) / 0.5),
-    transparent
-  );
+  background: linear-gradient(90deg,
+      hsl(var(--primary)),
+      hsl(var(--primary) / 0.5),
+      transparent);
   opacity: 0;
   transition: opacity var(--transition-base);
 }
@@ -168,7 +166,7 @@
   background: transparent;
   border: 1px solid hsl(var(--border));
   border-radius: 20px;
-  color: hsl(var(--muted-foreground));
+  color: hsl(var(--heart));
   cursor: pointer;
   transition: all 0.15s ease;
   font-size: 0.78rem;
@@ -176,15 +174,15 @@
 }
 
 .likeBtn:hover {
-  border-color: hsl(var(--destructive) / 0.5);
-  color: hsl(var(--destructive));
-  background: hsl(var(--destructive) / 0.05);
+  border-color: hsl(var(--heart) / 0.5);
+  color: hsl(var(--heart));
+  background: hsl(var(--heart) / 0.05);
 }
 
 .likeBtnActive {
-  border-color: hsl(var(--destructive) / 0.5);
-  color: hsl(var(--destructive));
-  background: hsl(var(--destructive) / 0.1);
+  border-color: hsl(var(--heart) / 0.5);
+  color: hsl(var(--heart));
+  background: hsl(var(--heart) / 0.1);
 }
 
 .likesCount {

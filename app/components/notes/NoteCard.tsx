@@ -2,7 +2,16 @@
 
 import React, { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { Trash2, FileText, Tag, BookOpen, Heart, User } from "lucide-react";
+import {
+  Trash2,
+  FileText,
+  Heart,
+  User,
+  BookOpen,
+  ArrowRight,
+  BookmarkPlus,
+  BookmarkCheck,
+} from "lucide-react";
 import { toast } from "@/hooks/useLocalToast";
 import { isGuestUser } from "@/lib/auth-utils";
 import {
@@ -15,7 +24,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import styles from "@/styles/notes/noteCard.module.css";
+import styles from "@/styles/quiz/quizCard.module.css"; // Reuse premium styles
 import type { NoteDeck } from "@/types";
 import { likesService } from "@/services/likesService";
 
@@ -37,17 +46,15 @@ export default function NoteCard({
   const [userLiked, setUserLiked] = useState(note.userLiked || false);
   const [isLiking, setIsLiking] = useState(false);
   const [showGuestAlert, setShowGuestAlert] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
 
   const isOwner = note.canDelete ?? false;
 
   const handleDelete = useCallback(
-    async (e: React.MouseEvent) => {
+    (e: React.MouseEvent) => {
       e.stopPropagation();
-
-      if (!isOwner) {
-        toast.error("No permitido", "Solo puedes eliminar tus propias notas");
-        return;
-      }
+      if (!isOwner) return;
+      // Handle delete logic via parent if needed
     },
     [isOwner],
   );
@@ -57,7 +64,6 @@ export default function NoteCard({
       e.stopPropagation();
       if (isLiking) return;
 
-      // Check if guest
       if (isGuestUser()) {
         setShowGuestAlert(true);
         return;
@@ -69,7 +75,7 @@ export default function NoteCard({
         setLikesCount(result.count);
         setUserLiked(result.liked);
       } catch {
-        // Silent fail for likes
+        // Silent fail
       } finally {
         setIsLiking(false);
       }
@@ -77,7 +83,7 @@ export default function NoteCard({
     [note.id, isLiking],
   );
 
-  const handleCardClick = useCallback(() => {
+  const handleOpen = useCallback(() => {
     if (isEspacio && onShowOptions) {
       onShowOptions();
     } else {
@@ -88,103 +94,116 @@ export default function NoteCard({
   return (
     <>
       <div
-        className={styles.card}
-        onClick={handleCardClick}
+        className={`${styles.card} ${styles["card--emerald"]}`}
         role="button"
         tabIndex={0}
+        onClick={handleOpen}
         onKeyDown={(e) => {
           if (e.key === "Enter" || e.key === " ") {
-            handleCardClick();
+            e.preventDefault();
+            handleOpen();
           }
         }}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
       >
+        <div className={`${styles.cardAccent} ${styles["accent--emerald"]}`} />
+
         <div className={styles.cardHeader}>
-          <div className={styles.titleSection}>
-            <FileText size={20} className={styles.icon} />
-            <h3 className={styles.cardTitle}>{note.title}</h3>
-          </div>
-          {isOwner && !isEspacio && (
-            <button
-              className={styles.deleteBtn}
-              onClick={handleDelete}
-              title="Eliminar nota"
-              aria-label="Eliminar nota"
-              type="button"
-            >
-              <Trash2 size={18} />
-            </button>
-          )}
-        </div>
-
-        <p className={styles.cardDescription}>
-          {note.description || "Sin descripción"}
-        </p>
-
-        <div className={styles.cardMeta}>
-          {(note.area || note.tema) && (
-            <div className={styles.metaItem}>
-              {note.area && (
-                <div className={styles.item} >
-                  <Tag size={14} />
-                  Área: {note.area}
-                </div>
-              )}
-              {note.tema && (
-                <div className={styles.item}>
-                  <BookOpen size={14} />
-                  Tema: {note.tema}
-                </div>
-              )}
-            </div>
-          )}
-          <div className={styles.metaItem}>
-            <span className={styles.levelBadge}>
-              {note.contentsCount} sección
+          <div className={styles.typeRow}>
+            <span className={`${styles.typeBadge} ${styles["typeBadge--emerald"]}`}>
+              <FileText size={15} />
+              Nota
             </span>
           </div>
+
+          <h3 className={styles.cardTitle}>{note.title}</h3>
         </div>
 
+        {note.description && (
+          <p className={styles.cardDescription}>
+            {note.description}
+          </p>
+        )}
 
+        <div className={styles.statsRow}>
+          <div className={styles.statItem}>
+            <BookOpen size={15} />
+            <span>{note.contentsCount} <small>secciones</small></span>
+          </div>
+        </div>
+
+        {(note.tema || note.area) && (
+          <div className={styles.tagsRow}>
+            {note.tema && (
+              <span className={styles.tagItem}>
+                <BookmarkCheck size={13} />
+                {note.tema}
+              </span>
+            )}
+            {note.area && (
+              <span className={styles.tagItem}>
+                <BookmarkPlus size={13} />
+                {note.area}
+              </span>
+            )}
+          </div>
+        )}
 
         <div className={styles.cardFooter}>
-          <div className={styles.cardCreator}>
-            <User size={12} />
-            <span>{note.creatorName}</span>
-          </div>
-          {!isOwner && (
-            <button
-              className={`${styles.likeBtn} ${userLiked ? styles.likeBtnActive : ""}`}
-              onClick={handleLike}
-              disabled={isLiking}
-              title="Me gusta"
-              aria-label="Me gusta"
-              type="button"
-            >
-              <Heart className={styles.likeIcon} fill={userLiked ? "currentColor" : "none"} />
-              <span>{likesCount}</span>
-            </button>
-          )}
-
-          {isOwner && (
-            <span className={styles.likesCount}>
-              <Heart size={14} fill="currentColor" />
-              <span>{likesCount}</span>
+          <div className={styles.footerLeft}>
+            <span className={styles.cardCreator}>
+              <User size={13} />
+              {note.creatorName}
             </span>
-          )}
-          {isOwner && note.code && (
-            <span className={styles.noteCode}>{note.code}</span>
-          )}
+          </div>
+
+          <div className={styles.footerRight}>
+            {!isOwner && (
+              <button
+                className={`${styles.likeBtn} ${userLiked ? styles.likeBtnActive : ""}`}
+                onClick={handleLike}
+                disabled={isLiking}
+                type="button"
+              >
+                <Heart
+                  size={15}
+                  fill={userLiked ? "currentColor" : "none"}
+                  className={isLiking ? styles.likeAnimating : ""}
+                />
+                {likesCount > 0 && <span>{likesCount}</span>}
+              </button>
+            )}
+            {isOwner && (
+              <span className={styles.likesCount}>
+                <Heart size={14} fill="currentColor" />
+                {likesCount}
+              </span>
+            )}
+
+            <div className={`${styles.ctaArrow} ${isHovered ? styles.ctaArrowVisible : ""}`}>
+              <ArrowRight size={16} />
+            </div>
+          </div>
         </div>
+
+        {isOwner && !isEspacio && (
+          <button
+            className={styles.deleteBtn}
+            onClick={handleDelete}
+            type="button"
+          >
+            <Trash2 size={16} />
+          </button>
+        )}
       </div>
 
-      {/* Guest alert dialog */}
       <AlertDialog open={showGuestAlert} onOpenChange={setShowGuestAlert}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Inicia sesión para dar Me gusta</AlertDialogTitle>
             <AlertDialogDescription>
-              Los usuarios invitados no pueden dar Me gusta. Inicia sesión o
-              crea una cuenta gratis para acceder a esta función.
+              Los usuarios invitados no pueden dar Me gusta.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

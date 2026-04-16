@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { RefreshCw, AlertTriangle, FileText } from "lucide-react";
 import { toast } from "@/hooks/useLocalToast";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   FuncionesCardModal,
   type FuncionesCardData,
@@ -78,11 +79,32 @@ export default function FuncionesNotasPage() {
     window.location.href = `/study/notes/${id}`;
   }, []);
 
+  const skeletons = useMemo(
+    () =>
+      Array.from({ length: 6 }).map((_, i) => (
+        <div key={i} className={styles.skeletonCard}>
+          <div className={styles.itemCardHeader}>
+            <Skeleton className={styles.skeletonTitle} />
+          </div>
+          <Skeleton className={styles.skeletonDescription} />
+          <Skeleton className={styles.skeletonDescriptionLine} />
+          <div className={styles.skeletonBadges}>
+            <Skeleton className={styles.skeletonBadge} />
+            <Skeleton className={styles.skeletonBadge} />
+          </div>
+          <div className={styles.skeletonFooter}>
+            <Skeleton className={styles.skeletonCreator} />
+            <Skeleton className={styles.skeletonCode} />
+          </div>
+        </div>
+      )),
+    [],
+  );
+
   if (loading) {
     return (
-      <div className={styles.loadingState}>
-        <RefreshCw size={24} className={styles.spinner} />
-        <p>Cargando notas...</p>
+      <div className={styles.itemsList}>
+        {skeletons}
       </div>
     );
   }

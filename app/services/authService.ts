@@ -145,7 +145,7 @@ export const authService = {
       },
     );
     if (response.token && response.user) {
-      httpClient.setToken(response.token);
+      httpClient.setToken(response.token, response.refreshToken);
       if (typeof window !== "undefined") {
         localStorage.setItem(
           "user",
@@ -168,7 +168,7 @@ export const authService = {
       body: JSON.stringify(googleToken),
     });
     if (response.token) {
-      httpClient.setToken(response.token);
+      httpClient.setToken(response.token, response.refreshToken);
       if (typeof window !== "undefined") {
         localStorage.setItem(
           "user",
@@ -185,7 +185,7 @@ export const authService = {
       method: "POST",
     });
     if (response.token && response.user) {
-      httpClient.setToken(response.token);
+      httpClient.setToken(response.token, response.refreshToken);
       if (typeof window !== "undefined") {
         localStorage.setItem("user", JSON.stringify(response.user));
         localStorage.setItem("isGuest", "true");

@@ -168,124 +168,115 @@ export function FuncionesCardModal({
           </button>
         </div>
 
-        {/* Scrollable Content */}
-        <div className={styles.content}>
-          {/* Title & Description */}
-          <div className={styles.titleSection}>
-            <h2 className={styles.title}>{card.title}</h2>
-            {card.description && (
-              <p className={styles.description}>{card.description}</p>
-            )}
-          </div>
+        {/* Main Content Area - 2 Columns on Desktop */}
+        <div className={styles.modalBody}>
+          <div className={styles.mainGrid}>
+            {/* Left Column: Title, Description, Academic Info */}
+            <div className={styles.leftColumn}>
+              <div className={styles.titleSection}>
+                <h2 className={styles.title}>{card.title}</h2>
+                {card.description && (
+                  <p className={styles.description}>{card.description}</p>
+                )}
+              </div>
 
-          {/* Quick Stats */}
-          <div className={styles.statsRow}>
-            {card.type === "flashcard" && card.totalCards && (
-              <div className={styles.statChip}>
-                <Hash size={14} />
-                <span>{card.totalCards} tarjetas</span>
-              </div>
-            )}
-            {(card.type === "quiz" || card.type === "icfes") && card.totalQuestions && (
-              <div className={styles.statChip}>
-                <BarChart3 size={14} />
-                <span>{card.totalQuestions} preguntas</span>
-              </div>
-            )}
-            {card.type === "note" && card.contentsCount && (
-              <div className={styles.statChip}>
-                <BookOpen size={14} />
-                <span>{card.contentsCount} secciones</span>
-              </div>
-            )}
-            {card.likesCount !== undefined && card.likesCount > 0 && (
-              <div className={styles.statChip}>
-                <Heart size={14} />
-                <span>{card.likesCount}</span>
-              </div>
-            )}
-            {difficultyConfig && (
-              <div className={`${styles.statChip} ${styles[`difficulty_${difficultyConfig.color}`]}`}>
-                <Sparkles size={14} />
-                <span>{difficultyConfig.label}</span>
-              </div>
-            )}
-          </div>
+              {(card.area || card.tema || card.code) && (
+                <div className={styles.academicSection}>
+                  <div className={styles.sectionHeader}>
+                    <BookOpen size={16} />
+                    <span>Información del Contenido</span>
+                  </div>
+                  <div className={styles.academicGrid}>
+                    {card.area && (
+                      <div className={styles.academicItem}>
+                        <span className={styles.academicLabel}>Área</span>
+                        <span className={styles.academicValue}>{card.area}</span>
+                      </div>
+                    )}
+                    {card.tema && (
+                      <div className={styles.academicItem}>
+                        <span className={styles.academicLabel}>Tema</span>
+                        <span className={styles.academicValue}>{card.tema}</span>
+                      </div>
+                    )}
+                    {(isOwner || card.code) && card.code && (
+                      <div className={styles.academicItem}>
+                        <span className={styles.academicLabel}>Código de Acceso</span>
+                        <span className={styles.codeBadge}>
+                          <Code size={12} />
+                          {card.code}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
 
-          {/* Primary Metadata Card - Topics */}
-          {(card.area || card.tema) && (
-            <div className={styles.metadataCard}>
-              <div className={styles.metadataHeader}>
-                <Tag size={16} />
-                <span className={styles.metadataTitle}>Información Académica</span>
-              </div>
-              <div className={styles.metadataBadges}>
-                {card.area && (
-                  <div className={styles.badge}>
-                    <span className={styles.badgeLabel}>Área:</span>
-                    <span className={styles.badgeValue}>{card.area}</span>
+            {/* Right Column: Metadata Cards & Quick Stats */}
+            <div className={styles.rightColumn}>
+              <div className={styles.metadataCard}>
+                <div className={styles.metaRow}>
+                  <div className={styles.metaIcon}>
+                    <Hash size={16} />
+                  </div>
+                  <div className={styles.metaContent}>
+                    <span className={styles.metaLabel}>Contenido</span>
+                    <span className={styles.metaValue}>
+                      {card.type === "flashcard" && `${card.totalCards || 0} tarjetas`}
+                      {(card.type === "quiz" || card.type === "icfes") && `${card.totalQuestions || 0} preguntas`}
+                      {card.type === "note" && `${card.contentsCount || 0} secciones`}
+                    </span>
+                  </div>
+                </div>
+
+                {card.difficulty && (
+                  <div className={styles.metaRow}>
+                    <div className={styles.metaIcon}>
+                      <Sparkles size={16} />
+                    </div>
+                    <div className={styles.metaContent}>
+                      <span className={styles.metaLabel}>Dificultad</span>
+                      <span className={`${styles.metaValue} ${styles[`diff_${card.difficulty}`]}`}>
+                        {difficultyConfig?.label || card.difficulty}
+                      </span>
+                    </div>
                   </div>
                 )}
-                {card.tema && (
-                  <div className={styles.badge}>
-                    <span className={styles.badgeLabel}>Tema:</span>
-                    <span className={styles.badgeValue}>{card.tema}</span>
+
+                <div className={styles.metaRow}>
+                  <div className={styles.metaIcon}>
+                    <User size={16} />
+                  </div>
+                  <div className={styles.metaContent}>
+                    <span className={styles.metaLabel}>Creador</span>
+                    <span className={styles.metaValue}>{card.creatorName || "Anónimo"}</span>
+                  </div>
+                </div>
+
+                <div className={styles.metaRow}>
+                  <div className={styles.metaIcon}>
+                    <Calendar size={16} />
+                  </div>
+                  <div className={styles.metaContent}>
+                    <span className={styles.metaLabel}>Fecha</span>
+                    <span className={styles.metaValue}>{formatDate(card.createdAt)}</span>
+                  </div>
+                </div>
+
+                {card.likesCount !== undefined && card.likesCount > 0 && (
+                  <div className={styles.metaRow}>
+                    <div className={styles.metaIcon}>
+                      <Heart size={16} />
+                    </div>
+                    <div className={styles.metaContent}>
+                      <span className={styles.metaLabel}>Valoración</span>
+                      <span className={styles.metaValue}>{card.likesCount} me gusta</span>
+                    </div>
                   </div>
                 )}
               </div>
             </div>
-          )}
-
-          {/* Secondary Metadata Grid - Quick Info */}
-          <div className={styles.metadataGrid}>
-            {card.code && (
-              <div className={styles.metadataItem}>
-                <div className={styles.metadataIcon}>
-                  <Code size={18} />
-                </div>
-                <div className={styles.metadataText}>
-                  <span className={styles.metadataLabel}>Código</span>
-                  <span className={styles.metadataCode}>{card.code}</span>
-                </div>
-              </div>
-            )}
-            {card.creatorName && (
-              <div className={styles.metadataItem}>
-                <div className={styles.metadataIcon}>
-                  <User size={18} />
-                </div>
-                <div className={styles.metadataText}>
-                  <span className={styles.metadataLabel}>Creador</span>
-                  <span className={styles.metadataValue}>{card.creatorName}</span>
-                </div>
-              </div>
-            )}
-            {card.createdAt && (
-              <div className={styles.metadataItem}>
-                <div className={styles.metadataIcon}>
-                  <Calendar size={18} />
-                </div>
-                <div className={styles.metadataText}>
-                  <span className={styles.metadataLabel}>Creado el</span>
-                  <span className={styles.metadataValue}>
-                    {formatDate(card.createdAt)}
-                  </span>
-                </div>
-              </div>
-            )}
-            {card.type === "quiz" && card.difficulty && (
-              <div className={styles.metadataItem}>
-                <div className={styles.metadataIcon}>
-                  <Sparkles size={18} />
-                </div>
-                <div className={styles.metadataText}>
-                  <span className={styles.metadataLabel}>Dificultad</span>
-                  <span className={`${styles.metadataValue} ${styles.difficultyText}`}>
-                    {difficultyConfig?.label || card.difficulty}
-                  </span>
-                </div>
-              </div>
-            )}
           </div>
         </div>
 

@@ -51,392 +51,129 @@
 .modal {
   position: relative;
   background: hsl(var(--card));
-  border-radius: 1.5rem 1.5rem 0 0;
-  width: 100%;
-  max-width: 600px;
-  max-height: 85vh;
-  max-height: 85dvh;
+  border-radius: 1.5rem;
+  width: 95%;
+  max-width: 1000px;
+  max-height: 90vh;
   display: flex;
   flex-direction: column;
   overflow: hidden;
   animation: slideUp 0.3s cubic-bezier(0.32, 0.72, 0, 1);
-  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
 }
 
-/* For screens that can accommodate it, use 4:6 aspect ratio */
-@media (min-height: 700px) {
-  .modal {
-    max-height: min(85vh, 75dvh);
-    aspect-ratio: 4 / 6;
+@media (min-width: 768px) {
+  .mainGrid {
+    grid-template-columns: 1.6fr 1fr;
+    gap: 3rem;
+    align-items: start;
   }
 }
 
-.modalClosing {
-  animation: slideDown 0.2s cubic-bezier(0.32, 0.72, 0, 1) forwards;
-}
-
-/* ==================== HEADER ==================== */
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1.25rem 1.5rem;
-  border-bottom: 1px solid hsl(var(--border));
-  flex-shrink: 0;
-}
-
-.headerLeft {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.typeIcon {
-  font-size: 1.75rem;
-  line-height: 1;
-}
-
-.headerInfo {
+/* ==================== LEFT COLUMN ==================== */
+.leftColumn {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
-}
-
-.typeLabel {
-  font-size: 0.7rem;
-  font-weight: 800;
-  color: hsl(var(--primary));
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-}
-
-.codeBadge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.375rem;
-  padding: 0.2rem 0.5rem;
-  background: hsl(var(--primary) / 0.1);
-  border-radius: 4px;
-  font-size: 0.7rem;
-  font-weight: 700;
-  color: hsl(var(--primary));
-  font-family: monospace;
-  letter-spacing: 0.05em;
-}
-
-.closeBtn {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  border: 1px solid hsl(var(--border));
-  background: hsl(var(--muted) / 0.3);
-  color: hsl(var(--foreground));
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
-}
-
-.closeBtn:hover {
-  background: hsl(var(--muted));
-  transform: rotate(90deg);
-}
-
-/* ==================== CONTENT ==================== */
-.content {
-  flex: 1;
-  overflow-y: auto;
-  padding: 1.5rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-  -webkit-overflow-scrolling: touch;
+  gap: 1.5rem;
 }
 
 .titleSection {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.75rem;
 }
 
 .title {
-  font-size: 1.375rem;
+  font-size: 1.5rem;
   font-weight: 800;
   color: hsl(var(--foreground));
   margin: 0;
-  line-height: 1.3;
-  letter-spacing: -0.01em;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
 }
 
 .description {
-  font-size: 0.875rem;
+  font-size: 0.935rem;
   color: hsl(var(--muted-foreground));
   margin: 0;
   line-height: 1.6;
 }
 
-/* ==================== STATS ROW ==================== */
-.statsRow {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
+.academicSection {
+  background: hsl(var(--muted) / 0.15);
+  border: 1px solid hsl(var(--border) / 0.5);
+  border-radius: 1rem;
+  padding: 1.25rem;
 }
 
-.statChip {
-  display: inline-flex;
+.sectionHeader {
+  display: flex;
   align-items: center;
-  gap: 0.375rem;
-  padding: 0.5rem 0.75rem;
-  background: hsl(var(--muted) / 0.2);
-  border: 1px solid hsl(var(--border) / 0.3);
-  border-radius: 2rem;
-  font-size: 0.75rem;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  color: hsl(var(--primary));
+  font-weight: 700;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.academicGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+.academicItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.academicLabel {
+  font-size: 0.7rem;
   font-weight: 600;
   color: hsl(var(--muted-foreground));
-  transition: all 0.15s ease;
 }
 
-.statChip:hover {
-  background: hsl(var(--muted) / 0.3);
-  border-color: hsl(var(--border) / 0.5);
+.academicValue {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: hsl(var(--foreground));
 }
 
-.statChip > svg {
-  opacity: 0.7;
-}
-
-.statChip.difficulty_success {
-  background: hsl(var(--success) / 0.15);
-  border-color: hsl(var(--success) / 0.3);
-  color: hsl(var(--success));
-}
-
-.statChip.difficulty_warning {
-  background: hsl(var(--warning) / 0.15);
-  border-color: hsl(var(--warning) / 0.3);
-  color: hsl(var(--warning));
-}
-
-.statChip.difficulty_destructive {
-  background: hsl(var(--destructive) / 0.15);
-  border-color: hsl(var(--destructive) / 0.3);
-  color: hsl(var(--destructive));
-}
-
-/* ==================== METADATA LIST ==================== */
-.metadataList {
+/* ==================== RIGHT COLUMN ==================== */
+.rightColumn {
   display: flex;
   flex-direction: column;
   gap: 1rem;
 }
 
-/* New Metadata Card - Topics */
 .metadataCard {
-  padding: 1.125rem;
-  background: linear-gradient(135deg, hsl(var(--primary) / 0.06), hsl(var(--muted) / 0.08));
-  border: 1px solid hsl(var(--primary) / 0.12);
-  border-radius: 0.875rem;
-}
-
-.metadataHeader {
-  display: flex;
-  align-items: center;
-  gap: 0.625rem;
-  margin-bottom: 0.875rem;
-  color: hsl(var(--primary));
-  font-weight: 700;
-  font-size: 0.875rem;
-}
-
-.metadataTitle {
-  font-size: 0.8rem;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
-
-.metadataBadges {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.625rem;
-}
-
-.badge {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.625rem 0.875rem;
-  background: hsl(var(--background));
+  background: hsl(var(--card));
   border: 1px solid hsl(var(--border));
-  border-radius: 0.625rem;
-  transition: all 0.2s ease;
-}
-
-.badge:hover {
-  background: hsl(var(--primary) / 0.08);
-  border-color: hsl(var(--primary) / 0.25);
-  transform: translateY(-1px);
-}
-
-.badgeLabel {
-  font-size: 0.7rem;
-  font-weight: 700;
-  color: hsl(var(--muted-foreground));
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.badgeValue {
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: hsl(var(--foreground));
-  line-height: 1.3;
-}
-
-/* New Metadata Grid */
-.metadataGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 0.875rem;
-}
-
-.metadataItem {
-  display: flex;
-  align-items: center;
-  gap: 0.875rem;
-  padding: 1rem;
-  background: hsl(var(--muted) / 0.08);
-  border: 1px solid hsl(var(--border) / 0.25);
-  border-radius: 0.75rem;
-  transition: all 0.2s ease;
-}
-
-.metadataItem:hover {
-  background: hsl(var(--muted) / 0.12);
-  border-color: hsl(var(--primary) / 0.2);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px hsl(var(--primary) / 0.08);
-}
-
-.metadataIcon {
-  width: 42px;
-  height: 42px;
-  border-radius: 0.75rem;
-  background: hsl(var(--primary) / 0.12);
-  color: hsl(var(--primary));
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  transition: all 0.2s ease;
-}
-
-.metadataItem:hover .metadataIcon {
-  background: hsl(var(--primary) / 0.18);
-  transform: scale(1.05);
-}
-
-.metadataText {
+  border-radius: 1rem;
+  padding: 0.75rem;
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
-  flex: 1;
-  min-width: 0;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
 }
 
-.metadataLabel {
-  font-size: 0.65rem;
-  font-weight: 700;
-  color: hsl(var(--muted-foreground));
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-}
-
-.metadataValue {
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: hsl(var(--foreground));
-  word-break: break-word;
-  line-height: 1.3;
-}
-
-.metadataCode {
-  font-size: 0.9rem;
-  font-weight: 700;
-  color: hsl(var(--primary));
-  font-family: monospace;
-  letter-spacing: 0.05em;
-  background: hsl(var(--primary) / 0.1);
-  padding: 0.2rem 0.5rem;
-  border-radius: 0.375rem;
-  display: inline-block;
-}
-
-.difficultyText {
-  text-transform: capitalize;
-}
-
-/* ==================== OLD STYLES - KEEPING FOR BACKWARDS COMPATIBILITY ==================== */
-.infoCard {
-  padding: 1rem;
-  background: linear-gradient(135deg, hsl(var(--primary) / 0.05), hsl(var(--muted) / 0.1));
-  border: 1px solid hsl(var(--primary) / 0.15);
-  border-radius: 0.875rem;
-}
-
-.topicSection {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
-
-.topicBadge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.375rem;
-  padding: 0.5rem 0.75rem;
-  background: hsl(var(--background));
-  border: 1px solid hsl(var(--border));
-  border-radius: 2rem;
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: hsl(var(--foreground));
-  transition: all 0.15s ease;
-}
-
-.topicBadge:hover {
-  background: hsl(var(--primary) / 0.1);
-  border-color: hsl(var(--primary) / 0.3);
-}
-
-.topicBadge svg {
-  opacity: 0.7;
-}
-
-.secondaryInfoGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 0.75rem;
-}
-
-.infoItem {
+.metaRow {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.875rem;
-  background: hsl(var(--muted) / 0.1);
-  border: 1px solid hsl(var(--border) / 0.3);
+  gap: 0.875rem;
+  padding: 0.75rem;
   border-radius: 0.75rem;
   transition: all 0.2s ease;
 }
 
-.infoItem:hover {
-  background: hsl(var(--muted) / 0.15);
-  border-color: hsl(var(--primary) / 0.2);
+.metaRow:hover {
+  background: hsl(var(--muted) / 0.3);
 }
 
-.infoIcon {
+.metaIcon {
   width: 36px;
   height: 36px;
   border-radius: 0.625rem;
@@ -448,41 +185,33 @@
   flex-shrink: 0;
 }
 
-.infoContent {
+.metaContent {
   display: flex;
   flex-direction: column;
   gap: 0.125rem;
-  flex: 1;
   min-width: 0;
 }
 
-.infoLabel {
-  font-size: 0.625rem;
+.metaLabel {
+  font-size: 0.65rem;
   font-weight: 700;
   color: hsl(var(--muted-foreground));
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.05em;
 }
 
-.infoValue {
+.metaValue {
   font-size: 0.875rem;
   font-weight: 600;
   color: hsl(var(--foreground));
-  word-break: break-word;
-  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.infoCode {
-  font-size: 0.875rem;
-  font-weight: 700;
-  color: hsl(var(--primary));
-  font-family: monospace;
-  letter-spacing: 0.05em;
-  background: hsl(var(--primary) / 0.1);
-  padding: 0.125rem 0.375rem;
-  border-radius: 4px;
-  display: inline-block;
-}
+.diff_easy { color: hsl(var(--success)); }
+.diff_medium { color: hsl(var(--warning)); }
+.diff_hard { color: hsl(var(--destructive)); }
 
 /* ==================== FOOTER ==================== */
 .footer {

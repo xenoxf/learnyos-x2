@@ -2,7 +2,16 @@
 
 import React, { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { Trash2, Tag, BookOpen, Heart, User } from "lucide-react";
+import {
+  Trash2,
+  Heart,
+  User,
+  BookOpen,
+  ArrowRight,
+  BookmarkPlus,
+  BookmarkCheck,
+  Layers,
+} from "lucide-react";
 import { toast } from "@/hooks/useLocalToast";
 import { isGuestUser } from "@/lib/auth-utils";
 import {
@@ -15,7 +24,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import styles from "@/styles/flashCards/card.module.css";
+import styles from "@/styles/quiz/quizCard.module.css"; // Reuse premium styles
 import type { CardsDeck } from "@/types";
 import { likesService } from "@/services/likesService";
 
@@ -39,16 +48,14 @@ const CardContent: React.FC<CardProps> = ({
   const [userLiked, setUserLiked] = useState(card.userLiked || false);
   const [isLiking, setIsLiking] = useState(false);
   const [showGuestAlert, setShowGuestAlert] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
 
   const isOwner = card.canDelete ?? false;
 
   const handleDelete = useCallback(
-    async (e: React.MouseEvent) => {
+    (e: React.MouseEvent) => {
       e.stopPropagation();
-      if (!isOwner) {
-        toast.error("No permitido", "Solo puedes eliminar tus propios mazos");
-        return;
-      }
+      if (!isOwner) return;
     },
     [isOwner],
   );
@@ -58,7 +65,6 @@ const CardContent: React.FC<CardProps> = ({
       e.stopPropagation();
       if (isLiking) return;
 
-      // Check if guest
       if (isGuestUser()) {
         setShowGuestAlert(true);
         return;
@@ -70,7 +76,7 @@ const CardContent: React.FC<CardProps> = ({
         setLikesCount(result.count);
         setUserLiked(result.liked);
       } catch {
-        // Silent fail for likes
+        // Silent fail
       } finally {
         setIsLiking(false);
       }
@@ -89,7 +95,7 @@ const CardContent: React.FC<CardProps> = ({
   return (
     <>
       <div
-        className={styles.card}
+        className={`${styles.card} ${styles["card--blue"]}`}
         role="button"
         tabIndex={0}
         onClick={handleOpen}
@@ -99,91 +105,106 @@ const CardContent: React.FC<CardProps> = ({
             handleOpen();
           }
         }}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
       >
+        <div className={`${styles.cardAccent} ${styles["accent--blue"]}`} />
+
         <div className={styles.cardHeader}>
-          <h3 className={styles.cardTitle}>{card.title}</h3>
-          {isOwner && !isEspacio && (
-            <button
-              className={styles.deleteBtn}
-              onClick={handleDelete}
-              title="Eliminar mazo"
-              aria-label="Eliminar mazo"
-              type="button"
-            >
-              <Trash2 size={18} />
-            </button>
-          )}
-        </div>
-        <p className={styles.cardDescription}>
-          {card.description || "Sin descripción"}
-        </p>
-
-        <div className={styles.cardMeta}>
-          {(card.area || card.tema) && (
-            <span className={styles.cardHint}>
-              {card.area && (
-                <>
-                  <Tag
-                    size={14}
-                    style={{ marginRight: "3px", verticalAlign: "middle" }}
-                  />
-                  Área: {card.area}
-                </>
-              )}
-              {card.area && card.tema && <br />}
-              {card.tema && (
-                <>
-                  <BookOpen
-                    size={14}
-                    style={{ marginRight: "3px", verticalAlign: "middle" }}
-                  />
-                  Tema: {card.tema}
-                </>
-              )}
+          <div className={styles.typeRow}>
+            <span className={`${styles.typeBadge} ${styles["typeBadge--blue"]}`}>
+              <Layers size={15} />
+              Mazo Flashcards
             </span>
-          )}
-          <span className={styles.cardHint}>{card.totalCards} tarjetas</span>
+          </div>
+
+          <h3 className={styles.cardTitle}>{card.title}</h3>
         </div>
 
-        <div className={styles.cardCreator}>
-          <User size={12} />
-          <span>{card.creatorName}</span>
+        {card.description && (
+          <p className={styles.cardDescription}>
+            {card.description}
+          </p>
+        )}
+
+        <div className={styles.statsRow}>
+          <div className={styles.statItem}>
+            <Layers size={15} />
+            <span>{card.totalCards} <small>tarjetas</small></span>
+          </div>
         </div>
+
+        {(card.area || card.tema) && (
+          <div className={styles.tagsRow}>
+            {card.tema && (
+              <span className={styles.tagItem}>
+                <BookmarkCheck size={13} />
+                {card.tema}
+              </span>
+            )}
+            {card.area && (
+              <span className={styles.tagItem}>
+                <BookmarkPlus size={13} />
+                {card.area}
+              </span>
+            )}
+          </div>
+        )}
 
         <div className={styles.cardFooter}>
-          {!isOwner && (
-            <button
-              className={`${styles.likeBtn} ${userLiked ? styles.likeBtnActive : ""}`}
-              onClick={handleLike}
-              disabled={isLiking}
-              title="Me gusta"
-              aria-label="Me gusta"
-              type="button"
-            >
-              <Heart size={14} fill={userLiked ? "currentColor" : "none"} />
-              <span>{likesCount}</span>
-            </button>
-          )}
-          {isOwner && (
-            <span className={styles.cardLikesCount}>
-              <Heart size={14} fill="currentColor" />
-              <span>{likesCount}</span>
+          <div className={styles.footerLeft}>
+            <span className={styles.cardCreator}>
+              <User size={13} />
+              {card.creatorName}
             </span>
-          )}
-          {isOwner && card.code && (
-            <span className={styles.cardCode}>{card.code}</span>
-          )}
+          </div>
+
+          <div className={styles.footerRight}>
+            {!isOwner && (
+              <button
+                className={`${styles.likeBtn} ${userLiked ? styles.likeBtnActive : ""}`}
+                onClick={handleLike}
+                disabled={isLiking}
+                type="button"
+              >
+                <Heart
+                  size={15}
+                  fill={userLiked ? "currentColor" : "none"}
+                  className={isLiking ? styles.likeAnimating : ""}
+                />
+                {likesCount > 0 && <span>{likesCount}</span>}
+              </button>
+            )}
+            {isOwner && (
+              <span className={styles.likesCount}>
+                <Heart size={14} fill="currentColor" />
+                {likesCount}
+              </span>
+            )}
+
+            <div className={`${styles.ctaArrow} ${isHovered ? styles.ctaArrowVisible : ""}`}>
+              <ArrowRight size={16} />
+            </div>
+          </div>
         </div>
+
+        {isOwner && !isEspacio && (
+          <button
+            className={styles.deleteBtn}
+            onClick={handleDelete}
+            type="button"
+          >
+            <Trash2 size={16} />
+          </button>
+        )}
       </div>
 
-      {/* Guest alert dialog */}
       <AlertDialog open={showGuestAlert} onOpenChange={setShowGuestAlert}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Inicia sesión para dar Me gusta</AlertDialogTitle>
             <AlertDialogDescription>
-              Los usuarios invitados no pueden dar Me gusta. Inicia sesión o
-              crea una cuenta gratis para acceder a esta función.
+              Los usuarios invitados no pueden dar Me gusta.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

@@ -18,6 +18,7 @@ export interface User {
 
 export interface AuthResponse {
   token: string;
+  refreshToken?: string;
   user: User;
 }
 
@@ -34,7 +35,7 @@ export interface RegisterInput {
 
 // ==================== EXAMS ====================
 
-export type DifficultyLevel = "easy" | "medium" | "hard";
+export type DifficultyLevel = "very_easy" | "easy" | "medium" | "hard" | "very_hard" | "expert";
 
 export interface ExamOption {
   id: number;
@@ -98,6 +99,7 @@ export interface GenerateExamData {
   reference: string;
   numberOfQuestions: number;
   difficulty: string;
+  type?: 'quiz' | 'icfes';
   acceso?: string;
 }
 
@@ -105,6 +107,7 @@ export interface GenerateQuickQuizData {
   topic: string;
   numberOfQuestions: number;
   difficulty: string;
+  type?: 'quiz' | 'icfes';
   acceso?: string;
 }
 

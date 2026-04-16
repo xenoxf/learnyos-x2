@@ -2,7 +2,19 @@
 
 import React, { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { Trash2, HelpCircle, Clock, Tag, Heart, User, BookOpen, ScrollText } from "lucide-react";
+import {
+  Trash2,
+  HelpCircle,
+  Heart,
+  User,
+  BookOpen,
+  ScrollText,
+  Target,
+  Zap,
+  ArrowRight,
+  BookmarkPlus,
+  BookmarkCheck,
+} from "lucide-react";
 import { toast } from "@/hooks/useLocalToast";
 import { isGuestUser } from "@/lib/auth-utils";
 import {
@@ -26,6 +38,29 @@ interface QuizCardProps {
   onShowOptions?: () => void;
 }
 
+const difficultyConfig: Record<string, { label: string; color: string; icon: React.ReactNode }> = {
+  easy: {
+    label: "Fácil",
+    color: "emerald",
+    icon: <Zap size={14} />,
+  },
+  medium: {
+    label: "Medio",
+    color: "amber",
+    icon: <Zap size={14} />,
+  },
+  hard: {
+    label: "Difícil",
+    color: "rose",
+    icon: <Zap size={14} />,
+  },
+};
+
+const typeConfig = {
+  quiz: { label: "Quiz", icon: <BookOpen size={15} />, color: "violet" },
+  icfes: { label: "ICFES", icon: <ScrollText size={15} />, color: "blue" },
+};
+
 export default function QuizCard({
   quiz,
   onQuizDeleted,
@@ -37,11 +72,15 @@ export default function QuizCard({
   const [userLiked, setUserLiked] = useState(quiz.userLiked || false);
   const [isLiking, setIsLiking] = useState(false);
   const [showGuestAlert, setShowGuestAlert] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
 
   const isOwner = quiz.canDelete ?? false;
+  const diff = difficultyConfig[quiz.difficulty || "easy"] || difficultyConfig.easy;
+  const typeInfo = typeConfig[quiz.type as keyof typeof typeConfig] || typeConfig.quiz;
+  const estimatedMinutes = Math.max(5, Math.ceil(quiz.totalQuestions * 1.5));
 
   const handleDelete = useCallback(
-    async (e: React.MouseEvent) => {
+    (e: React.MouseEvent) => {
       e.stopPropagation();
       if (!isOwner) {
         toast.error("No permitido", "Solo puedes eliminar tus propios quizzes");
@@ -56,7 +95,6 @@ export default function QuizCard({
       e.stopPropagation();
       if (isLiking) return;
 
-      // Check if guest
       if (isGuestUser()) {
         setShowGuestAlert(true);
         return;
@@ -87,7 +125,7 @@ export default function QuizCard({
   return (
     <>
       <div
-        className={styles.card}
+        className={`${styles.card} ${styles[`card--${typeInfo.color}`]}`}
         role="button"
         tabIndex={0}
         onClick={handleOpen}
@@ -97,87 +135,118 @@ export default function QuizCard({
             handleOpen();
           }
         }}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
       >
+        {/* Accent bar */}
+        <div className={`${styles.cardAccent} ${styles[`accent--${typeInfo.color}`]}`} />
+
+        {/* Header: Type badge + Title */}
         <div className={styles.cardHeader}>
-          <h3 className={styles.cardTitle}>{quiz.title}</h3>
-          {isOwner && !isEspacio && (
-            <button
-              className={styles.deleteBtn}
-              onClick={handleDelete}
-              title="Eliminar quiz"
-              aria-label="Eliminar quiz"
-              type="button"
-            >
-              <Trash2 size={18} />
-            </button>
-          )}
-        </div>
-
-        <p className={styles.cardDescription}>
-          {quiz.description || "Sin descripción"}
-        </p>
-
-        <div className={styles.cardMeta}>
-          <div className={styles.metaItem}>
-            <HelpCircle size={16} />
-            <span>{quiz.totalQuestions} preguntas</span>
-          </div>
-          <div className={styles.metaItem}>
-            <Clock size={16} />
-            <span className={styles.difficultyBadge}>{quiz.difficulty}</span>
-          </div>
-          {quiz.type && (
-            <div className={styles.metaItem}>
-              {quiz.type === 'icfes' ? (
-                <>
-                  <ScrollText size={16} />
-                  <span className={`${styles.typeBadge} ${styles.typeBadgeIcfes}`}>ICFES</span>
-                </>
-              ) : (
-                <>
-                  <BookOpen size={16} />
-                  <span className={`${styles.typeBadge} ${styles.typeBadgeQuiz}`}>Quiz</span>
-                </>
-              )}
-            </div>
-          )}
-          {quiz.area && (
-            <div className={styles.metaItem}>
-              <Tag size={16} />
-              <span>Área: {quiz.area}</span>
-            </div>
-          )}
-        </div>
-
-        <div className={styles.cardCreator}>
-          <User size={12} />
-          <span>{quiz.creatorName}</span>
-        </div>
-
-        <div className={styles.cardFooter}>
-          {!isOwner && (
-            <button
-              className={`${styles.likeBtn} ${userLiked ? styles.likeBtnActive : ""}`}
-              onClick={handleLike}
-              disabled={isLiking}
-              title="Me gusta"
-              aria-label="Me gusta"
-              type="button"
-            >
-              <Heart size={14} fill={userLiked ? "currentColor" : "none"} />
-              <span>{likesCount}</span>
-            </button>
-          )}
-          {isOwner && (
-            <span className={styles.likesCount}>
-              <Heart size={14} fill="currentColor" />
-              <span>{likesCount}</span>
+          <div className={styles.typeRow}>
+            <span className={`${styles.typeBadge} ${styles[`typeBadge--${typeInfo.color}`]}`}>
+              {typeInfo.icon}
+              {typeInfo.label}
             </span>
-          )}
-          {isOwner && quiz.code && (
-            <span className={styles.cardCode}>{quiz.code}</span>
-          )}
+            <span className={`${styles.difficultyBadge} ${styles[`diff--${diff.color}`]}`}>
+              {diff.icon}
+              {diff.label}
+            </span>
+          </div>
+
+          <h3 className={styles.cardTitle}>{quiz.title}</h3>
         </div>
+
+        {/* Description */}
+        {quiz.description && (
+          <p className={styles.cardDescription}>
+            {quiz.description}
+          </p>
+        )}
+
+        {/* Stats row */}
+        <div className={styles.statsRow}>
+          <div className={styles.statItem}>
+            <HelpCircle size={15} />
+            <span>{quiz.totalQuestions} <small>preguntas</small></span>
+          </div>
+          <div className={styles.statItem}>
+            <Target size={15} />
+            <span>~{estimatedMinutes} <small>min</small></span>
+          </div>
+        </div>
+
+        {/* Tags: Tema + Área */}
+        {(quiz.tema || quiz.area) && (
+          <div className={styles.tagsRow}>
+            {quiz.tema && (
+              <span className={styles.tagItem}>
+                <BookmarkCheck size={13} />
+                {quiz.tema}
+              </span>
+            )}
+            {quiz.area && (
+              <span className={styles.tagItem}>
+                <BookmarkPlus size={13} />
+                {quiz.area}
+              </span>
+            )}
+          </div>
+        )}
+
+        {/* Footer: Creator + Like + CTA */}
+        <div className={styles.cardFooter}>
+          <div className={styles.footerLeft}>
+            <span className={styles.cardCreator}>
+              <User size={13} />
+              {quiz.creatorName}
+            </span>
+          </div>
+
+          <div className={styles.footerRight}>
+            {!isOwner && (
+              <button
+                className={`${styles.likeBtn} ${userLiked ? styles.likeBtnActive : ""}`}
+                onClick={handleLike}
+                disabled={isLiking}
+                title="Me gusta"
+                aria-label="Me gusta"
+                type="button"
+              >
+                <Heart
+                  size={15}
+                  fill={userLiked ? "currentColor" : "none"}
+                  className={isLiking ? styles.likeAnimating : ""}
+                />
+                {likesCount > 0 && <span>{likesCount}</span>}
+              </button>
+            )}
+            {isOwner && (
+              <span className={styles.likesCount}>
+                <Heart size={14} fill="currentColor" />
+                {likesCount}
+              </span>
+            )}
+
+            {/* CTA Arrow - appears on hover */}
+            <div className={`${styles.ctaArrow} ${isHovered ? styles.ctaArrowVisible : ""}`}>
+              <ArrowRight size={16} />
+            </div>
+          </div>
+        </div>
+
+        {/* Delete button (top-right, only for owner) */}
+        {isOwner && !isEspacio && (
+          <button
+            className={styles.deleteBtn}
+            onClick={handleDelete}
+            title="Eliminar quiz"
+            aria-label="Eliminar quiz"
+            type="button"
+          >
+            <Trash2 size={16} />
+          </button>
+        )}
       </div>
 
       {/* Guest alert dialog */}
