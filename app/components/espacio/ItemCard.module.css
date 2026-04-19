@@ -8,19 +8,35 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-sm);
-  min-height: 180px;
+  min-height: 160px;
   position: relative;
-  overflow: hidden;
+  flex: 2;
 }
 
 .card:hover {
   border-color: hsl(var(--primary) / 0.3);
   box-shadow: var(--shadow-md);
   transform: translateY(-2px);
+  background: hsl(var(--card) / 0.8);
 }
 
 .card:active {
   transform: translateY(0);
+}
+
+.header {
+  margin-bottom: 4px;
+}
+
+.titleContainer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.icon {
+  color: hsl(var(--primary));
+  flex-shrink: 0;
 }
 
 .title {
@@ -51,17 +67,20 @@
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
-  margin-top: auto;
+  margin-top: 8px;
+  margin-bottom: 8px;
 }
 
 .badge {
-  font-size: 0.75rem;
-  font-weight: 500;
+  font-size: 0.7rem;
+  font-weight: 600;
   padding: 2px 8px;
-  background: hsl(var(--primary) / 0.1);
-  color: hsl(var(--primary));
+  background: hsl(var(--secondary));
+  color: hsl(var(--secondary-foreground));
   border-radius: 4px;
   white-space: nowrap;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
 }
 
 .footer {
@@ -69,25 +88,38 @@
   justify-content: space-between;
   align-items: center;
   padding-top: var(--spacing-sm);
-  border-top: 1px solid hsl(var(--border));
-  margin-top: var(--spacing-sm);
+  border-top: 1px solid hsl(var(--border) / 0.5);
+  margin-top: auto;
 }
 
 .footerLeft {
   font-size: 0.75rem;
   color: hsl(var(--muted-foreground));
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .footerRight {
-  font-family: monospace;
-  font-size: 0.7rem;
-  padding: 2px 6px;
-  background: hsl(var(--muted));
-  border-radius: 4px;
-  color: hsl(var(--muted-foreground));
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+/* Variants */
+.success {
+  border-left: 4px solid hsl(var(--success, 142 71% 45%));
+}
+
+.warning {
+  border-left: 4px solid hsl(var(--warning, 48 96% 53%));
+}
+
+.error {
+  border-left: 4px solid hsl(var(--destructive));
+}
+
+.info {
+  border-left: 4px solid hsl(var(--primary));
 }
 
 /* Skeleton Styles */
@@ -95,31 +127,68 @@
   pointer-events: none;
 }
 
-.skeletonTitle,
-.skeletonDescription,
-.skeletonDescriptionShort,
-.skeletonBadge,
-.skeletonFooter {
-  background: hsl(var(--muted));
-  border-radius: 4px;
-  position: relative;
-  overflow: hidden;
+.skeletonHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
 }
 
-.skeletonTitle { height: 20px; width: 80%; }
-.skeletonDescription { height: 14px; width: 100%; margin-top: 8px; }
-.skeletonDescriptionShort { height: 14px; width: 60%; margin-top: 4px; }
+.skeletonIcon {
+  height: 20px;
+  width: 20px;
+  border-radius: 4px;
+}
+
+.skeletonTitle {
+  height: 20px;
+  width: 70%;
+}
+
+.skeletonDescription {
+  height: 14px;
+  width: 100%;
+  margin-top: 8px;
+}
+
+.skeletonDescriptionShort {
+  height: 14px;
+  width: 60%;
+  margin-top: 4px;
+}
 
 .skeletonBadges {
   display: flex;
   gap: 8px;
-  margin-top: auto;
+  margin-top: 12px;
 }
-.skeletonBadge { height: 20px; width: 60px; }
-.skeletonFooter { height: 24px; width: 100%; margin-top: 12px; }
+
+.skeletonBadge {
+  height: 18px;
+  width: 50px;
+  border-radius: 4px;
+}
+
+.skeletonFooter {
+  height: 24px;
+  width: 100%;
+  margin-top: 16px;
+  border-top: 1px solid hsl(var(--border) / 0.5);
+}
+
+.skeletonTitle,
+.skeletonDescription,
+.skeletonDescriptionShort,
+.skeletonBadge,
+.skeletonIcon,
+.skeletonFooter {
+  background: hsl(var(--muted));
+  position: relative;
+  overflow: hidden;
+}
 
 /* Shimmer animation */
-.skeleton::after {
+.skeleton [class*="skeleton"]::after {
   content: "";
   position: absolute;
   top: 0;
@@ -127,20 +196,20 @@
   bottom: 0;
   left: 0;
   transform: translateX(-100%);
-  background: linear-gradient(
-    90deg,
-    transparent,
-    hsl(var(--muted) / 0.5),
-    transparent
-  );
-  animation: shimmer 1.5s infinite;
+  background: linear-gradient(90deg,
+      transparent,
+      hsl(var(--muted-foreground) / 0.05),
+      transparent);
+  animation: shimmer 2s infinite;
 }
 
 @keyframes shimmer {
-  100% { transform: translateX(100%); }
+  100% {
+    transform: translateX(100%);
+  }
 }
 
 .loading {
-  opacity: 0.7;
+  opacity: 0.6;
   pointer-events: none;
 }

@@ -2,17 +2,20 @@
 
 import React, { useCallback, useMemo } from "react";
 import styles from "./ItemCard.module.css";
+import { LucideIcon } from "lucide-react";
 
 interface ItemCardProps {
   title: string;
   description?: string;
   badges?: string[];
-  footerLeft?: string;
-  footerRight?: string;
+  footerLeft?: React.ReactNode;
+  footerRight?: React.ReactNode;
+  icon?: LucideIcon;
   onClick?: () => void;
   isLoading?: boolean;
   className?: string;
   testId?: string;
+  variant?: "default" | "success" | "warning" | "error" | "info";
 }
 
 /**
@@ -26,10 +29,12 @@ export const ItemCard = React.memo<ItemCardProps>(
     badges = [],
     footerLeft,
     footerRight,
+    icon: Icon,
     onClick,
     isLoading = false,
     className,
     testId,
+    variant = "default",
   }) => {
     const handleKeyDown = useCallback(
       (e: React.KeyboardEvent<HTMLDivElement>) => {
@@ -42,8 +47,8 @@ export const ItemCard = React.memo<ItemCardProps>(
     );
 
     const cardClass = useMemo(
-      () => `${styles.card} ${isLoading ? styles.loading : ""} ${className || ""}`,
-      [isLoading, className],
+      () => `${styles.card} ${styles[variant]} ${isLoading ? styles.loading : ""} ${className || ""}`,
+      [isLoading, className, variant],
     );
 
     const hasFooter = footerLeft || footerRight;
@@ -60,7 +65,10 @@ export const ItemCard = React.memo<ItemCardProps>(
         data-testid={testId}
       >
         <div className={styles.header}>
-          <h4 className={styles.title}>{title}</h4>
+          <div className={styles.titleContainer}>
+            {Icon && <Icon className={styles.icon} size={18} />}
+            <h4 className={styles.title}>{title}</h4>
+          </div>
         </div>
 
         <p className={styles.description}>
@@ -80,12 +88,12 @@ export const ItemCard = React.memo<ItemCardProps>(
         {hasFooter && (
           <footer className={styles.footer}>
             {footerLeft && (
-              <span className={styles.footerLeft} title={footerLeft}>
+              <div className={styles.footerLeft}>
                 {footerLeft}
-              </span>
+              </div>
             )}
             {footerRight && (
-              <span className={styles.footerRight}>{footerRight}</span>
+              <div className={styles.footerRight}>{footerRight}</div>
             )}
           </footer>
         )}
@@ -101,7 +109,10 @@ ItemCard.displayName = "ItemCard";
  */
 export const ItemCardSkeleton = React.memo(() => (
   <div className={`${styles.card} ${styles.skeleton}`} aria-busy="true">
-    <div className={styles.skeletonTitle} />
+    <div className={styles.skeletonHeader}>
+      <div className={styles.skeletonIcon} />
+      <div className={styles.skeletonTitle} />
+    </div>
     <div className={styles.skeletonDescription} />
     <div className={styles.skeletonDescriptionShort} />
     <div className={styles.skeletonBadges}>

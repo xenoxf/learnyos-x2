@@ -27,18 +27,17 @@ import { attemptsService } from "@/services/attemptsService";
 import { likesService } from "@/services/likesService";
 import { AttemptDetailModal } from "@/components/espacio/AttemptDetailModal";
 import { StatsHero } from "@/components/espacio/StatsHero";
-import { ExamDeck, StatsHeroProps } from "@/types";
+import { ExamDeck, StatsHeroProps, Attempt } from "@/types";
 import RestringidoForGuest from "@/components/restringidoForGuest";
 import { ItemCard, ItemCardSkeleton } from "@/components/espacio/ItemCard";
 
 export default function RendimientoPage() {
-  const [attempts, setAttempts] = useState<ExamDeck[]>([]);
+  const [attempts, setAttempts] = useState<Attempt[]>([]);
   const [attemptStats, setAttemptStats] = useState<StatsHeroProps | null>(null);
   const [loading, setLoading] = useState(true);
   const [isGuest, setIsGuest] = useState(false);
   const [user, setUser] = useState<any>(null);
-  const [selectedAttempt, setSelectedAttempt] = useState<any | null>(null);
-  const [likedAttempts, setLikedAttempts] = useState<Set<number>>(new Set());
+  const [selectedAttempt, setSelectedAttempt] = useState<Attempt | null>(null);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -76,32 +75,12 @@ export default function RendimientoPage() {
     loadData();
   }, [loadData]);
 
-  const handleAttemptClick = useCallback((attempt: any) => {
+  const handleAttemptClick = useCallback((attempt: Attempt) => {
     setSelectedAttempt(attempt);
   }, []);
 
   const handleCloseDetail = useCallback(() => {
     setSelectedAttempt(null);
-  }, []);
-
-  const handleToggleLike = useCallback(async (attemptId: number, examId: number) => {
-    try {
-      // Toggle like on exam
-      await likesService.toggleExamLike(examId);
-
-      // Update local state
-      setLikedAttempts((prev) => {
-        const newSet = new Set(prev);
-        if (newSet.has(attemptId)) {
-          newSet.delete(attemptId);
-        } else {
-          newSet.add(attemptId);
-        }
-        return newSet;
-      });
-    } catch {
-      // Error silently
-    }
   }, []);
 
   if (isGuest) {
@@ -112,13 +91,20 @@ export default function RendimientoPage() {
     );
   }
 
-  if(loading) return <ItemCardSkeleton />
+  if (loading) {
+    return (
+      <div className={styles.itemsList}>
+        {[1, 2, 3, 4, 5, 6].map((i) => (
+          <ItemCardSkeleton key={i} />
+        ))}
+      </div>
+    );
+  }
 
   return (
     <>
       <header className={styles.espacioPageHeader}>
         <h1 className={styles.espacioPageTitle}>Mi Rendimiento</h1>
-       
       </header>
 
       {/* Attempt Detail Modal - PRO UI */}
@@ -128,7 +114,12 @@ export default function RendimientoPage() {
 
       <div className={styles.tabContent}>
         {attemptStats && attemptStats.totalAttempts > 0 && (
-          <StatsHero bestScore={attemptStats.bestScore} totalAttempts={attemptStats.totalAttempts} avgCorrect={attemptStats.avgCorrect} totalQuestions={attemptStats.totalQuestions} />
+          <StatsHero
+            bestScore={attemptStats.bestScore}
+            totalAttempts={attemptStats.totalAttempts}
+            avgCorrect={attemptStats.avgCorrect}
+            totalQuestions={attemptStats.totalQuestions}
+          />
         )}
 
         {attempts.length < 1 ? (
@@ -142,8 +133,31 @@ export default function RendimientoPage() {
         ) : (
           <div className={styles.itemsList}>
             {attempts.map((att) => {
+              const score = (att.correctAnswers / att.totalQuestions) * 100;
+              const variant = score >= 80 ? "success" : score >= 60 ? "warning" : "error";
+
               return (
-                <ItemCard key={att.id} description={att.description} title={att.title} />
+                <ItemCard
+                  key={att.id}
+                  title={att.examTitle}
+                  description={att.examDescription}
+                  icon={Award}
+                  variant={variant}
+                  onClick={() => handleAttemptClick(att)}
+                  badges={[`Nota: ${att.correctAnswers} / ${att.totalQuestions}`]}
+                  footerLeft={
+                    <>
+                      <Calendar size={12} />
+                      <span>{new Date(att.attemptedAt).toLocaleDateString()}</span>
+                    </>
+                  }
+                  footerRight={
+                    <div className={styles.footerAction}>
+                      <Eye size={12} />
+                      Ver detalle
+                    </div>
+                  }
+                />
               );
             })}
           </div>

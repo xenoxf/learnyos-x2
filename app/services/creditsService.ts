@@ -1,18 +1,12 @@
 /**
  * CreditsService - Handles credits status and cost estimation
  */
+import { CreditsStatus } from "@/types";
 import { httpClient } from "./client";
 
 export const creditsService = {
-  getStatus(): Promise<{
-    remaining: number;
-    total: number;
-    used: number;
-    percentageUsed: number;
-    breakdown: { examGenerations: number; noteGenerations: number; flashcardGenerations: number; chatMessages: number };
-    costs: { EXAM_GENERATION: number; NOTE_GENERATION: number; FLASHCARD_GENERATION: number; CHAT_MESSAGE: number };
-  }> {
-    return httpClient.request("/credits/status", { method: "GET" });
+  getStatus(): Promise<CreditsStatus> {
+    return httpClient.request<CreditsStatus>("/credits/status", { method: "GET" });
   },
 
   estimateExamCost(numberOfQuestions: number, difficulty: string, reference: string): number {

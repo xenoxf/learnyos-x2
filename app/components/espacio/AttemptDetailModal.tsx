@@ -2,8 +2,12 @@ import React from "react";
 import { X, Award, Check, XCircle, Hash, BookOpen, User, Calendar } from "lucide-react";
 import styles from "./AttemptDetailModal.module.css";
 
+import { Attempt } from "@/types";
+import { authService } from "@/services/authService";
+import { useAuth } from "@/hooks/useAuth";
+
 interface AttemptDetailModalProps {
-  attempt: any;
+  attempt: Attempt;
   onClose: () => void;
 }
 
@@ -33,7 +37,7 @@ export const AttemptDetailModal: React.FC<AttemptDetailModalProps> = ({
             {/* Score Summary */}
             <div className={styles.scoreSection}>
               <h2 className={styles.examTitle}>{attempt.examTitle}</h2>
-              
+
               <div className={styles.scoreCard}>
                 <div className={styles.circularScore}>
                   <span className={styles.scoreValue}>{percentage}%</span>
@@ -62,8 +66,8 @@ export const AttemptDetailModal: React.FC<AttemptDetailModalProps> = ({
                 </div>
 
                 <div className={styles.progressBar}>
-                  <div 
-                    className={styles.progressFill} 
+                  <div
+                    className={styles.progressFill}
                     style={{ width: `${percentage}%` }}
                   />
                 </div>
@@ -80,6 +84,11 @@ export const AttemptDetailModal: React.FC<AttemptDetailModalProps> = ({
                   <span>Código</span>
                   <span className={styles.codePill}>{attempt.examCode || "N/A"}</span>
                 </div>
+                <div className={styles.detailItem}>
+                  <span>Tu eres</span>
+                  <span className={styles.codePill}>{useAuth().user?.name || "N/A"}</span>
+                </div>
+
               </div>
 
               <div className={styles.detailGroup}>

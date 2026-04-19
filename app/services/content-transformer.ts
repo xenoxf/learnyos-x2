@@ -26,34 +26,66 @@ interface ContentData {
   [key: string]: any;
 }
 
+interface ExamTransformData {
+  title?: string;
+  description?: string;
+  difficulty?: "fácil" | "media" | "difícil";
+  duration?: number;
+  questions?: Array<{ question: string; answer: string; difficulty?: string }>;
+  summary?: string;
+  topics?: string[];
+  instructions?: string;
+}
+
+interface FlashcardTransformData {
+  title?: string;
+  description?: string;
+  summary?: string;
+  keyPoints?: string[];
+  cards?: Array<{ front: string; back: string }>;
+}
+
+interface NoteTransformData {
+  title?: string;
+  description?: string;
+  summary?: string;
+  keyPoints?: string[];
+  content?: string;
+  topics?: string[];
+  examples?: string[];
+}
+
 class ContentTransformer {
   private emojiMap = {
-    facil: '🟢',
-    media: '🟡',
-    dificil: '🔴',
-    time: '⏱️',
-    topics: '📚',
-    questions: '❓',
-    summary: '📝',
-    tips: '💡',
-    examples: '📋',
-    code: '💻',
-    table: '📊',
-    warning: '⚠️',
-    success: '✅',
-    info: 'ℹ️',
+    facil: "🟢",
+    media: "🟡",
+    dificil: "🔴",
+    time: "⏱️",
+    topics: "📚",
+    questions: "❓",
+    summary: "📝",
+    tips: "💡",
+    examples: "📋",
+    code: "💻",
+    table: "📊",
+    warning: "⚠️",
+    success: "✅",
+    info: "ℹ️",
   };
 
   /**
    * Transforma JSON en Markdown premium
    */
-  transformToMarkdown(data: ContentData, contentType: 'exam' | 'flashcard' | 'note' | 'summary' = 'note'): string {
-    let markdown = '';
+  transformToMarkdown(
+    data: ContentData,
+    contentType: "exam" | "flashcard" | "note" | "summary" = "note",
+  ): string {
+    let markdown = "";
 
     // Encabezado principal
     if (data.title) {
       markdown += this.createHeader(data.title, 1);
-      markdown += '\n';
+      markdown += "\n";
     }
 
     // Descripción
@@ -64,43 +96,43 @@ class ContentTransformer {
     // Stats Banner
     if (data.stats) {
       markdown += this.createStatsBanner(data.stats);
-      markdown += '\n';
+      markdown += "\n";
     }
 
     // Resumen rápido
     if (data.summary) {
-      markdown += this.createSection('📝 Resumen Rápido', data.summary);
-      markdown += '\n';
+      markdown += this.createSection("📝 Resumen Rápido", data.summary);
+      markdown += "\n";
     }
 
     // Puntos clave
     if (data.keyPoints && data.keyPoints.length > 0) {
       markdown += this.createKeyPoints(data.keyPoints);
-      markdown += '\n';
+      markdown += "\n";
     }
 
     // Contenido principal
     if (data.content) {
       markdown += this.formatContent(data.content);
-      markdown += '\n';
+      markdown += "\n";
     }
 
     // Tópicos
     if (data.topics && data.topics.length > 0) {
       markdown += this.createTopicsSection(data.topics);
-      markdown += '\n';
+      markdown += "\n";
     }
 
     // Preguntas
     if (data.questions && data.questions.length > 0) {
       markdown += this.createQuestionsSection(data.questions);
-      markdown += '\n';
+      markdown += "\n";
     }
 
     // Ejemplos
     if (data.examples && data.examples.length > 0) {
       markdown += this.createExamplesSection(data.examples);
-      markdown += '\n';
+      markdown += "\n";
     }
 
     // Footer de recursos
@@ -113,7 +145,7 @@ class ContentTransformer {
    * Crea encabezado con emojis
    */
   private createHeader(text: string, level: number = 1): string {
-    const hashes = '#'.repeat(level);
+    const hashes = "#".repeat(level);
     const emoji = this.getEmojiForType(text.toLowerCase());
     return `${hashes} ${emoji} ${text}`;
   }
@@ -122,10 +154,10 @@ class ContentTransformer {
    * Banner de estadísticas visualmente atractivo
    */
   private createStatsBanner(stats: ContentStats): string {
-    let banner = '---\n';
-    banner += '### 📊 Estadísticas\n\n';
-    banner += '| Métrica | Valor |\n';
-    banner += '|---------|-------|\n';
+    let banner = "---\n";
+    banner += "### 📊 Estadísticas\n\n";
+    banner += "| Métrica | Valor |\n";
+    banner += "|---------|-------|\n";
 
     if (stats.difficulty) {
       const diffEmoji = this.getDifficultyEmoji(stats.difficulty);
@@ -144,7 +176,7 @@ class ContentTransformer {
       banner += `| ❓ Preguntas | ${stats.questionCount} |\n`;
     }
 
-    banner += '\n---\n';
+    banner += "\n---\n";
     return banner;
   }
 
@@ -152,7 +184,7 @@ class ContentTransformer {
    * Crea sección con puntos clave
    */
   private createKeyPoints(points: string[]): string {
-    let section = '### 🎯 Puntos Clave\n\n';
+    let section = "### 🎯 Puntos Clave\n\n";
     points.forEach((point) => {
       section += `- ✨ ${point}\n`;
     });
@@ -163,7 +195,7 @@ class ContentTransformer {
    * Crea sección de tópicos
    */
   private createTopicsSection(topics: string[]): string {
-    let section = '### 📚 Tópicos Cubiertos\n\n';
+    let section = "### 📚 Tópicos Cubiertos\n\n";
 
     topics.forEach((topic, index) => {
       section += `${index + 1}. **${topic}**\n`;
@@ -175,15 +207,17 @@ class ContentTransformer {
   /**
    * Crea sección de preguntas con respuestas
    */
-  private createQuestionsSection(questions: Array<{ question: string; answer: string; difficulty?: string }>): string {
-    let section = '### ❓ Preguntas de Estudio\n\n';
+  private createQuestionsSection(
+    questions: Array<{ question: string; answer: string; difficulty?: string }>,
+  ): string {
+    let section = "### ❓ Preguntas de Estudio\n\n";
 
     questions.forEach((q, index) => {
-      const diffEmoji = q.difficulty ? this.getDifficultyEmoji(q.difficulty) : '';
+      const diffEmoji = q.difficulty ? this.getDifficultyEmoji(q.difficulty) : "";
       section += `#### Pregunta ${index + 1} ${diffEmoji}\n\n`;
       section += `**Q:** ${q.question}\n\n`;
       section += `**A:** ${q.answer}\n\n`;
-      section += '---\n\n';
+      section += "---\n\n";
     });
 
     return section;
@@ -193,7 +227,7 @@ class ContentTransformer {
    * Crea sección de ejemplos
    */
   private createExamplesSection(examples: string[]): string {
-    let section = '### 📋 Ejemplos Prácticos\n\n';
+    let section = "### 📋 Ejemplos Prácticos\n\n";
 
     examples.forEach((example, index) => {
       section += `#### Ejemplo ${index + 1}\n\n`;
@@ -215,18 +249,18 @@ class ContentTransformer {
    */
   private formatContent(content: string): string {
     // Si contiene código, preservar bloques
-    if (content.includes('```')) {
+    if (content.includes("```")) {
       return content;
     }
 
     // Dividir por líneas y formatear
-    const lines = content.split('\n');
-    let formatted = '';
+    const lines = content.split("\n");
+    let formatted = "";
 
     lines.forEach((line) => {
-      if (line.startsWith('##')) {
+      if (line.startsWith("##")) {
         formatted += `\n${line}\n`;
-      } else if (line.startsWith('-') || line.startsWith('*')) {
+      } else if (line.startsWith("-") || line.startsWith("*")) {
         formatted += `${line}\n`;
       } else if (line.trim()) {
         formatted += `${line}\n`;
@@ -240,13 +274,13 @@ class ContentTransformer {
    * Obtiene emoji según tipo de contenido
    */
   private getEmojiForType(type: string): string {
-    if (type.includes('exam') || type.includes('examen')) return '📝';
-    if (type.includes('flashcard') || type.includes('tarjeta')) return '🎴';
-    if (type.includes('note') || type.includes('nota')) return '📓';
-    if (type.includes('summary') || type.includes('resumen')) return '📋';
-    if (type.includes('code') || type.includes('código')) return '💻';
-    if (type.includes('table') || type.includes('tabla')) return '📊';
-    return '📚';
+    if (type.includes("exam") || type.includes("examen")) return "📝";
+    if (type.includes("flashcard") || type.includes("tarjeta")) return "🎴";
+    if (type.includes("note") || type.includes("nota")) return "📓";
+    if (type.includes("summary") || type.includes("resumen")) return "📋";
+    if (type.includes("code") || type.includes("código")) return "💻";
+    if (type.includes("table") || type.includes("tabla")) return "📊";
+    return "📚";
   }
 
   /**
@@ -254,23 +288,23 @@ class ContentTransformer {
    */
   private getDifficultyEmoji(difficulty: string): string {
     const diff = difficulty.toLowerCase();
-    if (diff.includes('fácil') || diff.includes('easy')) return '🟢';
-    if (diff.includes('media') || diff.includes('medium')) return '🟡';
-    if (diff.includes('difícil') || diff.includes('hard')) return '🔴';
-    return '⚪';
+    if (diff.includes("fácil") || diff.includes("easy")) return "🟢";
+    if (diff.includes("media") || diff.includes("medium")) return "🟡";
+    if (diff.includes("difícil") || diff.includes("hard")) return "🔴";
+    return "⚪";
   }
 
   /**
    * Footer con recursos y opciones
    */
   private createFooter(): string {
-    let footer = '\n---\n\n';
-    footer += '### 📚 Recursos Adicionales\n\n';
-    footer += '- 💾 Descarga este contenido como `.md`\n';
-    footer += '- 📤 Comparte con compañeros\n';
-    footer += '- 🔄 Revisa regularmente\n';
-    footer += '- ⭐ Marca puntos importantes\n\n';
-    footer += '**Generado con ❤️ por LearnYos IA**\n';
+    let footer = "\n---\n\n";
+    footer += "### 📚 Recursos Adicionales\n\n";
+    footer += "- 💾 Descarga este contenido como `.md`\n";
+    footer += "- 📤 Comparte con compañeros\n";
+    footer += "- 🔄 Revisa regularmente\n";
+    footer += "- ⭐ Marca puntos importantes\n\n";
+    footer += "**Generado con ❤️ por LearnYos IA**\n";
 
     return footer;
   }
@@ -278,10 +312,10 @@ class ContentTransformer {
   /**
    * Transforma respuesta de examen
    */
-  transformExam(examData: any): string {
+  transformExam(examData: ExamTransformData): string {
     return this.transformToMarkdown(
       {
-        title: examData.title || 'Examen Generado',
+        title: examData.title || "Examen Generado",
         description: examData.description,
         stats: {
           difficulty: examData.difficulty,
@@ -293,39 +327,39 @@ class ContentTransformer {
         questions: examData.questions,
         content: examData.instructions,
       },
-      'exam'
+      "exam",
     );
   }
 
   /**
    * Transforma respuesta de flashcards
    */
-  transformFlashcards(flashcardData: any): string {
+  transformFlashcards(flashcardData: FlashcardTransformData): string {
     return this.transformToMarkdown(
       {
-        title: flashcardData.title || 'Tarjetas de Estudio',
+        title: flashcardData.title || "Tarjetas de Estudio",
         description: flashcardData.description,
         stats: {
           topicCount: flashcardData.cards?.length || 0,
         },
         summary: flashcardData.summary,
         keyPoints: flashcardData.keyPoints,
-        questions: flashcardData.cards?.map((card: any) => ({
+        questions: flashcardData.cards?.map((card) => ({
           question: card.front,
           answer: card.back,
         })),
       },
-      'flashcard'
+      "flashcard",
     );
   }
 
   /**
    * Transforma respuesta de notas
    */
-  transformNotes(noteData: any): string {
+  transformNotes(noteData: NoteTransformData): string {
     return this.transformToMarkdown(
       {
-        title: noteData.title || 'Notas de Estudio',
+        title: noteData.title || "Notas de Estudio",
         description: noteData.description,
         summary: noteData.summary,
         keyPoints: noteData.keyPoints,
@@ -333,7 +367,7 @@ class ContentTransformer {
         topics: noteData.topics,
         examples: noteData.examples,
       },
-      'note'
+      "note",
     );
   }
 

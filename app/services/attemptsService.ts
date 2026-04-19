@@ -1,7 +1,7 @@
 /**
  * AttemptsService - Handles exam attempts tracking
  */
-import { StatsHeroProps } from "@/types";
+import { StatsHeroProps, Attempt } from "@/types";
 import { httpClient } from "./client";
 
 export const attemptsService = {
@@ -17,12 +17,12 @@ export const attemptsService = {
     });
   },
 
-  getAttempts(): Promise<any[]> {
-    return httpClient.request<any[]>("/exam-attempts", { method: "GET" });
+  getAttempts(): Promise<Attempt[]> {
+    return httpClient.request<Attempt[]>("/exam-attempts", { method: "GET" });
   },
 
-  getAttemptsDeck(): Promise<any[]> {
-    return httpClient.request<any[]>("/exam-attempts/deck", { method: "GET" });
+  getAttemptsDeck(): Promise<Attempt[]> {
+    return httpClient.request<Attempt[]>("/exam-attempts/deck", { method: "GET" });
   },
 
   getStats(): Promise<StatsHeroProps> {
