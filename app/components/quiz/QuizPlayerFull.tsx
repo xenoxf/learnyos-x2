@@ -80,7 +80,7 @@ export default function QuizPlayerFull({ quizId }: QuizPlayerFullProps) {
       }
     };
     loadQuiz();
-  }, [quizId, toast]);
+  }, [quizId]);
 
   // Group questions by context for ICFES mode
   const groupedQuestions = useMemo(() => {

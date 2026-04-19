@@ -120,6 +120,10 @@ export const useIntelligentReminders = () => {
     reminders.filter(r => r.enabled).forEach(scheduleNotification);
   }, [reminders]);
 
+  useEffect(() => {
+    generateIntelligentReminders();
+  }, [generateIntelligentReminders]);
+
   return {
     reminders,
     studyPattern,

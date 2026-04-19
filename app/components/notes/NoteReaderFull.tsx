@@ -47,7 +47,7 @@ export default function NoteReaderFull({ noteId }: NoteReaderFullProps) {
     return () => {
       cancelled = true;
     };
-  }, [noteId, toast]);
+  }, [noteId]);
 
   const sections = useMemo(() => {
     if (!note?.noteContents?.length) return [];

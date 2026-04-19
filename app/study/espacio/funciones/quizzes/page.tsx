@@ -10,20 +10,8 @@ import {
 } from "@/components/espacio/FuncionesCardModal";
 import styles from "@/styles/espacio/espacioPages.module.css";
 import { quizzesService } from "@/services/quizzesService";
-
-interface ManageItem {
-  id: number;
-  title: string;
-  description?: string;
-  code?: string;
-  totalQuestions?: number;
-  difficulty?: string;
-  area?: string;
-  tema?: string;
-  creatorName?: string;
-  likesCount?: number;
-  createdAt?: string;
-}
+import { ManageItem } from "@/types";
+import CardDeck from "@/components/espacio/card";
 
 export default function FuncionesQuizzesPage() {
   const [items, setItems] = useState<ManageItem[]>([]);
@@ -42,7 +30,7 @@ export default function FuncionesQuizzesPage() {
           title: q.title,
           description: q.description,
           code: q.code,
-          totalQuestions: q.totalQuestions,
+          lenght: q.lenght,
           difficulty: q.difficulty,
           area: q.area,
           tema: q.tema,
@@ -81,46 +69,19 @@ export default function FuncionesQuizzesPage() {
     window.location.href = `/study/quiz/${id}`;
   }, []);
 
-  const skeletons = useMemo(
-    () =>
-      Array.from({ length: 6 }).map((_, i) => (
-        <div key={i} className={styles.skeletonCard}>
-          <div className={styles.itemCardHeader}>
-            <Skeleton className={styles.skeletonTitle} />
-          </div>
-          <Skeleton className={styles.skeletonDescription} />
-          <Skeleton className={styles.skeletonDescriptionLine} />
-          <div className={styles.skeletonBadges}>
-            <Skeleton className={styles.skeletonBadge} />
-            <Skeleton className={styles.skeletonBadge} />
-            <Skeleton className={styles.skeletonBadge} />
-          </div>
-          <div className={styles.skeletonFooter}>
-            <Skeleton className={styles.skeletonCreator} />
-            <Skeleton className={styles.skeletonCode} />
-          </div>
-        </div>
-      )),
-    [],
-  );
+  const handleSelectForModal = useCallback((item: ManageItem) => {
+    setSelectedForModal({
+      id: item.id,
+      title: item.title,
+      description: item.description || "",
+      code: item.code || "",
+      creatorName: item.creatorName || "",
+      type: "quiz",
+      lenght: item.lenght || 0,
+    });
+  }, []);
 
-  if (loading) {
-    return (
-      <div className={styles.itemsList}>
-        {skeletons}
-      </div>
-    );
-  }
-
-  if (items.length === 0) {
-    return (
-      <div className={styles.emptyState}>
-        <FileText size={48} className={styles.emptyIcon} />
-        <p>No tienes quizzes aún</p>
-      </div>
-    );
-  }
-
+  
   return (
     <>
       {selectedForModal && (
@@ -133,67 +94,12 @@ export default function FuncionesQuizzesPage() {
         />
       )}
 
-      <div className={styles.itemsList}>
-        {items.map((item) => (
-          <div
-            key={item.id}
-            className={styles.itemCard}
-            onClick={() =>
-              setSelectedForModal({
-                ...item,
-                type: "quiz",
-              })
-            }
-            role="button"
-            tabIndex={0}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === " ") {
-                e.preventDefault();
-                setSelectedForModal({
-                  ...item,
-                  type: "quiz",
-                });
-              }
-            }}
-          >
-            <div className={styles.itemCardHeader}>
-              <h4 className={styles.itemCardTitle}>{item.title}</h4>
-              <div style={{ display: "flex", gap: "0.5rem" }}>
-                {deletingId === item.id ? (
-                  <RefreshCw size={16} className={styles.spinner} />
-                ) : null}
-              </div>
-            </div>
-            <p className={styles.itemCardDesc}>
-              {item.description || "Sin descripción"}
-            </p>
-            <div className={styles.itemCardMeta}>
-              {item.area && (
-                <span className={styles.itemBadge}>Área: {item.area}</span>
-              )}
-              {item.tema && (
-                <span className={styles.itemBadge}>Tema: {item.tema}</span>
-              )}
-              {item.totalQuestions && (
-                <span className={styles.diffBadge}>
-                  {item.totalQuestions} preguntas
-                </span>
-              )}
-              {item.difficulty && (
-                <span className={styles.diffBadge}>{item.difficulty}</span>
-              )}
-            </div>
-            <div className={styles.itemCardFooter}>
-              <span className={styles.itemCreator}>
-                {item.creatorName || "Anónimo"}
-              </span>
-              {item.code && (
-                <span className={styles.itemCode}>{item.code}</span>
-              )}
-            </div>
-          </div>
-        ))}
-      </div>
+      <CardDeck 
+        items={items} 
+        selectedForModal={handleSelectForModal} 
+        loading={loading} 
+        deletingId={deletingId || 0} 
+      />
     </>
   );
 }

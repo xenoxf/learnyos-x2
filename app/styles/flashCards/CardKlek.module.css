@@ -1,17 +1,15 @@
-/* ==================== CARD KLEK - PANTALLA COMPLETA ==================== */
+/* ==================== CARD KLEK - REDISEÑO ELITE (LINEAR/STRIPE STYLE) ==================== */
+
 .overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.4);
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
-  animation: fadeIn 0.3s ease;
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(8px);
+  animation: fadeIn 0.3s ease-out;
 }
 
 @keyframes fadeIn {
@@ -23,20 +21,42 @@
 .modal {
   background: hsl(var(--card));
   border: 1px solid hsl(var(--border));
-  border-radius: 2rem;
-  box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.3);
-  width: 95%;
-  max-width: 1000px;
-  height: 85vh;
+  border-radius: 12px;
+  box-shadow: 
+    0 0 0 1px rgba(0,0,0,0.05),
+    0 20px 50px -12px rgba(0,0,0,0.3);
+  width: 90%;
+  max-width: 680px; /* Ancho optimizado para enfoque */
+  height: auto;
+  min-height: 520px;
+  max-height: 90vh;
   display: flex;
   flex-direction: column;
+  position: relative;
   overflow: hidden;
   animation: modalPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 @keyframes modalPop {
-  from { transform: scale(0.95); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
+  from { transform: scale(0.98) translateY(10px); opacity: 0; }
+  to { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+/* ==================== PROGRESS BAR (DUOLINGO TOP STYLE) ==================== */
+.progressBar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: hsl(var(--muted) / 0.2);
+  z-index: 10;
+}
+
+.progressFill {
+  height: 100%;
+  background: hsl(var(--primary));
+  transition: width 0.6s cubic-bezier(0.65, 0, 0.35, 1);
 }
 
 /* ==================== HEADER ==================== */
@@ -44,38 +64,38 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1.5rem 2.5rem;
-  border-bottom: 1px solid hsl(var(--border));
-  background: hsl(var(--muted) / 0.1);
+  padding: 1.25rem 1.5rem;
+  padding-top: 1.5rem;
+  background: transparent;
 }
 
 .title {
-  font-size: 1.25rem;
-  font-weight: 800;
-  color: hsl(var(--foreground));
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: hsl(var(--muted-foreground));
+  letter-spacing: -0.01em;
   margin: 0;
+  /* Sentence case para look moderno */
 }
 
 .closeBtn {
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  border: none;
-  background: hsl(var(--muted) / 0.5);
-  color: hsl(var(--foreground));
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: hsl(var(--muted-foreground));
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s ease;
+  transition: all 0.2s;
 }
 
 .closeBtn:hover {
-  background: hsl(var(--destructive) / 0.1);
-  color: hsl(var(--destructive));
-  transform: rotate(90deg);
+  background: hsl(var(--muted) / 0.5);
+  border-color: hsl(var(--border));
+  color: hsl(var(--foreground));
 }
 
 /* ==================== FLASHCARD CONTAINER ==================== */
@@ -85,18 +105,16 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 3rem;
-  background: hsl(var(--background));
-  perspective: 1500px;
+  padding: 2rem 3rem;
+  perspective: 2000px;
 }
 
 .flashCard {
   width: 100%;
-  max-width: 650px;
-  height: 380px;
+  height: 320px;
   position: relative;
   transform-style: preserve-3d;
-  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
   cursor: pointer;
 }
 
@@ -108,128 +126,156 @@
   position: absolute;
   inset: 0;
   backface-visibility: hidden;
-  border-radius: 2rem;
+  border-radius: 16px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 3rem;
+  padding: 2.5rem;
   background: hsl(var(--card));
-  border: 3px solid hsl(var(--border));
-  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.1);
+  border: 1px solid hsl(var(--border));
+  box-shadow: 0 4px 20px -5px rgba(0, 0, 0, 0.05);
+  overflow-y: auto;
 }
 
 .flashCardFace:last-child {
   transform: rotateY(180deg);
-  background: linear-gradient(135deg, hsl(var(--card)), hsl(var(--muted) / 0.1));
-  border-color: hsl(var(--primary) / 0.3);
+  background: linear-gradient(145deg, hsl(var(--card)), hsl(var(--muted) / 0.1));
 }
 
 .faceContent {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2rem;
+  gap: 1.5rem;
   text-align: center;
+  width: 100%;
 }
 
+/* Badge estilo Linear */
 .faceLabel {
-  font-size: 0.75rem;
-  font-weight: 800;
+  font-size: 0.7rem;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.15em;
+  letter-spacing: 0.05em;
   color: hsl(var(--primary));
-  background: hsl(var(--primary) / 0.1);
-  padding: 0.5rem 1rem;
-  border-radius: 2rem;
+  background: hsl(var(--primary) / 0.08);
+  border: 1px solid hsl(var(--primary) / 0.2);
+  padding: 0.2rem 0.6rem;
+  border-radius: 4px;
 }
 
 .faceText {
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   line-height: 1.5;
   color: hsl(var(--foreground));
-  font-weight: 600;
+  font-weight: 500;
+  letter-spacing: -0.02em;
 }
 
 .flipHint {
-  margin-top: 2rem;
-  font-size: 0.9rem;
-  font-weight: 600;
+  margin-top: 1.5rem;
+  font-size: 0.75rem;
+  font-weight: 500;
   color: hsl(var(--muted-foreground));
-  opacity: 0.7;
-}
-
-/* ==================== PROGRESS BAR ==================== */
-.progressBar {
-  width: 100%;
-  height: 6px;
   background: hsl(var(--muted) / 0.3);
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  transition: opacity 0.2s;
 }
 
-.progressFill {
-  height: 100%;
-  background: linear-gradient(90deg, hsl(var(--primary)), hsl(var(--primary) / 0.7));
-  transition: width 0.4s ease;
-}
-
-/* ==================== FOOTER ==================== */
+/* ==================== FOOTER (FLOATING TOOLBAR STYLE) ==================== */
 .footer {
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
-  padding: 1.5rem 2rem;
-  border-top: 1px solid hsl(var(--border));
-  gap: 2rem;
-  background: hsl(var(--muted) / 0.05);
+  padding: 1.25rem 2rem;
+  background: transparent;
+  border-top: 1px solid hsl(var(--border) / 0.5);
+}
+
+.footerLeft {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.footerRight {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
 }
 
 .navBtn {
-  width: 46px;
-  height: 46px;
-  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: hsl(var(--card));
+  background: hsl(var(--background));
   border: 1px solid hsl(var(--border));
   color: hsl(var(--foreground));
   cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .navBtn:hover:not(:disabled) {
-  background: hsl(var(--primary));
-  color: white;
-  transform: translateY(-2px);
-  box-shadow: 0 8px 16px hsl(var(--primary) / 0.25);
+  border-color: hsl(var(--primary) / 0.5);
+  background: hsl(var(--primary) / 0.02);
+  transform: translateY(-1px);
+}
+
+.navBtn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.navBtn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
 }
 
 .resetBtn {
   color: hsl(var(--muted-foreground));
   cursor: pointer;
-  transition: all 0.2s ease;
-  padding: 0.5rem;
+  transition: all 0.2s;
+  padding: 0.4rem;
+  border-radius: 6px;
 }
 
 .resetBtn:hover {
-  color: hsl(var(--primary));
-  transform: rotate(-180deg);
-}
-
-.counter {
-  font-size: 1.125rem;
-  font-weight: 800;
-  font-variant-numeric: tabular-nums;
+  background: hsl(var(--muted) / 0.5);
   color: hsl(var(--foreground));
 }
 
-.counter span:first-child { color: hsl(var(--primary)); }
-.counter span:nth-child(2) { opacity: 0.3; margin: 0 0.25rem; }
+.counter {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: hsl(var(--muted-foreground));
+  background: hsl(var(--muted) / 0.3);
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+}
+
+.counter strong {
+  color: hsl(var(--foreground));
+}
 
 /* ==================== MOBILE ==================== */
-@media (max-width: 768px) {
-  .modal { height: 95vh; border-radius: 1.5rem; }
-  .faceText { font-size: 1.125rem; }
-  .flashCard { height: 320px; }
+@media (max-width: 640px) {
+  .modal { 
+    height: 100vh; 
+    width: 100%; 
+    border-radius: 0;
+    max-height: none;
+  }
+  
+  .cardContainer {
+    padding: 1.5rem;
+  }
+  
+  .flashCard {
+    height: 340px;
+  }
 }

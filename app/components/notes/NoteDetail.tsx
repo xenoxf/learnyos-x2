@@ -42,7 +42,7 @@ export default function NoteDetail({ noteId, onBack }: NoteDetailProps) {
     return () => {
       cancelled = true;
     };
-  }, [noteId, onBack, toast]);
+  }, [noteId, onBack]);
 
   const sections = useMemo(() => {
     if (!note?.noteContents?.length) return [];

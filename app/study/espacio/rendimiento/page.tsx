@@ -27,10 +27,12 @@ import { attemptsService } from "@/services/attemptsService";
 import { likesService } from "@/services/likesService";
 import { AttemptDetailModal } from "@/components/espacio/AttemptDetailModal";
 import { StatsHero } from "@/components/espacio/StatsHero";
-import { StatsHeroProps } from "@/types";
+import { ExamDeck, StatsHeroProps } from "@/types";
+import RestringidoForGuest from "@/components/restringidoForGuest";
+import { ItemCard, ItemCardSkeleton } from "@/components/espacio/ItemCard";
 
 export default function RendimientoPage() {
-  const [attempts, setAttempts] = useState<any[]>([]);
+  const [attempts, setAttempts] = useState<ExamDeck[]>([]);
   const [attemptStats, setAttemptStats] = useState<StatsHeroProps | null>(null);
   const [loading, setLoading] = useState(true);
   const [isGuest, setIsGuest] = useState(false);
@@ -105,52 +107,18 @@ export default function RendimientoPage() {
   if (isGuest) {
     return (
       <>
-        <header className={styles.espacioPageHeader}>
-          <h1 className={styles.espacioPageTitle}>Mi Rendimiento</h1>
-        </header>
-        <div className={styles.guestMessage}>
-          <AlertTriangle size={32} />
-          <h3>Funcionalidad restringida</h3>
-          <p>Inicia sesión para ver tu progreso.</p>
-        </div>
+        <RestringidoForGuest />
       </>
     );
   }
 
-  if (loading) {
-    return (
-      <>
-        <header className={styles.espacioPageHeader}>
-          <h1 className={styles.espacioPageTitle}>Mi Rendimiento</h1>
-        </header>
-        <div className={styles.loadingState}>
-          <RefreshCw size={24} className={styles.spinner} />
-          <p>Cargando datos maestros...</p>
-        </div>
-      </>
-    );
-  }
+  if(loading) return <ItemCardSkeleton />
 
   return (
     <>
       <header className={styles.espacioPageHeader}>
         <h1 className={styles.espacioPageTitle}>Mi Rendimiento</h1>
-        <div className={styles.userInfo}>
-          {user?.picture ? (
-            <Image
-              src={user.picture}
-              alt={user.name || "User"}
-              width={32}
-              height={32}
-              className={styles.userAvatar}
-            />
-          ) : (
-            <div className={styles.userAvatarPlaceholder}>
-              {user?.name?.[0]?.toUpperCase() || "U"}
-            </div>
-          )}
-          <span className={styles.userName}>{user?.name || "Invitado"}</span>
-        </div>
+       
       </header>
 
       {/* Attempt Detail Modal - PRO UI */}
@@ -174,48 +142,8 @@ export default function RendimientoPage() {
         ) : (
           <div className={styles.itemsList}>
             {attempts.map((att) => {
-              const pct = att.totalQuestions > 0 ? Math.round((att.correctAnswers / att.totalQuestions) * 100) : 0;
-              const isLiked = likedAttempts.has(att.id);
               return (
-                <div
-                  key={att.id}
-                  className={styles.itemCard}
-                  onClick={() => handleAttemptClick(att)}
-                >
-                  <div className={styles.itemCardBody}>
-                    <div className={styles.itemCardHeader}>
-                      <h4 className={styles.itemCardTitle}>{att.examTitle}</h4>
-                      <button
-                        className={`${styles.likeButton} ${isLiked ? styles.liked : ""}`}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleToggleLike(att.id, att.examId);
-                        }}
-                        type="button"
-                        aria-label="Like exam"
-                      >
-                        <Heart size={16} fill={isLiked ? "currentColor" : "none"} />
-                      </button>
-                    </div>
-                    <div className={styles.itemCardMeta}>
-                      <div className={styles.metaScore}>
-                        <Award size={14} />
-                        <span>{pct}% de éxito</span>
-                      </div>
-                      <div className={styles.metaDetails}>
-                        <span>{att.correctAnswers}/{att.totalQuestions} aciertos</span>
-                      </div>
-                    </div>
-                    <div className={styles.itemCardFooter}>
-                      <span className={styles.itemDate}>
-                        {new Date(att.attemptedAt).toLocaleDateString("es-CO")}
-                      </span>
-                      <div className={styles.arrowIcon}>
-                        <Eye size={14} />
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                <ItemCard key={att.id} description={att.description} title={att.title} />
               );
             })}
           </div>

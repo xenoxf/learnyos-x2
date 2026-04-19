@@ -45,7 +45,7 @@ export default function NoteViewer({ noteId, onClose }: NoteViewerProps) {
     return () => {
       cancelled = true;
     };
-  }, [noteId, onClose, toast]);
+  }, [noteId]);
 
   const toggleSection = useCallback((index: number) => {
     setExpandedSections((prev) => ({ ...prev, [index]: !prev[index] }));

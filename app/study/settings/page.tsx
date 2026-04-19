@@ -226,7 +226,7 @@ export default function SettingsPage() {
     } finally {
       setLoading(false);
     }
-  }, [activeTab, toast]);
+  }, [activeTab]);
 
   useEffect(() => {
     loadItems();

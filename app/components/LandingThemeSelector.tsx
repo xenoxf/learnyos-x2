@@ -44,7 +44,7 @@ export const LandingThemeSelector: React.FC = () => {
   // Always set light theme as default for landing page on load
   useEffect(() => {
     setTheme("light");
-  }, []);
+  }, [setTheme]);
   const getPreviewGradient = (themeName: string) => {
     switch (themeName) {
       case "light":

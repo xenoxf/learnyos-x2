@@ -239,7 +239,7 @@ export const useLocalStorage = () => {
   useEffect(() => {
     setStats(getStats());
     setIsInitialized(true);
-  }, []);
+  }, [getStats]);
 
   return {
     stats: getStats(),

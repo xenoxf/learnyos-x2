@@ -61,26 +61,25 @@ export default function CreateQuizModal({
       return;
     }
 
+    // Cerramos el modal inmediatamente y notificamos que Junior esta trabajando
+    toast.info("Enviado", "Junior está redactando tu examen... te avisaremos en segundos.");
+    onClose();
+
+    // El proceso sigue en segundo plano
     try {
-      setLoading(true);
       await quizzesService.generateExam(formData);
-      toast.success("Éxito", "Examen creado correctamente");
+      toast.success("Éxito", "Tu nuevo examen ya está disponible en tu biblioteca.");
       onQuizCreated();
       router.refresh();
-      onClose();
     } catch (err: any) {
-      let message = "Error al crear examen";
+      let message = "No pudimos crear el examen";
       let details = "";
-      let errorCode = "";
       if (err?.response?.data) {
         const errorData = err.response.data as ApiErrorResponse;
         message = errorData.message || message;
         details = errorData.details || "";
-        errorCode = errorData.errorCode || "";
       }
-      toast.error("Error al crear examen", details || message);
-    } finally {
-      setLoading(false);
+      toast.error("Fallo en la creación", details || message);
     }
   };
 

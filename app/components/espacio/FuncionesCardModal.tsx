@@ -29,10 +29,8 @@ export interface FuncionesCardData {
   tema?: string;
   creatorName?: string;
   likesCount?: number;
-  type: "flashcard" | "quiz" | "icfes" | "note";
-  totalCards?: number;
-  totalQuestions?: number;
-  contentsCount?: number;
+  type: "flashcard" | "quiz" | "icfes" | "note" | "rendimiento";
+  lenght: number;
   difficulty?: string;
   createdAt?: string;
 }
@@ -109,6 +107,14 @@ export function FuncionesCardModal({
           icon: "📝",
           color: "green",
         };
+      case "rendimiento":
+        return {
+          label: "Rendimiento",
+          icon: "📊",
+          color: "orange",
+        };
+      default:
+        return null;
     }
   };
 
@@ -146,18 +152,20 @@ export function FuncionesCardModal({
       >
         {/* Header */}
         <div className={styles.header}>
-          <div className={styles.headerLeft}>
-            <span className={styles.typeIcon}>{typeConfig.icon}</span>
-            <div className={styles.headerInfo}>
-              <span className={styles.typeLabel}>{typeConfig.label}</span>
-              {card.code && (
-                <span className={styles.codeBadge}>
-                  <Code size={12} />
-                  {card.code}
-                </span>
-              )}
+          {typeConfig && (
+            <div className={styles.headerLeft}>
+              <span className={styles.typeIcon}>{typeConfig.icon}</span>
+              <div className={styles.headerInfo}>
+                <span className={styles.typeLabel}>{typeConfig.label}</span>
+                {card.code && (
+                  <span className={styles.codeBadge}>
+                    <Code size={12} />
+                    {card.code}
+                  </span>
+                )}
+              </div>
             </div>
-          </div>
+          )}
           <button
             className={styles.closeBtn}
             onClick={handleClose}
@@ -190,18 +198,24 @@ export function FuncionesCardModal({
                     {card.area && (
                       <div className={styles.academicItem}>
                         <span className={styles.academicLabel}>Área</span>
-                        <span className={styles.academicValue}>{card.area}</span>
+                        <span className={styles.academicValue}>
+                          {card.area}
+                        </span>
                       </div>
                     )}
                     {card.tema && (
                       <div className={styles.academicItem}>
                         <span className={styles.academicLabel}>Tema</span>
-                        <span className={styles.academicValue}>{card.tema}</span>
+                        <span className={styles.academicValue}>
+                          {card.tema}
+                        </span>
                       </div>
                     )}
                     {(isOwner || card.code) && card.code && (
                       <div className={styles.academicItem}>
-                        <span className={styles.academicLabel}>Código de Acceso</span>
+                        <span className={styles.academicLabel}>
+                          Código de Acceso
+                        </span>
                         <span className={styles.codeBadge}>
                           <Code size={12} />
                           {card.code}
@@ -222,11 +236,7 @@ export function FuncionesCardModal({
                   </div>
                   <div className={styles.metaContent}>
                     <span className={styles.metaLabel}>Contenido</span>
-                    <span className={styles.metaValue}>
-                      {card.type === "flashcard" && `${card.totalCards || 0} tarjetas`}
-                      {(card.type === "quiz" || card.type === "icfes") && `${card.totalQuestions || 0} preguntas`}
-                      {card.type === "note" && `${card.contentsCount || 0} secciones`}
-                    </span>
+                    <span className={styles.metaValue}>{card.lenght}</span>
                   </div>
                 </div>
 
@@ -237,7 +247,9 @@ export function FuncionesCardModal({
                     </div>
                     <div className={styles.metaContent}>
                       <span className={styles.metaLabel}>Dificultad</span>
-                      <span className={`${styles.metaValue} ${styles[`diff_${card.difficulty}`]}`}>
+                      <span
+                        className={`${styles.metaValue} ${styles[`diff_${card.difficulty}`]}`}
+                      >
                         {difficultyConfig?.label || card.difficulty}
                       </span>
                     </div>
@@ -250,7 +262,9 @@ export function FuncionesCardModal({
                   </div>
                   <div className={styles.metaContent}>
                     <span className={styles.metaLabel}>Creador</span>
-                    <span className={styles.metaValue}>{card.creatorName || "Anónimo"}</span>
+                    <span className={styles.metaValue}>
+                      {card.creatorName || "Anónimo"}
+                    </span>
                   </div>
                 </div>
 
@@ -260,7 +274,9 @@ export function FuncionesCardModal({
                   </div>
                   <div className={styles.metaContent}>
                     <span className={styles.metaLabel}>Fecha</span>
-                    <span className={styles.metaValue}>{formatDate(card.createdAt)}</span>
+                    <span className={styles.metaValue}>
+                      {formatDate(card.createdAt)}
+                    </span>
                   </div>
                 </div>
 
@@ -271,7 +287,9 @@ export function FuncionesCardModal({
                     </div>
                     <div className={styles.metaContent}>
                       <span className={styles.metaLabel}>Valoración</span>
-                      <span className={styles.metaValue}>{card.likesCount} me gusta</span>
+                      <span className={styles.metaValue}>
+                        {card.likesCount} me gusta
+                      </span>
                     </div>
                   </div>
                 )}

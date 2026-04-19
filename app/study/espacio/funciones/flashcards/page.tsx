@@ -11,19 +11,9 @@ import {
 } from "@/components/espacio/FuncionesCardModal";
 import styles from "@/styles/espacio/espacioPages.module.css";
 import { cardsService } from "@/services/cardsService";
-
-interface ManageItem {
-  id: number;
-  title: string;
-  description?: string;
-  code?: string;
-  totalCards?: number;
-  area?: string;
-  tema?: string;
-  creatorName?: string;
-  likesCount?: number;
-  createdAt?: string;
-}
+import { ManageItem } from "@/types";
+import Card from "@/components/card/Card";
+import CardDeck from "@/components/espacio/card";
 
 export default function FuncionesFlashcardsPage() {
   const [items, setItems] = useState<ManageItem[]>([]);
@@ -47,7 +37,7 @@ export default function FuncionesFlashcardsPage() {
           title: c.title,
           description: c.description,
           code: c.code,
-          totalCards: c.totalCards,
+          lenght: c.lenght,
           area: c.area,
           tema: c.tema,
           creatorName: c.creatorName,
@@ -94,44 +84,17 @@ export default function FuncionesFlashcardsPage() {
     [items],
   );
 
-  const skeletons = useMemo(
-    () =>
-      Array.from({ length: 6 }).map((_, i) => (
-        <div key={i} className={styles.skeletonCard}>
-          <div className={styles.itemCardHeader}>
-            <Skeleton className={styles.skeletonTitle} />
-          </div>
-          <Skeleton className={styles.skeletonDescription} />
-          <Skeleton className={styles.skeletonDescriptionLine} />
-          <div className={styles.skeletonBadges}>
-            <Skeleton className={styles.skeletonBadge} />
-            <Skeleton className={styles.skeletonBadge} />
-          </div>
-          <div className={styles.skeletonFooter}>
-            <Skeleton className={styles.skeletonCreator} />
-            <Skeleton className={styles.skeletonCode} />
-          </div>
-        </div>
-      )),
-    [],
-  );
-
-  if (loading) {
-    return (
-      <div className={styles.itemsList}>
-        {skeletons}
-      </div>
-    );
-  }
-
-  if (items.length === 0) {
-    return (
-      <div className={styles.emptyState}>
-        <FileText size={48} className={styles.emptyIcon} />
-        <p>No tienes flashcards aún</p>
-      </div>
-    );
-  }
+  const handleSelectForModal = useCallback((item: ManageItem) => {
+      setSelectedForModal({
+        id: item.id,
+        title: item.title,
+        description: item.description || "",
+        code: item.code || "",
+        creatorName: item.creatorName || "",
+        type: "flashcard",
+        lenght: 0,
+      });
+    }, []);
 
   return (
     <>
@@ -152,64 +115,12 @@ export default function FuncionesFlashcardsPage() {
         />
       )}
 
-      <div className={styles.itemsList}>
-        {items.map((item) => (
-          <div
-            key={item.id}
-            className={styles.itemCard}
-            onClick={() =>
-              setSelectedForModal({
-                ...item,
-                type: "flashcard",
-              })
-            }
-            role="button"
-            tabIndex={0}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === " ") {
-                e.preventDefault();
-                setSelectedForModal({
-                  ...item,
-                  type: "flashcard",
-                });
-              }
-            }}
-          >
-            <div className={styles.itemCardHeader}>
-              <h4 className={styles.itemCardTitle}>{item.title}</h4>
-              <div style={{ display: "flex", gap: "0.5rem" }}>
-                {deletingId === item.id ? (
-                  <RefreshCw size={16} className={styles.spinner} />
-                ) : null}
-              </div>
-            </div>
-            <p className={styles.itemCardDesc}>
-              {item.description || "Sin descripción"}
-            </p>
-            <div className={styles.itemCardMeta}>
-              {item.area && (
-                <span className={styles.itemBadge}>Área: {item.area}</span>
-              )}
-              {item.tema && (
-                <span className={styles.itemBadge}>Tema: {item.tema}</span>
-              )}
-              {item.totalCards && (
-                <span className={styles.diffBadge}>
-                  {item.totalCards} tarjetas
-                </span>
-              )}
-            </div>
-            <div className={styles.itemCardFooter}>
-              <span className={styles.itemCreator}>
-                {item.creatorName || "Anónimo"}
-              </span>
-              {item.code && (
-                <span className={styles.itemCode}>{item.code}</span>
-              )}
-            </div>
-          </div>
-        ))}
-      </div>
+      <CardDeck
+        items={items}
+        selectedForModal={handleSelectForModal}
+        loading
+        deletingId={deletingId as number}
+      />
     </>
   );
 }

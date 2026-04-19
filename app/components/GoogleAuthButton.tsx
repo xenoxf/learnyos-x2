@@ -37,16 +37,29 @@ export function GoogleAuthButton({
         return;
       }
 
-      // Poll for auth completion
+      const handleMessage = (event: MessageEvent) => {
+        if (event.data?.type === "AUTH_SUCCESS") {
+          window.removeEventListener("message", handleMessage);
+          authWindow.close();
+          setLoading(false);
+          router.push("/study");
+          onSuccess?.({ id: 0, email: "", name: "" });
+        }
+      };
+
+      window.addEventListener("message", handleMessage);
+
+      // Poll for auth completion as fallback
       const checkAuth = setInterval(() => {
         try {
           if (authWindow.closed) {
             clearInterval(checkAuth);
+            window.removeEventListener("message", handleMessage);
             setLoading(false);
 
             // Check if user was authenticated
-            const token = localStorage.getItem("token");
-            if (token) {
+            const userStr = localStorage.getItem("user");
+            if (userStr) {
               router.push("/study");
               onSuccess?.({ id: 0, email: "", name: "" });
             }
@@ -59,6 +72,7 @@ export function GoogleAuthButton({
       // Stop polling after 5 minutes
       setTimeout(() => {
         clearInterval(checkAuth);
+        window.removeEventListener("message", handleMessage);
         setLoading(false);
       }, 300000);
     } catch (err: unknown) {

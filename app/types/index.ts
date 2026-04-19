@@ -1,6 +1,3 @@
-
-
-
 export interface User {
   id: number;
   email: string;
@@ -30,7 +27,13 @@ export interface RegisterInput {
 
 // ==================== EXAMS ====================
 
-export type DifficultyLevel = "very_easy" | "easy" | "medium" | "hard" | "very_hard" | "expert";
+export type DifficultyLevel =
+  | "very_easy"
+  | "easy"
+  | "medium"
+  | "hard"
+  | "very_hard"
+  | "expert";
 
 export interface ExamOption {
   id: number;
@@ -60,7 +63,7 @@ export interface ExamDeck {
   area?: string;
   tema?: string;
   difficulty?: string;
-  type?: 'quiz' | 'icfes';
+  type?: "quiz" | "icfes";
   totalQuestions: number;
   estimatedTime?: string;
   code?: string;
@@ -81,7 +84,7 @@ export interface ExamKlek {
   area?: string;
   tema?: string;
   difficulty: DifficultyLevel;
-  type?: 'quiz' | 'icfes';
+  type?: "quiz" | "icfes";
   totalQuestions: number;
   questions: ExamQuestion[];
   creatorName?: string;
@@ -94,7 +97,7 @@ export interface GenerateExamData {
   reference: string;
   numberOfQuestions: number;
   difficulty: string;
-  type?: 'quiz' | 'icfes';
+  type?: "quiz" | "icfes";
   acceso?: string;
 }
 
@@ -102,7 +105,7 @@ export interface GenerateQuickQuizData {
   topic: string;
   numberOfQuestions: number;
   difficulty: string;
-  type?: 'quiz' | 'icfes';
+  type?: "quiz" | "icfes";
   acceso?: string;
 }
 
@@ -409,7 +412,6 @@ export interface CreditsStatus {
   };
 }
 
-
 /*
  *  AQUI ESTARAN LOS TYPES QUE USO AL MOMENTO DE RENDERIZAR DATOS TEMPORALES
  *
@@ -420,5 +422,18 @@ export type StatsHeroProps = {
   avgCorrect: number;
   bestScore: number;
   totalQuestions: number;
-}
+};
 
+export interface ManageItem {
+  id: number;
+  title: string;
+  description?: string;
+  code?: string;
+  lenght?: number;
+  difficulty?: string;
+  area?: string;
+  tema?: string;
+  creatorName?: string;
+  likesCount?: number;
+  createdAt?: string;
+}
