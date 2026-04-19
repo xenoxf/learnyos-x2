@@ -29,7 +29,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import styles from "@/styles/quiz/quizCard.module.css";
 import type { ExamDeck } from "@/types";
-import { likesService } from "@/services/likesService";
+import { LikeButton } from "@/components/common/LikeButton";
 
 interface QuizCardProps {
   quiz: ExamDeck & { canDelete?: boolean };
@@ -68,10 +68,6 @@ export default function QuizCard({
   onShowOptions,
 }: QuizCardProps) {
   const router = useRouter();
-  const [likesCount, setLikesCount] = useState(quiz.likesCount || 0);
-  const [userLiked, setUserLiked] = useState(quiz.userLiked || false);
-  const [isLiking, setIsLiking] = useState(false);
-  const [showGuestAlert, setShowGuestAlert] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
 
   const isOwner = quiz.canDelete ?? false;
@@ -88,30 +84,6 @@ export default function QuizCard({
       }
     },
     [isOwner],
-  );
-
-  const handleLike = useCallback(
-    async (e: React.MouseEvent) => {
-      e.stopPropagation();
-      if (isLiking) return;
-
-      if (isGuestUser()) {
-        setShowGuestAlert(true);
-        return;
-      }
-
-      try {
-        setIsLiking(true);
-        const result = await likesService.toggleExamLike(quiz.id);
-        setLikesCount(result.count);
-        setUserLiked(result.liked);
-      } catch {
-        // Silent fail for likes
-      } finally {
-        setIsLiking(false);
-      }
-    },
-    [quiz.id, isLiking],
   );
 
   const handleOpen = useCallback(() => {
@@ -204,29 +176,13 @@ export default function QuizCard({
           </div>
 
           <div className={styles.footerRight}>
-            {!isOwner && (
-              <button
-                className={`${styles.likeBtn} ${userLiked ? styles.likeBtnActive : ""}`}
-                onClick={handleLike}
-                disabled={isLiking}
-                title="Me gusta"
-                aria-label="Me gusta"
-                type="button"
-              >
-                <Heart
-                  size={15}
-                  fill={userLiked ? "currentColor" : "none"}
-                  className={isLiking ? styles.likeAnimating : ""}
-                />
-                {likesCount > 0 && <span>{likesCount}</span>}
-              </button>
-            )}
-            {isOwner && (
-              <span className={styles.likesCount}>
-                <Heart size={14} fill="currentColor" />
-                {likesCount}
-              </span>
-            )}
+            <LikeButton 
+              id={quiz.id} 
+              type="exam" 
+              initialLikes={quiz.likesCount} 
+              initialLiked={quiz.userLiked} 
+              isOwner={isOwner}
+            />
 
             {/* CTA Arrow - appears on hover */}
             <div className={`${styles.ctaArrow} ${isHovered ? styles.ctaArrowVisible : ""}`}>
@@ -248,25 +204,6 @@ export default function QuizCard({
           </button>
         )}
       </div>
-
-      {/* Guest alert dialog */}
-      <AlertDialog open={showGuestAlert} onOpenChange={setShowGuestAlert}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Inicia sesión para dar Me gusta</AlertDialogTitle>
-            <AlertDialogDescription>
-              Los usuarios invitados no pueden dar Me gusta. Inicia sesión o
-              crea una cuenta gratis para acceder a esta función.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={() => router.push("/auth")}>
-              Ir a Iniciar Sesión
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </>
   );
 }

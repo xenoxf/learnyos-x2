@@ -30,6 +30,7 @@ import { StatsHero } from "@/components/espacio/StatsHero";
 import { ExamDeck, StatsHeroProps, Attempt } from "@/types";
 import RestringidoForGuest from "@/components/restringidoForGuest";
 import { ItemCard, ItemCardSkeleton } from "@/components/espacio/ItemCard";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function RendimientoPage() {
   const [attempts, setAttempts] = useState<Attempt[]>([]);
@@ -140,16 +141,16 @@ export default function RendimientoPage() {
                 <ItemCard
                   key={att.id}
                   title={att.examTitle}
-                  description={att.examDescription}
+                  description={att.examDescription || `Completaste este examen con un resultado de ${att.correctAnswers}/${att.totalQuestions} preguntas correctas.`}
                   icon={Award}
                   variant={variant}
                   onClick={() => handleAttemptClick(att)}
-                  badges={[`Nota: ${att.correctAnswers} / ${att.totalQuestions}`]}
+                  badges={[`Score: ${score.toFixed(0)}%`]}
                   footerLeft={
-                    <>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                       <Calendar size={12} />
                       <span>{new Date(att.attemptedAt).toLocaleDateString()}</span>
-                    </>
+                    </div>
                   }
                   footerRight={
                     <div className={styles.footerAction}>

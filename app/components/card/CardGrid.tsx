@@ -14,6 +14,7 @@ import type { CardsDeck } from "@/types";
 import { Skeleton } from "@/components/ui/skeleton";
 import styles from "@/styles/card/CardGrid.module.css";
 import { cardsService } from "@/services/cardsService";
+import SkeletonCard from "../SkeletonCard";
 
 interface CardGridProps {
   onCardSelect?: (cardId: number) => void;
@@ -113,19 +114,6 @@ export default function CardGrid({ onCardSelect }: CardGridProps) {
     [handleItemDeleted, onCardSelect],
   );
 
-  // Memoizar skeleton array
-  const skeletons = useMemo(
-    () =>
-      Array.from({ length: 6 }).map((_, i) => (
-        <div key={i} className={styles.skeletonCard}>
-          <Skeleton className={styles.skeletonTitle} />
-          <Skeleton className={styles.skeletonDescription} />
-          <Skeleton className={styles.skeletonMeta} />
-        </div>
-      )),
-    [],
-  );
-
   return (
     <>
       <div className="study-grid-container">
@@ -141,12 +129,12 @@ export default function CardGrid({ onCardSelect }: CardGridProps) {
 
         {/* Loading state - Initial load (al entrar a la página) */}
         {loading && !isSearchActive && (
-          <div className={styles.grid}>{skeletons}</div>
+          <SkeletonCard />
         )}
 
         {/* Search loading */}
         {isSearching && isSearchActive && (
-          <div className={styles.grid}>{skeletons}</div>
+          <SkeletonCard />
         )}
 
         {/* Normal display - Solo cuando no está cargando */}

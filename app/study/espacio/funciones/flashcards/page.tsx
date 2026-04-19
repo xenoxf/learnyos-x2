@@ -7,42 +7,30 @@ import { Skeleton } from "@/components/ui/skeleton";
 import CardKlekComponent from "@/components/card/CardKlek";
 import {
   FuncionesCardModal,
-  type FuncionesCardData,
 } from "@/components/espacio/FuncionesCardModal";
 import styles from "@/styles/espacio/espacioPages.module.css";
 import { cardsService } from "@/services/cardsService";
-import { ManageItem } from "@/types";
+import { ManageItem, UnifiedCardData } from "@/types";
 import Card from "@/components/card/Card";
 import CardDeck from "@/components/espacio/card";
 
 export default function FuncionesFlashcardsPage() {
-  const [items, setItems] = useState<ManageItem[]>([]);
+  const [items, setItems] = useState<UnifiedCardData[]>([]);
   const [loading, setLoading] = useState(true);
   const [deletingId, setDeletingId] = useState<number | null>(null);
-  const [selectedItem, setSelectedItem] = useState<ManageItem | null>(null);
+  const [selectedItem, setSelectedItem] = useState<UnifiedCardData | null>(null);
   const [showKlek, setShowKlek] = useState(false);
   const [selectedForModal, setSelectedForModal] =
-    useState<FuncionesCardData | null>(null);
-  const [deletingFromModal, setDeletingFromModal] = useState<number | null>(
-    null,
-  );
+    useState<UnifiedCardData | null>(null);
 
   const loadItems = useCallback(async () => {
     try {
       setLoading(true);
       const cards = await cardsService.getFlashcardsPrivate();
       setItems(
-        cards.map((c: any) => ({
-          id: c.id,
-          title: c.title,
-          description: c.description,
-          code: c.code,
-          lenght: c.lenght,
-          area: c.area,
-          tema: c.tema,
-          creatorName: c.creatorName,
-          likesCount: c.likesCount || 0,
-          createdAt: c.createdAt,
+        cards.map((c) => ({
+          ...c,
+          type: "flashcard" as const,
         })),
       );
     } catch {
@@ -59,7 +47,6 @@ export default function FuncionesFlashcardsPage() {
   const handleDelete = useCallback(async (id: number) => {
     try {
       setDeletingId(id);
-      setDeletingFromModal(id);
       await cardsService.deleteCard(id);
       toast.success("Eliminado", "Flashcard eliminada correctamente");
       setItems((prev) => prev.filter((item) => item.id !== id));
@@ -68,7 +55,6 @@ export default function FuncionesFlashcardsPage() {
       toast.error("Error", "No se pudo eliminar");
     } finally {
       setDeletingId(null);
-      setDeletingFromModal(null);
     }
   }, []);
 
@@ -84,17 +70,9 @@ export default function FuncionesFlashcardsPage() {
     [items],
   );
 
-  const handleSelectForModal = useCallback((item: ManageItem) => {
-      setSelectedForModal({
-        id: item.id,
-        title: item.title,
-        description: item.description || "",
-        code: item.code || "",
-        creatorName: item.creatorName || "",
-        type: "flashcard",
-        lenght: 0,
-      });
-    }, []);
+  const handleSelectForModal = useCallback((item: UnifiedCardData) => {
+    setSelectedForModal(item);
+  }, []);
 
   return (
     <>
@@ -118,8 +96,8 @@ export default function FuncionesFlashcardsPage() {
       <CardDeck
         items={items}
         selectedForModal={handleSelectForModal}
-        loading
-        deletingId={deletingId as number}
+        loading={loading}
+        deletingId={deletingId || 0}
       />
     </>
   );

@@ -6,36 +6,27 @@ import { toast } from "@/hooks/useLocalToast";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   FuncionesCardModal,
-  type FuncionesCardData,
 } from "@/components/espacio/FuncionesCardModal";
 import styles from "@/styles/espacio/espacioPages.module.css";
 import { notesService } from "@/services/notesService";
-import { ManageItem } from "@/types";
+import { ManageItem, UnifiedCardData } from "@/types";
 import CardDeck from "@/components/espacio/card";
 
 export default function FuncionesNotasPage() {
-  const [items, setItems] = useState<ManageItem[]>([]);
+  const [items, setItems] = useState<UnifiedCardData[]>([]);
   const [loading, setLoading] = useState(true);
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const [selectedForModal, setSelectedForModal] =
-    useState<FuncionesCardData | null>(null);
+    useState<UnifiedCardData | null>(null);
 
   const loadItems = useCallback(async () => {
     try {
       setLoading(true);
       const notes = await notesService.getNotesPrivate();
       setItems(
-        notes.map((n: any) => ({
-          id: n.id,
-          title: n.title,
-          description: n.description,
-          code: n.code,
-          length: n.length,
-          area: n.area,
-          tema: n.tema,
-          creatorName: n.creatorName,
-          likesCount: n.likesCount || 0,
-          createdAt: n.createdAt,
+        notes.map((n) => ({
+          ...n,
+          type: "note" as const,
         })),
       );
     } catch {
@@ -68,16 +59,8 @@ export default function FuncionesNotasPage() {
     window.location.href = `/study/notes/${id}`;
   }, []);
 
-  const handleSelectForModal = useCallback((item: ManageItem) => {
-    setSelectedForModal({
-      id: item.id,
-      title: item.title,
-      description: item.description || "",
-      code: item.code || "",
-      creatorName: item.creatorName || "",
-      type: "note",
-      lenght: 0,
-    });
+  const handleSelectForModal = useCallback((item: UnifiedCardData) => {
+    setSelectedForModal(item);
   }, []);
 
   return (

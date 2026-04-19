@@ -14,8 +14,9 @@ import type { ExamDeck } from "@/types";
 import { Skeleton } from "@/components/ui/skeleton";
 import styles from "@/styles/quiz/quizGrid.module.css";
 import { quizzesService } from "@/services/quizzesService";
+import SkeletonCard from "../SkeletonCard";
 
-interface QuizGridProps {}
+interface QuizGridProps { }
 
 const QUIZ_CONFIG = {
   entitySingular: "quiz",
@@ -31,7 +32,7 @@ const QUIZ_CONFIG = {
   loadingText: "Cargando quizzes...",
 };
 
-export default function QuizGrid({}: QuizGridProps) {
+export default function QuizGrid({ }: QuizGridProps) {
   const [isSearching, setIsSearching] = useState(false);
 
   const {
@@ -57,7 +58,7 @@ export default function QuizGrid({}: QuizGridProps) {
             : await quizzesService.getExamsPublic();
         return data as (ExamDeck & StudyGridBaseItem)[];
       }, []),
-      onItemOpen: useCallback(() => {}, []),
+      onItemOpen: useCallback(() => { }, []),
     },
     config: QUIZ_CONFIG,
     defaultViewMode: "public",
@@ -98,19 +99,6 @@ export default function QuizGrid({}: QuizGridProps) {
     [handleItemDeleted],
   );
 
-  // Memoizar skeleton array
-  const skeletons = useMemo(
-    () =>
-      Array.from({ length: 6 }).map((_, i) => (
-        <div key={i} className={styles.skeletonCard}>
-          <Skeleton className={styles.skeletonTitle} />
-          <Skeleton className={styles.skeletonDescription} />
-          <Skeleton className={styles.skeletonMeta} />
-        </div>
-      )),
-    [],
-  );
-
   return (
     <>
       <div className="study-grid-container">
@@ -126,13 +114,12 @@ export default function QuizGrid({}: QuizGridProps) {
 
         {/* Loading state - Initial load (al entrar a la página) */}
         {loading && !isSearchActive && (
-          <div className={styles.grid}>{skeletons}</div>
+          <SkeletonCard />
         )}
 
         {/* Search loading */}
         {isSearching && isSearchActive && (
-          <div className={styles.grid}>{skeletons}</div>
-        )}
+          <SkeletonCard />)}
 
         {/* Normal display - Solo cuando no está cargando */}
         {!loading && !isSearching && (

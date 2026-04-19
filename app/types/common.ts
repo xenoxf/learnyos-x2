@@ -19,8 +19,19 @@ export interface ManageItem {
   tema?: string;
   creatorName?: string;
   likesCount?: number;
+  userLiked?: boolean;
   createdAt?: string;
+  canDelete?: boolean;
+  type?: "note" | "exam" | "flashcard" | "quiz" | "icfes";
 }
+
+export type UnifiedCardData = ManageItem & {
+  // Fields that might come from different deck types
+  totalQuestions?: number;
+  totalCards?: number;
+  contentsCount?: number;
+  examType?: "quiz" | "icfes";
+};
 
 export interface LikeStatus {
   liked: boolean;

@@ -3,10 +3,8 @@
 import React, { useCallback, useEffect, useState } from "react";
 import {
   X,
-  Tag,
   BookOpen,
   User,
-  Heart,
   Calendar,
   Hash,
   Eye,
@@ -14,29 +12,16 @@ import {
   Sparkles,
   Code,
   ArrowRight,
-  Clock,
-  BarChart3,
+  Target,
+  Layers,
+  FileText,
 } from "lucide-react";
-import { toast } from "@/hooks/useLocalToast";
-import styles from "@/styles/espacio/funcionesCardModal.module.css";
-
-export interface FuncionesCardData {
-  id: number;
-  title: string;
-  description?: string;
-  code?: string;
-  area?: string;
-  tema?: string;
-  creatorName?: string;
-  likesCount?: number;
-  type: "flashcard" | "quiz" | "icfes" | "note" | "rendimiento";
-  lenght: number;
-  difficulty?: string;
-  createdAt?: string;
-}
+import styles from "./FuncionesCardModal.module.css";
+import { LikeButton } from "@/components/common/LikeButton";
+import { UnifiedCardData } from "@/types";
 
 interface FuncionesCardModalProps {
-  card: FuncionesCardData;
+  card: UnifiedCardData;
   onClose: () => void;
   onViewContent: (id: number) => void;
   onDelete?: (id: number) => void;
@@ -81,65 +66,69 @@ export function FuncionesCardModal({
     };
   }, [handleClose]);
 
+  const getContentType = () => {
+    if (card.type) return card.type;
+    if (card.totalQuestions !== undefined) return "exam";
+    if (card.totalCards !== undefined) return "flashcard";
+    if (card.contentsCount !== undefined) return "note";
+    return "note";
+  };
+
+  const contentType = getContentType();
+
   const getTypeConfig = () => {
-    switch (card.type) {
-      case "flashcard":
-        return {
-          label: "Flashcard",
-          icon: "🃏",
-          color: "blue",
-        };
+    switch (contentType) {
+      case "flashcard": return { label: "Mazo de Flashcards", icon: <Layers size={18} />, emoji: "🃏", color: "blue" };
       case "quiz":
-        return {
-          label: "Quiz",
-          icon: "❓",
-          color: "purple",
-        };
       case "icfes":
-        return {
-          label: "ICFES",
-          icon: "📋",
-          color: "indigo",
-        };
-      case "note":
-        return {
-          label: "Nota",
-          icon: "📝",
-          color: "green",
-        };
-      case "rendimiento":
-        return {
-          label: "Rendimiento",
-          icon: "📊",
-          color: "orange",
-        };
-      default:
-        return null;
+      case "exam": return { label: card.type === "icfes" ? "Examen ICFES" : "Quiz Interactivo", icon: <Target size={18} />, emoji: "❓", color: "purple" };
+      case "note": return { label: "Nota de Estudio", icon: <FileText size={18} />, emoji: "📝", color: "green" };
+      default: return { label: "Contenido", icon: <BookOpen size={18} />, emoji: "📚", color: "gray" };
     }
   };
 
   const typeConfig = getTypeConfig();
 
   const formatDate = (dateString?: string) => {
-    if (!dateString) return null;
-    return new Date(dateString).toLocaleDateString("es-ES", {
-      day: "numeric",
-      month: "long",
-      year: "numeric",
-    });
+    if (!dateString) return "Recientemente";
+    try {
+      return new Date(dateString).toLocaleDateString("es-ES", {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      });
+    } catch {
+      return "Fecha no disponible";
+    }
   };
 
-  const getDifficultyConfig = (difficulty?: string) => {
-    if (!difficulty) return null;
-    const config = {
-      easy: { label: "Fácil", color: "success", icon: "✓" },
-      medium: { label: "Medio", color: "warning", icon: "◆" },
-      hard: { label: "Difícil", color: "destructive", icon: "✦" },
+  const getDifficultyLabel = (difficulty?: string) => {
+    const labels: Record<string, string> = {
+      very_easy: "Muy Fácil",
+      easy: "Fácil",
+      medium: "Intermedio",
+      hard: "Difícil",
+      very_hard: "Experto",
+      expert: "Maestro",
     };
-    return config[difficulty as keyof typeof config] || null;
+    return difficulty ? labels[difficulty] || difficulty : "N/A";
   };
 
-  const difficultyConfig = getDifficultyConfig(card.difficulty);
+  const getLengthInfo = () => {
+    if (card.totalQuestions !== undefined) return { value: card.totalQuestions, label: "Preguntas", icon: <Target size={16} /> };
+    if (card.totalCards !== undefined) return { value: card.totalCards, label: "Tarjetas", icon: <Layers size={16} /> };
+    if (card.contentsCount !== undefined) return { value: card.contentsCount, label: "Secciones", icon: <FileText size={16} /> };
+    if (card.lenght !== undefined) return { value: card.lenght, label: "Elementos", icon: <Hash size={16} /> };
+    return { value: 0, label: "Elementos", icon: <Hash size={16} /> };
+  };
+
+  const lengthInfo = getLengthInfo();
+
+  const getLikeType = (): "note" | "flashcard" | "exam" => {
+    if (contentType === "note") return "note";
+    if (contentType === "flashcard") return "flashcard";
+    return "exam";
+  };
 
   return (
     <div
@@ -152,170 +141,123 @@ export function FuncionesCardModal({
       >
         {/* Header */}
         <div className={styles.header}>
-          {typeConfig && (
-            <div className={styles.headerLeft}>
-              <span className={styles.typeIcon}>{typeConfig.icon}</span>
-              <div className={styles.headerInfo}>
-                <span className={styles.typeLabel}>{typeConfig.label}</span>
-                {card.code && (
-                  <span className={styles.codeBadge}>
-                    <Code size={12} />
-                    {card.code}
-                  </span>
-                )}
-              </div>
+          <div className={styles.headerLeft}>
+            <div className={`${styles.typeIcon} ${styles[typeConfig.color]}`}>
+              {typeConfig.icon}
             </div>
-          )}
-          <button
-            className={styles.closeBtn}
-            onClick={handleClose}
-            type="button"
-            aria-label="Cerrar"
-          >
+            <div className={styles.headerInfo}>
+              <span className={styles.typeLabel}>{typeConfig.label}</span>
+              {card.code && (
+                <div className={styles.codeBadge}>
+                  <Code size={12} />
+                  <span>CÓDIGO: {card.code}</span>
+                </div>
+              )}
+            </div>
+          </div>
+          <button className={styles.closeBtn} onClick={handleClose} type="button" aria-label="Cerrar">
             <X size={20} />
           </button>
         </div>
 
-        {/* Main Content Area - 2 Columns on Desktop */}
+        {/* Body */}
         <div className={styles.modalBody}>
           <div className={styles.mainGrid}>
-            {/* Left Column: Title, Description, Academic Info */}
             <div className={styles.leftColumn}>
-              <div className={styles.titleSection}>
-                <h2 className={styles.title}>{card.title}</h2>
-                {card.description && (
-                  <p className={styles.description}>{card.description}</p>
-                )}
-              </div>
+              <h2 className={styles.title}>{card.title}</h2>
+              <p className={styles.description}>
+                {card.description || "Este contenido no tiene una descripción detallada, pero está listo para ayudarte en tu aprendizaje."}
+              </p>
 
-              {(card.area || card.tema || card.code) && (
-                <div className={styles.academicSection}>
-                  <div className={styles.sectionHeader}>
-                    <BookOpen size={16} />
-                    <span>Información del Contenido</span>
+              <div className={styles.academicSection}>
+                <div className={styles.sectionHeader}>
+                  <BookOpen size={16} />
+                  <span>Contexto Académico</span>
+                </div>
+                <div className={styles.academicGrid}>
+                  <div className={styles.academicItem}>
+                    <span className={styles.academicLabel}>Área de conocimiento</span>
+                    <span className={styles.academicValue}>{card.area || "General / Multidisciplinar"}</span>
                   </div>
-                  <div className={styles.academicGrid}>
-                    {card.area && (
-                      <div className={styles.academicItem}>
-                        <span className={styles.academicLabel}>Área</span>
-                        <span className={styles.academicValue}>
-                          {card.area}
-                        </span>
-                      </div>
-                    )}
-                    {card.tema && (
-                      <div className={styles.academicItem}>
-                        <span className={styles.academicLabel}>Tema</span>
-                        <span className={styles.academicValue}>
-                          {card.tema}
-                        </span>
-                      </div>
-                    )}
-                    {(isOwner || card.code) && card.code && (
-                      <div className={styles.academicItem}>
-                        <span className={styles.academicLabel}>
-                          Código de Acceso
-                        </span>
-                        <span className={styles.codeBadge}>
-                          <Code size={12} />
-                          {card.code}
-                        </span>
-                      </div>
-                    )}
+                  <div className={styles.academicItem}>
+                    <span className={styles.academicLabel}>Tema específico</span>
+                    <span className={styles.academicValue}>{card.tema || "Varios temas relacionados"}</span>
                   </div>
                 </div>
-              )}
+              </div>
             </div>
 
-            {/* Right Column: Metadata Cards & Quick Stats */}
             <div className={styles.rightColumn}>
               <div className={styles.metadataCard}>
                 <div className={styles.metaRow}>
-                  <div className={styles.metaIcon}>
-                    <Hash size={16} />
-                  </div>
+                  <div className={styles.metaIcon}>{lengthInfo.icon}</div>
                   <div className={styles.metaContent}>
-                    <span className={styles.metaLabel}>Contenido</span>
-                    <span className={styles.metaValue}>{card.lenght}</span>
+                    <span className={styles.metaLabel}>Extensión</span>
+                    <span className={styles.metaValue}>{lengthInfo.value} {lengthInfo.label}</span>
                   </div>
                 </div>
 
-                {card.difficulty && (
+                {(card.difficulty || card.type === "exam" || card.totalQuestions !== undefined) && (
                   <div className={styles.metaRow}>
-                    <div className={styles.metaIcon}>
-                      <Sparkles size={16} />
-                    </div>
+                    <div className={styles.metaIcon}><Sparkles size={16} /></div>
                     <div className={styles.metaContent}>
                       <span className={styles.metaLabel}>Dificultad</span>
-                      <span
-                        className={`${styles.metaValue} ${styles[`diff_${card.difficulty}`]}`}
-                      >
-                        {difficultyConfig?.label || card.difficulty}
+                      <span className={`${styles.metaValue} ${styles[`diff_${card.difficulty || "medium"}`]}`}>
+                        {getDifficultyLabel(card.difficulty || "medium")}
                       </span>
                     </div>
                   </div>
                 )}
 
                 <div className={styles.metaRow}>
-                  <div className={styles.metaIcon}>
-                    <User size={16} />
-                  </div>
+                  <div className={styles.metaIcon}><User size={16} /></div>
                   <div className={styles.metaContent}>
-                    <span className={styles.metaLabel}>Creador</span>
-                    <span className={styles.metaValue}>
-                      {card.creatorName || "Anónimo"}
-                    </span>
+                    <span className={styles.metaLabel}>Autoría</span>
+                    <span className={styles.metaValue}>{card.creatorName || "Comunidad LearnYos"}</span>
                   </div>
                 </div>
 
                 <div className={styles.metaRow}>
-                  <div className={styles.metaIcon}>
-                    <Calendar size={16} />
-                  </div>
+                  <div className={styles.metaIcon}><Calendar size={16} /></div>
                   <div className={styles.metaContent}>
-                    <span className={styles.metaLabel}>Fecha</span>
-                    <span className={styles.metaValue}>
-                      {formatDate(card.createdAt)}
-                    </span>
+                    <span className={styles.metaLabel}>Fecha de creación</span>
+                    <span className={styles.metaValue}>{formatDate(card.createdAt)}</span>
                   </div>
                 </div>
 
-                {card.likesCount !== undefined && card.likesCount > 0 && (
-                  <div className={styles.metaRow}>
-                    <div className={styles.metaIcon}>
-                      <Heart size={16} />
-                    </div>
-                    <div className={styles.metaContent}>
-                      <span className={styles.metaLabel}>Valoración</span>
-                      <span className={styles.metaValue}>
-                        {card.likesCount} me gusta
-                      </span>
-                    </div>
+                <div className={styles.likeSection}>
+                  <div className={styles.likeHeader}>
+                    <span className={styles.metaLabel}>¿Te gusta este contenido?</span>
                   </div>
-                )}
+                  <LikeButton 
+                    id={card.id} 
+                    type={getLikeType()} 
+                    initialLikes={card.likesCount} 
+                    initialLiked={card.userLiked}
+                    isOwner={isOwner}
+                  />
+                </div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Footer Actions */}
+        {/* Footer */}
         <div className={styles.footer}>
-          <button
-            className={styles.primaryBtn}
-            onClick={handleViewContent}
-            type="button"
-          >
+          <button className={styles.primaryBtn} onClick={handleViewContent} type="button">
             <Eye size={18} />
-            <span>Ver contenido</span>
-            <ArrowRight size={16} />
+            <span>Comenzar a estudiar</span>
+            <ArrowRight size={18} className={styles.arrowIcon} />
           </button>
+          
           {isOwner && onDelete && (
-            <button
-              className={styles.dangerBtn}
-              onClick={handleDelete}
+            <button 
+              className={styles.dangerBtn} 
+              onClick={handleDelete} 
               type="button"
+              title="Eliminar permanentemente"
             >
-              <Trash2 size={16} />
+              <Trash2 size={20} />
             </button>
           )}
         </div>

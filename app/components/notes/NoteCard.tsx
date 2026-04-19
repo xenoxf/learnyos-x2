@@ -26,7 +26,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import styles from "@/styles/quiz/quizCard.module.css"; // Reuse premium styles
 import type { NoteDeck } from "@/types";
-import { likesService } from "@/services/likesService";
+import { LikeButton } from "@/components/common/LikeButton";
 
 interface NoteCardProps {
   note: NoteDeck & { canDelete?: boolean };
@@ -42,10 +42,6 @@ export default function NoteCard({
   onShowOptions,
 }: NoteCardProps) {
   const router = useRouter();
-  const [likesCount, setLikesCount] = useState(note.likesCount || 0);
-  const [userLiked, setUserLiked] = useState(note.userLiked || false);
-  const [isLiking, setIsLiking] = useState(false);
-  const [showGuestAlert, setShowGuestAlert] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
 
   const isOwner = note.canDelete ?? false;
@@ -57,30 +53,6 @@ export default function NoteCard({
       // Handle delete logic via parent if needed
     },
     [isOwner],
-  );
-
-  const handleLike = useCallback(
-    async (e: React.MouseEvent) => {
-      e.stopPropagation();
-      if (isLiking) return;
-
-      if (isGuestUser()) {
-        setShowGuestAlert(true);
-        return;
-      }
-
-      try {
-        setIsLiking(true);
-        const result = await likesService.toggleNoteLike(note.id);
-        setLikesCount(result.count);
-        setUserLiked(result.liked);
-      } catch {
-        // Silent fail
-      } finally {
-        setIsLiking(false);
-      }
-    },
-    [note.id, isLiking],
   );
 
   const handleOpen = useCallback(() => {
@@ -159,27 +131,13 @@ export default function NoteCard({
           </div>
 
           <div className={styles.footerRight}>
-            {!isOwner && (
-              <button
-                className={`${styles.likeBtn} ${userLiked ? styles.likeBtnActive : ""}`}
-                onClick={handleLike}
-                disabled={isLiking}
-                type="button"
-              >
-                <Heart
-                  size={15}
-                  fill={userLiked ? "currentColor" : "none"}
-                  className={isLiking ? styles.likeAnimating : ""}
-                />
-                {likesCount > 0 && <span>{likesCount}</span>}
-              </button>
-            )}
-            {isOwner && (
-              <span className={styles.likesCount}>
-                <Heart size={14} fill="currentColor" />
-                {likesCount}
-              </span>
-            )}
+            <LikeButton 
+              id={note.id} 
+              type="note" 
+              initialLikes={note.likesCount} 
+              initialLiked={note.userLiked} 
+              isOwner={isOwner}
+            />
 
             <div className={`${styles.ctaArrow} ${isHovered ? styles.ctaArrowVisible : ""}`}>
               <ArrowRight size={16} />
@@ -197,23 +155,6 @@ export default function NoteCard({
           </button>
         )}
       </div>
-
-      <AlertDialog open={showGuestAlert} onOpenChange={setShowGuestAlert}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Inicia sesión para dar Me gusta</AlertDialogTitle>
-            <AlertDialogDescription>
-              Los usuarios invitados no pueden dar Me gusta.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={() => router.push("/auth")}>
-              Ir a Iniciar Sesión
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </>
   );
 }

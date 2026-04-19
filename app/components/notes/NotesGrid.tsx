@@ -14,8 +14,9 @@ import type { NoteDeck } from "@/types";
 import { Skeleton } from "@/components/ui/skeleton";
 import styles from "@/styles/notes/NotesGrid.module.css";
 import { notesService } from "@/services/notesService";
+import SkeletonCard from "../SkeletonCard";
 
-interface NotesGridProps {}
+interface NotesGridProps { }
 
 const NOTES_CONFIG = {
   entitySingular: "nota",
@@ -30,7 +31,7 @@ const NOTES_CONFIG = {
   loadingText: "Cargando notas...",
 };
 
-export default function NotesGrid({}: NotesGridProps) {
+export default function NotesGrid({ }: NotesGridProps) {
   const [isSearching, setIsSearching] = useState(false);
 
   const {
@@ -56,7 +57,7 @@ export default function NotesGrid({}: NotesGridProps) {
             : await notesService.getNotesPublic();
         return data as (NoteDeck & StudyGridBaseItem)[];
       }, []),
-      onItemOpen: useCallback(() => {}, []),
+      onItemOpen: useCallback(() => { }, []),
     },
     config: NOTES_CONFIG,
     defaultViewMode: "public",
@@ -97,19 +98,6 @@ export default function NotesGrid({}: NotesGridProps) {
     [handleItemDeleted],
   );
 
-  // Memoizar skeleton array
-  const skeletons = useMemo(
-    () =>
-      Array.from({ length: 6 }).map((_, i) => (
-        <div key={i} className={styles.skeletonCard}>
-          <Skeleton className={styles.skeletonTitle} />
-          <Skeleton className={styles.skeletonDescription} />
-          <Skeleton className={styles.skeletonMeta} />
-        </div>
-      )),
-    [],
-  );
-
   return (
     <>
       <div className="study-grid-container">
@@ -125,12 +113,11 @@ export default function NotesGrid({}: NotesGridProps) {
 
         {/* Loading state - Initial load (al entrar a la página) */}
         {loading && !isSearchActive && (
-          <div className={styles.grid}>{skeletons}</div>
-        )}
+          <SkeletonCard />)}
 
         {/* Search loading */}
         {isSearching && isSearchActive && (
-          <div className={styles.grid}>{skeletons}</div>
+          <SkeletonCard />
         )}
 
         {/* Normal display - Solo cuando no está cargando */}

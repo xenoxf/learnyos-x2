@@ -3,42 +3,16 @@
    ============================================ */
 .itemsList {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 14px;
   align-items: start;
-}
-
-@media (min-width: 480px) {
-  .itemsList {
-    gap: 14px;
-  }
-}
-
-@media (min-width: 640px) {
-  .itemsList {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 16px;
-  }
-}
-
-@media (min-width: 960px) {
-  .itemsList {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 18px;
-  }
-}
-
-@media (min-width: 1280px) {
-  .itemsList {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 20px;
-  }
 }
 
 /* ============================================
    ITEM CARD
    ============================================ */
 .itemCard {
+  width: 100%;
   background: hsl(var(--card));
   border: 0.5px solid hsl(var(--border));
   border-radius: 16px;
@@ -50,10 +24,9 @@
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  height: fit-content;
-  padding: 1rem;
-  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.03);
   min-height: 200px;
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.03);
+  /* Sin padding en el card raíz, lo maneja el body y el footer */
 }
 
 .itemCard:hover {
@@ -72,20 +45,15 @@
   outline-offset: 2px;
 }
 
-/* Card Body */
-.itemCardBody {
-  padding: 16px 16px 12px 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  flex: 1;
-}
-
+/* ============================================
+   CARD HEADER
+   ============================================ */
 .itemCardHeader {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
   gap: 8px;
+  padding: 16px 16px 0 16px;
 }
 
 .itemCardTitle {
@@ -94,50 +62,40 @@
   color: hsl(var(--foreground));
   line-height: 1.4;
   margin: 0;
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+  /* Sin clamp — dejamos que el título respire */
   letter-spacing: -0.01em;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  min-width: 0;
 }
 
+/* ============================================
+   CARD DESCRIPTION
+   ============================================ */
 .itemCardDesc {
   font-size: 13px;
   color: hsl(var(--muted-foreground));
   line-height: 1.5;
-  margin: 0;
+  margin: 8px 16px 0;
   display: -webkit-box;
-  -webkit-line-clamp: 3;
+  -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  word-break: break-word;
 }
 
-/* Card Meta Badges */
+/* ============================================
+   CARD META / BADGES
+   ============================================ */
 .itemCardMeta {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-
+  padding: 10px 16px 12px;
+  margin-top: auto;          /* empuja los badges hacia abajo */
 }
 
-.itemBadge {
-  display: inline-flex;
-  align-items: center;
-  font-size: 11px;
-  font-weight: 500;
-  padding: 4px 10px;
-  border-radius: 9999px;
-  white-space: nowrap;
-  line-height: 1.4;
-  background: hsl(var(--primary) / 0.1);
-  color: hsl(var(--primary));
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-
-}
-
+.itemBadge,
 .diffBadge {
   display: inline-flex;
   align-items: center;
@@ -145,14 +103,28 @@
   font-weight: 500;
   padding: 4px 10px;
   border-radius: 9999px;
-  white-space: nowrap;
   line-height: 1.4;
+  /* Permite que el badge se rompa en varias líneas si es muy largo */
+  white-space: normal;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  max-width: 100%;
+}
+
+.itemBadge {
+  background: hsl(var(--primary) / 0.1);
+  color: hsl(var(--primary));
+}
+
+.diffBadge {
   background: hsl(var(--muted));
   color: hsl(var(--muted-foreground));
   border: 0.5px solid hsl(var(--border));
 }
 
-/* Card Footer */
+/* ============================================
+   CARD FOOTER
+   ============================================ */
 .itemCardFooter {
   display: flex;
   align-items: center;
@@ -161,7 +133,6 @@
   padding: 10px 16px;
   border-top: 0.5px solid hsl(var(--border));
   background: hsl(var(--muted) / 0.3);
-  margin-top: auto;
 }
 
 .itemCreator {
@@ -189,6 +160,37 @@
 }
 
 /* ============================================
+   SPINNER (deleting state)
+   ============================================ */
+.spinner {
+  color: hsl(var(--muted-foreground));
+  animation: spin 1s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ============================================
+   EMPTY STATE
+   ============================================ */
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 48px 24px;
+  color: hsl(var(--muted-foreground));
+  text-align: center;
+}
+
+.emptyIcon {
+  color: hsl(var(--muted-foreground) / 0.5);
+}
+
+/* ============================================
    SKELETON LOADERS
    ============================================ */
 .skeletonCard {
@@ -198,13 +200,14 @@
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  height: fit-content;
   min-height: 200px;
   padding: 16px;
+  gap: 8px;
 }
 
 .skeletonCard .itemCardHeader {
-  margin-bottom: 12px;
+  margin-bottom: 4px;
+  padding: 0;
 }
 
 .skeletonTitle {
@@ -219,7 +222,6 @@
   width: 100%;
   border-radius: 9999px;
   background: hsl(var(--muted));
-  margin-bottom: 8px;
 }
 
 .skeletonDescriptionLine {
@@ -227,14 +229,13 @@
   width: 60%;
   border-radius: 9999px;
   background: hsl(var(--muted));
-  margin-bottom: 16px;
 }
 
 .skeletonBadges {
   display: flex;
   gap: 6px;
   flex-wrap: wrap;
-  margin-bottom: 16px;
+  margin-top: 4px;
 }
 
 .skeletonBadge {
@@ -269,13 +270,19 @@
 
 /* Shimmer animation */
 @keyframes shimmer {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
 
-  0%,
-  100% {
-    opacity: 1;
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 640px) {
+  .itemsList {
+    grid-template-columns: 1fr;
   }
 
-  50% {
-    opacity: 0.4;
+  .itemCardTitle {
+    font-size: 14px;
   }
 }

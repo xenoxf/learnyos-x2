@@ -6,37 +6,27 @@ import { toast } from "@/hooks/useLocalToast";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   FuncionesCardModal,
-  type FuncionesCardData,
 } from "@/components/espacio/FuncionesCardModal";
 import styles from "@/styles/espacio/espacioPages.module.css";
 import { quizzesService } from "@/services/quizzesService";
-import { ManageItem } from "@/types";
+import { ManageItem, UnifiedCardData } from "@/types";
 import CardDeck from "@/components/espacio/card";
 
 export default function FuncionesQuizzesPage() {
-  const [items, setItems] = useState<ManageItem[]>([]);
+  const [items, setItems] = useState<UnifiedCardData[]>([]);
   const [loading, setLoading] = useState(true);
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const [selectedForModal, setSelectedForModal] =
-    useState<FuncionesCardData | null>(null);
+    useState<UnifiedCardData | null>(null);
 
   const loadItems = useCallback(async () => {
     try {
       setLoading(true);
       const quizzes = await quizzesService.getExamsPrivate();
       setItems(
-        quizzes.map((q: any) => ({
-          id: q.id,
-          title: q.title,
-          description: q.description,
-          code: q.code,
-          lenght: q.lenght,
-          difficulty: q.difficulty,
-          area: q.area,
-          tema: q.tema,
-          creatorName: q.creatorName,
-          likesCount: q.likesCount || 0,
-          createdAt: q.createdAt,
+        quizzes.map((q) => ({
+          ...q,
+          type: (q.type as any) || "quiz",
         })),
       );
     } catch {
@@ -69,19 +59,10 @@ export default function FuncionesQuizzesPage() {
     window.location.href = `/study/quiz/${id}`;
   }, []);
 
-  const handleSelectForModal = useCallback((item: ManageItem) => {
-    setSelectedForModal({
-      id: item.id,
-      title: item.title,
-      description: item.description || "",
-      code: item.code || "",
-      creatorName: item.creatorName || "",
-      type: "quiz",
-      lenght: item.lenght || 0,
-    });
+  const handleSelectForModal = useCallback((item: UnifiedCardData) => {
+    setSelectedForModal(item);
   }, []);
 
-  
   return (
     <>
       {selectedForModal && (
