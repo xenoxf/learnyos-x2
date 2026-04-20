@@ -11,11 +11,10 @@ interface CacheEntry<T> {
 
 class HttpClient {
   private token: string | null = null;
-  private refreshToken: string | null = null;
+
   private cache = new Map<string, CacheEntry<any>>();
   private pendingRequests = new Map<string, Promise<any>>();
   private searchTimeouts = new Map<string, NodeJS.Timeout>();
-  private isRefreshing = false;
   private refreshPromise: Promise<boolean> | null = null;
 
   private readonly baseUrl: string;
@@ -27,7 +26,6 @@ class HttpClient {
 
     if (typeof window !== "undefined") {
       this.token = localStorage.getItem("token");
-      this.refreshToken = localStorage.getItem("refreshToken");
     }
   }
 
@@ -37,29 +35,18 @@ class HttpClient {
   syncFromStorage(): void {
     if (typeof window !== "undefined") {
       const storedToken = localStorage.getItem("token");
-      const storedRefresh = localStorage.getItem("refreshToken");
       if (storedToken && storedToken !== this.token) this.token = storedToken;
-      if (storedRefresh && storedRefresh !== this.refreshToken) this.refreshToken = storedRefresh;
+
     }
   }
 
-  setToken(token: string, refreshToken?: string): void {
+  setToken(token: string): void {
     this.token = token;
     if (typeof window !== "undefined") {
       localStorage.setItem("token", token);
-      if (refreshToken) {
-        localStorage.setItem("refreshToken", refreshToken);
-        this.refreshToken = refreshToken;
-      }
     }
   }
 
-  /**
-   * Get the in-memory refresh token (for authService.refreshSession)
-   */
-  get refreshTokenValue(): string | null {
-    return this.refreshToken;
-  }
 
   /**
    * Get the current token (for authService usage)
@@ -70,48 +57,10 @@ class HttpClient {
     }
     return this.token;
   }
-
-  private async attemptRefresh(): Promise<boolean> {
-    if (!this.refreshToken) return false;
-    try {
-      const response = await fetch(`${this.baseUrl}/auth/refresh`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          ...(this.apiKey ? { "x-api-key": this.apiKey } : {}),
-        },
-        body: JSON.stringify({ refreshToken: this.refreshToken }),
-      });
-      if (!response.ok) return false;
-      const data = await response.json();
-      if (data.token) {
-        this.setToken(data.token, data.refreshToken);
-        return true;
-      }
-      return false;
-    } catch {
-      return false;
-    }
-  }
-
-  private async getOrRefresh(): Promise<boolean> {
-    if (this.isRefreshing && this.refreshPromise) return this.refreshPromise;
-    this.isRefreshing = true;
-    this.refreshPromise = this.attemptRefresh();
-    try {
-      return await this.refreshPromise;
-    } finally {
-      this.isRefreshing = false;
-      this.refreshPromise = null;
-    }
-  }
-
   clearAuth(): void {
     this.token = null;
-    this.refreshToken = null;
     if (typeof window !== "undefined") {
       localStorage.removeItem("token");
-      localStorage.removeItem("refreshToken");
       localStorage.removeItem("user");
       localStorage.removeItem("isGuest");
     }
@@ -160,12 +109,6 @@ class HttpClient {
     const response = await fetch(`${this.baseUrl}${endpoint}`, { ...options, headers });
 
     if (!response.ok) {
-      if ((response.status === 401 || response.status === 403) && retryCount === 0) {
-        const refreshed = await this.getOrRefresh();
-        if (refreshed) return this.request<T>(endpoint, options, retryCount + 1);
-        this.clearAuth();
-        throw new Error("Sesión expirada. Por favor, inicia sesión nuevamente.");
-      }
       const errorData = await response.json().catch(() => ({}));
       const msg = errorData.message || errorData.error || `Error: ${response.status}`;
       throw new Error(String(msg));
@@ -235,3 +178,4 @@ export const httpClient = new HttpClient(
   process.env.NEXT_PUBLIC_BACKEND_URL || "",
   process.env.NEXT_PUBLIC_BACKEND_API_KEY
 );
+

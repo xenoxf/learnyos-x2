@@ -12,7 +12,7 @@ export const authService = {
     });
     if (!response.token || !response.user)
       throw new Error("Invalid login response");
-    httpClient.setToken(response.token, (response as any).refreshToken);
+    httpClient.setToken(response.token);
     if (typeof window !== "undefined") {
       localStorage.setItem(
         "user",
@@ -30,7 +30,7 @@ export const authService = {
     });
     if (!response.token || !response.user)
       throw new Error("Invalid register response");
-    httpClient.setToken(response.token, (response as any).refreshToken);
+    httpClient.setToken(response.token);
     if (typeof window !== "undefined") {
       localStorage.setItem(
         "user",
@@ -90,8 +90,7 @@ export const authService = {
       if (result.valid === true) {
         return true;
       } else {
-        const refresh = await this.refreshSession();
-        return refresh;
+        return false;
       }
     } catch (err: any) {
       if (err?.message?.includes("Sesión expirada")) {
@@ -101,41 +100,7 @@ export const authService = {
     }
   },
 
-  /**
-   * Attempt to refresh the session using the stored refresh token.
-   * Returns true if refresh was successful, false otherwise.
-   * This runs silently without blocking the UI.
-   */
-  async refreshSession(): Promise<boolean> {
-    try {
-      const refreshToken = httpClient.refreshTokenValue || localStorage.getItem("refreshToken");
-      if (!refreshToken) return false;
 
-      const response = await httpClient.request<{
-        token: string;
-        refreshToken: string;
-        user: User;
-      }>("/auth/refresh", {
-        method: "POST",
-        body: JSON.stringify({ refreshToken }),
-      });
-
-      if (response.token) {
-        httpClient.setToken(response.token, response.refreshToken);
-        if (typeof window !== "undefined" && response.user) {
-          localStorage.setItem(
-            "user",
-            JSON.stringify({ ...response.user, isGuest: false }),
-          );
-          localStorage.removeItem("isGuest");
-        }
-        return true;
-      }
-      return false;
-    } catch {
-      return false;
-    }
-  },
 
   async getGoogleAuthUrl(): Promise<{ url: string }> {
     return httpClient.request("/auth/google/url", { method: "GET" });
@@ -150,7 +115,7 @@ export const authService = {
       },
     );
     if (response.token && response.user) {
-      httpClient.setToken(response.token, response.refreshToken);
+      httpClient.setToken(response.token);
       if (typeof window !== "undefined") {
         localStorage.setItem(
           "user",
@@ -173,7 +138,7 @@ export const authService = {
       body: JSON.stringify(googleToken),
     });
     if (response.token) {
-      httpClient.setToken(response.token, response.refreshToken);
+      httpClient.setToken(response.token);
       if (typeof window !== "undefined") {
         localStorage.setItem(
           "user",
@@ -190,7 +155,7 @@ export const authService = {
       method: "POST",
     });
     if (response.token && response.user) {
-      httpClient.setToken(response.token, response.refreshToken);
+      httpClient.setToken(response.token);
       if (typeof window !== "undefined") {
         localStorage.setItem("user", JSON.stringify(response.user));
         localStorage.setItem("isGuest", "true");

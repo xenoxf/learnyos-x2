@@ -99,11 +99,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       .then(async (isValid) => {
         if (!isValid) {
           // Token invalid — try to refresh before redirecting
-          const refreshed = await authService.refreshSession();
-          if (!refreshed) {
-            router.push("/auth");
-          }
-        }
+          router.push("/auth");        }
       })
       .catch(() => {
         // Network error - assume valid, don't force logout

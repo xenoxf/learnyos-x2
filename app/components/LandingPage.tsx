@@ -57,11 +57,9 @@ export const LandingPage: React.FC = () => {
         // Token invalid, clear and show auth modal
         localStorage.removeItem("token");
         localStorage.removeItem("user");
-        localStorage.removeItem("refreshToken");
       } catch {
         localStorage.removeItem("token");
         localStorage.removeItem("user");
-        localStorage.removeItem("refreshToken");
       } finally {
         setLoading(false);
       }
