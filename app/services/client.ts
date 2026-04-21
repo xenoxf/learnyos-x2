@@ -209,5 +209,5 @@ class HttpClient {
 
 export const httpClient = new HttpClient(
   process.env.NEXT_PUBLIC_BACKEND_URL || "",
-  String(process.env.NEXT_BACKEND_API_KEY),
+  String(process.env.NEXT_PUBLIC_BACKEND_API_KEY),
 );
