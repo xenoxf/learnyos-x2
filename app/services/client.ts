@@ -36,7 +36,6 @@ class HttpClient {
     if (typeof window !== "undefined") {
       const storedToken = localStorage.getItem("token");
       if (storedToken && storedToken !== this.token) this.token = storedToken;
-
     }
   }
 
@@ -46,7 +45,6 @@ class HttpClient {
       localStorage.setItem("token", token);
     }
   }
-
 
   /**
    * Get the current token (for authService usage)
@@ -84,7 +82,11 @@ class HttpClient {
     this.cache.clear();
   }
 
-  debounceSearch<T>(endpoint: string, options: RequestInit, delay = 500): Promise<T> {
+  debounceSearch<T>(
+    endpoint: string,
+    options: RequestInit,
+    delay = 500,
+  ): Promise<T> {
     return new Promise((resolve, reject) => {
       const existing = this.searchTimeouts.get(endpoint);
       if (existing) clearTimeout(existing);
@@ -100,17 +102,29 @@ class HttpClient {
     });
   }
 
-  async request<T>(endpoint: string, options: RequestInit = {}, retryCount = 0): Promise<T> {
-    const headers: HeadersInit = { "Content-Type": "application/json", ...options.headers };
-    if (this.apiKey) (headers as Record<string, string>)["x-api-key"] = this.apiKey;
+  async request<T>(
+    endpoint: string,
+    options: RequestInit = {},
+    retryCount = 0,
+  ): Promise<T> {
+    const headers: HeadersInit = {
+      "Content-Type": "application/json",
+      ...options.headers,
+    };
+    if (this.apiKey)
+      (headers as Record<string, string>)["x-api-key"] = this.apiKey;
     const token = this.getToken();
     if (token) headers["Authorization"] = `Bearer ${token}`;
 
-    const response = await fetch(`${this.baseUrl}${endpoint}`, { ...options, headers });
+    const response = await fetch(`${this.baseUrl}${endpoint}`, {
+      ...options,
+      headers,
+    });
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
-      const msg = errorData.message || errorData.error || `Error: ${response.status}`;
+      const msg =
+        errorData.message || errorData.error || `Error: ${response.status}`;
       throw new Error(String(msg));
     }
 
@@ -120,7 +134,10 @@ class HttpClient {
     return (await response.json()) as T;
   }
 
-  async requestWithFallback<T>(endpoints: string[], options: RequestInit = {}): Promise<T> {
+  async requestWithFallback<T>(
+    endpoints: string[],
+    options: RequestInit = {},
+  ): Promise<T> {
     let lastError: unknown = null;
     for (const ep of endpoints) {
       try {
@@ -129,16 +146,30 @@ class HttpClient {
         lastError = e;
       }
     }
-    throw lastError instanceof Error ? lastError : new Error("No se pudo completar la solicitud");
+    throw lastError instanceof Error
+      ? lastError
+      : new Error("No se pudo completar la solicitud");
   }
 
-  async requestStream(endpoint: string, body: unknown): Promise<AsyncIterable<any>> {
-    const headers: HeadersInit = { "Content-Type": "application/json", Accept: "text/event-stream" };
-    if (this.apiKey) (headers as Record<string, string>)["x-api-key"] = this.apiKey;
+  async requestStream(
+    endpoint: string,
+    body: unknown,
+  ): Promise<AsyncIterable<any>> {
+    const headers: HeadersInit = {
+      "Content-Type": "application/json",
+      Accept: "text/event-stream",
+    };
+    if (this.apiKey)
+      (headers as Record<string, string>)["x-api-key"] = this.apiKey;
     const token = this.getToken();
-    if (token) (headers as Record<string, string>)["Authorization"] = `Bearer ${token}`;
+    if (token)
+      (headers as Record<string, string>)["Authorization"] = `Bearer ${token}`;
 
-    const response = await fetch(`${this.baseUrl}${endpoint}`, { method: "POST", headers, body: JSON.stringify(body) });
+    const response = await fetch(`${this.baseUrl}${endpoint}`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(body),
+    });
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       throw new Error(errorData.message || `Error: ${response.status}`);
@@ -162,20 +193,21 @@ class HttpClient {
               if (line.startsWith("data: ")) {
                 try {
                   yield JSON.parse(line.slice(6));
-                } catch { /* ignore */ }
+                } catch {
+                  /* ignore */
+                }
               }
             }
           }
         } finally {
           reader.releaseLock();
         }
-      }
+      },
     };
   }
 }
 
 export const httpClient = new HttpClient(
   process.env.NEXT_PUBLIC_BACKEND_URL || "",
-  process.env.NEXT_BACKEND_API_KEY
+  String(process.env.NEXT_BACKEND_API_KEY),
 );
-

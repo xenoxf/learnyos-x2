@@ -31,6 +31,7 @@ import { ExamDeck, StatsHeroProps, Attempt } from "@/types";
 import RestringidoForGuest from "@/components/restringidoForGuest";
 import { ItemCard, ItemCardSkeleton } from "@/components/espacio/ItemCard";
 import { Skeleton } from "@/components/ui/skeleton";
+import SkeletonCard from "@/components/SkeletonCard";
 
 export default function RendimientoPage() {
   const [attempts, setAttempts] = useState<Attempt[]>([]);
@@ -47,7 +48,7 @@ export default function RendimientoPage() {
       if (userData) {
         try {
           setUser(JSON.parse(userData));
-        } catch { }
+        } catch {}
       }
     }
   }, []);
@@ -95,9 +96,7 @@ export default function RendimientoPage() {
   if (loading) {
     return (
       <div className={styles.itemsList}>
-        {[1, 2, 3, 4, 5, 6].map((i) => (
-          <ItemCardSkeleton key={i} />
-        ))}
+        <SkeletonCard />
       </div>
     );
   }
@@ -110,7 +109,10 @@ export default function RendimientoPage() {
 
       {/* Attempt Detail Modal - PRO UI */}
       {selectedAttempt && (
-        <AttemptDetailModal attempt={selectedAttempt} onClose={handleCloseDetail} />
+        <AttemptDetailModal
+          attempt={selectedAttempt}
+          onClose={handleCloseDetail}
+        />
       )}
 
       <div className={styles.tabContent}>
@@ -135,21 +137,33 @@ export default function RendimientoPage() {
           <div className={styles.itemsList}>
             {attempts.map((att) => {
               const score = (att.correctAnswers / att.totalQuestions) * 100;
-              const variant = score >= 80 ? "success" : score >= 60 ? "warning" : "error";
+              const variant =
+                score >= 80 ? "success" : score >= 60 ? "warning" : "error";
 
               return (
                 <ItemCard
                   key={att.id}
                   title={att.examTitle}
-                  description={att.examDescription || `Completaste este examen con un resultado de ${att.correctAnswers}/${att.totalQuestions} preguntas correctas.`}
+                  description={
+                    att.examDescription ||
+                    `Completaste este examen con un resultado de ${att.correctAnswers}/${att.totalQuestions} preguntas correctas.`
+                  }
                   icon={Award}
                   variant={variant}
                   onClick={() => handleAttemptClick(att)}
                   badges={[`Score: ${score.toFixed(0)}%`]}
                   footerLeft={
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "4px",
+                      }}
+                    >
                       <Calendar size={12} />
-                      <span>{new Date(att.attemptedAt).toLocaleDateString()}</span>
+                      <span>
+                        {new Date(att.attemptedAt).toLocaleDateString()}
+                      </span>
                     </div>
                   }
                   footerRight={
