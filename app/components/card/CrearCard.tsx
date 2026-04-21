@@ -13,9 +13,11 @@ interface CrearCardProps {
 }
 
 export default function CrearCard({ onClose, onCardCreated }: CrearCardProps) {
-  const [reference, setReference] = useState("");
-  const [quantity, setQuantity] = useState(3);
-  const [acceso, setAcceso] = useState("public");
+  const [formData, setFormData] = useState({
+    reference: '',
+    quantity: 5,
+    acceso: 'public'
+  });
   const [loading, setLoading] = useState(false);
   const [creditsStatus, setCreditsStatus] = useState<{
     remaining: number;
@@ -30,19 +32,19 @@ export default function CrearCard({ onClose, onCardCreated }: CrearCardProps) {
       .then((status) => {
         setCreditsStatus({ remaining: status.remaining, total: status.total });
       })
-      .catch(() => {});
+      .catch(() => { });
   }, []);
 
   const estimatedCost = creditsService.estimateFlashcardCost(
-    quantity,
-    reference || "",
+    formData.quantity,
+    formData.reference || "",
   );
   const canAfford = creditsStatus
     ? creditsStatus.remaining >= estimatedCost
     : true;
 
   const handleCreate = async () => {
-    if (!reference.trim()) {
+    if (!formData.reference.trim()) {
       toast.error(
         "Validación",
         "Por favor, proporciona un texto de referencia",
@@ -50,76 +52,36 @@ export default function CrearCard({ onClose, onCardCreated }: CrearCardProps) {
       return;
     }
 
-    if (quantity < 2 || quantity > 20) {
+    if (formData.quantity < 2 || formData.quantity > 20) {
       toast.error(
         "Cantidad inválida",
         "La cantidad debe estar entre 2 y 20 tarjetas",
       );
       return;
     }
+    toast.info("Enviado", "Junior está redactando tu examen... te avisaremos en segundos.");
+    onClose();
 
     try {
-      setLoading(true);
       await cardsService.generateFlashcards({
-        reference,
-        quantity,
-        acceso,
+        reference: formData.reference,
+        quantity: formData.quantity,
+        acceso: formData.acceso,
       });
 
-      toast.success("¡Éxito!", `Tarjetas generadas correctamente`);
+      toast.success("Éxito", "Tu nuevo examen ya está disponible en tu biblioteca.");
 
-      setReference("");
-      setQuantity(10);
-      setAcceso("private");
       onCardCreated();
       router.refresh();
-      onClose();
     } catch (err: any) {
-      let message = "Error al generar tarjetas";
+      let message = "No pudimos crear el examen";
       let details = "";
-      let errorCode = "";
-      let rawResponse = null;
-
-      // Manejar errores con estructura del backend
       if (err?.response?.data) {
         const errorData = err.response.data as ApiErrorResponse;
         message = errorData.message || message;
         details = errorData.details || "";
-        errorCode = errorData.errorCode || "";
-        rawResponse = errorData.rawResponse;
-      } else if (err instanceof Error) {
-        message = err.message;
-      } else if (typeof err === "string") {
-        message = err;
       }
-
-      // Construir descripción detallada del error
-      let errorDescription = details || message;
-
-      // Agregar información según el código de error
-      if (rawResponse) {
-        console.error("Raw response from AI:", rawResponse);
-
-        if (errorCode === "INVALID_AI_RESPONSE") {
-          errorDescription = `${details} La IA devolvió una respuesta con formato inesperado.`;
-        } else if (errorCode === "NO_CARDS_GENERATED") {
-          errorDescription = `${details} Intenta con un tema más específico o detallado.`;
-        } else if (errorCode === "MISSING_METADATA") {
-          errorDescription = `${details} La IA generó tarjetas pero sin título para el mazo.`;
-        } else if (errorCode === "INVALID_CARD_FORMAT") {
-          errorDescription = `${details} Las tarjetas generadas no tienen frente o reverso.`;
-        }
-      }
-
-      // Fallback para errores antiguos
-      if (message.includes("Invalid AI response") && !details) {
-        errorDescription =
-          "La IA no pudo generar las tarjetas correctamente. Intenta con otro tema.";
-      }
-
-      toast.error("Error al generar tarjetas", errorDescription, 8000);
-    } finally {
-      setLoading(false);
+      toast.error("Fallo en la creación", details || message);
     }
   };
 
@@ -146,8 +108,9 @@ export default function CrearCard({ onClose, onCardCreated }: CrearCardProps) {
             <label className={styles.label}>Texto de Referencia</label>
             <textarea
               placeholder="Sobre que quieres las FlashCards, expresate..."
-              value={reference}
-              onChange={(e) => setReference(e.target.value)}
+              value={formData.reference}
+              onChange={(e) => setFormData({ ...formData, reference: e.target.value })}
+
               className={styles.textarea}
               rows={5}
               disabled={loading}
@@ -161,8 +124,8 @@ export default function CrearCard({ onClose, onCardCreated }: CrearCardProps) {
                 type="number"
                 min="2"
                 max="20"
-                value={quantity}
-                onChange={(e) => setQuantity(parseInt(e.target.value))}
+                value={formData.quantity}
+                onChange={(e) => setFormData({ ...formData, quantity: parseInt(e.target.value) })}
                 className={styles.input}
                 disabled={loading}
               />
@@ -171,8 +134,8 @@ export default function CrearCard({ onClose, onCardCreated }: CrearCardProps) {
             <div className={styles.formGroup}>
               <label className={styles.label}>Privacidad</label>
               <select
-                value={acceso}
-                onChange={(e) => setAcceso(e.target.value)}
+                value={formData.acceso}
+                onChange={(e) => setFormData({ ...formData, acceso: e.target.value })}
                 className={styles.select}
                 disabled={loading}
               >
@@ -197,7 +160,7 @@ export default function CrearCard({ onClose, onCardCreated }: CrearCardProps) {
           </button>
           <button
             onClick={handleCreate}
-            disabled={loading || !reference.trim() || !canAfford}
+            disabled={loading || !formData.reference.trim() || !canAfford}
             className={styles.confirmBtn}
           >
             {loading ? (
