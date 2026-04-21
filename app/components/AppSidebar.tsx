@@ -40,14 +40,7 @@ const menuItems = [
     url: "/study/flashcards",
     icon: CreditCard,
     description: "Tarjetas",
-  },
-  {
-    title: "Notas",
-    url: "/study/notes",
-    icon: NotebookPen,
-    description: "Apuntes",
-  },
-];
+  }];
 
 interface AppSidebarProps {
   collapsed?: boolean;

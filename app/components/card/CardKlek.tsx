@@ -1,10 +1,11 @@
 import type { CardKlek } from "@/types";
 import React, { useState, useEffect, useCallback } from "react";
-import { ChevronLeft, ChevronRight, RotateCcw } from "lucide-react";
+import { ChevronLeft, ChevronRight, RotateCcw, X } from "lucide-react";
 import styles from "@/styles/flashCards/CardKlek.module.css";
 import { toast } from "@/hooks/useLocalToast";
 import MarkdownRenderer from "../MarkdownRenderer";
 import { cardsService } from "@/services/cardsService";
+import { cn } from "@/lib/utils";
 
 interface CardKlekProps {
   cardId: number;
@@ -74,8 +75,31 @@ const CardKlekComponent: React.FC<CardKlekProps> = ({ cardId, onClose }) => {
     return (
       <div className={styles.overlay} onClick={onClose}>
         <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
-          <div className={styles.emptyContent}>
-            <p>Cargando...</p>
+          <div className={styles.progressBar}>
+            <div className={styles.progressFill} style={{ width: "30%" }} />
+          </div>
+
+          <div className={styles.header}>
+            <div className={styles.skeletonHeader}>
+              <div className={cn(styles.skeletonTitle, "skeleton")} />
+              <div className={cn(styles.skeletonClose, "skeleton")} />
+            </div>
+          </div>
+
+          <div className={styles.cardContainer}>
+            <div className={cn(styles.skeletonCard, "skeleton")}>
+              <div className={cn(styles.skeletonBadge, "skeleton")} />
+              <div className={cn(styles.skeletonText, "skeleton")} />
+              <div className={cn(styles.skeletonTextShort, "skeleton")} />
+            </div>
+            <div className={cn(styles.skeletonBadge, "skeleton")} style={{ marginTop: "1.5rem", width: "120px" }} />
+          </div>
+
+          <div className={styles.footer}>
+            <div className={cn(styles.skeletonNavBtn, "skeleton")} />
+            <div className={cn(styles.skeletonNavBtn, "skeleton")} />
+            <div className={cn(styles.skeletonCounter, "skeleton")} />
+            <div className={cn(styles.skeletonNavBtn, "skeleton")} />
           </div>
         </div>
       </div>
@@ -118,7 +142,7 @@ const CardKlekComponent: React.FC<CardKlekProps> = ({ cardId, onClose }) => {
           <div className={styles.header}>
             <h2 className={styles.title}>{card.title}</h2>
             <button className={styles.closeBtn} onClick={onClose} type="button">
-              ✕
+              <X size={40} />
             </button>
           </div>
           <div className={styles.emptyContent}>
@@ -143,7 +167,7 @@ const CardKlekComponent: React.FC<CardKlekProps> = ({ cardId, onClose }) => {
             aria-label="Cerrar"
             type="button"
           >
-            ✕
+            <X size={40} />
           </button>
         </div>
 

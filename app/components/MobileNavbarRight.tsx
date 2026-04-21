@@ -28,7 +28,6 @@ const NAV_ITEMS: MenuItem[] = [
   { title: "Klerk", url: "/study", icon: Book },
   { title: "Chat", url: "/study/chat", icon: MessageSquare },
   { title: "Quiz", url: "/study/quiz", icon: Brain },
-  { title: "Notas", url: "/study/notes", icon: NotebookPen },
   { title: "Flashcards", url: "/study/flashcards", icon: CreditCard },
 ];
 
