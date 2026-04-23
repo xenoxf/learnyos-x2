@@ -1,49 +1,50 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import type { FlashCardKlek, CardsDeck, GenerateFlashCardData } from "@/types";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import type { FlashCardKlek, CardsDeck } from "@/types";
 import { cardsService } from "@/services/cardsService";
 
 export function useFlashCards() {
-  const [flashcards, setFlashcards] = useState<FlashCardKlek[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
 
-  useEffect(() => {
-    const fetchFlashcards = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        const data = await cardsService.getFlashcards();
-        // Filtramos solo los que tienen flashcards
-        const cardsWithFlashcards = Array.isArray(data)
-          ? data.filter(
-              (card: CardsDeck) =>
-                card.flashcards && card.flashcards.length > 0,
-            )
-          : [];
-        const allFlashcards = cardsWithFlashcards.flatMap(
-          (card: CardsDeck) => card.flashcards || [],
-        );
-        setFlashcards(Array.isArray(allFlashcards) ? allFlashcards : []);
-      } catch (err: any) {
-        setError(err.message || "Error al cargar flashcards");
-        setFlashcards([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchFlashcards();
-  }, []);
+  const {
+    data: flashcards = [],
+    isLoading: loading,
+    error: queryError,
+  } = useQuery({
+    queryKey: ["flashcards"],
+    queryFn: async () => {
+      const data = await cardsService.getFlashcards();
+      const cardsWithFlashcards = Array.isArray(data)
+        ? data.filter(
+            (card: CardsDeck) => card.flashcards && card.flashcards.length > 0,
+          )
+        : [];
+      const allFlashcards = cardsWithFlashcards.flatMap(
+        (card: CardsDeck) => card.flashcards || [],
+      );
+      return Array.isArray(allFlashcards) ? allFlashcards : [];
+    },
+  });
 
   const addFlashcard = (flashcard: FlashCardKlek) => {
-    setFlashcards((prev) => [...prev, flashcard]);
+    queryClient.setQueryData(["flashcards"], (old: FlashCardKlek[] = []) => [
+      ...old,
+      flashcard,
+    ]);
   };
 
   const removeFlashcard = (flashcardId: number) => {
-    setFlashcards((prev) => prev.filter((f) => f.id !== flashcardId));
+    queryClient.setQueryData(["flashcards"], (old: FlashCardKlek[] = []) =>
+      old.filter((f) => f.id !== flashcardId),
+    );
   };
 
-  return { flashcards, loading, error, addFlashcard, removeFlashcard };
+  return {
+    flashcards,
+    loading,
+    error: queryError ? (queryError as Error).message : null,
+    addFlashcard,
+    removeFlashcard,
+  };
 }

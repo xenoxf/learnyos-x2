@@ -2,6 +2,7 @@
  * Base HTTP Client
  * Handles auth tokens, refresh, caching, and error handling
  */
+import { contentTransformer } from "./content-transformer";
 
 interface CacheEntry<T> {
   data: T;
@@ -107,31 +108,57 @@ class HttpClient {
     options: RequestInit = {},
     retryCount = 0,
   ): Promise<T> {
-    const headers: HeadersInit = {
-      "Content-Type": "application/json",
-      ...options.headers,
-    };
-    if (this.apiKey)
-      (headers as Record<string, string>)["x-api-key"] = this.apiKey;
-    const token = this.getToken();
-    if (token) headers["Authorization"] = `Bearer ${token}`;
+    const cacheKey = `${options.method || "GET"}:${endpoint}:${options.body ? JSON.stringify(options.body) : ""}`;
 
-    const response = await fetch(`${this.baseUrl}${endpoint}`, {
-      ...options,
-      headers,
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      const msg =
-        errorData.message || errorData.error || `Error: ${response.status}`;
-      throw new Error(String(msg));
+    // Si ya hay una petición idéntica en curso, devolvemos su promesa
+    if (this.pendingRequests.has(cacheKey)) {
+      return this.pendingRequests.get(cacheKey);
     }
 
-    if (response.status === 204) return undefined as T;
-    const contentType = response.headers.get("content-type") ?? "";
-    if (!contentType.includes("application/json")) return undefined as T;
-    return (await response.json()) as T;
+    const requestPromise = (async () => {
+      try {
+        const headers: HeadersInit = {
+          "Content-Type": "application/json",
+          ...options.headers,
+        };
+        if (this.apiKey)
+          (headers as Record<string, string>)["x-api-key"] = this.apiKey;
+        const token = this.getToken();
+        if (token) headers["Authorization"] = `Bearer ${token}`;
+
+        const response = await fetch(`${this.baseUrl}${endpoint}`, {
+          ...options,
+          headers,
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          const msg =
+            errorData.message || errorData.error || `Error: ${response.status}`;
+          throw new Error(String(msg));
+        }
+
+        if (response.status === 204) return undefined as T;
+        const contentType = response.headers.get("content-type") ?? "";
+        if (!contentType.includes("application/json")) return undefined as T;
+        
+        const data = (await response.json()) as T;
+        
+        // Automatización de decodificación Base64 (Interceptor)
+        try {
+          return contentTransformer.decodeObject(data);
+        } catch (e) {
+          console.warn("Base64 auto-decoding failed, returning raw data", e);
+          return data;
+        }
+      } finally {
+        // Limpiamos la petición pendiente al terminar
+        this.pendingRequests.delete(cacheKey);
+      }
+    })();
+
+    this.pendingRequests.set(cacheKey, requestPromise);
+    return requestPromise;
   }
 
   async requestWithFallback<T>(

@@ -1,45 +1,51 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import type { NoteDeck } from "@/types";
 import { notesService } from "@/services/notesService";
 
 export function useNotes() {
-  const [notes, setNotes] = useState<NoteDeck[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
 
-  useEffect(() => {
-    const fetchNotes = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        const data = await notesService.getNotes();
-        setNotes(Array.isArray(data) ? data : []);
-      } catch (err: any) {
-        setError(err.message || "Error al cargar notas");
-        setNotes([]);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const {
+    data: notes = [],
+    isLoading: loading,
+    error: queryError,
+  } = useQuery({
+    queryKey: ["notes"],
+    queryFn: () => notesService.getNotes(),
+  });
 
-    fetchNotes();
-  }, []);
+  const { data: publicNotes = [] } = useQuery({
+    queryKey: ["notes", "public"],
+    queryFn: () => notesService.getNotesPublic(),
+  });
 
   const addNote = (note: NoteDeck) => {
-    setNotes((prev: NoteDeck[]) => [...prev, note]);
+    queryClient.setQueryData(["notes"], (old: NoteDeck[] = []) => [
+      ...old,
+      note,
+    ]);
   };
 
   const removeNote = (noteId: number) => {
-    setNotes((prev: NoteDeck[]) => prev.filter((n) => n.id !== noteId));
-  };
-
-  const updateNote = (noteId: number, updated: Partial<NoteDeck>) => {
-    setNotes((prev: NoteDeck[]) =>
-      prev.map((n) => (n.id === noteId ? { ...n, ...updated } : n)),
+    queryClient.setQueryData(["notes"], (old: NoteDeck[] = []) =>
+      old.filter((n) => n.id !== noteId),
     );
   };
 
-  return { notes, loading, error, addNote, removeNote, updateNote };
+  const updateNote = (noteId: number, updated: Partial<NoteDeck>) => {
+    queryClient.setQueryData(["notes"], (old: NoteDeck[] = []) =>
+      old.map((n) => (n.id === noteId ? { ...n, ...updated } : n)),
+    );
+  };
+
+  return {
+    notes,
+    loading,
+    error: queryError ? (queryError as Error).message : null,
+    addNote,
+    removeNote,
+    updateNote,
+  };
 }

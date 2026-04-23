@@ -35,10 +35,10 @@ export const cardsService = {
     return httpClient.request<CardKlek>(`/flash-cards/klek/${id}`, { method: "GET" });
   },
 
-  generateFlashcards(data: GenerateFlashCardData): Promise<string[]> {
+  generateFlashcards(data: GenerateFlashCardData): Promise<any> {
     const payload: Record<string, unknown> = { reference: data.reference, quantity: data.quantity };
     if (data.acceso) payload.acceso = data.acceso;
-    return httpClient.request<string[]>("/flash-cards/generate/topic_or_reference", { method: "POST", body: JSON.stringify(payload) });
+    return httpClient.request<any>("/flash-cards/generate/topic_or_reference", { method: "POST", body: JSON.stringify(payload) });
   },
 
   getCardsPublic(): Promise<CardsDeck[]> {

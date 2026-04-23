@@ -38,7 +38,9 @@ export const notesService = {
       method: "POST",
       body: JSON.stringify({ reference, numberOfNotes: data.numberOfNotes, levelOfDetail: data.levelOfDetail, acceso: data.acceso }),
     });
-    return { success: raw.success ?? true, notes: raw.notes ?? raw.data ?? [], message: raw.message, data: raw.data };
+
+    const notes = raw.notes ?? raw.data ?? [];
+    return { success: raw.success ?? true, notes, message: raw.message, data: notes };
   },
 
   deleteNote(id: number): Promise<void> {
