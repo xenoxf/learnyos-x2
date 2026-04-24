@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useLocalStorage } from './useLocalStorage';
 import { toast } from '@/hooks/useLocalToast';
 
@@ -26,7 +26,7 @@ export const useIntelligentReminders = () => {
   const [reminders, setReminders] = useState<Reminder[]>([]);
   const [studyPattern, setStudyPattern] = useState<StudyPattern | null>(null);
 
-  const analyzeStudyPatterns = () => {
+  const analyzeStudyPatterns = useCallback(() => {
     if (!stats.dailyData || Object.keys(stats.dailyData).length === 0) {
       return null;
     }
@@ -52,9 +52,9 @@ export const useIntelligentReminders = () => {
 
     setStudyPattern(pattern);
     return pattern;
-  };
+  }, [stats.dailyData]);
 
-  const generateIntelligentReminders = () => {
+  const generateIntelligentReminders = useCallback(() => {
     const pattern = analyzeStudyPatterns();
     if (!pattern) return;
 
@@ -83,9 +83,9 @@ export const useIntelligentReminders = () => {
     ];
 
     setReminders(newReminders);
-  };
+  }, [analyzeStudyPatterns]);
 
-  const scheduleNotification = (reminder: Reminder) => {
+  const scheduleNotification = useCallback((reminder: Reminder) => {
     const now = new Date();
     const [hours, minutes] = reminder.time.split(':').map(Number);
     const reminderTime = new Date(now);
@@ -100,9 +100,9 @@ export const useIntelligentReminders = () => {
     setTimeout(() => {
       toast.success("Éxito");
     }, timeUntilReminder);
-  };
+  }, []);
 
-  const toggleReminder = (id: string) => {
+  const toggleReminder = useCallback((id: string) => {
     setReminders(prev => 
       prev.map(reminder => 
         reminder.id === id 
@@ -110,19 +110,15 @@ export const useIntelligentReminders = () => {
           : reminder
       )
     );
-  };
-
-  useEffect(() => {
-    generateIntelligentReminders();
-  }, [stats]);
-
-  useEffect(() => {
-    reminders.filter(r => r.enabled).forEach(scheduleNotification);
-  }, [reminders]);
+  }, []);
 
   useEffect(() => {
     generateIntelligentReminders();
   }, [generateIntelligentReminders]);
+
+  useEffect(() => {
+    reminders.filter(r => r.enabled).forEach(scheduleNotification);
+  }, [reminders, scheduleNotification]);
 
   return {
     reminders,

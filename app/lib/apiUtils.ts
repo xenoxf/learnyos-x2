@@ -20,15 +20,22 @@ export interface ApiError {
   type: ApiErrorType;
   message: string;
   statusCode?: number;
-  details?: any;
+  details?: unknown;
 }
 
 /**
  * Parsear error de respuesta HTTP
  */
-export const parseApiError = (error: any): ApiError => {
+export const parseApiError = (error: unknown): ApiError => {
+  const err = error as {
+    response?: {
+      status?: number;
+      data?: { message?: string; error?: string; errors?: unknown };
+    };
+  };
+
   // Error de red
-  if (!error || !error.response) {
+  if (!err || !err.response) {
     return {
       type: "NETWORK_ERROR",
       message:
@@ -36,8 +43,8 @@ export const parseApiError = (error: any): ApiError => {
     };
   }
 
-  const status = error.response?.status;
-  const data = error.response?.data;
+  const status = err.response?.status;
+  const data = err.response?.data;
 
   switch (status) {
     case 401:
@@ -137,7 +144,7 @@ export const retryRequest = async <T>(
   maxRetries: number = 3,
   delay: number = 1000,
 ): Promise<T> => {
-  let lastError: any;
+  let lastError: unknown;
 
   for (let i = 0; i < maxRetries; i++) {
     try {
@@ -165,7 +172,7 @@ export const retryRequest = async <T>(
 /**
  * Debounce para funciones
  */
-export const debounce = <T extends (...args: any[]) => any>(
+export const debounce = <T extends (...args: any[]) => unknown>(
   func: T,
   wait: number,
 ): ((...args: Parameters<T>) => void) => {
@@ -185,7 +192,7 @@ export const debounce = <T extends (...args: any[]) => any>(
 /**
  * Throttle para funciones
  */
-export const throttle = <T extends (...args: any[]) => any>(
+export const throttle = <T extends (...args: any[]) => unknown>(
   func: T,
   limit: number,
 ): ((...args: Parameters<T>) => void) => {

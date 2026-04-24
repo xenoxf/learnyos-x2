@@ -133,7 +133,7 @@ export function useStudyGrid<
       setLoading(false);
     }
   }, [
-    actions.onLoad,
+    actions,
     currentUserId,
     searchValue,
     viewMode,
@@ -164,7 +164,7 @@ export function useStudyGrid<
     } else {
       setShowCreate(true);
     }
-  }, [actions.onCreateClick, isGuest]);
+  }, [actions, isGuest]);
 
   const handleCloseModal = useCallback(() => {
     setShowCreate(false);
@@ -176,7 +176,7 @@ export function useStudyGrid<
     } else {
       await loadItems();
     }
-  }, [actions.onItemDeleted, loadItems]);
+  }, [actions, loadItems]);
 
   const resultText = useMemo(() => {
     if (allItems.length === 0) {

@@ -3,6 +3,7 @@
  * Handles auth tokens, refresh, caching, and error handling
  */
 import { contentTransformer } from "./content-transformer";
+import { ApiError } from "./errorHandler";
 
 interface CacheEntry<T> {
   data: T;
@@ -133,9 +134,12 @@ class HttpClient {
 
         if (!response.ok) {
           const errorData = await response.json().catch(() => ({}));
-          const msg =
-            errorData.message || errorData.error || `Error: ${response.status}`;
-          throw new Error(String(msg));
+          throw new ApiError(
+            errorData.message || errorData.error || `Error: ${response.status}`,
+            response.status,
+            errorData.errorCode,
+            errorData.details,
+          );
         }
 
         if (response.status === 204) return undefined as T;
@@ -144,13 +148,9 @@ class HttpClient {
         
         const data = (await response.json()) as T;
         
-        // Automatización de decodificación Base64 (Interceptor)
-        try {
-          return contentTransformer.decodeObject(data);
-        } catch (e) {
-          console.warn("Base64 auto-decoding failed, returning raw data", e);
-          return data;
-        }
+        // El backend ya no envía Base64 (ahora usa Schemas nativos), 
+        // por lo que desactivamos la decodificación automática para evitar símbolos raros.
+        return data;
       } finally {
         // Limpiamos la petición pendiente al terminar
         this.pendingRequests.delete(cacheKey);

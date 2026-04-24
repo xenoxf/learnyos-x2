@@ -33,7 +33,7 @@ const CardKlekComponent: React.FC<CardKlekProps> = ({ cardId, onClose }) => {
     } finally {
       setLoading(false);
     }
-  }, [cardId, toast]);
+  }, [cardId]);
 
   useEffect(() => {
     loadCard();
@@ -159,7 +159,9 @@ const CardKlekComponent: React.FC<CardKlekProps> = ({ cardId, onClose }) => {
         {/* Header */}
         <div className={styles.header}>
           <div className={styles.headerLeft}>
-            <h2 className={styles.title}>{card.title}</h2>
+            <div className={styles.title}>
+              <MarkdownRenderer content={card.title} />
+            </div>
           </div>
           <button
             className={styles.closeBtn}

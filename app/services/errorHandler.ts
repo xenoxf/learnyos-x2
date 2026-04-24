@@ -34,20 +34,12 @@ export function parseApiError(error: unknown): ApiError {
   }
 
   if (error instanceof Error) {
-    const customError = error as any;
-    const response = customError.response;
-
-    if (response?.data) {
-      const data = response.data as ApiErrorResponse;
-      return new ApiError(
-        data.message || error.message,
-        response.status || 500,
-        data.errorCode,
-        data.details,
-      );
-    }
-
-    return new ApiError(error.message, 500);
+    // Attempt to extract status if it exists on a custom error object (like from Axios or other clients)
+    const status = (error as { status?: number }).status || 500;
+    const errorCode = (error as { errorCode?: string }).errorCode;
+    const details = (error as { details?: string[] }).details;
+    
+    return new ApiError(error.message, status, errorCode, details);
   }
 
   return new ApiError('Unknown error occurred', 500);

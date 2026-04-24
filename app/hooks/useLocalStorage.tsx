@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 interface DayData {
   minutes: number;
@@ -90,7 +90,7 @@ export const useLocalStorage = () => {
   const [stats, setStats] = useState<UserStats>(defaultStats);
   const [isInitialized, setIsInitialized] = useState(false);
 
-  const loadData = <T,>(key: string, defaultValue: T): T => {
+  const loadData = useCallback(<T,>(key: string, defaultValue: T): T => {
     try {
       const savedData = localStorage.getItem(key);
       if (savedData) {
@@ -101,25 +101,25 @@ export const useLocalStorage = () => {
       console.error(`Error loading ${key} from localStorage:`, error);
     }
     return defaultValue;
-  };
+  }, []);
 
-  const saveData = <T,>(key: string, data: T): void => {
+  const saveData = useCallback(<T,>(key: string, data: T): void => {
     try {
       localStorage.setItem(key, JSON.stringify(data));
     } catch (error) {
       console.error(`Error saving ${key} to localStorage:`, error);
     }
-  };
+  }, []);
 
-  const getStats = (): UserStats => {
+  const getStats = useCallback((): UserStats => {
     return loadData('focusOS_userStats', defaultStats);
-  };
+  }, [loadData]);
 
-  const getTodayKey = (): string => {
+  const getTodayKey = useCallback((): string => {
     return new Date().toISOString().split('T')[0];
-  };
+  }, []);
 
-  const updateDailyStats = (newStats: Partial<DayData>): void => {
+  const updateDailyStats = useCallback((newStats: Partial<DayData>): void => {
     const currentStats = getStats();
     const today = getTodayKey();
     
@@ -144,13 +144,13 @@ export const useLocalStorage = () => {
 
     saveData('focusOS_userStats', updatedStats);
     setStats(updatedStats);
-  };
+  }, [getStats, getTodayKey, saveData]);
 
-  const recoverPomodoroSession = (): PomodoroState => {
+  const recoverPomodoroSession = useCallback((): PomodoroState => {
     return loadData('focusOS_pomodoroState', defaultPomodoroState);
-  };
+  }, [loadData]);
 
-  const addStudySession = (minutes: number) => {
+  const addStudySession = useCallback((minutes: number) => {
     const currentStats = getStats();
     const today = new Date().toDateString();
     
@@ -175,9 +175,9 @@ export const useLocalStorage = () => {
     saveData('focusOS_userStats', updatedStats);
     setStats(updatedStats);
     return updatedStats;
-  };
+  }, [getStats, saveData]);
 
-  const getWeeklyProgress = (): WeeklyData[] => {
+  const getWeeklyProgress = useCallback((): WeeklyData[] => {
     const currentStats = getStats();
     const today = new Date();
     const startOfWeek = new Date(today);
@@ -203,15 +203,15 @@ export const useLocalStorage = () => {
     }
 
     return weeklyData;
-  };
+  }, [getStats]);
 
-  const getTodayMinutes = (): number => {
+  const getTodayMinutes = useCallback((): number => {
     const currentStats = getStats();
     const today = new Date().toDateString();
     return currentStats.dailyData[today]?.minutes || 0;
-  };
+  }, [getStats]);
 
-  const getCurrentStreak = (): number => {
+  const getCurrentStreak = useCallback((): number => {
     const currentStats = getStats();
     const today = new Date();
     let streak = 0;
@@ -229,12 +229,12 @@ export const useLocalStorage = () => {
     }
     
     return streak;
-  };
+  }, [getStats]);
 
-  const resetStats = () => {
+  const resetStats = useCallback(() => {
     localStorage.removeItem('focusOS_userStats');
     setStats(defaultStats);
-  };
+  }, []);
 
   useEffect(() => {
     setStats(getStats());
@@ -242,7 +242,7 @@ export const useLocalStorage = () => {
   }, [getStats]);
 
   return {
-    stats: getStats(),
+    stats,
     addStudySession,
     getWeeklyProgress,
     getTodayMinutes,

@@ -2,8 +2,7 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { ChevronDown, ChevronUp, FileText } from "lucide-react";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
+import MarkdownRenderer from "../MarkdownRenderer";
 import styles from "@/styles/notes/noteViewer.module.css";
 import { toast } from "@/hooks/useLocalToast";
 import type { NoteKlek } from "@/types";
@@ -45,7 +44,7 @@ export default function NoteViewer({ noteId, onClose }: NoteViewerProps) {
     return () => {
       cancelled = true;
     };
-  }, [noteId]);
+  }, [noteId, onClose]);
 
   const toggleSection = useCallback((index: number) => {
     setExpandedSections((prev) => ({ ...prev, [index]: !prev[index] }));
@@ -95,11 +94,13 @@ export default function NoteViewer({ noteId, onClose }: NoteViewerProps) {
       >
         <div className={styles.header}>
           <div className={styles.headerLeft}>
-            <h2 id="note-title" className={styles.title}>
-              {note.title}
-            </h2>
+            <div id="note-title" className={styles.title}>
+              <MarkdownRenderer content={note.title} />
+            </div>
             {note.description ? (
-              <p className={styles.description}>{note.description}</p>
+              <div className={styles.description}>
+                <MarkdownRenderer content={note.description} />
+              </div>
             ) : null}
           </div>
           <button
@@ -125,12 +126,6 @@ export default function NoteViewer({ noteId, onClose }: NoteViewerProps) {
           ) : (
             <div className={styles.contentList}>
               {sections.map((content, index) => {
-                const isExpanded = expandedSections[index] ?? index < 2;
-                const heading = noteSectionHeading(
-                  content.tema,
-                  content.title,
-                  content.order ?? index,
-                );
                 const md = normalizeNoteContentBody(content.content);
 
                 return (
@@ -141,9 +136,7 @@ export default function NoteViewer({ noteId, onClose }: NoteViewerProps) {
                       role="region"
                     >
                       <div className={styles.contentMd}>
-                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                          {md}
-                        </ReactMarkdown>
+                        <MarkdownRenderer content={md} />
                       </div>
                     </div>
                   </article>

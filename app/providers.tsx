@@ -14,6 +14,8 @@ export function Providers({ children }: { children: React.ReactNode }) {
           queries: {
             retry: 1,
             refetchOnWindowFocus: false,
+            staleTime: 1000 * 60 * 1, // Keep data fresh for 1 minute
+            gcTime: 1000 * 60 * 5,    // Garbage collect after 5 minutes
           },
           mutations: {
             retry: 1,
