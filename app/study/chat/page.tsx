@@ -356,25 +356,10 @@ export default function ChatPage() {
                 className={`${styles.chatItem} ${currentChat?.id === chat.id ? styles.active : ""}`}
                 onClick={() => handleSelectChat(chat)}
               >
-                <MessageSquare size={18} />
-                <div className={styles.chatInfo}>
-                  <span className={styles.chatTitle}>
-                    {chat.title || `Chat ${chat.id}`}
-                  </span>
-                </div>
-                <button
-                  className={styles.deleteButton}
-                  onClick={(e) => handleDeleteChat(chat.id, e)}
-                  aria-label="Eliminar chat"
-                  disabled={isGuest}
-                  style={
-                    isGuest
-                      ? { opacity: 0.5, pointerEvents: "none" }
-                      : undefined
-                  }
-                >
-                  <Trash2 size={16} />
-                </button>
+                <span className={styles.chatTitle}>
+                  {chat.title || `Chat ${chat.id}`}
+                </span>
+
               </div>
             ))
           )}

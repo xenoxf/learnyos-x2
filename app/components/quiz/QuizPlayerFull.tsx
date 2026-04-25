@@ -577,7 +577,7 @@ export default function QuizPlayerFull({ quizId }: QuizPlayerFullProps) {
             {groupedQuestions.map((group, groupIdx) => (
               <div key={groupIdx} className={styles.icfesGroup}>
                 {/* Context Content */}
-                {group.contextContent && (
+                {group.contextContent && group.contextContent !== "null" && group.contextContent.trim() !== "" && (
                   <div className={styles.icfesContext}>
                     <div className={styles.contextHeader}>
                       <BookOpen size={18} />
