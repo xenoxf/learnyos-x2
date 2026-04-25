@@ -20,11 +20,13 @@
   height: auto;
 }
 
-/* Prevenir que tablas causen overflow */
+/* Prevenir que tablas causen overflow - La tabla en sí no debe tener display block si está en un wrapper */
 .markdownContent table {
-  max-width: 100%;
-  overflow-x: auto;
-  display: block;
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 0.9em;
+  min-width: 400px; /* Forzar scroll en pantallas pequeñas */
+  table-layout: auto;
 }
 
 /* ============================================
@@ -41,16 +43,39 @@
   transition: all 0.2s ease;
   width: 100%;
   max-width: 100%;
+  margin: 1.5rem 0;
 }
 
 .codeBlockScrollContainer {
   overflow-x: auto;
-  overflow-y: auto;
+  overflow-y: hidden;
   max-width: 100%;
+  width: 100%;
+  display: block;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Scrollbar personalizado para contenedores de código */
+.codeBlockScrollContainer::-webkit-scrollbar {
+  height: 8px;
+}
+
+.codeBlockScrollContainer::-webkit-scrollbar-track {
+  background: hsl(var(--muted) / 0.5);
+  border-radius: 0 0 12px 12px;
+}
+
+.codeBlockScrollContainer::-webkit-scrollbar-thumb {
+  background: hsl(var(--muted-foreground) / 0.3);
+  border-radius: 4px;
+}
+
+.codeBlockScrollContainer::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground) / 0.5);
 }
 
 .codeBlockContainer:hover {
-  border-color: hsl(var(--primary));
+  border-color: hsl(var(--primary) / 0.5);
   box-shadow: 0 4px 12px hsl(var(--foreground) / 0.15);
 }
 
@@ -390,10 +415,42 @@
 
 .tableWrapper {
   overflow-x: auto;
-  margin: 1em 0;
+  margin: 1.5rem 0;
   border-radius: 12px;
   border: 1px solid hsl(var(--border));
   background-color: hsl(var(--background));
+  -webkit-overflow-scrolling: touch;
+  width: 100%;
+}
+
+.tableWrapper::-webkit-scrollbar {
+  height: 8px;
+}
+
+.tableWrapper::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.tableWrapper::-webkit-scrollbar-thumb {
+  background: hsl(var(--muted-foreground) / 0.3);
+  border-radius: 4px;
+}
+
+/* Soporte para MATH (Katex) overflow */
+.markdownContent :global(.katex-display) {
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 1rem 0;
+  -webkit-overflow-scrolling: touch;
+}
+
+.markdownContent :global(.katex-display::-webkit-scrollbar) {
+  height: 4px;
+}
+
+.markdownContent :global(.katex-display::-webkit-scrollbar-thumb) {
+  background: hsl(var(--muted-foreground) / 0.3);
+  border-radius: 4px;
 }
 
 .markdownContent table {
@@ -498,6 +555,67 @@
       hsl(var(--primary)),
       transparent);
   margin: 1.5em 0;
+}
+
+/* ============================================
+   EXTRA TAGS - MEJORADOS
+   ============================================ */
+
+.markdownContent details {
+  margin: 1em 0;
+  padding: 0.5em 1em;
+  border: 1px solid hsl(var(--border));
+  border-radius: 8px;
+  background-color: hsl(var(--muted) / 0.1);
+}
+
+.markdownContent summary {
+  cursor: pointer;
+  font-weight: 600;
+  padding: 0.5em 0;
+  color: hsl(var(--primary));
+}
+
+.markdownContent summary:hover {
+  color: hsl(var(--primary) / 0.8);
+}
+
+.markdownContent sub,
+.markdownContent sup {
+  font-size: 0.75em;
+  line-height: 0;
+  position: relative;
+  vertical-align: baseline;
+}
+
+.markdownContent sup {
+  top: -0.5em;
+}
+
+.markdownContent sub {
+  bottom: -0.25em;
+}
+
+.markdownContent kbd {
+  background-color: hsl(var(--muted));
+  border: 1px solid hsl(var(--border));
+  border-radius: 4px;
+  box-shadow: 0 1px 1px hsl(var(--foreground) / 0.2), 0 2px 0 0 hsl(var(--background)) inset;
+  color: hsl(var(--foreground));
+  display: inline-block;
+  font-family: inherit;
+  font-size: 0.85em;
+  font-weight: 700;
+  line-height: 1;
+  padding: 2px 4px;
+  white-space: nowrap;
+}
+
+.markdownContent mark {
+  background-color: hsl(48 96% 89%);
+  color: hsl(48 96% 25%);
+  padding: 0 2px;
+  border-radius: 2px;
 }
 
 /* ============================================

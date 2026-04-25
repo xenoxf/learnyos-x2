@@ -4,7 +4,7 @@ import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
 import rehypeHighlight from "rehype-highlight";
-import rehypeSanitize from "rehype-sanitize";
+import rehypeSanitize, { defaultSchema } from "rehype-sanitize";
 import { Check, Copy } from "lucide-react";
 import Image from "next/image";
 import "highlight.js/styles/atom-one-dark.css";
@@ -15,6 +15,19 @@ interface Props {
   content: string;
   className?: string;
 }
+
+/**
+ * Normaliza delimitadores de LaTeX para asegurar que remark-math los reconozca.
+ * Convierte \( ... \) a $ ... $ y \[ ... \] a $$ ... $$
+ */
+const preprocessLaTeX = (content: string): string => {
+  if (!content) return "";
+  return content
+    .replace(/\\\[/g, "$$\n")
+    .replace(/\\\]/g, "\n$$")
+    .replace(/\\\(/g, "$")
+    .replace(/\\\)/g, "$");
+};
 
 // Componente CodeBlock memoizado - DETECCIÓN AUTOMÁTICA DE CÓDIGO CORTO
 const CodeBlock = React.memo(
@@ -86,47 +99,34 @@ const CodeBlock = React.memo(
 
 CodeBlock.displayName = "CodeBlock";
 
-// Configuración de sanitización
+// Configuración de sanitización ampliada para permitir más contenido y MATHML
 const sanitizeConfig = {
-  allowedTags: [
-    "h1",
-    "h2",
-    "h3",
-    "h4",
-    "h5",
-    "h6",
-    "p",
-    "br",
-    "strong",
-    "em",
-    "u",
-    "del",
-    "ul",
-    "ol",
-    "li",
-    "blockquote",
-    "code",
-    "pre",
-    "table",
-    "thead",
-    "tbody",
-    "tr",
-    "th",
-    "td",
-    "a",
-    "img",
-    "hr",
-    "div",
-    "span",
+  ...defaultSchema,
+  tagNames: [
+    ...(defaultSchema.tagNames || []),
+    "h1", "h2", "h3", "h4", "h5", "h6", "p", "br", "strong", "em", "u", "del", "ul", "ol", "li", "blockquote", "code", "pre", "table", "thead", "tbody", "tr", "th", "td", "a", "img", "hr", "div", "span",
+    "sub", "sup", "kbd", "details", "summary", "mark", "cite", "abbr",
+    // MathML tags
+    "math", "mrow", "msub", "msup", "mfrac", "msqrt", "mroot", "mstyle", "mtext", "mspace", "mo", "mi", "mn", "semantics", "annotation", "annotation-xml"
   ],
-  allowedAttributes: {
-    a: ["href", "title", "target"],
-    img: ["src", "alt", "title", "loading"],
+  attributes: {
+    ...defaultSchema.attributes,
+    a: ["href", "title", "target", "rel"],
+    img: ["src", "alt", "title", "loading", "width", "height"],
     code: ["className"],
     pre: ["className"],
-    "*": ["className"],
+    td: ["align", "valign"],
+    th: ["align", "valign"],
+    div: ["className", "align"],
+    span: ["className", "style"],
+    // Permitir todas las clases de katex
+    "*": ["className", "id", "style"],
   },
-  allowedSchemes: ["http", "https", "mailto"],
+  protocols: {
+    ...defaultSchema.protocols,
+    src: ["http", "https", "mailto", "tel", "data"],
+    href: ["http", "https", "mailto", "tel"],
+  },
 };
 
 // Componentes personalizados
@@ -204,15 +204,21 @@ const createComponents = () => ({
 });
 
 export function MarkdownRenderer({ content, className = "" }: Props) {
-  // Memoizar contenido
+  // Memoizar contenido procesado para LaTeX
   const safeContent = useMemo(() => {
     if (typeof content !== "string") return "";
-    return content.trim() || "";
+    return preprocessLaTeX(content.trim()) || "";
   }, [content]);
 
   // Memoizar plugins
+  // IMPORTANTE: rehypeKatex DEBE ir después de rehypeSanitize si no se quiere que el sanitizador elimine el HTML generado por Katex,
+  // O el sanitizador debe estar configurado para permitir todo el HTML/MathML de Katex.
   const rehypePlugins = useMemo(
-    () => [rehypeHighlight, [rehypeSanitize, sanitizeConfig], rehypeKatex],
+    () => [
+      rehypeHighlight, 
+      [rehypeSanitize, sanitizeConfig], 
+      rehypeKatex
+    ],
     [],
   );
 
