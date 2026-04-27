@@ -39,7 +39,6 @@ const NAV_ITEMS: EspacioNavItem[] = [
     href: "#",
     children: [
       { id: "flashcards", label: "Flashcards", icon: CreditCard, href: "/study/espacio/funciones/flashcards" },
-      { id: "notas", label: "Notas", icon: FileText, href: "/study/espacio/funciones/notas" },
       { id: "quizzes", label: "Quizzes", icon: Brain, href: "/study/espacio/funciones/quizzes" },
     ],
   },
