@@ -31,6 +31,7 @@ export default function ChatPage() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isChatsLoading, setIsChatsLoading] = useState(false);
   const [isStreaming, setIsStreaming] = useState(false);
   const [streamingContent, setStreamingContent] = useState("");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -74,11 +75,14 @@ export default function ChatPage() {
 
   // ==================== CARGAR CHATS ====================
   const loadChats = useCallback(async () => {
+    setIsChatsLoading(true);
     try {
       const response = await chatsService.getChats();
       setChats(Array.isArray(response) ? response : []);
     } catch {
       toast.error("Error", "No se pudieron cargar las conversaciones");
+    } finally {
+      setIsChatsLoading(false);
     }
   }, []);
 
@@ -343,7 +347,12 @@ export default function ChatPage() {
         </div>
 
         <div className={styles.chatList}>
-          {chats.length === 0 ? (
+          {isChatsLoading ? (
+            <div className={styles.loadingChats}>
+              <p>Cargando chats</p>
+              <Loader size={24} className={styles.spin} />
+            </div>
+          ) : chats.length === 0 ? (
             <div className={styles.emptyChats}>
               <MessageSquare size={40} />
               <p>No hay conversaciones</p>
@@ -360,6 +369,13 @@ export default function ChatPage() {
                   {chat.title || `Chat ${chat.id}`}
                 </span>
 
+                <button
+                  className={styles.deleteButton}
+                  onClick={(e) => handleDeleteChat(chat.id, e)}
+                  aria-label="Eliminar chat"
+                >
+                  <Trash2 size={16} />
+                </button>
               </div>
             ))
           )}

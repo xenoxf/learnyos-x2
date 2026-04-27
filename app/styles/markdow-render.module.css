@@ -440,8 +440,20 @@
 .markdownContent :global(.katex-display) {
   overflow-x: auto;
   overflow-y: hidden;
-  padding: 1rem 0;
+  padding: 1.2rem 0;
   -webkit-overflow-scrolling: touch;
+  font-size: 1.2em;
+}
+
+.markdownContent :global(.katex) {
+  font-size: 1.1em;
+  line-height: 1.2;
+  text-rendering: optimizeLegibility;
+}
+
+/* Dar más protagonismo y grosor al Latex */
+.markdownContent :global(.katex .base) {
+  -webkit-text-stroke: 0.15px currentColor;
 }
 
 .markdownContent :global(.katex-display::-webkit-scrollbar) {

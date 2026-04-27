@@ -200,6 +200,15 @@ export default function EspacioLayout({
       </aside>
 
       {/* Desktop collapse toggle */}
+      {!isMobile && (
+        <button
+          className={`${styles.espacioSidebarToggle} ${sidebarCollapsed ? styles.espacioSidebarToggleCollapsed : ""}`}
+          onClick={toggleSidebarCollapse}
+          aria-label={sidebarCollapsed ? "Expandir sidebar" : "Contraer sidebar"}
+        >
+          {sidebarCollapsed ? <PanelLeft size={16} /> : <PanelLeftClose size={16} />}
+        </button>
+      )}
 
       <main className={styles.espacioMain}>
         {children}

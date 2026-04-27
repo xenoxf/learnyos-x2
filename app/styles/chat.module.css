@@ -83,6 +83,23 @@
   padding: 0 0.3rem;
 }
 
+.loadingChats {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1rem;
+  gap: 1rem;
+  color: hsl(var(--muted-foreground));
+  text-align: center;
+}
+
+.loadingChats p {
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin: 0;
+}
+
 .emptyChats {
   text-align: center;
   padding: 2rem 1rem;
