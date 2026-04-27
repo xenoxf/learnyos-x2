@@ -58,7 +58,7 @@ const CodeBlock = React.memo(
     // DETECCIÓN DE CÓDIGO CORTO - Renderizar como inline
     // Si tiene menos de 3 líneas O menos de 50 caracteres, es inline
     const isShortCode = !inline && (
-      code.split('\n').length < 3 || 
+      code.split('\n').length < 3 ||
       code.length < 50
     );
 
@@ -128,7 +128,7 @@ const sanitizeConfig = {
     href: ["http", "https", "mailto", "tel"],
   },
 };
-
+/*
 // Componentes personalizados
 const createComponents = () => ({
   code: CodeBlock,
@@ -201,8 +201,140 @@ const createComponents = () => ({
   ),
   em: ({ node, ...props }: any) => <em className={styles.em} {...props} />,
   del: ({ node, ...props }: any) => <del className={styles.del} {...props} />,
-});
+});*/
+const createComponents = () => ({
+  code: CodeBlock,
 
+  h1: ({ node, ...props }: any) => <h1 className={styles.h1} {...props} />,
+  h2: ({ node, ...props }: any) => <h2 className={styles.h2} {...props} />,
+  h3: ({ node, ...props }: any) => <h3 className={styles.h3} {...props} />,
+  h4: ({ node, ...props }: any) => <h4 className={styles.h4} {...props} />,
+  h5: ({ node, ...props }: any) => <h5 className={styles.h5} {...props} />,
+  h6: ({ node, ...props }: any) => <h6 className={styles.h6} {...props} />,
+
+  blockquote: ({ node, ...props }: any) => (
+    <blockquote className={styles.blockquote} {...props} />
+  ),
+
+  ul: ({ node, ...props }: any) => <ul className={styles.ul} {...props} />,
+  ol: ({ node, ...props }: any) => <ol className={styles.ol} {...props} />,
+  li: ({ node, ...props }: any) => <li className={styles.li} {...props} />,
+
+  /* ============================================
+     🚀 TABLE SYSTEM PRO (RESPONSIVE REAL)
+     ============================================ */
+
+  table: ({ node, ...props }: any) => (
+    <div className={styles.tableWrapper}>
+      <table className={styles.table} {...props} />
+    </div>
+  ),
+
+  thead: ({ node, ...props }: any) => (
+    <thead className={styles.thead} {...props} />
+  ),
+
+  tbody: ({ node, ...props }: any) => (
+    <tbody className={styles.tbody} {...props} />
+  ),
+
+  tr: ({ node, ...props }: any) => (
+    <tr className={styles.tr} {...props} />
+  ),
+
+  th: ({ node, children, ...props }: any) => (
+    <th className={styles.th} {...props}>
+      {children}
+    </th>
+  ),
+
+  td: ({ node, children, ...props }: any) => {
+    // 🔥 EXTRAER HEADERS AUTOMÁTICAMENTE
+    let label = "";
+
+    try {
+      const tableNode = node?.parent?.parent?.parent;
+      const headerRow = tableNode?.children?.find(
+        (n: any) => n.tagName === "thead"
+      )?.children?.[0];
+
+      const columnIndex = node?.parent?.children?.indexOf(node);
+
+      if (headerRow && columnIndex !== undefined) {
+        const headerCell = headerRow.children[columnIndex];
+        label = headerCell?.children?.[0]?.value || "";
+      }
+    } catch (e) {
+      // fallback silencioso
+    }
+
+    return (
+      <td className={styles.td} data-label={label} {...props}>
+        {children}
+      </td>
+    );
+  },
+
+  /* ============================================ */
+
+  a: ({ node, href, children, ...props }: any) => (
+    <a
+      className={styles.link}
+      href={href}
+      target={href?.startsWith("http") ? "_blank" : undefined}
+      rel={href?.startsWith("http") ? "noopener noreferrer" : undefined}
+      {...props}
+    >
+      {children}
+    </a>
+  ),
+
+  img: ({ node, alt, src, ...props }: any) => {
+    const isExternal = src?.startsWith("http");
+
+    if (isExternal) {
+      return (
+        <Image
+          className={styles.image}
+          src={src}
+          alt={alt || "Imagen"}
+          width={800}
+          height={600}
+          loading="lazy"
+          style={{ width: "100%", height: "auto" }}
+          {...props}
+        />
+      );
+    }
+
+    return (
+      <div className={styles.imageWrapper}>
+        <Image
+          className={styles.image}
+          src={src}
+          alt={alt || "Imagen"}
+          fill
+          loading="lazy"
+          style={{ objectFit: "contain" }}
+          {...props}
+        />
+      </div>
+    );
+  },
+
+  hr: ({ node, ...props }: any) => <hr className={styles.hr} {...props} />,
+
+  p: ({ node, ...props }: any) => (
+    <p className={styles.paragraph} {...props} />
+  ),
+
+  strong: ({ node, ...props }: any) => (
+    <strong className={styles.strong} {...props} />
+  ),
+
+  em: ({ node, ...props }: any) => <em className={styles.em} {...props} />,
+  del: ({ node, ...props }: any) => <del className={styles.del} {...props} />,
+});
 export function MarkdownRenderer({ content, className = "" }: Props) {
   // Memoizar contenido procesado para LaTeX
   const safeContent = useMemo(() => {
@@ -215,8 +347,8 @@ export function MarkdownRenderer({ content, className = "" }: Props) {
   // O el sanitizador debe estar configurado para permitir todo el HTML/MathML de Katex.
   const rehypePlugins = useMemo(
     () => [
-      rehypeHighlight, 
-      [rehypeSanitize, sanitizeConfig], 
+      rehypeHighlight,
+      [rehypeSanitize, sanitizeConfig],
       rehypeKatex
     ],
     [],

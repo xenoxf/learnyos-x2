@@ -413,16 +413,26 @@
 /* ============================================
    TABLES - MEJORADAS
    ============================================ */
-
 .tableWrapper {
-  overflow-x: auto;
-  margin: 1.5rem 0;
-  border-radius: 12px;
-  border: 1px solid hsl(var(--border));
-  background-color: hsl(var(--background));
-  -webkit-overflow-scrolling: touch;
   width: 100%;
-  table-layout: auto;
+  overflow-x: auto;
+  border-radius: 14px;
+  border: 1px solid hsl(var(--border));
+  background: hsl(var(--background));
+  box-shadow: 0 4px 20px hsl(var(--foreground) / 0.05);
+  position: relative;
+}
+
+/* Fade lateral (UX tipo Notion) */
+.tableWrapper::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 40px;
+  height: 100%;
+  pointer-events: none;
+  background: linear-gradient(to right, transparent, hsl(var(--background)));
 }
 
 .tableWrapper::-webkit-scrollbar {
@@ -456,9 +466,22 @@
 }
 
 .markdownContent table {
-  border-collapse: collapse;
   width: 100%;
-  font-size: 0.9em;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.85rem;
+  min-width: 600px;
+}
+
+.markdownContent th {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: hsl(var(--muted-foreground));
+}
+
+.markdownContent td {
+  font-weight: 500;
 }
 
 .markdownContent thead {
@@ -467,25 +490,25 @@
       hsl(var(--muted) / 0.2) 100%);
 }
 
-.markdownContent th {
-  font-weight: 600;
-  color: hsl(var(--foreground));
-  padding: 0.75rem 1rem;
-  border-bottom: 2px solid hsl(var(--border));
-  text-align: left;
-}
-
-.markdownContent td {
-  padding: 0.75rem 1rem;
-  border-bottom: 1px solid hsl(var(--border));
-}
-
 .markdownContent tbody tr:last-child td {
   border-bottom: none;
 }
 
+.markdownContent tbody tr {
+  transition: all 0.15s ease;
+}
+
 .markdownContent tbody tr:hover {
-  background-color: hsl(var(--muted) / 0.1);
+  background: hsl(var(--primary) / 0.05);
+  transform: scale(1.002);
+}
+
+.markdownContent thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: hsl(var(--background));
+  backdrop-filter: blur(6px);
 }
 
 /* ============================================
@@ -647,6 +670,47 @@
 /* ============================================
    RESPONSIVE - MEJORADO
    ============================================ */
+@media (max-width: 640px) {
+
+  .markdownContent table,
+  .markdownContent thead,
+  .markdownContent tbody,
+  .markdownContent th,
+  .markdownContent td,
+  .markdownContent tr {
+    display: block;
+    width: 100%;
+  }
+
+  .markdownContent thead {
+    display: none;
+  }
+
+  .markdownContent tr {
+    margin-bottom: 1rem;
+    border: 1px solid hsl(var(--border));
+    border-radius: 12px;
+    padding: 0.75rem;
+    background: hsl(var(--background));
+    box-shadow: 0 2px 10px hsl(var(--foreground) / 0.05);
+  }
+
+  .markdownContent td {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.4rem 0;
+    border: none;
+    font-size: 0.85rem;
+  }
+
+  .markdownContent td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: hsl(var(--muted-foreground));
+    flex-shrink: 0;
+  }
+}
 
 @media (max-width: 768px) {
   .codeBlockHeader {
