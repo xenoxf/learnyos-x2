@@ -16,60 +16,6 @@
   animation: fadeIn 0.2s ease;
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-
-  to {
-    opacity: 1;
-  }
-}
-
-.spinnerWrapper {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* Radial spinner - clock-like design */
-.radialSpinner {
-  width: 48px;
-  height: 48px;
-  position: relative;
-  animation: rotate 1s linear infinite;
-}
-
-.radialSpinner::before,
-.radialSpinner::after {
-  content: "";
-  position: absolute;
-  width: 3px;
-  height: 14px;
-  background: hsl(var(--primary));
-  border-radius: 2px;
-  left: 50%;
-  top: 0;
-  transform-origin: center 24px;
-  margin-left: -1.5px;
-}
-
-.radialSpinner::before {
-  transform: rotate(0deg);
-  opacity: 1;
-}
-
-.radialSpinner::after {
-  transform: rotate(90deg);
-  opacity: 0.5;
-}
-
-@keyframes rotate {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
 /* HTML: <div class="loader"></div> */
 .loader {
   width: 60px;

@@ -151,16 +151,10 @@ function AuthContent() {
       </Link>
 
       <div className={styles.auth}>
-        <div className={styles.containerTitle}>
-          <h1 className={styles.appTitle}>LearnYos</h1>
-        </div>
+
 
         <Card className={styles.authWindow}>
-          <CardHeader>
-            <CardTitle className={styles.cardTitle}>
-              {isLogin ? "Bienvenido de nuevo" : "Crea tu cuenta"}
-            </CardTitle>
-          </CardHeader>
+
 
           <CardContent className={styles.cardContent}>
             <GoogleAuthButton
