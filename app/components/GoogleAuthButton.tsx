@@ -25,69 +25,8 @@ export function GoogleAuthButton({
 
       const { url } = await authService.getGoogleAuthUrl();
 
-      const authWindow = window.open(
-        url,
-        "google-auth",
-        "width=500,height=600,scrollbars=yes,resizable=yes"
-      );
-
-      if (!authWindow) {
-        // Popup bloqueado → redirección directa
-        window.location.href = url;
-        return;
-      }
-
-      let isHandled = false;
-
-      const cleanup = () => {
-        window.removeEventListener("message", handleMessage);
-        clearInterval(checkClosed);
-        clearTimeout(timeout);
-        setLoading(false);
-      };
-
-      const handleMessage = (event: MessageEvent) => {
-        if (event.data?.type === "AUTH_SUCCESS") {
-          isHandled = true;
-          try {
-            authWindow?.close(); // intento normal
-
-            // 🔥 fuerza extra (algunos navegadores se resisten)
-            setTimeout(() => {
-              if (!authWindow.closed) {
-                authWindow.open("", "_self");
-                authWindow.close();
-              }
-            }, 100);
-          } catch { }
-
-          cleanup();
-          router.push("/study");
-          onSuccess?.({ id: 0, email: "", name: "" });
-        }
-      };
-      window.addEventListener("message", handleMessage);
-
-      // Detectar si el usuario cierra la ventana manualmente
-      const checkClosed = setInterval(() => {
-        if (authWindow.closed) {
-          cleanup();
-
-          if (!isHandled) {
-            // Usuario canceló login
-            toast.error("Cancelado", "Cerraste la ventana de autenticación");
-          }
-        }
-      }, 500);
-
-      // Timeout de seguridad (5 min)
-      const timeout = setTimeout(() => {
-        cleanup();
-        authWindow.close();
-
-        toast.error("Timeout", "La autenticación tardó demasiado");
-        onError?.("Timeout en autenticación");
-      }, 300000);
+      // 🚀 Redirección directa (flujo OAuth correcto)
+      window.location.href = url;
 
     } catch (err: unknown) {
       const message =
