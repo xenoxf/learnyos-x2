@@ -452,11 +452,9 @@
   grid-template-columns: 1fr;
   gap: 2rem;
   align-items: center;
-  background: linear-gradient(
-    135deg,
-    hsl(var(--card)) 0%,
-    hsl(var(--card) / 0.8) 100%
-  );
+  background: linear-gradient(135deg,
+      hsl(var(--card)) 0%,
+      hsl(var(--card) / 0.8) 100%);
   border: 1px solid hsl(var(--border) / 0.6);
   border-radius: 24px;
   padding: 2rem 1.5rem;
@@ -698,11 +696,9 @@
   left: 10%;
   right: 10%;
   height: 60%;
-  background: radial-gradient(
-    ellipse,
-    hsl(var(--primary) / 0.15) 0%,
-    transparent 70%
-  );
+  background: radial-gradient(ellipse,
+      hsl(var(--primary) / 0.15) 0%,
+      transparent 70%);
   filter: blur(30px);
   pointer-events: none;
   opacity: 0;
@@ -1135,7 +1131,7 @@
   .footer {
     padding: 1.5rem 1rem;
   }
-  
+
   .toolsShowcase {
     gap: 3rem;
   }
@@ -1175,11 +1171,11 @@
     width: 8px;
     height: 8px;
   }
-  
+
   .featuresGrid {
     gap: 1rem;
   }
-  
+
   .benefitsGrid {
     gap: 1rem;
   }
@@ -1190,11 +1186,11 @@
   .headerButton {
     padding: 0.75rem 1.25rem;
   }
-  
+
   .heroTitle {
     font-size: clamp(1.75rem, 5vw, 2rem);
   }
-  
+
   .toolsShowcase {
     gap: 3.5rem;
   }
@@ -1224,17 +1220,17 @@
   .featureCard {
     padding: 2rem;
   }
-  
+
   .featuresGrid {
     grid-template-columns: repeat(2, 1fr);
     gap: 1.5rem;
   }
-  
+
   .benefitsGrid {
     grid-template-columns: repeat(2, 1fr);
     gap: 1.5rem;
   }
-  
+
   .heroContent {
     gap: 2rem;
   }
@@ -1255,33 +1251,33 @@
   .benefitsSection {
     padding: 5rem 2rem;
   }
-  
+
   .heroContent {
     grid-template-columns: 1fr 1fr;
     gap: 4rem;
   }
-  
+
   .heroText {
     text-align: left;
     align-items: flex-start;
   }
-  
+
   .heroTag {
     align-self: flex-start;
   }
-  
+
   .heroCTA {
     justify-content: flex-start;
   }
-  
+
   .heroImage {
     display: block;
   }
-  
+
   .featuresGrid {
     grid-template-columns: repeat(3, 1fr);
   }
-  
+
   .benefitsGrid {
     grid-template-columns: repeat(3, 1fr);
     gap: 2rem;
@@ -1294,7 +1290,7 @@
     max-width: 1280px;
     margin: 0 auto;
   }
-  
+
   .heroTitle {
     font-size: clamp(2.5rem, 6vw, 3rem);
   }
@@ -1305,7 +1301,7 @@
   .heroSection {
     padding: 8rem 3rem;
   }
-  
+
   .toolsSection,
   .featuresSection,
   .benefitsSection {

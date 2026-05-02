@@ -22,70 +22,84 @@ export function GoogleAuthButton({
   const handleGoogleClick = async () => {
     try {
       setLoading(true);
+
       const { url } = await authService.getGoogleAuthUrl();
 
-      // Open Google auth in new window - doesn't reload current page
       const authWindow = window.open(
         url,
         "google-auth",
-        "width=500,height=600,scrollbars=yes,resizable=yes",
+        "width=500,height=600,scrollbars=yes,resizable=yes"
       );
 
       if (!authWindow) {
-        // Fallback if popup blocked - redirect in same window
+        // Popup bloqueado → redirección directa
         window.location.href = url;
         return;
       }
 
+      let isHandled = false;
+
+      const cleanup = () => {
+        window.removeEventListener("message", handleMessage);
+        clearInterval(checkClosed);
+        clearTimeout(timeout);
+        setLoading(false);
+      };
+
       const handleMessage = (event: MessageEvent) => {
         if (event.data?.type === "AUTH_SUCCESS") {
-          window.removeEventListener("message", handleMessage);
-          authWindow.close();
-          setLoading(false);
+          isHandled = true;
+          try {
+            authWindow?.close(); // intento normal
+
+            // 🔥 fuerza extra (algunos navegadores se resisten)
+            setTimeout(() => {
+              if (!authWindow.closed) {
+                authWindow.open("", "_self");
+                authWindow.close();
+              }
+            }, 100);
+          } catch { }
+
+          cleanup();
           router.push("/study");
           onSuccess?.({ id: 0, email: "", name: "" });
         }
       };
-
       window.addEventListener("message", handleMessage);
 
-      // Poll for auth completion as fallback
-      const checkAuth = setInterval(() => {
-        try {
-          if (authWindow.closed) {
-            clearInterval(checkAuth);
-            window.removeEventListener("message", handleMessage);
-            setLoading(false);
+      // Detectar si el usuario cierra la ventana manualmente
+      const checkClosed = setInterval(() => {
+        if (authWindow.closed) {
+          cleanup();
 
-            // Check if user was authenticated
-            const userStr = localStorage.getItem("user");
-            if (userStr) {
-              router.push("/study");
-              onSuccess?.({ id: 0, email: "", name: "" });
-            }
+          if (!isHandled) {
+            // Usuario canceló login
+            toast.error("Cancelado", "Cerraste la ventana de autenticación");
           }
-        } catch {
-          // Cross-origin error - window still open
         }
       }, 500);
 
-      // Stop polling after 5 minutes
-      setTimeout(() => {
-        clearInterval(checkAuth);
-        window.removeEventListener("message", handleMessage);
-        setLoading(false);
+      // Timeout de seguridad (5 min)
+      const timeout = setTimeout(() => {
+        cleanup();
+        authWindow.close();
+
+        toast.error("Timeout", "La autenticación tardó demasiado");
+        onError?.("Timeout en autenticación");
       }, 300000);
+
     } catch (err: unknown) {
       const message =
         err instanceof Error
           ? err.message
           : "Error al iniciar autenticación con Google";
+
       toast.error("Error", message);
       onError?.(message);
       setLoading(false);
     }
   };
-
   return (
     <Button
       onClick={handleGoogleClick}

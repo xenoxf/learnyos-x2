@@ -21,7 +21,7 @@ export function PWALoader() {
     <div className={styles.container}>
       <div className={styles.content}>
         <h1 className={styles.title}>LearnYos</h1>
-        <p className={styles.quote}>"Solo pierdes cuando dejas de intentarlo"</p>
+        <p className={styles.quote}>&quot;Solo pierdes cuando dejas de intentarlo&quot;</p>
         <div className={styles.progressBar}>
           <div className={styles.progressFill} />
         </div>

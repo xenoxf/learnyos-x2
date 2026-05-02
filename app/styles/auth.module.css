@@ -52,6 +52,7 @@
 
 .authWindow {
   width: 100%;
+  padding-top: 1rem;
   background-color: hsl(var(--card));
   color: hsl(var(--card-foreground));
   border: 1px solid hsl(var(--border));

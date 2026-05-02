@@ -5,7 +5,7 @@ import Image from "next/image";
 import { GoogleAuthButton } from "./GoogleAuthButton";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "./ui/button";
 import { X } from "lucide-react";
 
@@ -16,44 +16,8 @@ interface AuthFGProps {
 export const AuthFG: React.FC<AuthFGProps> = ({ onClose }) => {
   const router = useRouter();
   const [formError, setFormError] = useState<string | null>(null);
-  const [theme, setTheme] = useState<string>("");
 
-  // Detectar tema actual
-  useEffect(() => {
-    const detectTheme = () => {
-      const html = document.documentElement;
-
-      // Revisar clases del tema
-      if (html.classList.contains("dark")) {
-        setTheme("dark");
-      } else if (html.classList.contains("theme-sakura")) {
-        setTheme("theme-sakura");
-      } else if (html.classList.contains("theme-ocean")) {
-        setTheme("theme-ocean");
-      } else if (html.classList.contains("theme-coffee")) {
-        setTheme("theme-coffee");
-      } else if (html.classList.contains("theme-forest")) {
-        setTheme("theme-forest");
-      } else if (html.classList.contains("theme-sunset")) {
-        setTheme("theme-sunset");
-      } else {
-        setTheme("light");
-      }
-    };
-
-    detectTheme();
-
-    // Observar cambios de tema
-    const observer = new MutationObserver(detectTheme);
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ["class"],
-    });
-
-    return () => observer.disconnect();
-  }, []);
-
-  const handleGoogleSuccess = (user: any) => {
+  const handleGoogleSuccess = () => {
     router.push("/study");
     router.refresh();
   };

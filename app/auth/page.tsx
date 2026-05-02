@@ -1,17 +1,15 @@
 "use client";
 
 import React, { Suspense, useState, useEffect } from "react";
-import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { GoogleAuthButton } from "@/components/GoogleAuthButton";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   AlertCircle,
   Loader2,
   Mail,
   Lock,
   User,
-  SplitIcon,
   Eye,
   EyeOff,
   ArrowBigLeft,
@@ -20,7 +18,6 @@ import type { LoginInput, RegisterInput } from "@/types";
 import { toast } from "@/hooks/useLocalToast";
 import styles from "@/styles/auth.module.css";
 import Link from "next/link";
-import type { Metadata } from "next";
 import { authService } from "@/services/authService";
 
 function AuthContent() {
