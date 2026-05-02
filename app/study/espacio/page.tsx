@@ -19,6 +19,7 @@ import {
 import { toast } from "@/hooks/useLocalToast";
 import styles from "@/styles/espacio/general.module.css";
 import { authService } from "@/services/authService";
+import { ThemeToggleSidebr } from "@/components/ThemeToogleSidebr";
 
 export default function GeneralPage() {
   const router = useRouter();
@@ -211,17 +212,6 @@ export default function GeneralPage() {
         </div>
       </section>
 
-      {/* About */}
-      <section className={styles.aboutSection}>
-        <div className={styles.aboutCard}>
-          <Info size={20} className={styles.aboutIcon} />
-          <div className={styles.aboutInfo}>
-            <h3>LearnYos</h3>
-            <p className={styles.version}>Versión 1.0.0</p>
-          </div>
-        </div>
-      </section>
-
       {/* Logout Button */}
       <button
         className={styles.logoutButton}
@@ -231,6 +221,7 @@ export default function GeneralPage() {
         <LogOut size={18} />
         <span>Cerrar Sesión</span>
       </button>
+      <ThemeToggleSidebr />
     </div>
   );
 }

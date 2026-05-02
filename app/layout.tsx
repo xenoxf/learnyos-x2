@@ -5,6 +5,7 @@ import "highlight.js/styles/github-dark.css";
 import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import { LocalToaster } from "./components/LocalToaster";
+import { PWALoader } from "./components/PWALoader";
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -124,6 +125,7 @@ export default function RootLayout({
       </head>
 
       <body className="body">
+        <PWALoader />
         <Providers>{children}</Providers>
         <LocalToaster position="top-right" />
       </body>

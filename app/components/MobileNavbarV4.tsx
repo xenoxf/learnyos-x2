@@ -30,7 +30,6 @@ const NAV_ITEMS: NavItem[] = [
   { title: "Chat", url: "/study/chat", icon: MessageSquare },
   { title: "Quiz", url: "/study/quiz", icon: Brain },
   { title: "Flashcards", url: "/study/flashcards", icon: CreditCard },
-  { title: "Notas", url: "/study/notes", icon: NotebookPen },
 ];
 
 export function MobileNavbarV4() {
@@ -94,11 +93,10 @@ export function MobileNavbarV4() {
           </Link>
         );
       })}
-      <Link href="/study/espacio/general" className={styles.navItem}>
+      <Link href="/study/espacio" className={styles.navItem}>
         <Settings2 size={22} />
         <span>Espacio</span>
       </Link>
-      <ThemeToggleSidebr isCollapse={true} />
     </nav>
   );
 }
