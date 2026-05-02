@@ -1,17 +1,13 @@
 /* ==================== MOBILE NAVBAR V4 - FLOATING PILL ==================== */
 .navbar {
-  bottom: 1rem;
-  left: 50%;
-  transform: translateX(-50%);
+
   z-index: 1000;
   transition: transform 0.3s ease, opacity 0.3s ease;
   will-change: transform, opacity;
 }
 
 .navbarHidden {
-  position: fixed;
-  bottom: 20px;
-  bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+  margin: 0 20px 20px 20px;
   z-index: 1000;
   transform: translateX(-50%) translateY(100px);
   opacity: 0;

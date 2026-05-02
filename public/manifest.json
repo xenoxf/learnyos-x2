@@ -3,15 +3,8 @@
   "short_name": "LearnYos",
   "description": "La plataforma de estudio más avanzada que combina inteligencia artificial y metodologías probadas para maximizar tu aprendizaje.",
   "start_url": "/study",
-  "display": "standalone",
+  "display": "minimal-ui",
   "background_color": "#09090b",
   "theme_color": "#09090b",
-  "icons": [
-    {
-      "src": "/logo-100x100.png",
-      "sizes": "100x100",
-      "type": "image/png"
-    }
-  ],
   "categories": ["education", "productivity"]
 }
