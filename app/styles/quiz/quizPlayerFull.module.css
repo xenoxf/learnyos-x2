@@ -12,10 +12,16 @@
   width: 100%;
   max-width: 900px;
   margin: 0 auto;
-  padding: 2rem 1rem;
+  padding: 1.5rem;
   display: flex;
   flex-direction: column;
   flex: 1;
+}
+
+@media (max-width: 768px) {
+  .icfesContainer {
+    padding: 0.75rem;
+  }
 }
 
 .icfesQuestionsContainer {
@@ -65,6 +71,13 @@
   border-radius: 1rem;
   padding: 2rem;
   transition: all var(--transition-base);
+}
+
+@media (max-width: 768px) {
+  .icfesQuestionCard {
+    padding: 1rem;
+    border-radius: 0.75rem;
+  }
 }
 
 .icfesQuestionCard:hover {

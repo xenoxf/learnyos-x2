@@ -22,134 +22,20 @@ const appUrl =
   process.env.NEXT_PUBLIC_APP_URL || "https://learnyos.vercel.app";
 
 export const metadata: Metadata = {
-  metadataBase: new URL(appUrl),
-
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "https://learnyos.vercel.app"),
   title: {
-    default: "LearnYos",
+    default: "LearnYos | Plataforma de Aprendizaje con IA",
     template: "%s | LearnYos",
   },
-
-  description:
-    "La plataforma de estudio más avanzada que combina inteligencia artificial y metodologías probadas para maximizar tu aprendizaje.",
-
-  keywords: [
-    "educación",
-    "IA",
-    "estudio",
-    "flashcards",
-    "quiz",
-    "notas",
-    "pomodoro",
-    "spaced repetition",
-    "active recall",
-    "mejor app de estudio",
-    "crear exámenes online",
-    "flashcards inteligentes",
-    "preparar ICFES",
-    "estudiar para examen",
-    "notas digitales",
-    "plataforma educativa",
-    "estudiar gratis",
-    "generar exámenes con IA",
-    "quiz interactivo",
-    "aprendizaje inteligente",
-    "herramientas de estudio",
-    "tarjetas de memoria",
-    "examen en línea",
-    "educación virtual",
-    "study app",
-    "educational AI",
-    "aprender online",
-    "técnica de estudio",
-    "repaso espaciado",
-    "memorización activa",
-    "preparar pruebas",
-    "examen tipo ICFES",
-    "quiz educativo",
-    "tarjetas de estudio",
-    "apuntes digitales",
-    "asistente de estudio IA",
-    "generador de quizzes",
-    "creador de flashcards",
-    "estudio con inteligencia artificial",
-    "plataforma de aprendizaje",
-    "educación en línea Colombia",
-    "mejorar rendimiento académico",
-    "técnicas de memorización",
-    "app educativa gratuita",
-    "estudiar desde casa",
-    "preparación académica",
-    "herramientas educativas digitales",
-    "inteligencia artificial educativa",
-    "LearnYos",
-    "klerk",
-    "junior IA",
-  ],
-
+  description: "Domina cualquier tema con LearnYos. La plataforma de estudio avanzada con IA, Spaced Repetition y Active Recall.",
+  keywords: ["LearnYos", "IA educativa", "estudio inteligente", "active recall", "spaced repetition"],
   authors: [{ name: "Jesus Camacho" }],
-  creator: "Jesus Camacho",
-  publisher: "Jesus Camacho",
-
-  // ✅ CORREGIDO
-  formatDetection: {
-    email: false,
-    address: false,
-    telephone: false,
-  },
-
   openGraph: {
     type: "website",
     locale: "es_CO",
-    url: "/",
-    title: "LearnYos",
-    description:
-      "La plataforma de estudio más avanzada que combina inteligencia artificial y metodologías probadas para maximizar tu aprendizaje",
+    title: "LearnYos | Potencia tu Aprendizaje",
+    description: "Crea exámenes, flashcards y notas inteligentes con IA.",
     siteName: "LearnYos",
-    images: [
-      {
-        url: "/hero-study.png",
-        width: 1200,
-        height: 630,
-        alt: "LearnYos - Plataforma de estudio con IA",
-      },
-    ],
-  },
-
-  twitter: {
-    card: "summary_large_image",
-    title: "LearnYos",
-    description:
-      "La plataforma de estudio más avanzada que combina inteligencia artificial y metodologías probadas para maximizar tu aprendizaje",
-    images: ["/twitter-image.png"],
-    creator: "@learnyos",
-  },
-
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-      "max-image-preview": "large",
-      "max-snippet": -1,
-    },
-  },
-
-  icons: {
-    icon: "/logo-100x100.png",
-    shortcut: "/logo-100x100.png",
-    apple: "/logo-100x100.png",
-  },
-
-  manifest: "/manifest.json",
-
-  alternates: {
-    canonical: "/",
-  },
-
-  // 🔥 ESTO ES LO QUE NECESITAS PARA GOOGLE SEARCH CONSOLE
-  verification: {
-    google: process.env.NEXT_PUBLIC_GOOGLE_VERIFICATION,
   },
 };
 
