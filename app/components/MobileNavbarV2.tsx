@@ -154,7 +154,7 @@ export function MobileNavbarV2() {
               <ThemeToggleSidebr isCollapse={false} />
             </div>
 
-            <Link href="/study/espacio/general" className={styles.sidebarItem}>
+            <Link href="/study/espacio" className={styles.sidebarItem}>
               <Settings2 size={18} />
               <span>Mi Espacio</span>
             </Link>

@@ -221,7 +221,7 @@ export default function GeneralPage() {
         <LogOut size={18} />
         <span>Cerrar Sesión</span>
       </button>
-      <ThemeToggleSidebr />
+      <ThemeToggleSidebr isCollapse={false} />
     </div>
   );
 }
