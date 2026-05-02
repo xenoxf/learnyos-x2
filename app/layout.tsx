@@ -5,7 +5,6 @@ import "highlight.js/styles/github-dark.css";
 import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import { LocalToaster } from "./components/LocalToaster";
-import { PWALoader } from "./components/PWALoader";
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -74,39 +73,75 @@ export default function RootLayout({
           crossOrigin="anonymous"
         />
 
-        {/* CSS crítico inline - evita FOUC y parpadeo de carga */}
+        {/* CSS crítico inline - evita FOUC */}
         <style dangerouslySetInnerHTML={{
           __html: `
             *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
             html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
-            body { background-color: #09090b; color: white; font-family: sans-serif; min-height: 100vh; }
-            #pwa-loader-static { position: fixed; inset: 0; z-index: 999999; background-color: #09090b; display: flex; align-items: center; justify-content: center; flex-direction: column; padding: 2rem; }
-            .loader-content { display: flex; flex-direction: column; align-items: center; gap: 1.5rem; }
-            .loader-title { font-size: 3rem; font-weight: 950; }
-            .loader-quote { font-size: 1.125rem; opacity: 0.8; }
-            @keyframes fadeOut { to { opacity: 0; visibility: hidden; } }
+            body {
+              background-color: hsl(0 0% 100%);
+              color: hsl(0 0% 3.9%);
+              font-family: Arial, Helvetica, sans-serif;
+              line-height: 1.5;
+              -webkit-font-smoothing: antialiased;
+              -moz-osx-font-smoothing: grayscale;
+              min-height: 100vh;
+              overflow-x: hidden;
+            }
+            .dark body {
+              background-color: hsl(0 0% 3.9%);
+              color: hsl(0 0% 98%);
+            }
+            img { max-width: 100%; height: auto; display: block; }
+            a { color: inherit; text-decoration: none; }
+            button { cursor: pointer; font-family: inherit; }
+            
+            /* Auth page critical CSS - prevents FOUC */
+            .authPage { width: 100%; height: 100dvh; height: 100vh; display: flex; justify-content: center; align-items: center; flex-direction: column; background-color: hsl(var(--background, 0 0% 100%)); color: hsl(var(--foreground, 0 0% 3.9%)); }
+            .auth { width: 100%; max-width: 460px; display: flex; justify-content: center; align-items: center; flex-direction: column; }
+            .containerTitle { width: 100%; margin-bottom: 1.5rem; text-align: center; }
+            .appTitle { font-size: 1.875rem; font-weight: 900; color: hsl(var(--foreground, 0 0% 3.9%)); margin: 0.5rem 0 0 0; }
+            .authWindow { width: 100%; background-color: hsl(var(--card, 0 0% 100%)); color: hsl(var(--card-foreground, 0 0% 3.9%)); border: 1px solid hsl(var(--border, 0 0% 89.8%)); border-radius: 0.5rem; box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1); }
+            .cardTitle { font-size: 1.5rem; font-weight: 700; color: hsl(var(--foreground, 0 0% 3.9%)); }
+            .cardContent { display: flex; flex-direction: column; gap: 1.5rem; }
+            .authBtnVolver { background-color: hsl(var(--primary, 0 0% 9%)); color: hsl(var(--primary-foreground, 0 0% 98%)); position: absolute; top: 1rem; left: 1rem; width: 2.5rem; height: 2.5rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; border: none; z-index: 10; }
+            .divider { display: flex; align-items: center; gap: 1rem; }
+            .dividerLine { flex: 1; height: 1px; background: hsl(var(--border, 0 0% 89.8%)); }
+            .dividerText { font-size: 0.875rem; color: hsl(var(--muted-foreground, 0 0% 45.1%)); white-space: nowrap; }
+            @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
           `
         }} />
 
+        {/* 🔥 SEO estructurado */}
         <Script
-          id="remove-loader"
+          id="structured-data"
+          type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: `window.addEventListener('load', () => { const el = document.getElementById('pwa-loader-static'); if(el) el.style.animation = 'fadeOut 0.5s ease forwards'; });`
+            __html: JSON.stringify(structuredData),
           }}
           strategy="afterInteractive"
         />
-
-        {/* CSS crítico antiguo... */}
+      </head>
 
       <body className="body">
-        <div id="pwa-loader-static">
-          <div className="loader-content">
-            <h1 className="loader-title">LearnYos</h1>
-            <p className="loader-quote">"Solo pierdes cuando dejas de intentarlo"</p>
+        {/* Cargador estático inicial para evitar destellos */}
+        <div id="pwa-splash" style={{ position: 'fixed', inset: 0, zIndex: 999999, backgroundColor: '#09090b', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', color: '#fff' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.5rem' }}>
+            <h1 style={{ fontSize: '3rem', fontWeight: 950 }}>LearnYos</h1>
+            <p style={{ fontSize: '1.125rem', opacity: 0.8 }}>&quot;Solo pierdes cuando dejas de intentarlo&quot;</p>
+            <div style={{ width: '120px', height: '2px', background: '#27272a', marginTop: '1rem' }}>
+              <div style={{ width: '100%', height: '100%', background: '#fff', animation: 'progress 2s linear forwards' }} />
+            </div>
           </div>
         </div>
+        <style dangerouslySetInnerHTML={{ __html: `@keyframes progress { from { transform: translateX(-100%); } to { transform: translateX(0); } } @keyframes fadeOut { to { opacity: 0; visibility: hidden; } }` }} />
+
         <Providers>{children}</Providers>
         <LocalToaster position="top-right" />
+        
+        <Script id="remove-splash" strategy="afterInteractive">
+          {`window.addEventListener('load', () => { setTimeout(() => { document.getElementById('pwa-splash').style.animation = 'fadeOut 0.5s ease forwards'; }, 500); });`}
+        </Script>
       </body>
     </html>
   );

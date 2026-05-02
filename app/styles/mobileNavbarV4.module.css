@@ -1,15 +1,10 @@
 /* ==================== MOBILE NAVBAR V4 - FLOATING PILL ==================== */
 .navbar {
-
-  z-index: 1000;
   transition: transform 0.3s ease, opacity 0.3s ease;
   will-change: transform, opacity;
 }
 
 .navbarHidden {
-  margin: 0 20px 20px 20px;
-  z-index: 1000;
-  transform: translateX(-50%) translateY(100px);
   opacity: 0;
   pointer-events: none;
 }
@@ -25,10 +20,7 @@
   border-radius: 1.25rem;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
   backdrop-filter: blur(16px);
-  position: fixed;
-  bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px));
-  left: 50%;
-  transform: translateX(-50%);
+  margin-bottom: 20px;
   z-index: 1000;
   width: max-content;
   max-width: 95vw;
