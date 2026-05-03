@@ -13,7 +13,6 @@ import { useRouter } from "next/navigation";
 import styles from "@/styles/layout.module.css";
 import { authService } from "@/services/authService";
 import { usePWA } from "@/hooks/usePWA";
-import { PWALoader } from "@/components/PWALoader";
 
 // Lazy load heavy components
 const AppSidebar = lazy(() =>
@@ -139,8 +138,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
   return (
     <div className={styles.dashboardLayout}>
-      {isPWA && <PWALoader />}
-      
+
       {!isMobile && (
         <div
           className={`${styles.sidebarWrapper} ${isCollapsed ? styles.sidebarWrapperCollapsed : styles.sidebarWrapperExpanded}`}

@@ -124,24 +124,8 @@ export default function RootLayout({
       </head>
 
       <body className="body">
-        {/* Cargador estático inicial para evitar destellos */}
-        <div id="pwa-splash" style={{ position: 'fixed', inset: 0, zIndex: 999999, backgroundColor: '#09090b', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', color: '#fff' }}>
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.5rem' }}>
-            <h1 style={{ fontSize: '3rem', fontWeight: 950 }}>LearnYos</h1>
-            <p style={{ fontSize: '1.125rem', opacity: 0.8 }}>&quot;Solo pierdes cuando dejas de intentarlo&quot;</p>
-            <div style={{ width: '120px', height: '2px', background: '#27272a', marginTop: '1rem' }}>
-              <div style={{ width: '100%', height: '100%', background: '#fff', animation: 'progress 2s linear forwards' }} />
-            </div>
-          </div>
-        </div>
-        <style dangerouslySetInnerHTML={{ __html: `@keyframes progress { from { transform: translateX(-100%); } to { transform: translateX(0); } } @keyframes fadeOut { to { opacity: 0; visibility: hidden; pointer-events: none; } }` }} />
-
         <Providers>{children}</Providers>
         <LocalToaster position="top-right" />
-        
-        <Script id="remove-splash" strategy="afterInteractive">
-          {`window.addEventListener('load', () => { setTimeout(() => { const el = document.getElementById('pwa-splash'); if(el) el.style.animation = 'fadeOut 0.5s ease forwards'; }, 800); });`}
-        </Script>
       </body>
     </html>
   );

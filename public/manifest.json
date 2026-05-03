@@ -4,8 +4,8 @@
   "description": "La plataforma de estudio más avanzada que combina inteligencia artificial y metodologías probadas para maximizar tu aprendizaje.",
   "start_url": "/study",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#000000",
+  "background_color": "#000000",
+  "theme_color": "#ffffff",
   "icons": [
     {
       "src": "/logo-100x100.png",
@@ -14,7 +14,7 @@
     },
     {
       "src": "/favicon.ico",
-      "sizes": "32x32",
+      "sizes": "512x512",
       "type": "image/x-icon"
     }
   ],
