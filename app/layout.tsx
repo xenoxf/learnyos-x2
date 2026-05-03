@@ -134,13 +134,13 @@ export default function RootLayout({
             </div>
           </div>
         </div>
-        <style dangerouslySetInnerHTML={{ __html: `@keyframes progress { from { transform: translateX(-100%); } to { transform: translateX(0); } } @keyframes fadeOut { to { opacity: 0; visibility: hidden; } }` }} />
+        <style dangerouslySetInnerHTML={{ __html: `@keyframes progress { from { transform: translateX(-100%); } to { transform: translateX(0); } } @keyframes fadeOut { to { opacity: 0; visibility: hidden; pointer-events: none; } }` }} />
 
         <Providers>{children}</Providers>
         <LocalToaster position="top-right" />
         
         <Script id="remove-splash" strategy="afterInteractive">
-          {`window.addEventListener('load', () => { setTimeout(() => { document.getElementById('pwa-splash').style.animation = 'fadeOut 0.5s ease forwards'; }, 500); });`}
+          {`window.addEventListener('load', () => { setTimeout(() => { const el = document.getElementById('pwa-splash'); if(el) el.style.animation = 'fadeOut 0.5s ease forwards'; }, 800); });`}
         </Script>
       </body>
     </html>
