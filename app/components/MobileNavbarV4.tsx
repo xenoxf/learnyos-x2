@@ -78,25 +78,28 @@ export function MobileNavbarV4() {
   }, []);
 
   return (
-    <nav className={styles.navbarInner}>
-      {NAV_ITEMS.map((item) => {
-        const Icon = item.icon;
-        const active = isActive(item.url);
-        return (
-          <Link
-            key={item.url}
-            href={item.url}
-            className={`${styles.navItem} ${active ? styles.navItemActive : ""}`}
-          >
-            <Icon size={22} />
-            <span>{item.title}</span>
-          </Link>
-        );
-      })}
-      <Link href="/study/espacio" className={styles.navItem}>
-        <Settings2 size={22} />
-        <span>Espacio</span>
-      </Link>
-    </nav>
+    <div className={styles.navbar}>
+      <nav className={styles.navbarInner}>
+        {NAV_ITEMS.map((item) => {
+          const Icon = item.icon;
+          const active = isActive(item.url);
+          return (
+            <Link
+              key={item.url}
+              href={item.url}
+              className={`${styles.navItem} ${active ? styles.navItemActive : ""}`}
+            >
+              <Icon size={22} />
+              <span>{item.title}</span>
+            </Link>
+          );
+        })}
+        <Link href="/study/espacio" className={styles.navItem}>
+          <Settings2 size={22} />
+          <span>Espacio</span>
+        </Link>
+      </nav>
+
+    </div>
   );
 }
