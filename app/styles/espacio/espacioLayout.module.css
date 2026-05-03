@@ -10,7 +10,7 @@
 .mobileMenuBtn {
   position: fixed;
   top: 0.75rem;
-  left: 0.75rem;
+  right: 0.75rem;
   z-index: 50;
   width: 44px;
   height: 44px;
@@ -40,6 +40,7 @@
   overflow-y: auto;
   display: flex;
   flex-direction: column;
+  justify-content: start;
   transition: width 0.3s ease;
   position: relative;
 }

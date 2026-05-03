@@ -2,8 +2,8 @@
 /* Drop button - professional floating circle */
 .dropButton {
   position: fixed;
-  right: 14px;
-  top: 76px;
+  top: 5px;
+  left: 5px;
   width: 48px;
   height: 48px;
   border-radius: 10px;
