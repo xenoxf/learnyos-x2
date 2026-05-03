@@ -17,6 +17,7 @@ import {
   Tag,
 } from "lucide-react";
 import styles from "@/styles/quiz/quizPlayerFull.module.css";
+import QuizSkeleton from "./QuizSkeleton";
 import { toast } from "@/hooks/useLocalToast";
 import type { ExamKlek, ExamQuestion } from "@/types";
 import MarkdownRenderer from "../MarkdownRenderer";
@@ -273,14 +274,7 @@ export default function QuizPlayerFull({ quizId }: QuizPlayerFullProps) {
   }, [quiz, results.failedTopics]);
 
   if (loading) {
-    return (
-      <div className={styles.fullPageContainer}>
-        <div className={styles.loadingState}>
-          <div className={styles.loadingSpinner} />
-          <p>Cargando quiz...</p>
-        </div>
-      </div>
-    );
+    return <QuizSkeleton />;
   }
 
   if (error || !quiz) {
