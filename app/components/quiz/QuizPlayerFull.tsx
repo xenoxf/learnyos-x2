@@ -50,7 +50,7 @@ export default function QuizPlayerFull({ quizId }: QuizPlayerFullProps) {
   const [error, setError] = useState<string | null>(null);
   const isIcfesMode = quiz?.type === 'icfes';
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const questionRefs = useRef<{[key: number]: HTMLDivElement | null}>({});
+  const questionRefs = useRef<{ [key: number]: HTMLDivElement | null }>({});
 
   useEffect(() => {
     const loadQuiz = async () => {
@@ -570,7 +570,7 @@ export default function QuizPlayerFull({ quizId }: QuizPlayerFullProps) {
           </div>
 
           {/* Scrollable Questions */}
-          <div 
+          <div
             ref={scrollContainerRef}
             className={styles.icfesQuestionsContainer}
           >
@@ -624,11 +624,9 @@ export default function QuizPlayerFull({ quizId }: QuizPlayerFullProps) {
                           return (
                             <button
                               key={option.id}
-                              className={`${styles.optionBtn} ${
-                                isSelected && !showFeedback ? styles.selected : ""
-                              } ${showCorrectState ? styles.correct : ""} ${
-                                showWrongState ? styles.incorrect : ""
-                              }`}
+                              className={`${styles.optionBtn} ${isSelected && !showFeedback ? styles.selected : ""
+                                } ${showCorrectState ? styles.correct : ""} ${showWrongState ? styles.incorrect : ""
+                                }`}
                               onClick={() =>
                                 handleSelectAnswer(option.id, question.id || 0)
                               }
@@ -653,11 +651,10 @@ export default function QuizPlayerFull({ quizId }: QuizPlayerFullProps) {
                       {showImmediateFeedback && hasAnswered && (
                         <div className={styles.immediateFeedback}>
                           <div
-                            className={`${styles.feedbackHeader} ${
-                              selectedOption?.isCorrect
-                                ? styles.feedbackCorrect
-                                : styles.feedbackIncorrect
-                            }`}
+                            className={`${styles.feedbackHeader} ${selectedOption?.isCorrect
+                              ? styles.feedbackCorrect
+                              : styles.feedbackIncorrect
+                              }`}
                           >
                             {selectedOption?.isCorrect ? (
                               <>
@@ -794,11 +791,9 @@ export default function QuizPlayerFull({ quizId }: QuizPlayerFullProps) {
                 return (
                   <button
                     key={option.id}
-                    className={`${styles.optionBtn} ${
-                      isSelected && !showFeedback ? styles.selected : ""
-                    } ${showCorrectState ? styles.correct : ""} ${
-                      showWrongState ? styles.incorrect : ""
-                    }`}
+                    className={`${styles.optionBtn} ${isSelected && !showFeedback ? styles.selected : ""
+                      } ${showCorrectState ? styles.correct : ""} ${showWrongState ? styles.incorrect : ""
+                      }`}
                     onClick={() =>
                       handleSelectAnswer(option.id, currentQuestion.id || 0)
                     }
@@ -823,11 +818,10 @@ export default function QuizPlayerFull({ quizId }: QuizPlayerFullProps) {
             {showImmediateFeedback && (
               <div className={styles.immediateFeedback}>
                 <div
-                  className={`${styles.feedbackHeader} ${
-                    selectedOption?.isCorrect
-                      ? styles.feedbackCorrect
-                      : styles.feedbackIncorrect
-                  }`}
+                  className={`${styles.feedbackHeader} ${selectedOption?.isCorrect
+                    ? styles.feedbackCorrect
+                    : styles.feedbackIncorrect
+                    }`}
                 >
                   {selectedOption?.isCorrect ? (
                     <>

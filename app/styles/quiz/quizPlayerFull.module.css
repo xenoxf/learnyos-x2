@@ -189,7 +189,8 @@
 /* ==================== RESPONSIVE OVERRIDES ==================== */
 @media (max-width: 768px) {
   .fullPageContainer {
-    background: hsl(var(--card)); /* Match card color for full screen look */
+    background: hsl(var(--card));
+    /* Match card color for full screen look */
   }
 
   .quizPage {
@@ -543,7 +544,7 @@
 
 .footerContent {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
   flex-direction: row;
   gap: 0.75rem;
@@ -594,7 +595,6 @@
   font-weight: 600;
   font-size: 0.875rem;
   transition: all 0.15s ease;
-  flex: 1;
   justify-content: center;
 }
 
@@ -622,7 +622,6 @@
   font-weight: 600;
   font-size: 0.875rem;
   transition: all 0.15s ease;
-  flex: 1;
   justify-content: center;
 }
 
@@ -1075,13 +1074,16 @@
   }
 
   .questionText {
-    font-size: 0.9375rem; /* 15px - mejor legibilidad */
+    font-size: 0.9375rem;
+    /* 15px - mejor legibilidad */
   }
 
   .optionBtn {
-    padding: 0.875rem 1rem; /* Aumentado: touch target adecuado */
+    padding: 0.875rem 1rem;
+    /* Aumentado: touch target adecuado */
     font-size: 0.9375rem;
-    min-height: 48px; /* Touch target mínimo */
+    min-height: 48px;
+    /* Touch target mínimo */
   }
 
   .pageTitle {
@@ -1100,17 +1102,19 @@
   .recommendationsGrid {
     grid-template-columns: 1fr;
   }
-  
+
   .backButtonSmall {
     padding: 0.625rem 0.75rem;
-    min-height: 44px; /* Touch target mínimo WCAG */
+    min-height: 44px;
+    /* Touch target mínimo WCAG */
   }
-  
+
   .navButton,
   .confirmButton,
   .actionBtn,
   .actionBtnSecondary {
-    min-height: 48px; /* Touch target mínimo */
+    min-height: 48px;
+    /* Touch target mínimo */
     padding: 0.875rem 1.25rem;
   }
 }
@@ -1120,41 +1124,44 @@
   .quizPage {
     padding: 0.625rem;
   }
-  
+
   .questionCard {
     padding: 0.875rem;
   }
-  
+
   .questionText {
-    font-size: 0.875rem; /* 14px mínimo */
+    font-size: 0.875rem;
+    /* 14px mínimo */
   }
-  
+
   .optionBtn {
     padding: 0.75rem 0.875rem;
     font-size: 0.875rem;
-    min-height: 44px; /* Mantener mínimo WCAG */
+    min-height: 44px;
+    /* Mantener mínimo WCAG */
   }
-  
+
   .backButtonSmall {
     padding: 0.5rem 0.625rem;
     min-height: 44px;
     font-size: 0.8125rem;
   }
-  
+
   .navButton,
   .confirmButton,
   .actionBtn,
   .actionBtnSecondary {
-    min-height: 44px; /* Mantener mínimo WCAG */
+    min-height: 44px;
+    /* Mantener mínimo WCAG */
     padding: 0.75rem 1rem;
     font-size: 0.8125rem;
   }
-  
+
   .scoreCircle {
     width: 110px;
     height: 110px;
   }
-  
+
   .scoreValue {
     font-size: 1.5rem;
   }
