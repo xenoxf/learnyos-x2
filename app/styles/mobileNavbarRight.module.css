@@ -14,7 +14,7 @@
   z-index: 400;
   display: flex;
   align-items: center;
-  justify-content: start;
+  justify-content: center;
   transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
   outline: none;
   padding: 0;
@@ -100,6 +100,7 @@
   z-index: 600;
   display: flex;
   flex-direction: column;
+  justify-content: start;
   animation: slideFromRight 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   overflow-y: auto;
   padding-bottom: 20px;
