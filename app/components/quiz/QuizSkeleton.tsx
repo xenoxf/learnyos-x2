@@ -1,5 +1,6 @@
-import { Skeleton } from './ui/skeleton';
+
 import styles from '@/styles/quiz/quizPlayerFull.module.css';
+import { Skeleton } from '../ui/skeleton';
 
 export default function QuizSkeleton() {
   return (
