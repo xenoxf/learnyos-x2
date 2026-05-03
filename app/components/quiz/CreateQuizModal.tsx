@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { toast } from "@/hooks/useLocalToast";
 import styles from "@/styles/quiz/createQuizModal.module.css";
 import type { GenerateExamData, ApiErrorResponse } from "@/types";
@@ -33,13 +33,25 @@ export default function CreateQuizModal({
   const [touched, setTouched] = useState({ reference: false });
   const router = useRouter();
 
+  // Añade esta referencia para evitar actualizaciones después del desmontaje
+  const isMounted = useRef(true);
+
+  useEffect(() => {
+    // Limpia la referencia cuando se desmonta el componente
+    return () => {
+      isMounted.current = false;
+    };
+  }, []);
+
   useEffect(() => {
     creditsService
       .getStatus()
       .then((status) => {
-        setCreditsStatus({ remaining: status.remaining, total: status.total });
+        if (isMounted.current) {
+          setCreditsStatus({ remaining: status.remaining, total: status.total });
+        }
       })
-      .catch(() => {});
+      .catch(() => { });
   }, []);
 
   const estimatedCost = creditsService.estimateExamCost(
@@ -61,31 +73,37 @@ export default function CreateQuizModal({
       return;
     }
 
-    // Cerramos el modal inmediatamente y notificamos que Junior esta trabajando
+    // Cerramos el modal inmediatamente
     toast.info("Enviado", "Junior está redactando tu examen... te avisaremos en segundos.");
     onClose();
 
     // El proceso sigue en segundo plano
     try {
       await quizzesService.generateExam(formData);
-      toast.success("Éxito", "Tu nuevo examen ya está disponible en tu biblioteca.");
-      onQuizCreated();
-      router.refresh();
-    } catch (err: any) {
-      let message = "No pudimos crear el examen";
-      let details = "";
-      if (err?.response?.data) {
-        const errorData = err.response.data as ApiErrorResponse;
-        message = errorData.message || message;
-        details = errorData.details || "";
+      // Verifica si el componente sigue montado antes de mostrar el toast
+      if (isMounted.current) {
+        toast.success("Éxito", "Tu nuevo examen ya está disponible en tu biblioteca.");
+        onQuizCreated();
+        router.refresh();
       }
-      toast.error("Fallo en la creación", details || message);
+    } catch (err: any) {
+      if (isMounted.current) {
+        let message = "No pudimos crear el examen";
+        let details = "";
+        if (err?.response?.data) {
+          const errorData = err.response.data as ApiErrorResponse;
+          message = errorData.message || message;
+          details = errorData.details || "";
+        }
+        toast.error("Fallo en la creación", details || message);
+      }
     }
   };
 
   return (
     <div className={styles.overlay} onClick={onClose}>
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+        {/* Resto del JSX igual */}
         <div className={styles.header}>
           <div className={styles.headerTitle}>
             <Sparkles className={styles.headerIcon} size={20} />
@@ -97,6 +115,7 @@ export default function CreateQuizModal({
         </div>
 
         <form className={styles.form} onSubmit={handleSubmit}>
+          {/* Resto del formulario igual */}
           <div className={styles.formLayout}>
             {/* Left Column: Context & Credits */}
             <div className={styles.mainColumn}>
@@ -177,7 +196,7 @@ export default function CreateQuizModal({
                     <option value="medium">Medio</option>
                     <option value="hard">Difícil</option>
                     <option value="very_hard">Muy Difícil</option>
-                    <option value="expert">Experto (Nivel ICFES)</option>
+                    <option value="expert">Experto</option>
                   </select>
                 </div>
 
@@ -239,6 +258,7 @@ export default function CreateQuizModal({
           </div>
         </form>
       </div>
+
     </div>
   );
 }
