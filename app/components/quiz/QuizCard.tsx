@@ -39,6 +39,11 @@ interface QuizCardProps {
 }
 
 const difficultyConfig: Record<string, { label: string; color: string; icon: React.ReactNode }> = {
+  very_easy: {
+    label: "Muy Fácil",
+    color: "cyan",
+    icon: <Zap size={14} />,
+  },
   easy: {
     label: "Fácil",
     color: "emerald",
@@ -52,6 +57,16 @@ const difficultyConfig: Record<string, { label: string; color: string; icon: Rea
   hard: {
     label: "Difícil",
     color: "rose",
+    icon: <Zap size={14} />,
+  },
+  very_hard: {
+    label: "Muy Difícil",
+    color: "violet",
+    icon: <Zap size={14} />,
+  },
+  expert: {
+    label: "Experto",
+    color: "indigo",
     icon: <Zap size={14} />,
   },
 };

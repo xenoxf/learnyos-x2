@@ -471,6 +471,9 @@ export default function ChatPage() {
               {/* Loading indicator - solo cuando espera primer chunk */}
               {isLoading && !isStreaming && !streamingContent && (
                 <div className={`${styles.message} ${styles.botMessage}`}>
+                  <div className={styles.messageAvatar}>
+                    <Bot size={18} />
+                  </div>
                   <div className={styles.typing}>
                     <span></span>
                     <span></span>

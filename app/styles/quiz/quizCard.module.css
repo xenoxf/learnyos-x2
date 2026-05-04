@@ -116,6 +116,21 @@
   color: hsl(346, 84%, 61%);
 }
 
+.diff--cyan {
+  background: hsl(188, 86%, 53% / 0.1);
+  color: hsl(188, 86%, 53%);
+}
+
+.diff--violet {
+  background: hsl(271, 91%, 65% / 0.1);
+  color: hsl(271, 91%, 65%);
+}
+
+.diff--indigo {
+  background: hsl(239, 84%, 67% / 0.1);
+  color: hsl(239, 84%, 67%);
+}
+
 .cardTitle {
   font-size: 1.125rem;
   font-weight: 800;

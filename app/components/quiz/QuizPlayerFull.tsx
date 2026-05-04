@@ -355,7 +355,14 @@ export default function QuizPlayerFull({ quizId }: QuizPlayerFullProps) {
                     <Sparkles size={16} />
                     <span className={styles.metadataLabel}>Dificultad:</span>
                     <span className={`${styles.metadataValue} ${styles[`difficulty_${quiz.difficulty}`]}`}>
-                      {quiz.difficulty === "easy" ? "Fácil" : quiz.difficulty === "medium" ? "Medio" : "Difícil"}
+                      {{
+                        very_easy: "Muy Fácil",
+                        easy: "Fácil",
+                        medium: "Medio",
+                        hard: "Difícil",
+                        very_hard: "Muy Difícil",
+                        expert: "Experto",
+                      }[quiz.difficulty] || quiz.difficulty}
                     </span>
                   </div>
                 )}

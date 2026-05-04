@@ -741,6 +741,10 @@
   white-space: nowrap;
 }
 
+.metadataValue.difficulty_very_easy {
+  color: hsl(188, 86%, 53%);
+}
+
 .metadataValue.difficulty_easy {
   color: hsl(var(--success));
 }
@@ -751,6 +755,14 @@
 
 .metadataValue.difficulty_hard {
   color: hsl(var(--destructive));
+}
+
+.metadataValue.difficulty_very_hard {
+  color: hsl(271, 91%, 65%);
+}
+
+.metadataValue.difficulty_expert {
+  color: hsl(239, 84%, 67%);
 }
 
 .scoreSection {
