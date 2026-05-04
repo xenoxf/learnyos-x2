@@ -251,57 +251,6 @@
   font-size: 0.925rem;
 }
 
-.contentMd :global(p) {
-  margin: 0 0 0.875rem;
-}
-
-.contentMd :global(ul),
-.contentMd :global(ol) {
-  margin: 0 0 0.875rem;
-  padding-left: 1.5rem;
-}
-
-.contentMd :global(pre) {
-  overflow-x: auto;
-  padding: 1rem;
-  border-radius: 8px;
-  background: hsl(var(--muted));
-  font-size: 0.85rem;
-  margin: 0.75rem 0;
-}
-
-.contentMd :global(code) {
-  font-size: 0.875em;
-  background: hsl(var(--muted) / 0.5);
-  padding: 0.125rem 0.375rem;
-  border-radius: 4px;
-}
-
-.contentMd :global(pre code) {
-  background: transparent;
-  padding: 0;
-}
-
-.contentMd :global(h1),
-.contentMd :global(h2),
-.contentMd :global(h3) {
-  margin: 1.25rem 0 0.75rem;
-  font-weight: 600;
-  color: hsl(var(--foreground));
-}
-
-.contentMd :global(h1) {
-  font-size: 1.5rem;
-}
-
-.contentMd :global(h2) {
-  font-size: 1.25rem;
-}
-
-.contentMd :global(h3) {
-  font-size: 1.1rem;
-}
-
 .emptyContent {
   padding: 3rem;
   text-align: center;

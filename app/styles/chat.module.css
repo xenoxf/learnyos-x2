@@ -220,9 +220,7 @@
   position: relative;
   height: 100%;
   min-height: 0;
-  /* Importante para flexbox */
-  contain: layout;
-  /* Prevenir repaints */
+
 }
 
 /* ========== MENSAJES ========== */
@@ -696,7 +694,7 @@
 
   .toggleButton {
     left: 12px;
-    top: 12px;
+    top: 52px;
     width: 48px;
     /* Aumentado: mejor touch target */
     height: 48px;
@@ -713,7 +711,7 @@
   }
 
   .inputArea {
-    padding: 0.75rem 1rem 1rem;
+    padding: 0.75rem 1rem 0 1rem;
   }
 
   .inputContainer {

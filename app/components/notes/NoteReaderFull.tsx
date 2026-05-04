@@ -2,8 +2,7 @@
 
 import React, { useState, useEffect, useMemo } from "react";
 import { ArrowLeft, FileText } from "lucide-react";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
+import MarkdownRenderer from "../MarkdownRenderer";
 import styles from "@/styles/noteReaderFull.module.css";
 import { toast } from "@/hooks/useLocalToast";
 import type { NoteKlek } from "@/types";
@@ -134,9 +133,7 @@ export default function NoteReaderFull({ noteId }: NoteReaderFullProps) {
                   <article key={content.id} className={styles.contentItem}>
                     <h2 className={styles.contentHeading}>{heading}</h2>
                     <div className={styles.contentBody}>
-                      <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                        {md}
-                      </ReactMarkdown>
+                      <MarkdownRenderer content={md} />
                     </div>
                   </article>
                 );

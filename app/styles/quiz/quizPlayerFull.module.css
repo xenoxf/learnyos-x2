@@ -5,6 +5,9 @@
   background: hsl(var(--background));
   display: flex;
   flex-direction: column;
+  position: relative;
+  /* El z-index alto asegura que en PWA/Móvil el examen tape el navbar inferior si es necesario */
+  z-index: 3000;
 }
 
 /* ==================== ICFES MODE STYLES ==================== */
@@ -361,16 +364,16 @@
 }
 
 .questionText {
-  font-size: 1rem;
-  line-height: 1.5;
   color: hsl(var(--foreground));
   margin: 0;
-  font-weight: 500;
+  font-size: 1.1rem;
+  font-weight: 500; /* Un poco más que el normal pero no bold */
+  line-height: 1.5;
 }
 
 @media (min-width: 768px) {
   .questionText {
-    font-size: 1.0625rem;
+    font-size: 1.15rem;
   }
 }
 
@@ -394,7 +397,6 @@
   gap: 0.75rem;
   transition: all 0.2s ease;
   text-align: left;
-  font-size: 0.9375rem;
   color: hsl(var(--foreground));
   font-family: inherit;
 }
@@ -438,7 +440,6 @@
 
 .optionText {
   flex: 1;
-  line-height: 1.45;
 }
 
 .iconCorrect {

@@ -770,9 +770,9 @@ export default function QuizPlayerFull({ quizId }: QuizPlayerFullProps) {
         {/* Question Content */}
         <div className={styles.mainContent}>
           <div className={styles.questionCard}>
-            <h2 className={styles.questionText}>
+            <div className={styles.questionText}>
               <MarkdownRenderer content={currentQuestion.question} />
-            </h2>
+            </div>
 
             <div className={styles.optionsContainer}>
               {currentQuestion.options.map((option) => {

@@ -25,7 +25,8 @@
   border-collapse: collapse;
   width: 100%;
   font-size: 0.9em;
-  min-width: 400px; /* Forzar scroll en pantallas pequeñas */
+  min-width: 400px;
+  /* Forzar scroll en pantallas pequeñas */
   table-layout: auto;
 }
 
@@ -43,7 +44,6 @@
   transition: all 0.2s ease;
   width: 100%;
   max-width: 100%;
-  margin: 1.5rem 0;
 }
 
 .codeBlockScrollContainer {
@@ -382,6 +382,29 @@
 }
 
 /* ============================================
+   TEXT ELEMENTS - REINFORCED
+   ============================================ */
+
+.paragraph {
+  margin-bottom: 1em;
+  line-height: 1.6;
+}
+
+.strong {
+  font-weight: 700; /* Bold estándar, no exagerado */
+  color: hsl(var(--foreground));
+}
+
+.em {
+  font-style: italic;
+}
+
+.del {
+  text-decoration: line-through;
+  opacity: 0.6;
+}
+
+/* ============================================
    BLOCKQUOTES - MEJORADOS
    ============================================ */
 
@@ -567,6 +590,24 @@
       hsl(var(--primary)),
       transparent);
   margin: 1.5em 0;
+}
+
+/* ============================================
+   LISTS - CLASSES
+   ============================================ */
+
+.ul, .ol {
+  margin: 1em 0;
+  padding-left: 1.5em;
+}
+
+.li {
+  margin-bottom: 0.5em;
+  line-height: 1.6;
+}
+
+.li > .ul, .li > .ol {
+  margin: 0.5em 0 0.5em 1em;
 }
 
 /* ============================================
