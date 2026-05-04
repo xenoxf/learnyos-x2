@@ -461,15 +461,12 @@ export default function ChatPage() {
                 <div className={`${styles.message} ${styles.botMessage}`}>
                   <div className={styles.messageContentBot}>
                     <MarkdownRenderer content={streamingContent} />
-                    <div className={styles.streamingIndicator}>
-                      <Loader size={14} className={styles.spin} />
-                    </div>
                   </div>
                 </div>
               )}
 
               {/* Loading indicator - solo cuando espera primer chunk */}
-              {isLoading && !isStreaming && !streamingContent && (
+              {isLoading && isStreaming && !streamingContent && (
                 <div className={`${styles.message} ${styles.botMessage}`}>
                   <div className={styles.messageAvatar}>
                     <Bot size={18} />
