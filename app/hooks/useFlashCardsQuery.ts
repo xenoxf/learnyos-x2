@@ -3,6 +3,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import type { FlashCardKlek, CardsDeck, GenerateFlashCardData } from "@/types";
 import { cardsService } from "@/services/cardsService";
+import { toast } from "@/hooks/useLocalToast";
 
 export function useFlashCardsQuery() {
   const queryClient = useQueryClient();
@@ -31,13 +32,21 @@ export function useFlashCardsQuery() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["flashcards"] });
+      toast.success("Flashcards generadas", "Las flashcards se han creado correctamente.");
+    },
+    onError: (err) => {
+      toast.error("Error al generar", err.message || "No se pudieron crear las flashcards.");
     },
   });
 
-  const deleteMutation = useMutation<void, unknown, number>({
+  const deleteMutation = useMutation<void, Error, number>({
     mutationFn: (cardId: number) => cardsService.deleteCard(cardId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["flashcards"] });
+      toast.success("Eliminado", "La tarjeta se ha eliminado correctamente.");
+    },
+    onError: (err) => {
+      toast.error("Error al eliminar", err.message || "No se pudo eliminar la tarjeta.");
     },
   });
 

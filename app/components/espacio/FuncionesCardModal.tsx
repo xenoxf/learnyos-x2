@@ -225,18 +225,6 @@ export function FuncionesCardModal({
                   </div>
                 </div>
 
-                <div className={styles.likeSection}>
-                  <div className={styles.likeHeader}>
-                    <span className={styles.metaLabel}>¿Te gusta este contenido?</span>
-                  </div>
-                  <LikeButton 
-                    id={card.id} 
-                    type={getLikeType()} 
-                    initialLikes={card.likesCount} 
-                    initialLiked={card.userLiked}
-                    isOwner={isOwner}
-                  />
-                </div>
               </div>
             </div>
           </div>
@@ -249,11 +237,11 @@ export function FuncionesCardModal({
             <span>Comenzar a estudiar</span>
             <ArrowRight size={18} className={styles.arrowIcon} />
           </button>
-          
+
           {isOwner && onDelete && (
-            <button 
-              className={styles.dangerBtn} 
-              onClick={handleDelete} 
+            <button
+              className={styles.dangerBtn}
+              onClick={handleDelete}
               type="button"
               title="Eliminar permanentemente"
             >

@@ -38,6 +38,7 @@ export default function CrearCard({ onClose, onCardCreated }: CrearCardProps) {
   const estimatedCost = creditsService.estimateFlashcardCost(
     formData.quantity,
     formData.reference || "",
+    formData.acceso
   );
   const canAfford = creditsStatus
     ? creditsStatus.remaining >= estimatedCost
@@ -52,14 +53,14 @@ export default function CrearCard({ onClose, onCardCreated }: CrearCardProps) {
       return;
     }
 
-    if (formData.quantity < 2 || formData.quantity > 20) {
+    if (formData.quantity < 2 || formData.quantity > 25) {
       toast.error(
         "Cantidad inválida",
         "La cantidad debe estar entre 2 y 20 tarjetas",
       );
       return;
     }
-    toast.info("Enviado", "Junior está redactando tu examen... te avisaremos en segundos.");
+    toast.info("Enviado", "Junior está redactando tus flashCards... te avisaremos en segundos.");
     onClose();
 
     try {
@@ -69,19 +70,13 @@ export default function CrearCard({ onClose, onCardCreated }: CrearCardProps) {
         acceso: formData.acceso,
       });
 
-      toast.success("Éxito", "Tu nuevo examen ya está disponible en tu biblioteca.");
+      toast.success("Éxito", "Tus nuevas flashCards ya están disponibles en tu biblioteca.");
 
       onCardCreated();
       router.refresh();
     } catch (err: any) {
-      let message = "No pudimos crear el examen";
-      let details = "";
-      if (err?.response?.data) {
-        const errorData = err.response.data as ApiErrorResponse;
-        message = errorData.message || message;
-        details = errorData.details || "";
-      }
-      toast.error("Fallo en la creación", details || message);
+
+      toast.error("Fallo en la creación", err.message);
     }
   };
 
@@ -123,7 +118,7 @@ export default function CrearCard({ onClose, onCardCreated }: CrearCardProps) {
               <input
                 type="number"
                 min="2"
-                max="20"
+                max="25"
                 value={formData.quantity}
                 onChange={(e) => setFormData({ ...formData, quantity: parseInt(e.target.value) })}
                 className={styles.input}

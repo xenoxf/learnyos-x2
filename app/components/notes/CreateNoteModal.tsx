@@ -38,12 +38,13 @@ export default function CreateNoteModal({
       .then((status) => {
         setCreditsStatus({ remaining: status.remaining, total: status.total });
       })
-      .catch(() => {});
+      .catch(() => { });
   }, []);
 
   const estimatedCost = creditsService.estimateNoteCost(
     formData.levelOfDetail,
     formData.reference || "",
+    formData.acceso || 'public'
   );
   const canAfford = creditsStatus
     ? creditsStatus.remaining >= estimatedCost
@@ -66,43 +67,9 @@ export default function CreateNoteModal({
       router.refresh();
       onClose();
     } catch (err: any) {
-      let message = "Error al crear notas";
-      let details = "";
-      let errorCode = "";
-      let rawResponse = null;
 
-      if (err?.response?.data) {
-        const errorData = err.response.data as ApiErrorResponse;
-        message = errorData.message || message;
-        details = errorData.details || "";
-        errorCode = errorData.errorCode || "";
-        rawResponse = errorData.rawResponse;
-      } else if (err instanceof Error) {
-        message = err.message;
-      } else if (typeof err === "string") {
-        message = err;
-      }
 
-      let errorDescription = details || message;
-
-      if (rawResponse) {
-        console.error("Raw response from AI:", rawResponse);
-
-        if (errorCode === "INVALID_AI_RESPONSE") {
-          errorDescription = `${details} La IA devolvió una respuesta con formato inesperado.`;
-        } else if (errorCode === "MISSING_METADATA") {
-          errorDescription = `${details} La IA generó contenido pero sin título.`;
-        } else if (errorCode === "NO_CONTENT_GENERATED") {
-          errorDescription = `${details} Intenta con un tema más específico o detallado.`;
-        }
-      }
-
-      if (message.includes("metadata") && !details) {
-        errorDescription =
-          "La IA no pudo generar las notas correctamente. Intenta con otro tema.";
-      }
-
-      toast.error("Error al crear notas", errorDescription, 8000);
+      toast.error("Error al crear notas", err.message, 8000);
     } finally {
       setLoading(false);
     }

@@ -48,7 +48,7 @@ export default function RendimientoPage() {
       if (userData) {
         try {
           setUser(JSON.parse(userData));
-        } catch {}
+        } catch { }
       }
     }
   }, []);
@@ -95,9 +95,8 @@ export default function RendimientoPage() {
 
   if (loading) {
     return (
-      <div className={styles.itemsList}>
-        <SkeletonCard />
-      </div>
+      <SkeletonCard />
+
     );
   }
 

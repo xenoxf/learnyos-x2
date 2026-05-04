@@ -3,10 +3,10 @@
 import React, { useState, useEffect, useRef } from "react";
 import { toast } from "@/hooks/useLocalToast";
 import styles from "@/styles/quiz/createQuizModal.module.css";
-import type { GenerateExamData, ApiErrorResponse } from "@/types";
+import type { GenerateExamData } from "@/types";
 import { useRouter } from "next/navigation";
 import { creditsService } from "@/services/creditsService";
-import { quizzesService } from "@/services/quizzesService";
+import { useExams } from "@/hooks/useExams";
 import { Sparkles, AlertTriangle, RefreshCw, Zap, X, Target, Info, Shield } from "lucide-react";
 
 interface CreateQuizModalProps {
@@ -18,7 +18,7 @@ export default function CreateQuizModal({
   onClose,
   onQuizCreated,
 }: CreateQuizModalProps) {
-  const [loading, setLoading] = useState(false);
+  const { generateExam, isGenerating } = useExams();
   const [creditsStatus, setCreditsStatus] = useState<{
     remaining: number;
     total: number;
@@ -28,7 +28,7 @@ export default function CreateQuizModal({
     numberOfQuestions: 10,
     difficulty: "medium",
     type: "quiz",
-    acceso: "private",
+    acceso: "public",
   });
   const [touched, setTouched] = useState({ reference: false });
   const router = useRouter();
@@ -58,6 +58,7 @@ export default function CreateQuizModal({
     formData.numberOfQuestions,
     formData.difficulty,
     formData.reference || "",
+    formData.acceso || 'public'
   );
   const canAfford = creditsStatus
     ? creditsStatus.remaining >= estimatedCost
@@ -69,7 +70,11 @@ export default function CreateQuizModal({
     setTouched({ reference: true });
 
     if (!isValid) {
-      toast.error("Error", "Debes proporcionar un texto con más de 3 caracteres");
+      toast.warning("Intrucciones", "Debes proporcionar un texto con más de 3 caracteres");
+      return;
+    }
+    if (formData.numberOfQuestions < 2 || formData.numberOfQuestions > 25) {
+      toast.warning("Intrucciones", "El numero de preguntas debe ser minimo 2 y maximo 25 preguntas");
       return;
     }
 
@@ -79,24 +84,14 @@ export default function CreateQuizModal({
 
     // El proceso sigue en segundo plano
     try {
-      await quizzesService.generateExam(formData);
+      await generateExam(formData);
       // Verifica si el componente sigue montado antes de mostrar el toast
       if (isMounted.current) {
-        toast.success("Éxito", "Tu nuevo examen ya está disponible en tu biblioteca.");
         onQuizCreated();
         router.refresh();
       }
     } catch (err: any) {
-      if (isMounted.current) {
-        let message = "No pudimos crear el examen";
-        let details = "";
-        if (err?.response?.data) {
-          const errorData = err.response.data as ApiErrorResponse;
-          message = errorData.message || message;
-          details = errorData.details || "";
-        }
-        toast.error("Fallo en la creación", details || message);
-      }
+      // El hook ya maneja el error con un toast
     }
   };
 
@@ -137,7 +132,7 @@ export default function CreateQuizModal({
                     setFormData({ ...formData, reference: e.target.value });
                     if (!touched.reference) setTouched({ reference: true });
                   }}
-                  disabled={loading}
+                  disabled={isGenerating}
                 />
               </div>
 
@@ -175,11 +170,11 @@ export default function CreateQuizModal({
                   <input
                     type="number"
                     className={styles.input}
-                    min="1"
-                    max="50"
+                    min="2"
+                    max="25"
                     value={formData.numberOfQuestions}
                     onChange={(e) => setFormData({ ...formData, numberOfQuestions: parseInt(e.target.value) || 1 })}
-                    disabled={loading}
+                    disabled={isGenerating}
                   />
                 </div>
 
@@ -189,7 +184,7 @@ export default function CreateQuizModal({
                     className={styles.select}
                     value={formData.difficulty}
                     onChange={(e) => setFormData({ ...formData, difficulty: e.target.value as any })}
-                    disabled={loading}
+                    disabled={isGenerating}
                   >
                     <option value="very_easy">Muy Fácil</option>
                     <option value="easy">Fácil</option>
@@ -206,7 +201,7 @@ export default function CreateQuizModal({
                     className={styles.select}
                     value={formData.type}
                     onChange={(e) => setFormData({ ...formData, type: e.target.value as any })}
-                    disabled={loading}
+                    disabled={isGenerating}
                   >
                     <option value="quiz">Quiz Dinámico</option>
                     <option value="icfes">Simulacro ICFES</option>
@@ -219,7 +214,7 @@ export default function CreateQuizModal({
                     className={styles.select}
                     value={formData.acceso}
                     onChange={(e) => setFormData({ ...formData, acceso: e.target.value as any })}
-                    disabled={loading}
+                    disabled={isGenerating}
                   >
                     <option value="private">Privado (Solo yo)</option>
                     <option value="public">Público (Comunidad)</option>
@@ -235,15 +230,15 @@ export default function CreateQuizModal({
           </div>
 
           <div className={styles.modalFooter}>
-            <button type="button" className={styles.secondaryBtn} onClick={onClose} disabled={loading}>
+            <button type="button" className={styles.secondaryBtn} onClick={onClose} disabled={isGenerating}>
               Descartar
             </button>
             <button
               type="submit"
               className={styles.primaryBtn}
-              disabled={loading || !isValid || !canAfford}
+              disabled={isGenerating || !isValid || !canAfford}
             >
-              {loading ? (
+              {isGenerating ? (
                 <>
                   <RefreshCw size={18} className={styles.spinner} />
                   <span>Construyendo examen...</span>

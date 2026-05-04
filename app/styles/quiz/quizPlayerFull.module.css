@@ -367,7 +367,8 @@
   color: hsl(var(--foreground));
   margin: 0;
   font-size: 1.1rem;
-  font-weight: 500; /* Un poco más que el normal pero no bold */
+  font-weight: 500;
+  /* Un poco más que el normal pero no bold */
   line-height: 1.5;
 }
 
@@ -386,19 +387,17 @@
 
 .optionBtn {
   width: 100%;
-  padding: 0.875rem 1rem;
+  padding: 0.9rem 0.9rem 0 0.9rem;
   background: hsl(var(--background));
   border: 2px solid hsl(var(--border));
-  border-radius: 8px;
+  border-radius: 10px;
   cursor: pointer;
-  display: flex;
-  justify-content: space-between;
   align-items: center;
-  gap: 0.75rem;
   transition: all 0.2s ease;
   text-align: left;
   color: hsl(var(--foreground));
   font-family: inherit;
+  font-size: 1rem;
 }
 
 .optionBtn:hover:not(:disabled) {
@@ -1046,10 +1045,8 @@
   }
 
   .optionBtn {
-    padding: 0.8125rem 0.9375rem;
-    font-size: 0.90625rem;
+    font-size: 0.95rem;
   }
-
 
   .navButton,
   .confirmButton {
@@ -1086,16 +1083,15 @@
   }
 
   .questionText {
-    font-size: 0.9375rem;
-    /* 15px - mejor legibilidad */
+    font-size: 1rem;
+    /* 16px - mejor legibilidad */
   }
 
   .optionBtn {
-    padding: 0.875rem 1rem;
     /* Aumentado: touch target adecuado */
-    font-size: 0.9375rem;
-    min-height: 48px;
-    /* Touch target mínimo */
+    font-size: 0.95rem;
+    min-height: 52px;
+    /* Touch target mejorado */
   }
 
   .pageTitle {
@@ -1147,7 +1143,6 @@
   }
 
   .optionBtn {
-    padding: 0.75rem 0.875rem;
     font-size: 0.875rem;
     min-height: 44px;
     /* Mantener mínimo WCAG */
