@@ -93,11 +93,11 @@
 
 .fullPageContainerFed {
   width: 100%;
-  padding: 4rem;
   max-width: 1200px;
   background: hsl(var(--background));
   display: flex;
   flex-direction: column;
+  z-index: 20000;
 }
 
 /* ==================== LOADING & ERROR STATES ==================== */
@@ -387,12 +387,15 @@
 
 .optionBtn {
   width: 100%;
-  padding: 0.9rem 0.9rem 0 0.9rem;
+  padding: 1.125rem 1.25rem;
   background: hsl(var(--background));
   border: 2px solid hsl(var(--border));
   border-radius: 10px;
   cursor: pointer;
+  display: flex;
+  justify-content: space-between;
   align-items: center;
+  gap: 1rem;
   transition: all 0.2s ease;
   text-align: left;
   color: hsl(var(--foreground));
@@ -659,8 +662,9 @@
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
-  padding-bottom: 1.5rem;
-  max-width: 100%;
+
+  padding: 1rem;
+  width: 100%;
 }
 
 .resultsHeader {
@@ -1035,6 +1039,11 @@
 
 /* ==================== RESPONSIVE ==================== */
 @media (max-width: 768px) {
+  .fullPageContainerFed {
+    border: 2px solid blue;
+    margin: 0;
+  }
+
   .quizPage {
     padding: 0.875rem;
     gap: 0.875rem;
@@ -1045,6 +1054,7 @@
   }
 
   .optionBtn {
+    padding: 1rem 1.125rem;
     font-size: 0.95rem;
   }
 
@@ -1088,6 +1098,7 @@
   }
 
   .optionBtn {
+    padding: 1rem 1.125rem;
     /* Aumentado: touch target adecuado */
     font-size: 0.95rem;
     min-height: 52px;
@@ -1143,6 +1154,7 @@
   }
 
   .optionBtn {
+    padding: 0.75rem 0.875rem;
     font-size: 0.875rem;
     min-height: 44px;
     /* Mantener mínimo WCAG */
