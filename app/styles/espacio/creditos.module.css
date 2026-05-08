@@ -1,271 +1,484 @@
-/* ==================== CREDITS PAGE DASHBOARD LAYOUT ==================== */
+/* ============================================
+   PÁGINA DE CRÉDITOS - Estilos Módulo CSS
+   ============================================ */
 
-.creditsLayout {
+/* ==================== HEADER ==================== */
+.espacioPageHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid hsl(var(--border));
+}
+
+.espacioPageTitle {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: hsl(var(--foreground));
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+/* ==================== TAB CONTENT ==================== */
+.tabContent {
   display: flex;
   flex-direction: column;
   gap: 2rem;
+  width: 100%;
 }
 
-.creditsHeader {
+/* ==================== HERO SECTION ==================== */
+.creditsHero {
+  background: linear-gradient(135deg, hsl(var(--primary) / 0.1), hsl(var(--accent) / 0.1));
+  border: 1px solid hsl(var(--border));
+  border-radius: 1.5rem;
+  padding: 2rem;
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  text-align: center;
+}
+
+.creditsHero svg {
+  color: hsl(var(--primary));
+  animation: float 3s ease-in-out infinite;
+}
+
+.creditsHero h2 {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: hsl(var(--foreground));
+  margin: 0;
+}
+
+.creditsHero p {
+  font-size: 0.95rem;
+  color: hsl(var(--muted-foreground));
+  margin: 0;
+}
+
+/* ==================== MAIN CREDITS CARD ==================== */
+.creditsMainCard {
+  background: hsl(var(--card));
+  border: 2px solid hsl(var(--primary) / 0.2);
+  border-radius: 1.5rem;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  box-shadow: 0 10px 25px hsl(var(--primary) / 0.08);
+}
+
+.creditsMainHeader {
+  display: flex;
+  align-items: center;
   gap: 1.5rem;
 }
 
-.creditsTitle {
-  font-size: 2rem;
-  font-weight: 800;
-  color: hsl(var(--foreground));
-  letter-spacing: -0.025em;
-}
-
-.creditsSubtitle {
-  color: hsl(var(--muted-foreground));
-  font-size: 1rem;
-  margin-top: 0.25rem;
-}
-
-.creditsBadge {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  background-color: hsl(var(--primary) / 0.1);
+.creditsMainHeader svg {
   color: hsl(var(--primary));
-  border-radius: 9999px;
-  font-size: 0.8125rem;
-  font-weight: 700;
-  border: 1px solid hsl(var(--primary) / 0.2);
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
 }
 
-/* Dashboard Grid */
-.creditsGrid {
-  display: grid;
-  grid-template-columns: 1.2fr 1fr;
-  gap: 2rem;
-  align-items: start;
-}
-
-/* Status Card */
-.mainStatusCard {
-  background-color: hsl(var(--card));
-  border: 1px solid hsl(var(--border));
-  border-radius: 24px;
-  padding: 2.5rem;
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-  box-shadow: 0 10px 40px -10px rgba(0,0,0,0.05);
-}
-
-.cardHeader {
-  display: flex;
-  align-items: center;
-  gap: 1.25rem;
-}
-
-.cardIconBox {
-  width: 3.5rem;
-  height: 3.5rem;
-  background-color: hsl(var(--primary) / 0.1);
-  color: hsl(var(--primary));
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 16px;
-}
-
-.cardTitleBox h3 {
-  font-size: 1.125rem;
-  font-weight: 700;
-  color: hsl(var(--foreground));
-}
-
-.cardTitleBox p {
-  font-size: 0.875rem;
+.creditsMainLabel {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
   color: hsl(var(--muted-foreground));
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.25rem;
 }
 
-.numbersDisplay {
+.creditsMainNumbers {
   display: flex;
   align-items: baseline;
   gap: 0.5rem;
 }
 
-.remainingValue {
-  font-size: 4.5rem;
-  font-weight: 800;
-  color: hsl(var(--foreground));
+.creditsRemaining {
+  font-size: 2.5rem;
+  font-weight: 900;
+  color: hsl(var(--primary));
   line-height: 1;
 }
 
-.totalDivider {
-  font-size: 2rem;
-  color: hsl(var(--muted-foreground) / 0.3);
-  font-weight: 300;
+.creditsSeparator {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: hsl(var(--muted-foreground) / 0.6);
 }
 
-.totalValue {
-  font-size: 1.75rem;
+.creditsTotal {
+  font-size: 1.5rem;
+  font-weight: 600;
   color: hsl(var(--muted-foreground));
-  font-weight: 500;
 }
 
-.progressContainer {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.progressBarWrapper {
+/* Progress Bar */
+.creditsProgressBar {
+  width: 100%;
   height: 12px;
-  background-color: hsl(var(--muted) / 0.5);
-  border-radius: 9999px;
+  background: hsl(var(--muted) / 0.5);
+  border-radius: 6px;
   overflow: hidden;
 }
 
-.progressBarFill {
+.creditsProgressFill {
   height: 100%;
-  background: linear-gradient(90deg, hsl(var(--primary)) 0%, hsl(var(--accent)) 100%);
-  border-radius: 9999px;
-  transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+  background: linear-gradient(90deg, hsl(var(--primary)), hsl(var(--accent)));
+  border-radius: 6px;
+  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.progressLabel {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: hsl(var(--muted-foreground));
-}
-
-.infoAlert {
+/* Percentage Info */
+.creditsPercentage {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  padding: 1rem 1.25rem;
-  background-color: hsl(var(--muted) / 0.3);
-  border-radius: 14px;
-  font-size: 0.8125rem;
-  color: hsl(var(--muted-foreground));
-}
-
-/* Costs List Card */
-.costsListCard {
-  background-color: hsl(var(--card));
-  border: 1px solid hsl(var(--border));
-  border-radius: 24px;
-  padding: 2rem;
-}
-
-.costsTitle {
-  font-size: 1.125rem;
-  font-weight: 700;
-  margin-bottom: 1.5rem;
-  color: hsl(var(--foreground));
-}
-
-.costsItemsGrid {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.costItem {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 1.25rem;
-  background-color: hsl(var(--background));
-  border: 1px solid hsl(var(--border) / 0.5);
-  border-radius: 16px;
-  transition: all 0.2s ease;
-}
-
-.costItem:hover {
-  border-color: hsl(var(--primary) / 0.3);
-  transform: translateX(4px);
-}
-
-.costIcon {
-  width: 2.5rem;
-  height: 2.5rem;
-  background-color: hsl(var(--muted) / 0.5);
-  color: hsl(var(--muted-foreground));
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 10px;
-}
-
-.costDetails {
-  display: flex;
-  flex-direction: column;
-}
-
-.costLabel {
+  font-size: 0.9rem;
   font-weight: 600;
-  font-size: 0.9375rem;
-  color: hsl(var(--foreground));
-}
-
-.costPrice {
-  font-size: 0.8125rem;
   color: hsl(var(--primary));
-  font-weight: 700;
+  padding: 0.75rem 1rem;
+  background: hsl(var(--primary) / 0.08);
+  border-radius: 0.75rem;
+  width: fit-content;
 }
 
-/* States */
-.loadingState, .errorState, .guestMessage {
+.creditsPercentage svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* ==================== COSTS CARD ==================== */
+.creditsCostsCard {
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  border-radius: 1.5rem;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.creditsCostsCard h3 {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: hsl(var(--foreground));
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.creditsCostsCard svg {
+  color: hsl(var(--accent));
+  width: 18px;
+  height: 18px;
+}
+
+/* Grid de costos */
+.creditsCostsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.creditsCostItem {
+  background: hsl(var(--muted) / 0.3);
+  border: 1px solid hsl(var(--border));
+  border-radius: 1rem;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  text-align: center;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.creditsCostItem:hover {
+  border-color: hsl(var(--primary) / 0.5);
+  background: hsl(var(--primary) / 0.05);
+  transform: translateY(-2px);
+}
+
+.creditsCostItem svg {
+  color: hsl(var(--primary));
+  width: 24px;
+  height: 24px;
+}
+
+.creditsCostItem span:nth-child(2) {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: hsl(var(--foreground));
+}
+
+.creditsCostValue {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: hsl(var(--muted-foreground));
+  background: hsl(var(--secondary));
+  padding: 0.375rem 0.75rem;
+  border-radius: 0.5rem;
+}
+
+/* ==================== ESTADOS ==================== */
+.guestMessage {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 6rem 2rem;
+  gap: 1rem;
+  padding: 2.5rem;
   text-align: center;
+  background: hsl(var(--muted) / 0.3);
+  border: 1px solid hsl(var(--border));
+  border-radius: 1.5rem;
+  color: hsl(var(--foreground));
+}
+
+.guestMessage svg {
+  color: hsl(var(--destructive));
+  width: 32px;
+  height: 32px;
+}
+
+.guestMessage h3 {
+  font-size: 1.25rem;
+  font-weight: 800;
+  margin: 0;
+}
+
+.guestMessage p {
+  font-size: 0.95rem;
+  color: hsl(var(--muted-foreground));
+  margin: 0;
+}
+
+.loadingState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   gap: 1.5rem;
+  padding: 3rem 1.5rem;
+  text-align: center;
+  color: hsl(var(--muted-foreground));
 }
 
 .spinner {
   animation: spin 1s linear infinite;
   color: hsl(var(--primary));
+  width: 24px;
+  height: 24px;
+}
+
+.errorState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  padding: 2.5rem;
+  text-align: center;
+  background: hsl(var(--destructive) / 0.08);
+  border: 1px solid hsl(var(--destructive) / 0.3);
+  border-radius: 1.5rem;
+  color: hsl(var(--foreground));
+}
+
+.errorState svg {
+  color: hsl(var(--destructive));
+  width: 32px;
+  height: 32px;
+}
+
+.errorState p {
+  font-size: 0.95rem;
+  color: hsl(var(--muted-foreground));
+  margin: 0;
 }
 
 .retryButton {
-  padding: 0.875rem 2rem;
-  background-color: hsl(var(--primary));
-  color: white;
-  border: none;
-  border-radius: 12px;
-  font-weight: 700;
-  cursor: pointer;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  border: none;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
-@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+.retryButton:hover {
+  background: hsl(var(--primary) / 0.9);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px hsl(var(--primary) / 0.3);
+}
 
-/* Responsive */
-@media (max-width: 1024px) {
-  .creditsGrid {
+.retryButton:active {
+  transform: translateY(0);
+}
+
+.retryButton svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* ==================== ANIMACIONES ==================== */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+    opacity: 0.8;
+  }
+  50% {
+    transform: translateY(-10px);
+    opacity: 1;
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ==================== RESPONSIVE ==================== */
+@media (max-width: 768px) {
+  .espacioPageHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .espacioPageTitle {
+    font-size: 1.5rem;
+  }
+
+  .tabContent {
+    gap: 1.5rem;
+  }
+
+  .creditsHero {
+    padding: 1.5rem;
+  }
+
+  .creditsHero h2 {
+    font-size: 1.25rem;
+  }
+
+  .creditsMainCard {
+    padding: 1.5rem;
+  }
+
+  .creditsRemaining {
+    font-size: 2rem;
+  }
+
+  .creditsCostsCard {
+    padding: 1.5rem;
+  }
+
+  .creditsCostsGrid {
     grid-template-columns: 1fr;
+  }
+
+  .creditsCostItem {
+    padding: 1rem;
   }
 }
 
 @media (max-width: 640px) {
-  .remainingValue {
-    font-size: 3.5rem;
-  }
-  
-  .mainStatusCard {
-    padding: 1.5rem;
+  .espacioPageTitle {
+    font-size: 1.25rem;
   }
 
-  .creditsHeader {
-    flex-direction: column;
-    align-items: flex-start;
+  .creditsMainNumbers {
+    flex-wrap: wrap;
   }
+
+  .creditsRemaining {
+    font-size: 1.75rem;
+  }
+
+  .creditsTotal {
+    font-size: 1.25rem;
+  }
+
+  .creditsCostsCard h3 {
+    font-size: 1rem;
+  }
+
+  .creditsHero p {
+    font-size: 0.85rem;
+  }
+}
+
+/* ==================== TEMA DARK ==================== */
+.dark .creditsHero {
+  background: linear-gradient(135deg, hsl(var(--primary) / 0.15), hsl(var(--accent) / 0.15));
+}
+
+.dark .creditsMainCard {
+  border-color: hsl(var(--primary) / 0.3);
+  box-shadow: 0 10px 25px hsl(var(--primary) / 0.15);
+}
+
+.dark .creditsCostItem {
+  background: hsl(var(--muted) / 0.5);
+}
+
+.dark .creditsCostItem:hover {
+  background: hsl(var(--primary) / 0.1);
+  border-color: hsl(var(--primary) / 0.6);
+}
+
+/* ==================== TEMA SAKURA ==================== */
+.theme-sakura .creditsHero {
+  background: linear-gradient(135deg, hsl(var(--primary) / 0.1), hsl(var(--accent) / 0.1));
+}
+
+.theme-sakura .creditsMainCard {
+  border-color: hsl(var(--primary) / 0.3);
+}
+
+/* ==================== TEMA OCEAN ==================== */
+.theme-ocean .creditsHero svg {
+  color: hsl(var(--primary));
+}
+
+.theme-ocean .creditsMainCard {
+  border-color: hsl(var(--primary) / 0.3);
+}
+
+/* ==================== TEMA COFFEE ==================== */
+.theme-coffee .creditsHero {
+  background: linear-gradient(135deg, hsl(var(--primary) / 0.1), hsl(var(--accent) / 0.1));
+}
+
+/* ==================== TEMA FOREST ==================== */
+.theme-forest .creditsHero {
+  background: linear-gradient(135deg, hsl(var(--primary) / 0.1), hsl(var(--accent) / 0.1));
+}
+
+/* ==================== TEMA SUNSET ==================== */
+.theme-sunset .creditsHero {
+  background: linear-gradient(135deg, hsl(var(--primary) / 0.15), hsl(var(--accent) / 0.15));
+}
+
+.theme-sunset .creditsMainCard {
+  border-color: hsl(var(--primary) / 0.3);
+  box-shadow: 0 10px 25px hsl(var(--primary) / 0.12);
 }
