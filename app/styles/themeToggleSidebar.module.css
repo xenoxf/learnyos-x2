@@ -21,6 +21,14 @@
     transform var(--transition-base);
 }
 
+.themeToggleCollapsed {
+  width: 40px;
+  height: 40px;
+  padding: 0 !important;
+  border-radius: 50% !important;
+  gap: 0;
+}
+
 .themeToggle:hover {
   background-color: hsl(var(--accent));
   box-shadow: var(--shadow-md);

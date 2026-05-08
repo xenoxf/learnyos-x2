@@ -1,21 +1,25 @@
 "use client";
 
 import React, { useState, useEffect, useCallback, useRef, Suspense, memo } from "react";
-import { 
-  Sparkles, Flame, Eye, Moon, Heart, RefreshCw, Star, Target, Zap, 
-  Clock, Brain, TrendingUp, Sun, Skull, Infinity, Timer, Mountain, 
-  Gem, BookOpen, FileText, MessageSquare, ArrowRight, Layers, Copy, Check 
+import {
+  Sparkles, Flame, Eye, Moon, Heart, RefreshCw, Star, Target, Zap,
+  Clock, Brain, TrendingUp, Sun, Skull, Infinity, Timer, Mountain,
+  Gem, BookOpen, FileText, MessageSquare, ArrowRight, Layers, Copy, Check,
+  ArrowBigLeft,
+  ArrowBigRight,
+  ArrowBigRightDash
 } from "lucide-react";
 import styles from "@/styles/klerk.module.css";
 import { quizzesService } from "@/services/quizzesService";
 import { cardsService } from "@/services/cardsService";
 import { useRouter } from "next/navigation";
 import type { ExamDeck, CardsDeck } from "@/types";
+import CardKlekComponent from "@/components/card/CardKlek";
 
-const iconMap = { 
-  Target, Zap, Clock, Brain, Sparkles, Flame, Eye, Moon, Skull, Star, 
-  Infinity, Timer, Mountain, Gem, BookOpen, FileText, MessageSquare, 
-  ArrowRight, Layers, Copy, Check 
+const iconMap = {
+  Target, Zap, Clock, Brain, Sparkles, Flame, Eye, Moon, Skull, Star,
+  Infinity, Timer, Mountain, Gem, BookOpen, FileText, MessageSquare,
+  ArrowRight, Layers, Copy, Check
 } as const;
 
 const DISCIPLINE_PHRASES = [
@@ -106,6 +110,7 @@ export default function StudyPage() {
   const [currentPhraseIndex, setCurrentPhraseIndex] = useState(0);
   const [publicExams, setPublicExams] = useState<ExamDeck[]>([]);
   const [publicCards, setPublicCards] = useState<CardsDeck[]>([]);
+  const [selectedCardId, setSelectedCardId] = useState<number | null>(null);
   const [isLoadingContent, setIsLoadingContent] = useState(true);
   const [isFlipping, setIsFlipping] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -283,7 +288,7 @@ export default function StudyPage() {
               Array(4).fill(0).map((_, i) => <div key={i} className={styles.skeletonCard} style={{ height: '140px' }} />)
             ) : publicCards.length > 0 ? (
               publicCards.map((card) => (
-                <div key={card.id} className={styles.publicItemCard} onClick={() => router.push(`/study/flashcards?id=${card.id}`)}>
+                <div key={card.id} className={styles.publicItemCard} onClick={() => setSelectedCardId(card.id)}>
                   <div className={styles.itemHeader}>
                     <span className={styles.itemBadge} style={{ backgroundColor: 'hsl(var(--primary) / 0.1)', color: 'hsl(var(--primary))' }}>Mazo</span>
                   </div>
@@ -326,10 +331,10 @@ export default function StudyPage() {
               <div className={styles.heroIcon}><IconComponent size={28} /></div>
               <div className={styles.heroCategoryBadge}>{currentPhrase.category}</div>
             </div>
-            
+
             <h2 className={styles.heroPhrase}>&ldquo;{currentPhrase.text}&rdquo;</h2>
             <p className={styles.heroSubtext}>— {currentPhrase.subtext}</p>
-            
+
             <div className={styles.progressDots}>
               {currentPhrases.map((_, i) => (
                 <span key={i} className={`${styles.dot} ${i === currentPhraseIndex ? styles.activeDot : ""}`} />
@@ -338,11 +343,11 @@ export default function StudyPage() {
 
             <div className={styles.heroActions}>
               <button className={styles.heroActionBtn} onClick={handleRefreshPhrase}>
-                <RefreshCw size={16} className={isFlipping ? styles.spinning : ""} />
+                <ArrowRight size={19} />
                 Siguiente
               </button>
-              <button 
-                className={`${styles.heroActionBtn} ${copied ? styles.copySuccess : ""}`} 
+              <button
+                className={`${styles.heroActionBtn} ${copied ? styles.copySuccess : ""}`}
                 onClick={() => handleCopyPhrase(`"${currentPhrase.text}" - ${currentPhrase.subtext}`)}
               >
                 {copied ? <Check size={16} /> : <Copy size={16} />}
@@ -355,6 +360,13 @@ export default function StudyPage() {
         <Suspense fallback={null}>
           <ApiQuoteSection />
         </Suspense>
+
+        {selectedCardId && (
+          <CardKlekComponent
+            cardId={selectedCardId}
+            onClose={() => setSelectedCardId(null)}
+          />
+        )}
       </main>
     </div>
   );

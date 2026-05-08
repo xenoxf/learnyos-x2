@@ -50,30 +50,32 @@ export const ThemeToggleSidebr: React.FC<ThemeToggleSidebrProps> = ({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="sm" className={styles.themeToggle}>
+        <Button variant="outline" size="sm" className={`${styles.themeToggle} ${isCollapse ? styles.themeToggleCollapsed : ""}`}>
           {/* Preview */}
           <div className={`${styles.preview} ${getThemePreview(theme)}`} />
 
           {/* Label */}
-          <span
-            className={`${isCollapse ? styles.none : styles.label}`}
-          >
-            {currentTheme?.label}
-          </span>
+          {!isCollapse && (
+            <span className={styles.label}>
+              {currentTheme?.label}
+            </span>
+          )}
 
-          <svg
-            className={styles.chevron}
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M19 9l-7 7-7-7"
-            />
-          </svg>
+          {!isCollapse && (
+            <svg
+              className={styles.chevron}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M19 9l-7 7-7-7"
+              />
+            </svg>
+          )}
         </Button>
       </DropdownMenuTrigger>
 

@@ -642,13 +642,13 @@
   font-size: 1.125rem;
   font-weight: 600;
   margin: 0;
-  color: hsl(var(--primary-foreground));
+  color: hsl(var(--foreground));
 }
 
 .guestMessage p {
   margin: 0;
   font-size: 14px;
-  color: hsl(var(--primary-foreground));
+  color: hsl(var(--foreground));
 }
 
 /* ============================================

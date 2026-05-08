@@ -19,6 +19,8 @@ import {
   Tag,
   Award,
   Heart,
+  Link,
+  LogIn,
 } from "lucide-react";
 import Image from "next/image";
 import styles from "@/styles/espacio/espacioPages.module.css";
@@ -86,10 +88,37 @@ export default function RendimientoPage() {
   }, []);
 
   if (isGuest) {
+
+
     return (
-      <>
-        <RestringidoForGuest />
-      </>
+      <div className={styles.guestMessage}>
+        <AlertTriangle size={48} />
+        <h3>Función Premium</h3>
+        <p>
+          Para gestionar tus flashcards, notas y quizzes necesitas una cuenta
+          registrada.
+        </p>
+        <p style={{ fontSize: "0.85rem", opacity: 0.8 }}>
+          Puedes explorar el contenido público en cada sección.
+        </p>
+        <div style={{ display: "flex", gap: "0.75rem", marginTop: "0.5rem" }}>
+          <Link
+            href="/auth"
+            className={styles.retryButton}
+            onClick={() => setLoading(true)}
+          >
+            <LogIn size={16} />
+            <span>Iniciar Sesión</span>
+          </Link>
+          <Link
+            href="/study/flashcards"
+            className={`${styles.retryButton} ${styles.secondaryButton}`}
+            onClick={() => setLoading(true)}
+          >
+            <span>Explorar público</span>
+          </Link>
+        </div>
+      </div>
     );
   }
 

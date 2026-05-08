@@ -169,7 +169,7 @@
 .publicItemCard:hover {
   border-color: hsl(var(--primary));
   transform: translateY(-3px);
-  box-shadow: 0 8px 20px -5px rgba(0,0,0,0.08);
+  box-shadow: 0 8px 20px -5px rgba(0, 0, 0, 0.08);
 }
 
 .itemHeader {
@@ -242,7 +242,7 @@
   align-items: center;
   justify-content: center;
   gap: 1.5rem;
-  box-shadow: 0 10px 30px -10px rgba(0,0,0,0.05);
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05);
 }
 
 .heroHeader {
@@ -305,6 +305,7 @@
 
 .heroActions {
   display: flex;
+  flex-direction: row;
   gap: 1rem;
   margin-top: 1rem;
 }
@@ -371,9 +372,20 @@
 }
 
 @keyframes flip {
-  0% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(0.95) rotateX(10deg); opacity: 0.5; }
-  100% { transform: scale(1); opacity: 1; }
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+
+  50% {
+    transform: scale(0.95) rotateX(10deg);
+    opacity: 0.5;
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
 /* ==================== UTILS ==================== */
@@ -384,8 +396,15 @@
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: .5; }
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: .5;
+  }
 }
 
 .noDataText {
@@ -399,9 +418,21 @@
 
 /* ==================== RESPONSIVE ==================== */
 @media (max-width: 768px) {
-  .title { font-size: 1.75rem; }
-  .heroPhrase { font-size: 1.25rem; }
-  .interactiveHeroCard { padding: 2rem 1.5rem; min-height: 400px; }
-  .heroActions { flex-direction: column; width: 100%; }
-  .heroActionBtn { justify-content: center; }
+  .title {
+    font-size: 1.75rem;
+  }
+
+  .heroPhrase {
+    font-size: 1.25rem;
+  }
+
+  .interactiveHeroCard {
+    padding: 2rem 1.5rem;
+    min-height: 400px;
+  }
+
+
+  .heroActionBtn {
+    justify-content: center;
+  }
 }
