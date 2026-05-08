@@ -24,17 +24,17 @@ const appUrl =
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "https://learnyos.vercel.app"),
   title: {
-    default: "LearnYos | Plataforma de Aprendizaje con IA",
+    default: "LearnYos | Pon a prueba tu conocimiento y comparte con la comunidad",
     template: "%s | LearnYos",
   },
-  description: "Domina cualquier tema con LearnYos. La plataforma de estudio avanzada con IA, Spaced Repetition y Active Recall.",
-  keywords: ["LearnYos", "IA educativa", "estudio inteligente", "active recall", "spaced repetition"],
+  description: "La plataforma definitiva para evaluar lo que sabes. Crea, comparte y realiza exámenes y flashcards potenciados por IA. Únete a una comunidad de aprendizaje activo.",
+  keywords: ["exámenes online", "flashcards compartidas", "comunidad de estudio", "evaluación de conocimientos", "IA educativa", "LearnYos", "estudio interactivo"],
   authors: [{ name: "Jesus Camacho" }],
   openGraph: {
     type: "website",
     locale: "es_CO",
-    title: "LearnYos | Potencia tu Aprendizaje",
-    description: "Crea exámenes, flashcards y notas inteligentes con IA.",
+    title: "LearnYos | Pon a prueba tu conocimiento",
+    description: "Crea y realiza exámenes o flashcards compartidos por la comunidad. Potencia tu aprendizaje con nuestro tutor IA.",
     siteName: "LearnYos",
   },
 };
@@ -45,7 +45,7 @@ const structuredData = {
   "@type": "WebApplication",
   name: "LearnYos",
   description:
-    "La plataforma de estudio más avanzada que combina inteligencia artificial y metodologías probadas para maximizar tu aprendizaje",
+    "Plataforma de evaluación de conocimientos basada en comunidad e inteligencia artificial, especializada en exámenes y flashcards.",
   url: appUrl,
   applicationCategory: "EducationalApplication",
   operatingSystem: "Web",

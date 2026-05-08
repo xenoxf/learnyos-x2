@@ -109,95 +109,103 @@ export const LandingPage: React.FC = () => {
   const features = useMemo(
     () => [
       {
-        icon: Brain,
-        title: "Ayuda Inteligente",
+        icon: Target,
+        title: "Ponte a Prueba",
         description:
-          "Obtén respuestas claras y explicaciones que se adaptan a tu forma de aprender.",
-      },
-      {
-        icon: FileText,
-        title: "Quizzes Personalizados",
-        description:
-          "Crea cuestionarios sobre cualquier tema y recibe retroalimentación al instante.",
+          "Evalúa tus conocimientos con exámenes diseñados para retar tu comprensión real.",
       },
       {
         icon: Layers,
-        title: "Flashcards Efectivas",
+        title: "Flashcards de la Comunidad",
         description:
-          "Sistema de repaso espaciado para recordar lo que estudias por más tiempo.",
+          "Accede a miles de tarjetas creadas por otros usuarios o crea las tuyas propias.",
       },
       {
         icon: Sparkles,
-        title: "Notas Automáticas",
+        title: "Junior IA",
         description:
-          "Convierte cualquier contenido en notas organizadas y fáciles de repasar.",
+          "Tu tutor personal disponible 24/7 para explicarte conceptos complejos de forma sencilla.",
       },
       {
-        icon: Target,
-        title: "Ritmo Personal",
+        icon: Brain,
+        title: "Aprendizaje Colaborativo",
         description:
-          "El contenido se adapta a tu velocidad y nivel de comprensión.",
+          "Comparte tus mejores exámenes y ayuda a otros a dominar nuevos temas.",
+      },
+      {
+        icon: Shield,
+        title: "Progreso Seguro",
+        description:
+          "Sigue tu evolución y descubre en qué áreas necesitas reforzar más.",
+      },
+      {
+        icon: CheckCircle2,
+        title: "Validación Inmediata",
+        description:
+          "Recibe feedback instantáneo en cada respuesta para aprender de tus errores.",
       },
     ],
     [],
   );
 
-  const benefits = useMemo(
+  const steps = useMemo(
     () => [
       {
-        title: "Estudia de forma más eficiente",
-        description:
-          "Identifica qué necesitas reforzar y enfoca tu tiempo en lo que realmente importa.",
-        icon: Clock,
+        title: "Explora la comunidad",
+        description: "Busca exámenes y flashcards creados por otros usuarios sobre cualquier tema que quieras dominar. ¡El conocimiento es compartido!",
+        icon: BookOpen,
+        image: "/landing/community-explore.png",
+        instruction: "Captura de pantalla: Panel principal o buscador donde se vean exámenes y flashcards de otros usuarios.",
       },
       {
-        title: "Retén más información",
-        description:
-          "Técnicas de active recall y repaso espaciado para mejorar tu memoria.",
-        icon: CheckCircle2,
+        title: "Ponte a prueba",
+        description: "Realiza exámenes interactivos y practica con flashcards dinámicas. Nuestro sistema está diseñado para que retengas la información de verdad.",
+        icon: Target,
+        image: "/landing/quiz-session.png",
+        instruction: "Captura de pantalla: Una sesión activa de examen o flashcards mostrando una pregunta.",
       },
       {
-        title: "Material ilimitado",
-        description:
-          "Genera quizzes, flashcards y notas sobre cualquier tema que necesites.",
+        title: "Consulta con Junior IA",
+        description: "¿No entiendes una respuesta? Junior IA te lo explica. Nuestro tutor inteligente está integrado para resolver tus dudas al instante.",
         icon: Sparkles,
+        image: "/landing/ai-chat-help.png",
+        instruction: "Captura de pantalla: Chat con Junior IA explicando algún concepto educativo.",
+      },
+      {
+        title: "Crea y comparte",
+        description: "Diseña tus propios exámenes y flashcards en minutos. Compártelos con la comunidad y conviértete en un referente de aprendizaje.",
+        icon: PenTool,
+        image: "/landing/create-content.png",
+        instruction: "Captura de pantalla: Pantalla de creación de nuevo examen o conjunto de flashcards.",
       },
     ],
-    [],
+    []
   );
 
   const tools = useMemo(
     () => [
       {
-        icon: BookOpen,
-        name: "Quizzes",
-        description: "Pon a prueba tu conocimiento",
+        icon: FileText,
+        name: "Exámenes",
+        description: "Evalúa lo que sabes con pruebas reales",
         image: "/tools/quiz-preview.png",
         imageAlt:
-          "Vista previa de quiz con preguntas de opción múltiple en la plataforma LearnYos",
+          "Vista previa de examen con preguntas de opción múltiple en LearnYos",
       },
       {
         icon: Layers,
         name: "Flashcards",
-        description: "Memoriza de forma efectiva",
+        description: "Memoriza compartiendo con otros",
         image: "/tools/flashcards-preview.png",
         imageAlt:
-          "Tarjetas de estudio flashcards mostrando frente y reverso con sistema de repaso espaciado",
-      },
-      {
-        icon: PenTool,
-        name: "Notas",
-        description: "Organiza tu aprendizaje",
-        image: "/tools/notes-preview.png",
-        imageAlt:
-          "Notas de estudio organizadas con formato markdown y secciones estructuradas",
+          "Tarjetas de estudio flashcards comunitarias",
       },
       {
         icon: BarChart3,
         name: "Junior IA",
-        description: "Aprende con Junior",
+        description: "Tu tutor inteligente personal",
         image: "/tools/quiz.png",
-        imageAlt: "Chat IA para usar como tutor en tu aprendizaje",
+        imageAlt: "Chat IA para resolver dudas de estudio",
       },
     ],
     [],
@@ -222,7 +230,7 @@ export const LandingPage: React.FC = () => {
               <div className={styles.brandInfo}>
                 <span className={styles.brandName}>LearnYos</span>
                 <div className={styles.brandSubtitle}>
-                  Tu compañero de estudio
+                  Evalúa y comparte conocimiento
                 </div>
               </div>
             </div>
@@ -253,16 +261,15 @@ export const LandingPage: React.FC = () => {
                   role="complementary"
                   aria-label="Tag promocional"
                 >
-                  📚 Tu espacio de aprendizaje personal
+                  🚀 La red social del aprendizaje activo
                 </div>
                 <h1 id="hero-title" className={styles.heroTitle}>
-                  Estudia de forma más{" "}
-                  <span className={styles.heroTitleGradient}>inteligente</span>
+                  Pon a prueba tu <br />
+                  <span className={styles.heroTitleGradient}>conocimiento</span>
                 </h1>
                 <p className={styles.heroDescription}>
-                  LearnYos te ayuda a aprender mejor con herramientas diseñadas
-                  para potenciar tu estudio. Crea quizzes, flashcards y notas al
-                  instante.
+                  No solo estudies, demuestra lo que sabes. Crea exámenes y flashcards,
+                  compártelos con la comunidad y aprende con nuestro tutor IA.
                 </p>
               </div>
               <div className={styles.heroCTA}>
@@ -278,13 +285,13 @@ export const LandingPage: React.FC = () => {
             </div>
             <div
               className={styles.heroImage}
-              aria-label="Ilustración de la plataforma LearnYos mostrando un estudiante usando las herramientas de estudio"
+              aria-label="Ilustración de la plataforma LearnYos mostrando un estudiante usando las herramientas de evaluación"
               role="img"
             >
               <div className={styles.heroImageBox}>
                 <Image
                   src="/landing/hero-study.png"
-                  alt="Ilustración de estudiante usando laptop con quizzes, flashcards y notas - herramientas de estudio de LearnYos"
+                  alt="Ilustración de estudiante usando LearnYos para realizar exámenes y compartir flashcards"
                   width={600}
                   height={400}
                   priority
@@ -296,15 +303,54 @@ export const LandingPage: React.FC = () => {
           </div>
         </section>
 
+        {/* How to Use Section */}
+        <section className={styles.howToUseSection} id="como-usar">
+          <div className={styles.howToUseContent}>
+            <div className={styles.howToUseHeader}>
+              <h2 className={styles.howToUseTitle}>Cómo usar LearnYos</h2>
+              <p className={styles.howToUseDescription}>
+                Domina la plataforma en 4 sencillos pasos y potencia tu aprendizaje.
+              </p>
+            </div>
+
+            <div className={styles.howToUseGrid}>
+              {steps.map((step, index) => {
+                const StepIcon = step.icon;
+                return (
+                  <div 
+                    key={index} 
+                    className={`${styles.howToUseStep} ${index % 2 !== 0 ? styles.howToUseStepReverse : ""}`}
+                  >
+                    <div className={styles.stepContent}>
+                      <div className={styles.stepNumber}>{index + 1}</div>
+                      <h3 className={styles.stepTitle}>{step.title}</h3>
+                      <p className={styles.stepDescription}>{step.description}</p>
+                    </div>
+                    <div className={styles.stepImageContainer}>
+                      <Image 
+                        src={step.image} 
+                        alt={step.title} 
+                        fill 
+                        className={styles.stepImage}
+                        sizes="(max-width: 1024px) 100vw, 50vw"
+                      /> 
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+
         {/* Tools Section */}
         <section className={styles.toolsSection} aria-labelledby="tools-title">
           <div className={styles.toolsSectionContent}>
             <div className={styles.toolsHeader}>
               <h2 id="tools-title" className={styles.toolsTitle}>
-                Todo lo que necesitas para estudiar
+                Herramientas de Evaluación
               </h2>
               <p className={styles.toolsDescription}>
-                Herramientas prácticas para cada etapa de tu aprendizaje
+                Diseñadas para validar tu conocimiento de forma efectiva.
               </p>
             </div>
             <div className={styles.toolsShowcase}>
@@ -370,10 +416,10 @@ export const LandingPage: React.FC = () => {
           <div className={styles.featuresSectionContent}>
             <div className={styles.featuresHeader}>
               <h2 id="features-title" className={styles.featuresTitle}>
-                Características que marcan la diferencia
+                ¿Por qué usar LearnYos?
               </h2>
               <p className={styles.featuresDescription}>
-                Cada función está diseñada para hacer tu estudio más efectivo.
+                Convertimos el estudio pasivo en aprendizaje activo y social.
               </p>
             </div>
             <div className={styles.featuresGrid} role="list">
@@ -408,43 +454,6 @@ export const LandingPage: React.FC = () => {
           </div>
         </section>
 
-        {/* Benefits Section */}
-        <section
-          className={styles.benefitsSection}
-          aria-labelledby="benefits-title"
-        >
-          <div className={styles.benefitsSectionContent}>
-            <div className={styles.benefitsHeader}>
-              <h2 id="benefits-title" className={styles.benefitsTitle}>
-                ¿Por qué elegir LearnYos?
-              </h2>
-              <p className={styles.benefitsDescription}>
-                Métodos comprobados para optimizar tu aprendizaje
-              </p>
-            </div>
-            <div className={styles.benefitsGrid}>
-              {benefits.map((benefit, index) => {
-                const BenefitIcon = benefit.icon;
-                return (
-                  <article
-                    key={index}
-                    className={styles.benefitCard}
-                    role="listitem"
-                  >
-                    <div className={styles.benefitIcon} aria-hidden="true">
-                      <BenefitIcon size={32} />
-                    </div>
-                    <h3 className={styles.benefitTitle}>{benefit.title}</h3>
-                    <p className={styles.benefitDescription}>
-                      {benefit.description}
-                    </p>
-                  </article>
-                );
-              })}
-            </div>
-          </div>
-        </section>
-
         {/* Security Section */}
         <section
           className={styles.securitySection}
@@ -453,11 +462,11 @@ export const LandingPage: React.FC = () => {
           <div className={styles.securityContent}>
             <Shield className={styles.securityIcon} size={48} />
             <h2 id="security-title" className={styles.securityTitle}>
-              Tu privacidad es primero
+              Tu conocimiento es privado
             </h2>
             <p className={styles.securityText}>
-              Tus datos están protegidos y nunca compartimos tu información con
-              terceros. Estudia con tranquilidad.
+              Tú decides qué compartir con la comunidad. Tus datos y progreso
+              están siempre protegidos con nosotros.
             </p>
           </div>
         </section>
@@ -466,10 +475,10 @@ export const LandingPage: React.FC = () => {
         <section className={styles.ctaSection} aria-labelledby="cta-title">
           <div className={styles.ctaContent}>
             <h2 id="cta-title" className={styles.ctaTitle}>
-              Comienza a estudiar mejor hoy
+              Únete a la comunidad hoy
             </h2>
             <p className={styles.ctaDescription}>
-              Prueba la aplicación sin registrarte
+              Comienza a evaluar lo que sabes de forma gratuita
             </p>
             <Button
               className={styles.ctaButton}

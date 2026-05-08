@@ -1,10 +1,22 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, useRef, Suspense, lazy, memo } from "react";
-import { Sparkles, Flame, Eye, Moon, Heart, RefreshCw, Star, Target, Zap, Clock, Brain, TrendingUp, Sun, Skull, Infinity, Timer, Mountain, Gem } from "lucide-react";
+import React, { useState, useEffect, useCallback, useRef, Suspense, memo } from "react";
+import { 
+  Sparkles, Flame, Eye, Moon, Heart, RefreshCw, Star, Target, Zap, 
+  Clock, Brain, TrendingUp, Sun, Skull, Infinity, Timer, Mountain, 
+  Gem, BookOpen, FileText, MessageSquare, ArrowRight, Layers, Copy, Check 
+} from "lucide-react";
 import styles from "@/styles/klerk.module.css";
+import { quizzesService } from "@/services/quizzesService";
+import { cardsService } from "@/services/cardsService";
+import { useRouter } from "next/navigation";
+import type { ExamDeck, CardsDeck } from "@/types";
 
-const iconMap = { Target, Zap, Clock, Brain, Sparkles, Flame, Eye, Moon, Skull, Star, Infinity, Timer, Mountain, Gem, Sun, Heart } as const;
+const iconMap = { 
+  Target, Zap, Clock, Brain, Sparkles, Flame, Eye, Moon, Skull, Star, 
+  Infinity, Timer, Mountain, Gem, BookOpen, FileText, MessageSquare, 
+  ArrowRight, Layers, Copy, Check 
+} as const;
 
 const DISCIPLINE_PHRASES = [
   { category: "disciplina", text: "La disciplina supera a la motivación", subtext: "No esperes tener ganas. Solo hazlo.", icon: "Target" },
@@ -51,22 +63,6 @@ const getCategoryPhrases = (cat: string) => {
   }
 };
 
-// Memoized phrase card to prevent re-renders
-const PhraseCard = memo(({ phrase, isActive }: { phrase: typeof DISCIPLINE_PHRASES[0]; isActive: boolean }) => {
-  const IconComp = iconMap[phrase.icon as keyof typeof iconMap] || Sparkles;
-  return (
-    <div className={`${styles.phraseCardSmall} ${isActive ? styles.activePhraseCard : ""}`}>
-      <div className={styles.phraseCardHeader}>
-        <IconComp size={18} />
-        <span className={styles.phraseCategorySmall}>{phrase.category}</span>
-      </div>
-      <p className={styles.phraseTextSmall}>{phrase.text}</p>
-    </div>
-  );
-});
-PhraseCard.displayName = "PhraseCard";
-
-// Separate component for API quote to isolate re-renders
 function ApiQuoteSection() {
   const [apiQuote, setApiQuote] = useState<{ content: string; author: string } | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -105,19 +101,72 @@ function ApiQuoteSection() {
 }
 
 export default function StudyPage() {
+  const router = useRouter();
   const [currentCategory, setCurrentCategory] = useState("motivation");
   const [currentPhraseIndex, setCurrentPhraseIndex] = useState(0);
+  const [publicExams, setPublicExams] = useState<ExamDeck[]>([]);
+  const [publicCards, setPublicCards] = useState<CardsDeck[]>([]);
+  const [isLoadingContent, setIsLoadingContent] = useState(true);
+  const [isFlipping, setIsFlipping] = useState(false);
+  const [copied, setCopied] = useState(false);
   const phraseIndexRef = useRef(0);
 
-  // Rotate phrases every 10 seconds
   useEffect(() => {
-    const phrases = getCategoryPhrases(currentCategory);
+    const fetchContent = async () => {
+      try {
+        const [exams, cards] = await Promise.all([
+          quizzesService.getExamsPublic(),
+          cardsService.getFlashcardsPublic()
+        ]);
+        setPublicExams(exams.slice(0, 4));
+        setPublicCards(cards.slice(0, 4));
+      } catch (error) {
+        console.error("Error fetching community content:", error);
+      } finally {
+        setIsLoadingContent(false);
+      }
+    };
+    fetchContent();
+  }, []);
+
+  const handleRefreshPhrase = () => {
+    setIsFlipping(true);
+    setTimeout(() => {
+      const phrases = getCategoryPhrases(currentCategory);
+      const nextIndex = (currentPhraseIndex + 1) % phrases.length;
+      setCurrentPhraseIndex(nextIndex);
+      phraseIndexRef.current = nextIndex;
+      setIsFlipping(false);
+    }, 300);
+  };
+
+  const handleCategoryChange = (cat: string) => {
+    setIsFlipping(true);
+    setTimeout(() => {
+      setCurrentCategory(cat);
+      setCurrentPhraseIndex(0);
+      phraseIndexRef.current = 0;
+      setIsFlipping(false);
+    }, 300);
+  };
+
+  const handleCopyPhrase = (text: string) => {
+    navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  useEffect(() => {
     const interval = setInterval(() => {
-      phraseIndexRef.current = (phraseIndexRef.current + 1) % phrases.length;
-      setCurrentPhraseIndex(phraseIndexRef.current);
-    }, 10000);
+      if (!isFlipping) {
+        const phrases = getCategoryPhrases(currentCategory);
+        const nextIndex = (phraseIndexRef.current + 1) % phrases.length;
+        phraseIndexRef.current = nextIndex;
+        setCurrentPhraseIndex(nextIndex);
+      }
+    }, 15000);
     return () => clearInterval(interval);
-  }, [currentCategory]);
+  }, [currentCategory, isFlipping]);
 
   const currentPhrases = getCategoryPhrases(currentCategory);
   const currentPhrase = currentPhrases[currentPhraseIndex];
@@ -128,6 +177,30 @@ export default function StudyPage() {
     { id: "philosophical", label: "Filosofía", icon: Eye },
     { id: "dark", label: "Oscuro", icon: Moon },
     { id: "remember", label: "Propósito", icon: Heart },
+  ];
+
+  const quickActions = [
+    {
+      title: "Crear Examen",
+      description: "Genera una evaluación personalizada con IA.",
+      icon: FileText,
+      path: "/study/quiz",
+      color: "hsl(var(--primary))"
+    },
+    {
+      title: "Practicar Flashcards",
+      description: "Mejora tu memoria con mazos de la comunidad.",
+      icon: Layers,
+      path: "/study/flashcards",
+      color: "#f59e0b"
+    },
+    {
+      title: "Preguntar a Junior IA",
+      description: "Resuelve dudas al instante con tu tutor inteligente.",
+      icon: MessageSquare,
+      path: "/study/chat",
+      color: "#7c3aed"
+    }
   ];
 
   return (
@@ -142,39 +215,139 @@ export default function StudyPage() {
         <div className={styles.headerContent}>
           <div className={styles.titleSection}>
             <Sparkles className={styles.titleIcon} />
-            <h1 className={styles.title}>Tu Espacio de Motivación</h1>
+            <h1 className={styles.title}>Panel de Aprendizaje</h1>
           </div>
-          <p className={styles.subtitle}>Encuentra tu razón para seguir adelante</p>
+          <p className={styles.subtitle}>¿Qué quieres aprender o validar hoy?</p>
         </div>
       </header>
 
       <main className={styles.main}>
-        <section className={styles.categorySelector}>
-          {categoryButtons.map((cat) => {
-            const CatIcon = cat.icon;
-            return (
-              <button
-                key={cat.id}
-                onClick={() => { setCurrentCategory(cat.id); setCurrentPhraseIndex(0); phraseIndexRef.current = 0; }}
-                className={`${styles.categoryButton} ${currentCategory === cat.id ? styles.categoryButtonActive : ""}`}
-              >
-                <CatIcon size={18} />
-                <span className={styles.categoryButtonLabel}>{cat.label}</span>
+        {/* Quick Actions */}
+        <section className={styles.section}>
+          <div className={styles.sectionTitleHeader}>
+            <h2 className={styles.sectionTitle}><Zap className={styles.sectionIcon} /> Acceso Rápido</h2>
+          </div>
+          <div className={styles.quickActions}>
+            {quickActions.map((action, i) => (
+              <button key={i} className={styles.actionCard} onClick={() => router.push(action.path)}>
+                <div className={styles.actionHeader}>
+                  <div className={styles.actionIcon} style={{ backgroundColor: `${action.color}20`, color: action.color }}>
+                    <action.icon size={24} />
+                  </div>
+                  <ArrowRight size={18} className={styles.buttonArrow} />
+                </div>
+                <h3 className={styles.actionTitle}>{action.title}</h3>
+                <p className={styles.actionDescription}>{action.description}</p>
               </button>
-            );
-          })}
+            ))}
+          </div>
         </section>
 
-        <section className={styles.heroSection}>
-          <div className={styles.heroCard}>
-            <div className={styles.heroIcon}><IconComponent size={32} /></div>
-            <div className={styles.heroCategory}>{currentPhrase.category}</div>
-            <h2 className={styles.heroPhrase}>{currentPhrase.text}</h2>
-            <p className={styles.heroSubtext}>{currentPhrase.subtext}</p>
+        {/* Community Spotlight - Exams */}
+        <section className={styles.section}>
+          <div className={styles.sectionTitleHeader}>
+            <h2 className={styles.sectionTitle}><BookOpen className={styles.sectionIcon} /> Exámenes de la Comunidad</h2>
+            <button className={styles.seeMoreBtn} onClick={() => router.push("/study/quiz")}>Ver todos</button>
+          </div>
+          <div className={styles.communityGrid}>
+            {isLoadingContent ? (
+              Array(4).fill(0).map((_, i) => <div key={i} className={styles.skeletonCard} style={{ height: '140px' }} />)
+            ) : publicExams.length > 0 ? (
+              publicExams.map((exam) => (
+                <div key={exam.id} className={styles.publicItemCard} onClick={() => router.push(`/study/quiz/${exam.id}`)}>
+                  <div className={styles.itemHeader}>
+                    <span className={styles.itemBadge}>Examen</span>
+                    {exam.difficulty && <span className={styles.difficultyBadge}>{exam.difficulty}</span>}
+                  </div>
+                  <h3 className={styles.itemTitle}>{exam.title}</h3>
+                  <div className={styles.itemMeta}>
+                    <div className={styles.metaDetail}><Target size={14} /> {exam.totalQuestions || 0} preg.</div>
+                    <div className={styles.metaDetail}><Heart size={14} /> {exam.likesCount || 0}</div>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <p className={styles.noDataText}>No hay exámenes públicos disponibles aún.</p>
+            )}
+          </div>
+        </section>
+
+        {/* Community Spotlight - Flashcards */}
+        <section className={styles.section}>
+          <div className={styles.sectionTitleHeader}>
+            <h2 className={styles.sectionTitle}><Layers className={styles.sectionIcon} /> Flashcards Populares</h2>
+            <button className={styles.seeMoreBtn} onClick={() => router.push("/study/flashcards")}>Ver todas</button>
+          </div>
+          <div className={styles.communityGrid}>
+            {isLoadingContent ? (
+              Array(4).fill(0).map((_, i) => <div key={i} className={styles.skeletonCard} style={{ height: '140px' }} />)
+            ) : publicCards.length > 0 ? (
+              publicCards.map((card) => (
+                <div key={card.id} className={styles.publicItemCard} onClick={() => router.push(`/study/flashcards?id=${card.id}`)}>
+                  <div className={styles.itemHeader}>
+                    <span className={styles.itemBadge} style={{ backgroundColor: 'hsl(var(--primary) / 0.1)', color: 'hsl(var(--primary))' }}>Mazo</span>
+                  </div>
+                  <h3 className={styles.itemTitle}>{card.title}</h3>
+                  <div className={styles.itemMeta}>
+                    <div className={styles.metaDetail}><Eye size={14} /> {card.totalCards || 0} tarjetas</div>
+                    <div className={styles.metaDetail}><Heart size={14} /> {card.likesCount || 0}</div>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <p className={styles.noDataText}>No hay mazos públicos disponibles aún.</p>
+            )}
+          </div>
+        </section>
+
+        {/* Daily Inspiration (DYNAMIC & INTERACTIVE) */}
+        <section className={styles.section} style={{ marginTop: '4rem' }}>
+          <div className={styles.sectionTitleHeader}>
+            <h2 className={styles.sectionTitle}><Sun className={styles.sectionIcon} /> Inspiración Diaria</h2>
+            <div className={styles.miniCategorySelector}>
+              {categoryButtons.map((cat) => {
+                const CatIcon = cat.icon;
+                return (
+                  <button
+                    key={cat.id}
+                    onClick={() => handleCategoryChange(cat.id)}
+                    className={`${styles.miniCatBtn} ${currentCategory === cat.id ? styles.miniCatBtnActive : ""}`}
+                    title={cat.label}
+                  >
+                    <CatIcon size={14} />
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className={`${styles.interactiveHeroCard} ${isFlipping ? styles.flipAnimation : ""}`}>
+            <div className={styles.heroHeader}>
+              <div className={styles.heroIcon}><IconComponent size={28} /></div>
+              <div className={styles.heroCategoryBadge}>{currentPhrase.category}</div>
+            </div>
+            
+            <h2 className={styles.heroPhrase}>&ldquo;{currentPhrase.text}&rdquo;</h2>
+            <p className={styles.heroSubtext}>— {currentPhrase.subtext}</p>
+            
             <div className={styles.progressDots}>
               {currentPhrases.map((_, i) => (
                 <span key={i} className={`${styles.dot} ${i === currentPhraseIndex ? styles.activeDot : ""}`} />
               ))}
+            </div>
+
+            <div className={styles.heroActions}>
+              <button className={styles.heroActionBtn} onClick={handleRefreshPhrase}>
+                <RefreshCw size={16} className={isFlipping ? styles.spinning : ""} />
+                Siguiente
+              </button>
+              <button 
+                className={`${styles.heroActionBtn} ${copied ? styles.copySuccess : ""}`} 
+                onClick={() => handleCopyPhrase(`"${currentPhrase.text}" - ${currentPhrase.subtext}`)}
+              >
+                {copied ? <Check size={16} /> : <Copy size={16} />}
+                {copied ? "Copiado" : "Copiar"}
+              </button>
             </div>
           </div>
         </section>
@@ -182,42 +355,6 @@ export default function StudyPage() {
         <Suspense fallback={null}>
           <ApiQuoteSection />
         </Suspense>
-
-        <section className={styles.section}>
-          <h2 className={styles.sectionTitle}><Target className={styles.sectionIcon} />Tu Progreso Importa</h2>
-          <div className={styles.statsRow}>
-            <div className={styles.statCard}><div className={styles.statValue}>1%</div><div className={styles.statLabel}>Mejora diaria</div></div>
-            <div className={styles.statCard}><div className={styles.statValue}>37x</div><div className={styles.statLabel}>En un año</div></div>
-            <div className={styles.statCard}><div className={styles.statValue}>∞</div><div className={styles.statLabel}>Potencial</div></div>
-          </div>
-        </section>
-
-        <section className={styles.section}>
-          <h2 className={styles.sectionTitle}><Heart className={styles.sectionIcon} />Recuerda Por Qué Empezaste</h2>
-          <div className={styles.rememberGrid}>
-            {REMEMBER_PHRASES.map((p, i) => <PhraseCard key={i} phrase={p} isActive={false} />)}
-          </div>
-        </section>
-
-        <section className={styles.section}>
-          <h2 className={styles.sectionTitle}><Sparkles className={styles.sectionIcon} />
-            {currentCategory === "motivation" && "Sabiduría Diaria"}
-            {currentCategory === "philosophical" && "Reflexiones Profundas"}
-            {currentCategory === "dark" && "Verdades Oscuras"}
-            {currentCategory === "remember" && "Tu Propósito"}
-          </h2>
-          <div className={styles.phrasesGrid}>
-            {currentPhrases.map((p, i) => <PhraseCard key={i} phrase={p} isActive={i === currentPhraseIndex} />)}
-          </div>
-        </section>
-
-        <section className={styles.finalCtaSection}>
-          <div className={styles.finalCtaContent}>
-            <Flame className={styles.finalCtaIcon} size={48} />
-            <h2 className={styles.finalCtaTitle}>Ahora ve y conquista tu día</h2>
-            <p className={styles.finalCtaText}>La motivación te inicia, el hábito te mantiene.<br /><strong>Tú puedes con esto y más.</strong></p>
-          </div>
-        </section>
       </main>
     </div>
   );
