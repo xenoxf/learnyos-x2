@@ -66,8 +66,13 @@ export function useStudyGrid<
   const [allItems, setAllItems] = useState<(T & { canDelete?: boolean })[]>([]);
   const [loading, setLoading] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>(defaultViewMode);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [showCreate, setShowCreate] = useState(false);
   const [isGuest, setIsGuest] = useState(false);
+
+  const refresh = useCallback(() => {
+    setRefreshTrigger((prev) => prev + 1);
+  }, []);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -108,8 +113,6 @@ export function useStudyGrid<
   );
 
   const loadItems = useCallback(async () => {
-    if (loading) return;
-
     try {
       setLoading(true);
       const data = await actions.onLoad(viewMode);
@@ -138,13 +141,12 @@ export function useStudyGrid<
     searchValue,
     viewMode,
     filterItems,
-    loading,
   ]);
 
   useEffect(() => {
     loadItems();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [viewMode]);
+  }, [viewMode, refreshTrigger]);
 
   useEffect(() => {
     if (searchValue.trim().length === 0) {
@@ -173,9 +175,8 @@ export function useStudyGrid<
   const handleItemDeleted = useCallback(async () => {
     if (actions.onItemDeleted) {
       await actions.onItemDeleted();
-    } else {
-      await loadItems();
     }
+    await loadItems();
   }, [actions, loadItems]);
 
   const resultText = useMemo(() => {
@@ -202,6 +203,7 @@ export function useStudyGrid<
     handleCloseModal,
     handleItemDeleted,
     loadItems,
+    refresh,
     isGuest,
   };
 }

@@ -152,7 +152,10 @@ export default function CardGrid({ onCardSelect }: CardGridProps) {
       {showCreate && (
         <CrearCard
           onClose={handleCloseModal}
-          onCardCreated={handleItemDeleted}
+          onCardCreated={(acceso) => {
+            setViewMode(acceso === "public" ? "public" : "private");
+            refresh();
+          }}
         />
       )}
     </>

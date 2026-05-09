@@ -6,10 +6,11 @@ import type { ApiErrorResponse } from "@/types";
 import { useRouter } from "next/navigation";
 import { cardsService } from "@/services/cardsService";
 import { creditsService } from "@/services/creditsService";
+import { httpClient } from "@/services/client";
 
 interface CrearCardProps {
   onClose: () => void;
-  onCardCreated: () => void;
+  onCardCreated: (acceso: string) => void;
 }
 
 export default function CrearCard({ onClose, onCardCreated }: CrearCardProps) {
@@ -60,6 +61,7 @@ export default function CrearCard({ onClose, onCardCreated }: CrearCardProps) {
       );
       return;
     }
+    setLoading(true);
     toast.info("Enviado", "Junior está redactando tus flashCards... te avisaremos en segundos.");
     onClose();
 
@@ -70,12 +72,12 @@ export default function CrearCard({ onClose, onCardCreated }: CrearCardProps) {
         acceso: formData.acceso,
       });
 
-      toast.success("Éxito", "Tus nuevas flashCards ya están disponibles en tu biblioteca.");
+      toast.success("Éxito", "Tus nuevas flashCards ya están disponibles.");
 
-      onCardCreated();
-      router.refresh();
+      httpClient.clearCache();
+      onCardCreated(formData.acceso);
     } catch (err: any) {
-
+      setLoading(false);
       toast.error("Fallo en la creación", err.message);
     }
   };

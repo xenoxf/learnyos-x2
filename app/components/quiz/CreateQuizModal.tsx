@@ -8,10 +8,11 @@ import { useRouter } from "next/navigation";
 import { creditsService } from "@/services/creditsService";
 import { useExams } from "@/hooks/useExams";
 import { Sparkles, AlertTriangle, RefreshCw, Zap, X, Target, Info, Shield } from "lucide-react";
+import { httpClient } from "@/services/client";
 
 interface CreateQuizModalProps {
   onClose: () => void;
-  onQuizCreated: () => void;
+  onQuizCreated: (acceso: string) => void;
 }
 
 export default function CreateQuizModal({
@@ -87,8 +88,8 @@ export default function CreateQuizModal({
       await generateExam(formData);
       // Verifica si el componente sigue montado antes de mostrar el toast
       if (isMounted.current) {
-        onQuizCreated();
-        router.refresh();
+        httpClient.clearCache();
+        onQuizCreated(formData.acceso);
       }
     } catch (err: any) {
       // El hook ya maneja el error con un toast

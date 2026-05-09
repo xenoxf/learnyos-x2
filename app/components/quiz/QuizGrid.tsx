@@ -137,7 +137,10 @@ export default function QuizGrid({ }: QuizGridProps) {
       {showCreate && (
         <CreateQuizModal
           onClose={handleCloseModal}
-          onQuizCreated={handleItemDeleted}
+          onQuizCreated={(acceso) => {
+            setViewMode(acceso === "public" ? "public" : "private");
+            refresh();
+          }}
         />
       )}
     </>
