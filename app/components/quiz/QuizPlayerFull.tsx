@@ -696,7 +696,7 @@ export default function QuizPlayerFull({ quizId }: QuizPlayerFullProps) {
                               <Check size={16} className={styles.checkIcon} />
                               <span>
                                 <strong>La respuesta correcta era:</strong>{" "}
-                                {correctOption.text}
+                                <MarkdownRenderer content={correctOption.text} />
                               </span>
                             </div>
                           )}
@@ -863,7 +863,7 @@ export default function QuizPlayerFull({ quizId }: QuizPlayerFullProps) {
                     <Check size={16} className={styles.checkIcon} />
                     <span>
                       <strong>La respuesta correcta era:</strong>{" "}
-                      {correctOption.text}
+                      <MarkdownRenderer content={correctOption.text} />
                     </span>
                   </div>
                 )}
