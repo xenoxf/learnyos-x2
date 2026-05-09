@@ -15,6 +15,9 @@ import { Skeleton } from "@/components/ui/skeleton";
 import styles from "@/styles/quiz/quizGrid.module.css";
 import { quizzesService } from "@/services/quizzesService";
 import SkeletonCard from "../SkeletonCard";
+import { useExams } from "@/hooks/useExams";
+import { httpClient } from "@/services/client";
+import type { GenerateExamData } from "@/types";
 
 interface QuizGridProps { }
 
@@ -34,6 +37,7 @@ const QUIZ_CONFIG = {
 
 export default function QuizGrid({ }: QuizGridProps) {
   const [isSearching, setIsSearching] = useState(false);
+  const { generateExam } = useExams();
 
   const {
     searchValue,
@@ -48,6 +52,7 @@ export default function QuizGrid({ }: QuizGridProps) {
     handleCreateClick,
     handleCloseModal,
     handleItemDeleted,
+    refresh,
     isGuest,
   } = useStudyGrid<ExamDeck & StudyGridBaseItem>({
     actions: {
@@ -64,18 +69,21 @@ export default function QuizGrid({ }: QuizGridProps) {
     defaultViewMode: "public",
   });
 
-  // Búsqueda con debounce optimizado
-  const handleSearch = useCallback(async (query: string) => {
-    if (query.trim().length >= 2) {
-      setIsSearching(true);
-      try {
-        await quizzesService.searchExams(query, 20, 0, true);
-      } catch (error) {
-        console.error("Error en búsqueda:", error);
-      } finally {
-        setIsSearching(false);
-      }
+  const handleCreateExam = useCallback(async (formData: GenerateExamData) => {
+    try {
+      await generateExam(formData);
+      httpClient.clearCache();
+      setViewMode(formData.acceso === "public" ? "public" : "private");
+      refresh();
+    } catch (err) {
+      console.error("Error al generar examen:", err);
     }
+  }, [generateExam, refresh, setViewMode]);
+
+  // Búsqueda con debounce
+  const handleSearch = useCallback(async (query: string) => {
+    // La búsqueda real la hace useStudyGrid vía filterItems sobre allItems
+    // Si en el futuro necesitas búsqueda profunda en servidor, impleméntalo aquí.
   }, []);
 
   useEffect(() => {
@@ -137,10 +145,7 @@ export default function QuizGrid({ }: QuizGridProps) {
       {showCreate && (
         <CreateQuizModal
           onClose={handleCloseModal}
-          onQuizCreated={(acceso) => {
-            setViewMode(acceso === "public" ? "public" : "private");
-            refresh();
-          }}
+          onQuizCreated={handleCreateExam}
         />
       )}
     </>

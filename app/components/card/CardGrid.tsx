@@ -15,6 +15,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import styles from "@/styles/card/CardGrid.module.css";
 import { cardsService } from "@/services/cardsService";
 import SkeletonCard from "../SkeletonCard";
+import { httpClient } from "@/services/client";
 
 interface CardGridProps {
   onCardSelect?: (cardId: number) => void;
@@ -50,6 +51,7 @@ export default function CardGrid({ onCardSelect }: CardGridProps) {
     handleCloseModal,
     handleItemDeleted,
     loadItems,
+    refresh,
     isGuest,
   } = useStudyGrid<CardsDeck & StudyGridBaseItem>({
     actions: {
@@ -74,18 +76,20 @@ export default function CardGrid({ onCardSelect }: CardGridProps) {
     defaultViewMode: "public",
   });
 
-  // Búsqueda con debounce optimizado
-  const handleSearch = useCallback(async (query: string) => {
-    if (query.trim().length >= 2) {
-      setIsSearching(true);
-      try {
-        await cardsService.searchFlashcards(query, 20, 0, true);
-      } catch (error) {
-        console.error("Error en búsqueda:", error);
-      } finally {
-        setIsSearching(false);
-      }
+  const handleCreateCard = useCallback(async (data: { reference: string; quantity: number; acceso: string }) => {
+    try {
+      await cardsService.generateFlashcards(data);
+      httpClient.clearCache();
+      setViewMode(data.acceso === "public" ? "public" : "private");
+      refresh();
+    } catch (err) {
+      console.error("Error al generar flashcards:", err);
     }
+  }, [refresh, setViewMode]);
+
+  // Búsqueda con debounce
+  const handleSearch = useCallback(async (query: string) => {
+    // La búsqueda real la hace useStudyGrid vía filterItems
   }, []);
 
   useEffect(() => {
@@ -152,10 +156,7 @@ export default function CardGrid({ onCardSelect }: CardGridProps) {
       {showCreate && (
         <CrearCard
           onClose={handleCloseModal}
-          onCardCreated={(acceso) => {
-            setViewMode(acceso === "public" ? "public" : "private");
-            refresh();
-          }}
+          onCardCreated={handleCreateCard}
         />
       )}
     </>

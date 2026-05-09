@@ -50,6 +50,13 @@ export interface StudyGridProps<T extends StudyGridBaseItem> {
   createModal?: React.ReactNode;
 }
 
+const normalizeText = (text: string) => {
+  return text
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+};
+
 export function useStudyGrid<
   T extends StudyGridBaseItem & { code?: string | null },
 >({
@@ -92,19 +99,26 @@ export function useStudyGrid<
 
   const filterItems = useCallback(
     (itemsToFilter: (T & { canDelete?: boolean })[], term: string) => {
-      const trimmed = term.trim().toLowerCase();
-      if (!trimmed) {
+      const normalizedTerm = normalizeText(term.trim());
+      if (!normalizedTerm) {
         setItems(itemsToFilter);
         return;
       }
 
       const filtered = itemsToFilter.filter((item) => {
         const anyItem = item as any;
+        const title = normalizeText(anyItem.title || "");
+        const description = normalizeText(anyItem.description || "");
+        const area = normalizeText(anyItem.area || "");
+        const tema = normalizeText(anyItem.tema || "");
+        const code = normalizeText(anyItem.code || "");
+
         return (
-          anyItem.title?.toLowerCase().includes(trimmed) ||
-          anyItem.description?.toLowerCase().includes(trimmed) ||
-          anyItem.area?.toLowerCase().includes(trimmed) ||
-          anyItem.tema?.toLowerCase().includes(trimmed)
+          title.includes(normalizedTerm) ||
+          description.includes(normalizedTerm) ||
+          area.includes(normalizedTerm) ||
+          tema.includes(normalizedTerm) ||
+          code.includes(normalizedTerm)
         );
       });
       setItems(filtered);

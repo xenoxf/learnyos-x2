@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState, useEffect } from "react";
 import styles from "@/styles/flashCards/crearCard.module.css";
 import { X, Loader, Sparkles } from "lucide-react";
@@ -10,7 +12,7 @@ import { httpClient } from "@/services/client";
 
 interface CrearCardProps {
   onClose: () => void;
-  onCardCreated: (acceso: string) => void;
+  onCardCreated: (data: { reference: string; quantity: number; acceso: string }) => Promise<void>;
 }
 
 export default function CrearCard({ onClose, onCardCreated }: CrearCardProps) {
@@ -24,10 +26,9 @@ export default function CrearCard({ onClose, onCardCreated }: CrearCardProps) {
     remaining: number;
     total: number;
   } | null>(null);
-  const router = useRouter();
 
   // Load credits status on mount
-  React.useEffect(() => {
+  useEffect(() => {
     creditsService
       .getStatus()
       .then((status) => {
@@ -61,25 +62,10 @@ export default function CrearCard({ onClose, onCardCreated }: CrearCardProps) {
       );
       return;
     }
-    setLoading(true);
+    
     toast.info("Enviado", "Junior está redactando tus flashCards... te avisaremos en segundos.");
     onClose();
-
-    try {
-      await cardsService.generateFlashcards({
-        reference: formData.reference,
-        quantity: formData.quantity,
-        acceso: formData.acceso,
-      });
-
-      toast.success("Éxito", "Tus nuevas flashCards ya están disponibles.");
-
-      httpClient.clearCache();
-      onCardCreated(formData.acceso);
-    } catch (err: any) {
-      setLoading(false);
-      toast.error("Fallo en la creación", err.message);
-    }
+    await onCardCreated(formData);
   };
 
   return (

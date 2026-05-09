@@ -12,14 +12,14 @@ import { httpClient } from "@/services/client";
 
 interface CreateQuizModalProps {
   onClose: () => void;
-  onQuizCreated: (acceso: string) => void;
+  onQuizCreated: (data: GenerateExamData) => Promise<void>;
 }
 
 export default function CreateQuizModal({
   onClose,
   onQuizCreated,
 }: CreateQuizModalProps) {
-  const { generateExam, isGenerating } = useExams();
+  const { isGenerating } = useExams();
   const [creditsStatus, setCreditsStatus] = useState<{
     remaining: number;
     total: number;
@@ -32,13 +32,10 @@ export default function CreateQuizModal({
     acceso: "public",
   });
   const [touched, setTouched] = useState({ reference: false });
-  const router = useRouter();
 
-  // Añade esta referencia para evitar actualizaciones después del desmontaje
   const isMounted = useRef(true);
 
   useEffect(() => {
-    // Limpia la referencia cuando se desmonta el componente
     return () => {
       isMounted.current = false;
     };
@@ -79,27 +76,14 @@ export default function CreateQuizModal({
       return;
     }
 
-    // Cerramos el modal inmediatamente
     toast.info("Enviado", "Junior está redactando tu examen... te avisaremos en segundos.");
     onClose();
-
-    // El proceso sigue en segundo plano
-    try {
-      await generateExam(formData);
-      // Verifica si el componente sigue montado antes de mostrar el toast
-      if (isMounted.current) {
-        httpClient.clearCache();
-        onQuizCreated(formData.acceso);
-      }
-    } catch (err: any) {
-      // El hook ya maneja el error con un toast
-    }
+    await onQuizCreated(formData);
   };
 
   return (
     <div className={styles.overlay} onClick={onClose}>
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
-        {/* Resto del JSX igual */}
         <div className={styles.header}>
           <div className={styles.headerTitle}>
             <Sparkles className={styles.headerIcon} size={20} />
@@ -111,9 +95,7 @@ export default function CreateQuizModal({
         </div>
 
         <form className={styles.form} onSubmit={handleSubmit}>
-          {/* Resto del formulario igual */}
           <div className={styles.formLayout}>
-            {/* Left Column: Context & Credits */}
             <div className={styles.mainColumn}>
               <div className={styles.formGroup}>
                 <label className={styles.label}>
@@ -137,7 +119,6 @@ export default function CreateQuizModal({
                 />
               </div>
 
-              {/* Integrated Credit Card - Optimized Flow */}
               <div className={`${styles.creditsCard} ${!canAfford ? styles.creditsWarning : ""}`}>
                 <div className={styles.creditsInfo}>
                   <Zap size={18} className={canAfford ? styles.zapActive : styles.zapInactive} />
@@ -158,7 +139,6 @@ export default function CreateQuizModal({
               </div>
             </div>
 
-            {/* Right Column: Precise Configuration */}
             <div className={styles.sideColumn}>
               <div className={styles.configHeader}>
                 <Info size={14} />
@@ -254,7 +234,6 @@ export default function CreateQuizModal({
           </div>
         </form>
       </div>
-
     </div>
   );
 }
