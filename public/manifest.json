@@ -1,22 +1,28 @@
 {
-  "name": "LearnYos",
+  "name": "LearnYos — Plataforma de Estudio con IA",
   "short_name": "LearnYos",
-  "description": "La plataforma de estudio más avanzada que combina inteligencia artificial y metodologías probadas para maximizar tu aprendizaje.",
+  "description": "Plataforma de aprendizaje activo con inteligencia artificial. Crea exámenes, flashcards y estudia con Junior IA, tu tutor personal 24/7.",
   "start_url": "/study",
   "display": "standalone",
-  "background_color": "#000000",
+  "background_color": "#ffffff",
   "theme_color": "#ffffff",
+  "orientation": "portrait-primary",
   "icons": [
     {
       "src": "/logo-100x100.png",
       "sizes": "100x100",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
       "src": "/favicon.ico",
-      "sizes": "512x512",
+      "sizes": "32x32",
       "type": "image/x-icon"
     }
   ],
-  "categories": ["education", "productivity"]
+  "categories": ["education", "productivity"],
+  "lang": "es",
+  "dir": "ltr",
+  "scope": "/",
+  "prefer_related_applications": false
 }

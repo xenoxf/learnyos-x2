@@ -2,77 +2,85 @@ import Link from 'next/link';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Página no encontrada | LearnYos',
-  description: 'La página que buscas no existe o fue movida.',
+  title: 'Página no encontrada — LearnYos',
+  description: 'La página que buscas no existe o fue movida. Vuelve al inicio de LearnYos para continuar estudiando.',
   robots: {
     index: false,
-    follow: false,
+    follow: true,
   },
 };
 
 export default function NotFound() {
   return (
-    <div style={{
-      minHeight: '100vh',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      flexDirection: 'column',
-      padding: '2rem',
-      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-      color: 'white',
-      fontFamily: 'system-ui, -apple-system, sans-serif',
-    }}>
-      <style>{`
-        .not-found-btn {
-          display: inline-block;
-          padding: 0.875rem 2rem;
-          background: white;
-          color: #667eea;
-          font-weight: 700;
-          font-size: 1.125rem;
-          border-radius: 0.75rem;
-          text-decoration: none;
-          box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-          transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-        .not-found-btn:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 6px 20px rgba(0,0,0,0.3);
-        }
-      `}</style>
-      <div style={{
-        textAlign: 'center',
-        maxWidth: '500px',
-      }}>
-        <h1 style={{
-          fontSize: '8rem',
-          fontWeight: '900',
-          margin: '0',
-          lineHeight: '1',
-          textShadow: '0 4px 20px rgba(0,0,0,0.2)',
-        }}>
-          404
-        </h1>
-        <h2 style={{
-          fontSize: '2rem',
-          fontWeight: '700',
-          margin: '1rem 0 0.5rem',
-        }}>
-          Página no encontrada
-        </h2>
-        <p style={{
-          fontSize: '1.125rem',
-          opacity: 0.9,
-          margin: '0 0 2rem',
-          lineHeight: 1.6,
-        }}>
+    <div className="not-found-wrapper">
+      <div className="not-found-inner">
+        <h1 className="not-found-code">404</h1>
+        <h2 className="not-found-heading">Página no encontrada</h2>
+        <p className="not-found-text">
           La página que buscas no existe, fue movida o no está disponible.
+          Volvé al inicio para seguir estudiando.
         </p>
         <Link href="/" className="not-found-btn">
           ← Volver al inicio
         </Link>
       </div>
+      <style dangerouslySetInnerHTML={{ __html: `
+        .not-found-wrapper {
+          min-height: 100vh;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 2rem;
+          background-color: hsl(var(--background));
+          color: hsl(var(--foreground));
+          font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        .not-found-inner {
+          text-align: center;
+          max-width: 500px;
+        }
+        .not-found-code {
+          font-size: 8rem;
+          font-weight: 900;
+          margin: 0;
+          line-height: 1;
+          color: hsl(var(--primary));
+          letter-spacing: -0.04em;
+        }
+        .not-found-heading {
+          font-size: 2rem;
+          font-weight: 700;
+          margin: 1rem 0 0.5rem;
+        }
+        .not-found-text {
+          font-size: 1.125rem;
+          color: hsl(var(--muted-foreground));
+          margin: 0 0 2rem;
+          line-height: 1.6;
+        }
+        .not-found-btn {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.5rem;
+          padding: 0.875rem 2rem;
+          background: hsl(var(--primary));
+          color: hsl(var(--primary-foreground));
+          font-weight: 700;
+          font-size: 1.125rem;
+          border-radius: 0.75rem;
+          text-decoration: none;
+          transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .not-found-btn:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 6px 20px hsl(var(--primary) / 0.3);
+        }
+        @media (max-width: 640px) {
+          .not-found-code { font-size: 5rem; }
+          .not-found-heading { font-size: 1.5rem; }
+          .not-found-text { font-size: 1rem; }
+        }
+      `}} />
     </div>
   );
 }
