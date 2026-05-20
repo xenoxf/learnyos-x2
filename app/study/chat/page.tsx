@@ -11,7 +11,6 @@ import {
   Plus,
   MessageSquare,
   Bot,
-  User,
   PanelLeftClose,
   PanelLeft,
   X,
@@ -431,27 +430,29 @@ export default function ChatPage() {
                   {msg.role === "user" ? (
                     <>
                       <div className={styles.messageContent}>
-                        <div>{msg.content}</div>
-                      </div>
-                      <div className={styles.messageAvatar}>
-                        <User size={18} />
+                        {msg.content}
                       </div>
                     </>
                   ) : (
-                    <div className={styles.messageContentBot}>
-                      <MarkdownRenderer content={msg.content} />
-                      <button
-                        className={styles.copyButton}
-                        onClick={() => handleCopyMessage(msg.content, msg.id)}
-                        title="Copiar respuesta"
-                      >
-                        {copiedId === msg.id ? (
-                          <Check size={14} />
-                        ) : (
-                          <Copy size={14} />
-                        )}
-                      </button>
-                    </div>
+                    <>
+                      <div className={styles.messageAvatar}>
+                        <Bot size={18} />
+                      </div>
+                      <div className={styles.messageContentBot}>
+                        <MarkdownRenderer content={msg.content} />
+                        <button
+                          className={styles.copyButton}
+                          onClick={() => handleCopyMessage(msg.content, msg.id)}
+                          title="Copiar respuesta"
+                        >
+                          {copiedId === msg.id ? (
+                            <Check size={14} />
+                          ) : (
+                            <Copy size={14} />
+                          )}
+                        </button>
+                      </div>
+                    </>
                   )}
                 </div>
               ))}
