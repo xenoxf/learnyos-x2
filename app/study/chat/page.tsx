@@ -435,9 +435,6 @@ export default function ChatPage() {
                     </>
                   ) : (
                     <>
-                      <div className={styles.messageAvatar}>
-                        <Bot size={18} />
-                      </div>
                       <div className={styles.messageContentBot}>
                         <MarkdownRenderer content={msg.content} />
                         <button
