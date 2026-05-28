@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import styles from "@/styles/flashCards/crearCard.module.css";
-import { X, Loader, Sparkles } from "lucide-react";
+import { X, Loader, Sparkles, Upload, FileText, XCircle } from "lucide-react";
 import { toast } from "@/hooks/useLocalToast";
 import type { ApiErrorResponse } from "@/types";
 import { useRouter } from "next/navigation";
@@ -12,7 +12,7 @@ import { httpClient } from "@/services/client";
 
 interface CrearCardProps {
   onClose: () => void;
-  onCardCreated: (data: { reference: string; quantity: number; acceso: string }) => Promise<void>;
+  onCardCreated: (data: { reference: string; quantity: number; acceso: string; file?: File }) => Promise<void>;
 }
 
 export default function CrearCard({ onClose, onCardCreated }: CrearCardProps) {
@@ -21,11 +21,19 @@ export default function CrearCard({ onClose, onCardCreated }: CrearCardProps) {
     quantity: 5,
     acceso: 'public'
   });
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [creditsStatus, setCreditsStatus] = useState<{
     remaining: number;
     total: number;
   } | null>(null);
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const ACCEPTED_FILE_TYPES = [
+    "image/png", "image/jpeg", "image/webp", "image/gif",
+    "application/pdf",
+  ];
 
   // Load credits status on mount
   useEffect(() => {
@@ -45,12 +53,30 @@ export default function CrearCard({ onClose, onCardCreated }: CrearCardProps) {
   const canAfford = creditsStatus
     ? creditsStatus.remaining >= estimatedCost
     : true;
+  const isValid = formData.reference.trim().length >= 3 || !!selectedFile;
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!ACCEPTED_FILE_TYPES.includes(file.type)) {
+      toast.error("Formato no soportado", "Solo imágenes (PNG, JPG, WEBP, GIF) y PDF");
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error("Archivo muy grande", "El tamaño máximo es 10MB");
+      return;
+    }
+    setSelectedFile(file);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const handleRemoveFile = () => setSelectedFile(null);
 
   const handleCreate = async () => {
-    if (!formData.reference.trim()) {
+    if (!isValid) {
       toast.error(
         "Validación",
-        "Por favor, proporciona un texto de referencia",
+        "Por favor, proporciona un texto de referencia o sube un archivo",
       );
       return;
     }
@@ -63,9 +89,9 @@ export default function CrearCard({ onClose, onCardCreated }: CrearCardProps) {
       return;
     }
     
-    toast.info("Enviado", "Junior está redactando tus flashCards... te avisaremos en segundos.");
+    toast.info("Enviado", "Junior está analizando y redactando tus flashCards... te avisaremos en segundos.");
     onClose();
-    await onCardCreated(formData);
+    await onCardCreated({ ...formData, file: selectedFile || undefined });
   };
 
   return (
@@ -84,7 +110,7 @@ export default function CrearCard({ onClose, onCardCreated }: CrearCardProps) {
 
         <div className={styles.content}>
           <p className={styles.description}>
-            Genera tarjetas basándote en un texto de referencia
+            Genera tarjetas basándote en un texto de referencia o un archivo
           </p>
 
           <div className={styles.formGroup}>
@@ -93,11 +119,64 @@ export default function CrearCard({ onClose, onCardCreated }: CrearCardProps) {
               placeholder="Sobre que quieres las FlashCards, expresate..."
               value={formData.reference}
               onChange={(e) => setFormData({ ...formData, reference: e.target.value })}
-
               className={styles.textarea}
               rows={5}
               disabled={loading}
             />
+          </div>
+
+          {/* File upload */}
+          <div className={styles.formGroup} style={{ marginBottom: "1rem" }}>
+            <label className={styles.label}>O sube un archivo (imagen o PDF)</label>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".png,.jpg,.jpeg,.webp,.gif,.pdf"
+              onChange={handleFileSelect}
+              style={{ display: "none" }}
+            />
+            {selectedFile ? (
+              <div style={{
+                display: "flex", alignItems: "center", gap: "0.75rem",
+                padding: "0.75rem 1rem", background: "hsl(var(--accent) / 0.2)",
+                border: "1px solid hsl(var(--border))", borderRadius: "0.75rem"
+              }}>
+                <FileText size={20} style={{ color: "hsl(var(--primary))", flexShrink: 0 }} />
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontWeight: 600, fontSize: "0.9rem", color: "hsl(var(--foreground))", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                    {selectedFile.name}
+                  </div>
+                  <div style={{ fontSize: "0.75rem", color: "hsl(var(--muted-foreground))" }}>
+                    {(selectedFile.size / 1024).toFixed(1)} KB
+                  </div>
+                </div>
+                <button
+                  onClick={handleRemoveFile}
+                  style={{
+                    width: 24, height: 24, borderRadius: "50%", border: "none",
+                    background: "hsl(var(--destructive) / 0.1)", color: "hsl(var(--destructive))",
+                    cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center"
+                  }}
+                >
+                  <XCircle size={14} />
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                style={{
+                  display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem",
+                  padding: "0.75rem", border: "2px dashed hsl(var(--border))", borderRadius: "0.75rem",
+                  background: "transparent", color: "hsl(var(--muted-foreground))", cursor: "pointer",
+                  fontWeight: 600, fontSize: "0.85rem", transition: "all 0.2s ease", width: "100%"
+                }}
+                disabled={loading}
+              >
+                <Upload size={18} />
+                <span>Subir archivo (imagen o PDF)</span>
+              </button>
+            )}
           </div>
 
           <div className={styles.formRow}>
@@ -143,7 +222,7 @@ export default function CrearCard({ onClose, onCardCreated }: CrearCardProps) {
           </button>
           <button
             onClick={handleCreate}
-            disabled={loading || !formData.reference.trim() || !canAfford}
+            disabled={loading || !isValid || !canAfford}
             className={styles.confirmBtn}
           >
             {loading ? (

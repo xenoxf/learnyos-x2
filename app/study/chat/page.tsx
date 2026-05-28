@@ -14,7 +14,16 @@ import {
   PanelLeftClose,
   PanelLeft,
   X,
+  Image,
+  FileText,
+  XCircle,
 } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import styles from "@/styles/chat.module.css";
 import type { ChatMessage, Chat } from "@/types";
 import { MarkdownRenderer } from "@/components/MarkdownRenderer";
@@ -37,8 +46,20 @@ export default function ChatPage() {
   const [isMobile, setIsMobile] = useState(false);
   const [copiedId, setCopiedId] = useState<number | null>(null);
   const [isGuest, setIsGuest] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [filePreview, setFilePreview] = useState<string | null>(null);
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const objectUrlsRef = useRef<string[]>([]);
+
+  // Cleanup object URLs on unmount
+  useEffect(() => {
+    const urls = objectUrlsRef.current;
+    return () => {
+      urls.forEach(URL.revokeObjectURL);
+    };
+  }, []);
 
   // ==================== DETECTAR GUEST ====================
   useEffect(() => {
@@ -135,25 +156,39 @@ export default function ChatPage() {
       toast.error("Acceso restringido", "Inicia sesión para usar el chat");
       return;
     }
-    if (!inputValue.trim() || isLoading) return;
+    if ((!inputValue.trim() && !selectedFile) || isLoading) return;
 
     const messageContent = inputValue.trim();
+    const fileToSend = selectedFile;
     setInputValue("");
+    setSelectedFile(null);
+    setFilePreview(null);
     setIsLoading(true);
     setIsStreaming(true);
     setStreamingContent("");
     resetTextareaHeight();
 
-    // Si no hay chat actual, el backend creará uno nuevo y devolverá el ID en el evento "done"
     const sendingToExistingChat = !!currentChat;
 
-    // Mensaje del usuario (optimista)
+    let fileUrl: string | undefined;
+    if (fileToSend?.type.startsWith("image/")) {
+      fileUrl = URL.createObjectURL(fileToSend);
+      objectUrlsRef.current.push(fileUrl);
+    }
+
     const userMessage: ChatMessage = {
       id: Date.now(),
       chatId: currentChat?.id,
-      content: messageContent,
+      content: messageContent || "",
       role: "user",
       createdAt: new Date().toISOString(),
+      file: fileToSend
+        ? {
+            name: fileToSend.name,
+            type: fileToSend.type,
+            url: fileUrl,
+          }
+        : undefined,
     };
 
     setMessages((prev) => [...prev, userMessage]);
@@ -162,31 +197,44 @@ export default function ChatPage() {
     let newChatId: number | undefined;
 
     try {
-      for await (const chunk of chatsService.sendMessageStream({
-        prompt: messageContent,
-        chatId: currentChat?.id,
-      })) {
-        if (chunk.type === "chunk") {
-          fullContent += chunk.content || "";
-          setStreamingContent(fullContent);
-        } else if (chunk.type === "done") {
-          // El backend devuelve el chatId y messageId en el evento "done"
-          newChatId = (chunk as any).chatId;
+      if (fileToSend) {
+        // Send with file via FormData stream
+        for await (const chunk of chatsService.sendMessageStreamWithFile({
+          prompt: messageContent,
+          chatId: currentChat?.id,
+          file: fileToSend,
+        })) {
+          if (chunk.type === "chunk") {
+            fullContent += chunk.content || "";
+            setStreamingContent(fullContent);
+          } else if (chunk.type === "done") {
+            newChatId = (chunk as any).chatId;
+          }
+        }
+      } else {
+        // Normal text-only stream
+        for await (const chunk of chatsService.sendMessageStream({
+          prompt: messageContent,
+          chatId: currentChat?.id,
+        })) {
+          if (chunk.type === "chunk") {
+            fullContent += chunk.content || "";
+            setStreamingContent(fullContent);
+          } else if (chunk.type === "done") {
+            newChatId = (chunk as any).chatId;
+          }
         }
       }
 
-      // Limpiar streaming
       setStreamingContent("");
       setIsStreaming(false);
 
-      // Si el backend creó un chat nuevo, actualizar el estado
       if (!sendingToExistingChat && newChatId) {
-        // Crear el objeto chat localmente con el ID que vino del backend
         const newChat: Chat = {
           id: newChatId,
           title:
-            messageContent.slice(0, 40) +
-            (messageContent.length > 40 ? "..." : ""),
+            (messageContent || fileToSend?.name || "Archivo").slice(0, 40) +
+            ((messageContent || fileToSend?.name || "").length > 40 ? "..." : ""),
           createdAt: new Date().toISOString(),
           messageCount: 1,
         };
@@ -194,7 +242,6 @@ export default function ChatPage() {
         setChats((prev) => [newChat, ...prev]);
       }
 
-      // Agregar mensaje del asistente
       const assistantMessage: ChatMessage = {
         id: Date.now() + 1,
         chatId: newChatId ?? currentChat?.id,
@@ -205,12 +252,10 @@ export default function ChatPage() {
 
       setMessages((prev) => [...prev, assistantMessage]);
 
-      // Recargar lista de chats solo si se creó uno nuevo
       if (!sendingToExistingChat) {
         await loadChats();
       }
     } catch {
-      // Remover mensaje optimista en caso de error
       setMessages((prev) => prev.filter((m) => m.id !== userMessage.id));
       toast.error("Error", "No se pudo obtener la respuesta");
     } finally {
@@ -225,6 +270,7 @@ export default function ChatPage() {
     currentChat,
     loadChats,
     resetTextareaHeight,
+    selectedFile,
   ]);
 
   const handleNewChat = () => {
@@ -262,6 +308,53 @@ export default function ChatPage() {
     } catch {
       toast.error("Error", "No se pudo eliminar la conversación");
     }
+  };
+
+  // ==================== FILE HANDLING ====================
+  const ACCEPTED_FILE_TYPES = [
+    "image/png", "image/jpeg", "image/webp", "image/gif",
+    "application/pdf",
+  ];
+  const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!ACCEPTED_FILE_TYPES.includes(file.type)) {
+      toast.error("Formato no soportado", "Solo imágenes (PNG, JPG, WEBP, GIF) y PDF");
+      return;
+    }
+
+    if (file.size > MAX_FILE_SIZE) {
+      toast.error("Archivo muy grande", "El tamaño máximo es 10MB");
+      return;
+    }
+
+    setSelectedFile(file);
+
+    // Create preview for images
+    if (file.type.startsWith("image/")) {
+      const reader = new FileReader();
+      reader.onload = (ev) => setFilePreview(ev.target?.result as string);
+      reader.readAsDataURL(file);
+    } else {
+      setFilePreview(null);
+    }
+
+    // Reset input
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const handleRemoveFile = () => {
+    setSelectedFile(null);
+    setFilePreview(null);
+  };
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
   };
 
   const handleCopyMessage = async (text: string, messageId: number) => {
@@ -320,7 +413,9 @@ export default function ChatPage() {
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
-      handleSendMessage();
+      if ((inputValue.trim() || selectedFile) && !isLoading) {
+        handleSendMessage();
+      }
     }
   };
 
@@ -429,6 +524,24 @@ export default function ChatPage() {
                 >
                   {msg.role === "user" ? (
                     <>
+                      {msg.file && (
+                        <div className={styles.userMessageFile}>
+                          {msg.file.type.startsWith("image/") && msg.file.url ? (
+                            <img
+                              src={msg.file.url}
+                              alt={msg.file.name}
+                              className={styles.userMessageImage}
+                            />
+                          ) : (
+                            <div className={styles.userMessageFileInfo}>
+                              <FileText size={18} />
+                              <span className={styles.userMessageFileName}>
+                                {msg.file.name}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      )}
                       <div className={styles.messageContent}>
                         {msg.content}
                       </div>
@@ -485,14 +598,80 @@ export default function ChatPage() {
         {/* INPUT */}
         <div className={styles.inputArea}>
           <div className={styles.inputContainer}>
+            {/* File preview */}
+            {selectedFile && (
+              <div className={styles.filePreview}>
+                {filePreview ? (
+                  <img src={filePreview} alt="" className={styles.filePreviewIcon} />
+                ) : (
+                  <FileText size={18} className={styles.filePreviewIcon} style={{ padding: 4 }} />
+                )}
+                <div className={styles.filePreviewInfo}>
+                  <div className={styles.filePreviewName}>{selectedFile.name}</div>
+                  <div className={styles.filePreviewSize}>{formatFileSize(selectedFile.size)}</div>
+                </div>
+                <button
+                  className={styles.filePreviewRemove}
+                  onClick={handleRemoveFile}
+                  disabled={isLoading}
+                >
+                  <XCircle size={14} />
+                </button>
+              </div>
+            )}
+
             <div className={styles.inputWrapper}>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button
+                    className={styles.uploadButton}
+                    disabled={isLoading || isGuest}
+                    title="Añadir"
+                  >
+                    <Plus size={20} />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start" sideOffset={8}>
+                  <DropdownMenuItem
+                    onClick={() => {
+                      if (fileInputRef.current) {
+                        fileInputRef.current.accept = ".png,.jpg,.jpeg,.webp,.gif";
+                        fileInputRef.current.click();
+                      }
+                    }}
+                  >
+                    <Image size={16} />
+                    <span>Imagen</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => {
+                      if (fileInputRef.current) {
+                        fileInputRef.current.accept = ".pdf";
+                        fileInputRef.current.click();
+                      }
+                    }}
+                  >
+                    <FileText size={16} />
+                    <span>Documento PDF</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".png,.jpg,.jpeg,.webp,.gif,.pdf"
+                onChange={handleFileSelect}
+                style={{ display: "none" }}
+              />
               <textarea
                 ref={textareaRef}
                 className={styles.textarea}
                 placeholder={
                   isGuest
                     ? "Inicia sesión para enviar mensajes..."
-                    : "Envía un mensaje..."
+                    : selectedFile
+                      ? "Describe el archivo o haz una pregunta..."
+                      : "Envía un mensaje..."
                 }
                 value={inputValue}
                 onChange={(e) => {
@@ -507,7 +686,7 @@ export default function ChatPage() {
               <button
                 className={styles.sendButton}
                 onClick={handleSendMessage}
-                disabled={!inputValue.trim() || isLoading || isGuest}
+                disabled={(!inputValue.trim() && !selectedFile) || isLoading || isGuest}
                 style={
                   isGuest ? { opacity: 0.5, pointerEvents: "none" } : undefined
                 }

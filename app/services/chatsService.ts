@@ -4,6 +4,35 @@
 import { httpClient } from "./client";
 import type { Chat, ChatMessage, SendMessageData, SendMessageResponse, GetChatMessagesResponse, StreamChunk } from "@/types";
 
+const API_BASE = process.env.NEXT_PUBLIC_BACKEND_URL || "";
+const API_KEY = String(process.env.NEXT_PUBLIC_BACKEND_API_KEY || "");
+
+async function* streamFromResponse(response: Response): AsyncIterable<StreamChunk> {
+  const reader = response.body?.getReader();
+  if (!reader) throw new Error("Streaming no soportado");
+  const decoder = new TextDecoder();
+  let buffer = "";
+
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split("\n");
+      buffer = lines.pop() || "";
+      for (const line of lines) {
+        if (line.startsWith("data: ")) {
+          try {
+            yield JSON.parse(line.slice(6));
+          } catch { /* ignore */ }
+        }
+      }
+    }
+  } finally {
+    reader.releaseLock();
+  }
+}
+
 export const chatsService = {
   getChats(): Promise<Chat[]> {
     return httpClient.request<Chat[]>("/messages/chats", { method: "GET" });
@@ -30,6 +59,39 @@ export const chatsService = {
     for await (const chunk of stream) {
       yield chunk as StreamChunk;
     }
+  },
+
+  /**
+   * Envía un mensaje con archivo adjunto al chat mediante streaming SSE.
+   * Usa FormData para enviar el archivo junto con el prompt.
+   */
+  async *sendMessageStreamWithFile(data: {
+    prompt?: string;
+    chatId?: number;
+    file: File;
+  }): AsyncIterable<StreamChunk> {
+    const token = httpClient.getToken();
+    const formData = new FormData();
+    formData.append("file", data.file);
+    if (data.prompt) formData.append("prompt", data.prompt);
+    if (data.chatId) formData.append("chatId", String(data.chatId));
+
+    const headers: Record<string, string> = {};
+    if (API_KEY) headers["x-api-key"] = API_KEY;
+    if (token) headers["Authorization"] = `Bearer ${token}`;
+
+    const response = await fetch(`${API_BASE}/messages/send/stream/with-file`, {
+      method: "POST",
+      headers,
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || `Error: ${response.status}`);
+    }
+
+    yield* streamFromResponse(response);
   },
 
   deleteChat(chatId: number): Promise<void> {

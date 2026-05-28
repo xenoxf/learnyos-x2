@@ -7,7 +7,7 @@ import type { GenerateExamData } from "@/types";
 import { useRouter } from "next/navigation";
 import { creditsService } from "@/services/creditsService";
 import { useExams } from "@/hooks/useExams";
-import { Sparkles, AlertTriangle, RefreshCw, Zap, X, Target, Info, Shield } from "lucide-react";
+import { Sparkles, AlertTriangle, RefreshCw, Zap, X, Target, Info, Shield, Upload, FileText, XCircle } from "lucide-react";
 import { httpClient } from "@/services/client";
 
 interface CreateQuizModalProps {
@@ -32,8 +32,32 @@ export default function CreateQuizModal({
     acceso: "public",
   });
   const [touched, setTouched] = useState({ reference: false });
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   const isMounted = useRef(true);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const ACCEPTED_FILE_TYPES = [
+    "image/png", "image/jpeg", "image/webp", "image/gif",
+    "application/pdf",
+  ];
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!ACCEPTED_FILE_TYPES.includes(file.type)) {
+      toast.error("Formato no soportado", "Solo imágenes (PNG, JPG, WEBP, GIF) y PDF");
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error("Archivo muy grande", "El tamaño máximo es 10MB");
+      return;
+    }
+    setSelectedFile(file);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const handleRemoveFile = () => setSelectedFile(null);
 
   useEffect(() => {
     return () => {
@@ -61,24 +85,24 @@ export default function CreateQuizModal({
   const canAfford = creditsStatus
     ? creditsStatus.remaining >= estimatedCost
     : true;
-  const isValid = formData.reference.trim().length >= 3;
+  const isValid = formData.reference.trim().length >= 3 || !!selectedFile;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setTouched({ reference: true });
 
     if (!isValid) {
-      toast.warning("Intrucciones", "Debes proporcionar un texto con más de 3 caracteres");
+      toast.warning("Instrucciones", "Proporciona un texto de referencia o sube un archivo");
       return;
     }
     if (formData.numberOfQuestions < 2 || formData.numberOfQuestions > 25) {
-      toast.warning("Intrucciones", "El numero de preguntas debe ser minimo 2 y maximo 25 preguntas");
+      toast.warning("Instrucciones", "El numero de preguntas debe ser minimo 2 y maximo 25 preguntas");
       return;
     }
 
-    toast.info("Enviado", "Junior está redactando tu examen... te avisaremos en segundos.");
+    toast.info("Enviado", "Junior está analizando y redactando tu examen... te avisaremos en segundos.");
     onClose();
-    await onQuizCreated(formData);
+    await onQuizCreated({ ...formData, file: selectedFile || undefined });
   };
 
   return (
@@ -117,6 +141,65 @@ export default function CreateQuizModal({
                   }}
                   disabled={isGenerating}
                 />
+              </div>
+
+              {/* File upload */}
+              <div className={styles.formGroup}>
+                <label className={styles.label}>
+                  <div className={styles.labelWithIcon}>
+                    <Upload size={16} />
+                    <span>O sube un archivo (imagen o PDF)</span>
+                  </div>
+                </label>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".png,.jpg,.jpeg,.webp,.gif,.pdf"
+                  onChange={handleFileSelect}
+                  style={{ display: "none" }}
+                />
+                {selectedFile ? (
+                  <div style={{
+                    display: "flex", alignItems: "center", gap: "0.75rem",
+                    padding: "0.75rem 1rem", background: "hsl(var(--accent) / 0.2)",
+                    border: "1px solid hsl(var(--border))", borderRadius: "1rem"
+                  }}>
+                    <FileText size={20} style={{ color: "hsl(var(--primary))", flexShrink: 0 }} />
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontWeight: 600, fontSize: "0.9rem", color: "hsl(var(--foreground))", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                        {selectedFile.name}
+                      </div>
+                      <div style={{ fontSize: "0.75rem", color: "hsl(var(--muted-foreground))" }}>
+                        {(selectedFile.size / 1024).toFixed(1)} KB
+                      </div>
+                    </div>
+                    <button
+                      onClick={handleRemoveFile}
+                      style={{
+                        width: 24, height: 24, borderRadius: "50%", border: "none",
+                        background: "hsl(var(--destructive) / 0.1)", color: "hsl(var(--destructive))",
+                        cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center"
+                      }}
+                    >
+                      <XCircle size={14} />
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    style={{
+                      display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem",
+                      padding: "1rem", border: "2px dashed hsl(var(--border))", borderRadius: "1rem",
+                      background: "transparent", color: "hsl(var(--muted-foreground))", cursor: "pointer",
+                      fontWeight: 600, fontSize: "0.85rem", transition: "all 0.2s ease"
+                    }}
+                    disabled={isGenerating}
+                  >
+                    <Upload size={18} />
+                    <span>Subir archivo (imagen o PDF)</span>
+                  </button>
+                )}
               </div>
 
               <div className={`${styles.creditsCard} ${!canAfford ? styles.creditsWarning : ""}`}>
@@ -217,7 +300,7 @@ export default function CreateQuizModal({
             <button
               type="submit"
               className={styles.primaryBtn}
-              disabled={isGenerating || !isValid || !canAfford}
+              disabled={isGenerating || !isValid || !canAfford || (!formData.reference.trim() && !selectedFile)}
             >
               {isGenerating ? (
                 <>

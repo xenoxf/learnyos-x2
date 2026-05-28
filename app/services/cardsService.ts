@@ -4,6 +4,9 @@
 import { httpClient } from "./client";
 import type { CardsDeck, CardKlek, GenerateFlashCardData } from "@/types";
 
+const API_BASE = process.env.NEXT_PUBLIC_BACKEND_URL || "";
+const API_KEY = String(process.env.NEXT_PUBLIC_BACKEND_API_KEY || "");
+
 export const cardsService = {
   getFlashcards(): Promise<CardsDeck[]> {
     return httpClient.request<CardsDeck[]>("/flash-cards", { method: "GET" });
@@ -36,9 +39,38 @@ export const cardsService = {
   },
 
   generateFlashcards(data: GenerateFlashCardData): Promise<any> {
+    if (data.file) {
+      return this.generateFlashcardsFromFile(data);
+    }
     const payload: Record<string, unknown> = { reference: data.reference, quantity: data.quantity };
     if (data.acceso) payload.acceso = data.acceso;
     return httpClient.request<any>("/flash-cards/generate/topic_or_reference", { method: "POST", body: JSON.stringify(payload) });
+  },
+
+  async generateFlashcardsFromFile(data: GenerateFlashCardData): Promise<any> {
+    const token = httpClient.getToken();
+    const formData = new FormData();
+    if (data.file) formData.append("file", data.file);
+    formData.append("reference", data.reference || "");
+    formData.append("quantity", String(data.quantity || 5));
+    formData.append("acceso", data.acceso || "public");
+
+    const headers: Record<string, string> = {};
+    if (API_KEY) headers["x-api-key"] = API_KEY;
+    if (token) headers["Authorization"] = `Bearer ${token}`;
+
+    const response = await fetch(`${API_BASE}/flash-cards/generate/from-file`, {
+      method: "POST",
+      headers,
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      throw new Error(err.message || `Error: ${response.status}`);
+    }
+
+    return response.json();
   },
 
   getCardsPublic(): Promise<CardsDeck[]> {

@@ -601,3 +601,131 @@
     padding: 0.625rem 0.875rem;
   }
 }
+
+/* ========== FILE UPLOAD ========== */
+.uploadButton {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  border: none;
+  background: transparent;
+  color: hsl(var(--muted-foreground));
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.uploadButton:hover:not(:disabled) {
+  background: hsl(var(--accent));
+  color: hsl(var(--foreground));
+}
+
+.uploadButton:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.filePreview {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: hsl(var(--accent) / 0.3);
+  border: 1px solid hsl(var(--border));
+  border-radius: 10px;
+  margin-bottom: 0.5rem;
+  font-size: 0.8125rem;
+}
+
+.filePreviewIcon {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  object-fit: cover;
+  background: hsl(var(--muted));
+}
+
+.filePreviewInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.filePreviewName {
+  font-weight: 500;
+  color: hsl(var(--foreground));
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.filePreviewSize {
+  color: hsl(var(--muted-foreground));
+  font-size: 0.75rem;
+}
+
+.filePreviewRemove {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: none;
+  background: hsl(var(--destructive) / 0.1);
+  color: hsl(var(--destructive));
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all var(--transition-fast);
+}
+
+.filePreviewRemove:hover {
+  background: hsl(var(--destructive) / 0.2);
+}
+
+.fileMessage {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.375rem;
+  padding: 0.375rem 0.5rem;
+  background: hsl(var(--accent) / 0.2);
+  border-radius: 8px;
+  font-size: 0.8125rem;
+}
+
+/* File preview inside user message bubbles */
+.userMessageFile {
+  max-width: 75%;
+  margin-bottom: 0.375rem;
+}
+
+.userMessageImage {
+  width: 100%;
+  max-width: 280px;
+  max-height: 320px;
+  border-radius: 12px;
+  object-fit: contain;
+  background: hsl(var(--muted) / 0.3);
+  display: block;
+}
+
+.userMessageFileInfo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: hsl(var(--accent) / 0.3);
+  border-radius: 10px;
+  font-size: 0.8125rem;
+  color: hsl(var(--foreground));
+}
+
+.userMessageFileName {
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

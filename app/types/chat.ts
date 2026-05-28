@@ -6,6 +6,11 @@ export interface ChatMessage {
   content: string;
   role: MessageRole;
   createdAt: string;
+  file?: {
+    name: string;
+    url?: string;
+    type: string;
+  };
 }
 
 export interface Chat {
@@ -30,6 +35,13 @@ export interface Message {
 export interface SendMessageData {
   prompt: string;
   chatId?: number;
+}
+
+/** Datos para enviar un mensaje con archivo adjunto */
+export interface SendMessageWithFileData {
+  prompt?: string;
+  chatId?: number;
+  file: File;
 }
 
 /** Respuesta del backend POST /messages/send - devuelve la entidad Message */
