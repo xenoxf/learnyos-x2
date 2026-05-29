@@ -7,8 +7,23 @@ import type { GenerateExamData } from "@/types";
 import { useRouter } from "next/navigation";
 import { creditsService } from "@/services/creditsService";
 import { useExams } from "@/hooks/useExams";
-import { Sparkles, AlertTriangle, RefreshCw, Zap, X, Target, Info, Shield, Upload, FileText, XCircle } from "lucide-react";
+import {
+  Sparkles, AlertTriangle, RefreshCw, Zap, X, Target, Shield,
+  FileText, Paperclip, Image,
+} from "lucide-react";
 import { httpClient } from "@/services/client";
+import {
+  ACCEPTED_FILE_TYPES, ACCEPTED_FILE_EXTENSIONS, ACCEPTED_IMAGE_EXTENSIONS, MAX_FILE_SIZE,
+} from "@/lib/file-constants";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import FileChip from "@/components/common/FileChip";
+
+const MAX_FILES = 5;
 
 interface CreateQuizModalProps {
   onClose: () => void;
@@ -32,32 +47,57 @@ export default function CreateQuizModal({
     acceso: "public",
   });
   const [touched, setTouched] = useState({ reference: false });
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [filePreviews, setFilePreviews] = useState<string[]>([]);
 
   const isMounted = useRef(true);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const objectUrlsRef = useRef<string[]>([]);
 
-  const ACCEPTED_FILE_TYPES = [
-    "image/png", "image/jpeg", "image/webp", "image/gif",
-    "application/pdf",
-  ];
+  useEffect(() => {
+    return () => {
+      objectUrlsRef.current.forEach(URL.revokeObjectURL);
+    };
+  }, []);
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    if (!ACCEPTED_FILE_TYPES.includes(file.type)) {
-      toast.error("Formato no soportado", "Solo imágenes (PNG, JPG, WEBP, GIF) y PDF");
-      return;
+    const fileList = e.target.files;
+    if (!fileList || fileList.length === 0) return;
+    const newFiles: File[] = [];
+    const newPreviews: string[] = [];
+    for (const f of Array.from(fileList)) {
+      if (selectedFiles.length + newFiles.length >= MAX_FILES) {
+        toast.error("Límite alcanzado", `Máximo ${MAX_FILES} archivos`);
+        break;
+      }
+      if (!ACCEPTED_FILE_TYPES.includes(f.type as any)) {
+        toast.error("Formato no soportado", "Solo imágenes (PNG, JPG, WEBP, GIF) y PDF");
+        continue;
+      }
+      if (f.size > MAX_FILE_SIZE) {
+        toast.error("Archivo muy grande", `${f.name}: máximo ${MAX_FILE_SIZE / (1024 * 1024)}MB`);
+        continue;
+      }
+      newFiles.push(f);
+      if (f.type.startsWith("image/")) {
+        const url = URL.createObjectURL(f);
+        objectUrlsRef.current.push(url);
+        newPreviews.push(url);
+      } else {
+        newPreviews.push("");
+      }
     }
-    if (file.size > 10 * 1024 * 1024) {
-      toast.error("Archivo muy grande", "El tamaño máximo es 10MB");
-      return;
+    if (newFiles.length > 0) {
+      setSelectedFiles(prev => [...prev, ...newFiles]);
+      setFilePreviews(prev => [...prev, ...newPreviews]);
     }
-    setSelectedFile(file);
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
-  const handleRemoveFile = () => setSelectedFile(null);
+  const handleRemoveFile = (index: number) => {
+    setSelectedFiles(prev => prev.filter((_, i) => i !== index));
+    setFilePreviews(prev => prev.filter((_, i) => i !== index));
+  };
 
   useEffect(() => {
     return () => {
@@ -85,7 +125,7 @@ export default function CreateQuizModal({
   const canAfford = creditsStatus
     ? creditsStatus.remaining >= estimatedCost
     : true;
-  const isValid = formData.reference.trim().length >= 3 || !!selectedFile;
+  const isValid = formData.reference.trim().length >= 3 || selectedFiles.length > 0;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -102,7 +142,7 @@ export default function CreateQuizModal({
 
     toast.info("Enviado", "Junior está analizando y redactando tu examen... te avisaremos en segundos.");
     onClose();
-    await onQuizCreated({ ...formData, file: selectedFile || undefined });
+    await onQuizCreated({ ...formData, files: selectedFiles.length > 0 ? selectedFiles : undefined });
   };
 
   return (
@@ -119,197 +159,194 @@ export default function CreateQuizModal({
         </div>
 
         <form className={styles.form} onSubmit={handleSubmit}>
-          <div className={styles.formLayout}>
+          <div className={styles.dashboardLayout}>
             <div className={styles.mainColumn}>
               <div className={styles.formGroup}>
                 <label className={styles.label}>
                   <div className={styles.labelWithIcon}>
-                    <Target size={16} />
-                    <span>Tema o Referencia Académica</span>
+                    <Target size={14} />
+                    <span>Tema o Referencia</span>
                   </div>
                   <span className={`${styles.charCount} ${isValid ? styles.charCountValid : ""}`}>
-                    {formData.reference.length} carac.
+                    {formData.reference.length}
                   </span>
                 </label>
-                <textarea
-                  className={`${styles.textarea} ${touched.reference && !isValid ? styles.textareaError : ""}`}
-                  placeholder="Ej: 'Segunda Guerra Mundial' o pega un texto académico para generar preguntas basadas en él..."
-                  value={formData.reference}
-                  onChange={(e) => {
-                    setFormData({ ...formData, reference: e.target.value });
-                    if (!touched.reference) setTouched({ reference: true });
-                  }}
-                  disabled={isGenerating}
-                />
-              </div>
-
-              {/* File upload */}
-              <div className={styles.formGroup}>
-                <label className={styles.label}>
-                  <div className={styles.labelWithIcon}>
-                    <Upload size={16} />
-                    <span>O sube un archivo (imagen o PDF)</span>
-                  </div>
-                </label>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept=".png,.jpg,.jpeg,.webp,.gif,.pdf"
-                  onChange={handleFileSelect}
-                  style={{ display: "none" }}
-                />
-                {selectedFile ? (
-                  <div style={{
-                    display: "flex", alignItems: "center", gap: "0.75rem",
-                    padding: "0.75rem 1rem", background: "hsl(var(--accent) / 0.2)",
-                    border: "1px solid hsl(var(--border))", borderRadius: "1rem"
-                  }}>
-                    <FileText size={20} style={{ color: "hsl(var(--primary))", flexShrink: 0 }} />
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontWeight: 600, fontSize: "0.9rem", color: "hsl(var(--foreground))", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                        {selectedFile.name}
+                <div className={styles.textareaWrapper}>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept={ACCEPTED_FILE_EXTENSIONS}
+                    multiple
+                    onChange={handleFileSelect}
+                    style={{ display: "none" }}
+                  />
+                  <div className={styles.examInputBody}>
+                    {selectedFiles.length > 0 && (
+                      <div className={styles.examFileRow}>
+                        {selectedFiles.map((f, i) => (
+                          <FileChip
+                            key={i}
+                            file={f}
+                            index={i}
+                            onRemove={handleRemoveFile}
+                            disabled={isGenerating}
+                            variant="input"
+                            previewUrl={filePreviews[i]}
+                          />
+                        ))}
                       </div>
-                      <div style={{ fontSize: "0.75rem", color: "hsl(var(--muted-foreground))" }}>
-                        {(selectedFile.size / 1024).toFixed(1)} KB
-                      </div>
-                    </div>
-                    <button
-                      onClick={handleRemoveFile}
-                      style={{
-                        width: 24, height: 24, borderRadius: "50%", border: "none",
-                        background: "hsl(var(--destructive) / 0.1)", color: "hsl(var(--destructive))",
-                        cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center"
+                    )}
+                    <textarea
+                      className={`${styles.textarea} ${touched.reference && !isValid ? styles.textareaError : ""}`}
+                      placeholder="Ej: 'Segunda Guerra Mundial' o pega un texto académico..."
+                      value={formData.reference}
+                      onChange={(e) => {
+                        setFormData({ ...formData, reference: e.target.value });
+                        if (!touched.reference) setTouched({ reference: true });
                       }}
-                    >
-                      <XCircle size={14} />
-                    </button>
-                  </div>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={() => fileInputRef.current?.click()}
-                    style={{
-                      display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem",
-                      padding: "1rem", border: "2px dashed hsl(var(--border))", borderRadius: "1rem",
-                      background: "transparent", color: "hsl(var(--muted-foreground))", cursor: "pointer",
-                      fontWeight: 600, fontSize: "0.85rem", transition: "all 0.2s ease"
-                    }}
-                    disabled={isGenerating}
-                  >
-                    <Upload size={18} />
-                    <span>Subir archivo (imagen o PDF)</span>
-                  </button>
-                )}
-              </div>
-
-              <div className={`${styles.creditsCard} ${!canAfford ? styles.creditsWarning : ""}`}>
-                <div className={styles.creditsInfo}>
-                  <Zap size={18} className={canAfford ? styles.zapActive : styles.zapInactive} />
-                  <div className={styles.creditsText}>
-                    <span className={styles.creditsLabel}>Inversión de Créditos</span>
-                    <span className={styles.creditsValue}>{estimatedCost} créditos</span>
+                      disabled={isGenerating}
+                    />
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <button
+                          className={`${styles.examUploadBtn} ${selectedFiles.length > 0 ? styles.examUploadBtnHasFile : ''}`}
+                          disabled={isGenerating}
+                          type="button"
+                          title={selectedFiles.length > 0 ? `${selectedFiles.length} archivo(s) adjunto(s)` : "Adjuntar archivo"}
+                        >
+                          <Paperclip size={14} />
+                          {selectedFiles.length > 0 && <span className={styles.examBadge}>{selectedFiles.length}</span>}
+                        </button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" sideOffset={6} className={styles.dropdownContent}>
+                        <DropdownMenuItem
+                          onClick={() => {
+                            if (fileInputRef.current) {
+                              fileInputRef.current.accept = ACCEPTED_FILE_EXTENSIONS;
+                              fileInputRef.current.click();
+                            }
+                          }}
+                          className={styles.dropdownItem}
+                        >
+                          <Paperclip size={14} />
+                          <span>Subir archivos</span>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => {
+                            if (fileInputRef.current) {
+                              fileInputRef.current.accept = ACCEPTED_IMAGE_EXTENSIONS;
+                              fileInputRef.current.click();
+                            }
+                          }}
+                          className={styles.dropdownItem}
+                        >
+                          <Image size={14} />
+                          <span>Subir imágenes</span>
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
                 </div>
-                {!canAfford && (
-                  <div className={styles.warningBox}>
-                    <AlertTriangle size={14} />
-                    <span>Créditos insuficientes ({creditsStatus?.remaining || 0} disp.)</span>
-                  </div>
-                )}
-                {canAfford && creditsStatus && (
-                  <span className={styles.balanceInfo}>Balance tras generar: {creditsStatus.remaining - estimatedCost}</span>
-                )}
               </div>
+
+              {!canAfford && (
+                <div className={styles.warningBox}>
+                  <AlertTriangle size={14} />
+                  <span>Créditos insuficientes ({creditsStatus?.remaining || 0} disponibles)</span>
+                </div>
+              )}
             </div>
 
             <div className={styles.sideColumn}>
-              <div className={styles.configHeader}>
-                <Info size={14} />
-                <span>Configuración</span>
-              </div>
-
-              <div className={styles.configGrid}>
-                <div className={styles.formGroup}>
-                  <label className={styles.label}>Nº Preguntas</label>
-                  <input
-                    type="number"
-                    className={styles.input}
-                    min="2"
-                    max="25"
-                    value={formData.numberOfQuestions}
-                    onChange={(e) => setFormData({ ...formData, numberOfQuestions: parseInt(e.target.value) || 1 })}
-                    disabled={isGenerating}
-                  />
-                </div>
-
-                <div className={styles.formGroup}>
-                  <label className={styles.label}>Nivel de Dificultad</label>
-                  <select
-                    className={styles.select}
-                    value={formData.difficulty}
-                    onChange={(e) => setFormData({ ...formData, difficulty: e.target.value as any })}
-                    disabled={isGenerating}
-                  >
-                    <option value="very_easy">Muy Fácil</option>
-                    <option value="easy">Fácil</option>
-                    <option value="medium">Medio</option>
-                    <option value="hard">Difícil</option>
-                    <option value="very_hard">Muy Difícil</option>
-                    <option value="expert">Experto</option>
-                  </select>
-                </div>
-
-                <div className={styles.formGroup}>
-                  <label className={styles.label}>Tipo de Formato</label>
-                  <select
-                    className={styles.select}
-                    value={formData.type}
-                    onChange={(e) => setFormData({ ...formData, type: e.target.value as any })}
-                    disabled={isGenerating}
-                  >
-                    <option value="quiz">Quiz Dinámico</option>
-                    <option value="icfes">Simulacro ICFES</option>
-                  </select>
-                </div>
-
-                <div className={styles.formGroup}>
-                  <label className={styles.label}>Visibilidad</label>
-                  <select
-                    className={styles.select}
-                    value={formData.acceso}
-                    onChange={(e) => setFormData({ ...formData, acceso: e.target.value as any })}
-                    disabled={isGenerating}
-                  >
-                    <option value="private">Privado (Solo yo)</option>
-                    <option value="public">Público (Comunidad)</option>
-                  </select>
+              <div className={styles.sidePanel}>
+                <span className={styles.sidePanelLabel}>Configuración</span>
+                <div className={styles.configGrid}>
+                  <div className={styles.formGroup}>
+                    <label className={styles.label}>Preguntas</label>
+                    <input
+                      type="number"
+                      className={styles.input}
+                      min="2"
+                      max="25"
+                      value={formData.numberOfQuestions}
+                      onChange={(e) => setFormData({ ...formData, numberOfQuestions: parseInt(e.target.value) || 1 })}
+                      disabled={isGenerating}
+                    />
+                  </div>
+                  <div className={styles.formGroup}>
+                    <label className={styles.label}>Dificultad</label>
+                    <select
+                      className={styles.select}
+                      value={formData.difficulty}
+                      onChange={(e) => setFormData({ ...formData, difficulty: e.target.value as any })}
+                      disabled={isGenerating}
+                    >
+                      <option value="very_easy">Muy Fácil</option>
+                      <option value="easy">Fácil</option>
+                      <option value="medium">Medio</option>
+                      <option value="hard">Difícil</option>
+                      <option value="very_hard">Muy Difícil</option>
+                      <option value="expert">Experto</option>
+                    </select>
+                  </div>
+                  <div className={styles.formGroup}>
+                    <label className={styles.label}>Formato</label>
+                    <select
+                      className={styles.select}
+                      value={formData.type}
+                      onChange={(e) => setFormData({ ...formData, type: e.target.value as any })}
+                      disabled={isGenerating}
+                    >
+                      <option value="quiz">Quiz Dinámico</option>
+                      <option value="icfes">Simulacro ICFES</option>
+                    </select>
+                  </div>
+                  <div className={styles.formGroup}>
+                    <label className={styles.label}>Visibilidad</label>
+                    <select
+                      className={styles.select}
+                      value={formData.acceso}
+                      onChange={(e) => setFormData({ ...formData, acceso: e.target.value as any })}
+                      disabled={isGenerating}
+                    >
+                      <option value="private">Privado</option>
+                      <option value="public">Público</option>
+                    </select>
+                  </div>
                 </div>
               </div>
+
+              {creditsStatus && (
+                <div className={styles.creditBar}>
+                  <span>~{estimatedCost} créditos</span>
+                  <span>{creditsStatus.remaining}/{creditsStatus.total}</span>
+                </div>
+              )}
 
               <div className={styles.securityNote}>
                 <Shield size={12} />
-                <span>Generación segura y validada</span>
+                <span>Generación segura</span>
               </div>
             </div>
           </div>
 
           <div className={styles.modalFooter}>
             <button type="button" className={styles.secondaryBtn} onClick={onClose} disabled={isGenerating}>
-              Descartar
+              Cancelar
             </button>
             <button
               type="submit"
               className={styles.primaryBtn}
-              disabled={isGenerating || !isValid || !canAfford || (!formData.reference.trim() && !selectedFile)}
+              disabled={isGenerating || !isValid || !canAfford}
             >
               {isGenerating ? (
                 <>
-                  <RefreshCw size={18} className={styles.spinner} />
-                  <span>Construyendo examen...</span>
+                  <RefreshCw size={16} className={styles.spinner} />
+                  <span>Generando...</span>
                 </>
               ) : (
                 <>
-                  <Zap size={18} />
+                  <Zap size={16} />
                   <span>Generar Examen</span>
                 </>
               )}

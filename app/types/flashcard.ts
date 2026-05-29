@@ -42,4 +42,5 @@ export interface GenerateFlashCardData {
   quantity: number;
   acceso?: string;
   file?: File;
+  files?: File[];
 }

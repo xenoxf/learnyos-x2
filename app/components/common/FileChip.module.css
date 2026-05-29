@@ -1,0 +1,118 @@
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.2rem 0.5rem 0.2rem 0.3rem;
+  background: hsl(var(--muted) / 0.35);
+  border: 1px solid hsl(var(--border));
+  border-radius: 6px;
+  font-size: 0.65rem;
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+}
+
+.chip:hover {
+  background: hsl(var(--muted) / 0.5);
+  border-color: hsl(var(--primary) / 0.2);
+}
+
+.chipWithPreview {
+  padding-left: 0;
+  gap: 0.25rem;
+  overflow: hidden;
+  border-color: hsl(var(--primary) / 0.15);
+  background: hsl(var(--muted) / 0.2);
+}
+
+.chipWithPreview:hover {
+  border-color: hsl(var(--primary) / 0.35);
+}
+
+.chipMessage {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.2rem 0.5rem 0.2rem 0.3rem;
+  background: linear-gradient(135deg, hsl(var(--accent) / 0.2), hsl(var(--primary) / 0.06));
+  border: 1px solid hsl(var(--border));
+  border-radius: 6px;
+  font-size: 0.65rem;
+  flex-shrink: 0;
+}
+
+.thumb {
+  width: 36px;
+  height: 36px;
+  border-radius: 5px 0 0 5px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.icon {
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  background: hsl(var(--muted) / 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: hsl(var(--muted-foreground));
+}
+
+.name {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: hsl(var(--foreground));
+  font-weight: 500;
+  max-width: 120px;
+  font-size: 0.6rem;
+}
+
+.size {
+  color: hsl(var(--muted-foreground));
+  font-size: 0.55rem;
+  margin-left: 0.15rem;
+}
+
+.remove {
+  width: 14px;
+  height: 14px;
+  border-radius: 4px;
+  border: none;
+  background: transparent;
+  color: hsl(var(--muted-foreground));
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+  margin-left: 0.1rem;
+}
+
+.remove:hover {
+  background: hsl(var(--destructive) / 0.15);
+  color: hsl(var(--destructive));
+}
+
+.removePreview {
+  border-radius: 0 4px 4px 0;
+}
+
+.remove:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.namePreview {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: hsl(var(--foreground) / 0.7);
+  font-weight: 500;
+  max-width: 60px;
+  font-size: 0.55rem;
+  padding-right: 0.15rem;
+}

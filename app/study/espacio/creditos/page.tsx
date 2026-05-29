@@ -12,12 +12,18 @@ import {
   MessageSquare,
   AlertTriangle,
   RefreshCw,
+  LogIn,
+  BarChart3,
+  Info,
+  Clock,
+  Upload,
 } from "lucide-react";
 import { toast } from "@/hooks/useLocalToast";
 import styles from "@/styles/espacio/creditos.module.css";
 import { CreditsStatus } from "@/types";
 import { creditsService } from "@/services/creditsService";
 import { authService } from "@/services/authService";
+import Link from "next/link";
 
 export default function EspacioCreditosContent() {
   const [credits, setCredits] = useState<CreditsStatus | null>(null);
@@ -49,16 +55,33 @@ export default function EspacioCreditosContent() {
 
   if (isGuest) {
     return (
-      <>
-        <header className={styles.espacioPageHeader}>
-          <h1 className={styles.espacioPageTitle}>Mis Créditos</h1>
-        </header>
-        <div className={styles.guestMessage}>
-          <AlertTriangle size={32} />
-          <h3>Funcionalidad restringida</h3>
-          <p>Inicia sesión para acceder a tus créditos.</p>
+      <div className={styles.guestMessage}>
+        <AlertTriangle size={48} />
+        <h3>Función Premium</h3>
+        <p>
+          Para gestionar tus créditos necesitas una cuenta registrada.
+        </p>
+        <p style={{ fontSize: "0.85rem", opacity: 0.8 }}>
+          Regístrate y recibe créditos gratis cada día.
+        </p>
+        <div style={{ display: "flex", gap: "0.75rem", marginTop: "0.5rem" }}>
+          <Link
+            href="/auth"
+            className={styles.retryButton}
+            onClick={() => setLoading(true)}
+          >
+            <LogIn size={16} />
+            <span>Iniciar Sesión</span>
+          </Link>
+          <Link
+            href="/study/flashcards"
+            className={`${styles.retryButton} ${styles.secondaryButton}`}
+            onClick={() => setLoading(true)}
+          >
+            <span>Explorar público</span>
+          </Link>
         </div>
-      </>
+      </div>
     );
   }
 
@@ -97,6 +120,13 @@ export default function EspacioCreditosContent() {
       </>
     );
   }
+
+  const breakdownItems = [
+    { key: 'examGenerations' as const, label: 'Quizzes generados', icon: BookOpen, color: 'hsl(var(--primary))' },
+    { key: 'noteGenerations' as const, label: 'Notas generadas', icon: FileText, color: 'hsl(142, 76%, 36%)' },
+    { key: 'flashcardGenerations' as const, label: 'Flashcards generados', icon: CreditCard, color: 'hsl(271, 76%, 53%)' },
+    { key: 'chatMessages' as const, label: 'Mensajes de chat', icon: MessageSquare, color: 'hsl(199, 89%, 48%)' },
+  ] as const;
 
   return (
     <>
@@ -137,6 +167,39 @@ export default function EspacioCreditosContent() {
           </div>
         </section>
 
+        <section className={styles.usageCard}>
+          <h3>
+            <BarChart3 size={18} /> Uso de Hoy
+          </h3>
+          <div className={styles.usageGrid}>
+            {breakdownItems.map(({ key, label, icon: Icon, color }) => {
+              const count = credits.breakdown[key];
+              const maxBar = Math.max(
+                ...breakdownItems.map((i) => credits.breakdown[i.key]),
+                1,
+              );
+              const pct = (count / maxBar) * 100;
+              return (
+                <div key={key} className={styles.usageItem}>
+                  <div className={styles.usageItemHeader}>
+                    <div className={styles.usageItemLeft}>
+                      <Icon size={16} style={{ color }} />
+                      <span className={styles.usageItemLabel}>{label}</span>
+                    </div>
+                    <span className={styles.usageItemCount}>{count}</span>
+                  </div>
+                  <div className={styles.usageBar}>
+                    <div
+                      className={styles.usageBarFill}
+                      style={{ width: `${pct}%`, backgroundColor: color }}
+                    />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+
         <section className={styles.creditsCostsCard}>
           <h3>
             <Zap size={18} /> Costo Base por Acción
@@ -148,12 +211,18 @@ export default function EspacioCreditosContent() {
               <span className={styles.creditsCostValue}>
                 Desde {credits.costs.EXAM_GENERATION}
               </span>
+              <span className={styles.creditsCostDetail}>
+                +0.5 por pregunta · x1.0/x1.3/x1.7 dificultad
+              </span>
             </div>
             <div className={styles.creditsCostItem}>
               <FileText size={18} />
               <span>Generar Notas</span>
               <span className={styles.creditsCostValue}>
                 Desde {credits.costs.NOTE_GENERATION}
+              </span>
+              <span className={styles.creditsCostDetail}>
+                x1.0 breve · x1.4 medio · x1.9 detallado
               </span>
             </div>
             <div className={styles.creditsCostItem}>
@@ -162,6 +231,9 @@ export default function EspacioCreditosContent() {
               <span className={styles.creditsCostValue}>
                 Desde {credits.costs.FLASHCARD_GENERATION}
               </span>
+              <span className={styles.creditsCostDetail}>
+                +0.4 por tarjeta
+              </span>
             </div>
             <div className={styles.creditsCostItem}>
               <MessageSquare size={18} />
@@ -169,6 +241,30 @@ export default function EspacioCreditosContent() {
               <span className={styles.creditsCostValue}>
                 {credits.costs.CHAT_MESSAGE} crédito
               </span>
+              <span className={styles.creditsCostDetail}>
+                Por mensaje enviado
+              </span>
+            </div>
+          </div>
+          <div className={styles.creditsCostsFooter}>
+            <Info size={14} />
+            <span>Contenido público tiene 50% de descuento</span>
+          </div>
+        </section>
+
+        <section className={styles.infoCard}>
+          <div className={styles.infoCardItem}>
+            <Clock size={18} />
+            <div>
+              <strong>Renovación diaria</strong>
+              <p>Tus créditos se reinician cada día a medianoche (00:00).</p>
+            </div>
+          </div>
+          <div className={styles.infoCardItem}>
+            <Upload size={18} />
+            <div>
+              <strong>Subida de archivos</strong>
+              <p>Límite de 30 archivos/día en el chat, y 10/día para generar exámenes o flashcards desde archivo.</p>
             </div>
           </div>
         </section>

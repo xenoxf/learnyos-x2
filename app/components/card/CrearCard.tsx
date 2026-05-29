@@ -2,17 +2,27 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import styles from "@/styles/flashCards/crearCard.module.css";
-import { X, Loader, Sparkles, Upload, FileText, XCircle } from "lucide-react";
+import {
+  X, Loader, Sparkles, FileText, Paperclip, Image,
+} from "lucide-react";
 import { toast } from "@/hooks/useLocalToast";
-import type { ApiErrorResponse } from "@/types";
-import { useRouter } from "next/navigation";
-import { cardsService } from "@/services/cardsService";
 import { creditsService } from "@/services/creditsService";
-import { httpClient } from "@/services/client";
+import {
+  ACCEPTED_FILE_TYPES, ACCEPTED_FILE_EXTENSIONS, ACCEPTED_IMAGE_EXTENSIONS, MAX_FILE_SIZE,
+} from "@/lib/file-constants";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import FileChip from "@/components/common/FileChip";
+
+const MAX_FILES = 5;
 
 interface CrearCardProps {
   onClose: () => void;
-  onCardCreated: (data: { reference: string; quantity: number; acceso: string; file?: File }) => Promise<void>;
+  onCardCreated: (data: { reference: string; quantity: number; acceso: string; files?: File[] }) => Promise<void>;
 }
 
 export default function CrearCard({ onClose, onCardCreated }: CrearCardProps) {
@@ -21,7 +31,8 @@ export default function CrearCard({ onClose, onCardCreated }: CrearCardProps) {
     quantity: 5,
     acceso: 'public'
   });
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [filePreviews, setFilePreviews] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [creditsStatus, setCreditsStatus] = useState<{
     remaining: number;
@@ -29,11 +40,13 @@ export default function CrearCard({ onClose, onCardCreated }: CrearCardProps) {
   } | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const objectUrlsRef = useRef<string[]>([]);
 
-  const ACCEPTED_FILE_TYPES = [
-    "image/png", "image/jpeg", "image/webp", "image/gif",
-    "application/pdf",
-  ];
+  useEffect(() => {
+    return () => {
+      objectUrlsRef.current.forEach(URL.revokeObjectURL);
+    };
+  }, []);
 
   // Load credits status on mount
   useEffect(() => {
@@ -53,24 +66,46 @@ export default function CrearCard({ onClose, onCardCreated }: CrearCardProps) {
   const canAfford = creditsStatus
     ? creditsStatus.remaining >= estimatedCost
     : true;
-  const isValid = formData.reference.trim().length >= 3 || !!selectedFile;
+  const isValid = formData.reference.trim().length >= 3 || selectedFiles.length > 0;
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    if (!ACCEPTED_FILE_TYPES.includes(file.type)) {
-      toast.error("Formato no soportado", "Solo imágenes (PNG, JPG, WEBP, GIF) y PDF");
-      return;
+    const fileList = e.target.files;
+    if (!fileList || fileList.length === 0) return;
+    const newFiles: File[] = [];
+    const newPreviews: string[] = [];
+    for (const f of Array.from(fileList)) {
+      if (selectedFiles.length + newFiles.length >= MAX_FILES) {
+        toast.error("Límite alcanzado", `Máximo ${MAX_FILES} archivos`);
+        break;
+      }
+      if (!ACCEPTED_FILE_TYPES.includes(f.type as any)) {
+        toast.error("Formato no soportado", "Solo imágenes (PNG, JPG, WEBP, GIF) y PDF");
+        continue;
+      }
+      if (f.size > MAX_FILE_SIZE) {
+        toast.error("Archivo muy grande", `${f.name}: máximo ${MAX_FILE_SIZE / (1024 * 1024)}MB`);
+        continue;
+      }
+      newFiles.push(f);
+      if (f.type.startsWith("image/")) {
+        const url = URL.createObjectURL(f);
+        objectUrlsRef.current.push(url);
+        newPreviews.push(url);
+      } else {
+        newPreviews.push("");
+      }
     }
-    if (file.size > 10 * 1024 * 1024) {
-      toast.error("Archivo muy grande", "El tamaño máximo es 10MB");
-      return;
+    if (newFiles.length > 0) {
+      setSelectedFiles(prev => [...prev, ...newFiles]);
+      setFilePreviews(prev => [...prev, ...newPreviews]);
     }
-    setSelectedFile(file);
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
-  const handleRemoveFile = () => setSelectedFile(null);
+  const handleRemoveFile = (index: number) => {
+    setSelectedFiles(prev => prev.filter((_, i) => i !== index));
+    setFilePreviews(prev => prev.filter((_, i) => i !== index));
+  };
 
   const handleCreate = async () => {
     if (!isValid) {
@@ -91,7 +126,7 @@ export default function CrearCard({ onClose, onCardCreated }: CrearCardProps) {
     
     toast.info("Enviado", "Junior está analizando y redactando tus flashCards... te avisaremos en segundos.");
     onClose();
-    await onCardCreated({ ...formData, file: selectedFile || undefined });
+    await onCardCreated({ ...formData, files: selectedFiles.length > 0 ? selectedFiles : undefined });
   };
 
   return (
@@ -109,115 +144,126 @@ export default function CrearCard({ onClose, onCardCreated }: CrearCardProps) {
         </div>
 
         <div className={styles.content}>
-          <p className={styles.description}>
-            Genera tarjetas basándote en un texto de referencia o un archivo
-          </p>
-
-          <div className={styles.formGroup}>
-            <label className={styles.label}>Texto de Referencia</label>
-            <textarea
-              placeholder="Sobre que quieres las FlashCards, expresate..."
-              value={formData.reference}
-              onChange={(e) => setFormData({ ...formData, reference: e.target.value })}
-              className={styles.textarea}
-              rows={5}
-              disabled={loading}
-            />
-          </div>
-
-          {/* File upload */}
-          <div className={styles.formGroup} style={{ marginBottom: "1rem" }}>
-            <label className={styles.label}>O sube un archivo (imagen o PDF)</label>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept=".png,.jpg,.jpeg,.webp,.gif,.pdf"
-              onChange={handleFileSelect}
-              style={{ display: "none" }}
-            />
-            {selectedFile ? (
-              <div style={{
-                display: "flex", alignItems: "center", gap: "0.75rem",
-                padding: "0.75rem 1rem", background: "hsl(var(--accent) / 0.2)",
-                border: "1px solid hsl(var(--border))", borderRadius: "0.75rem"
-              }}>
-                <FileText size={20} style={{ color: "hsl(var(--primary))", flexShrink: 0 }} />
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontWeight: 600, fontSize: "0.9rem", color: "hsl(var(--foreground))", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                    {selectedFile.name}
-                  </div>
-                  <div style={{ fontSize: "0.75rem", color: "hsl(var(--muted-foreground))" }}>
-                    {(selectedFile.size / 1024).toFixed(1)} KB
+          <div className={styles.dashboardGrid}>
+            <div className={styles.dashboardMain}>
+              <div className={styles.formGroup}>
+                <label className={styles.label}>Texto de Referencia</label>
+                <div className={styles.inputFileWrapper}>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept={ACCEPTED_FILE_EXTENSIONS}
+                    multiple
+                    onChange={handleFileSelect}
+                    style={{ display: "none" }}
+                  />
+                  <div className={styles.refInputBody}>
+                    {selectedFiles.length > 0 && (
+                      <div className={styles.refFileRow}>
+                        {selectedFiles.map((f, i) => (
+                          <FileChip
+                            key={i}
+                            file={f}
+                            index={i}
+                            onRemove={handleRemoveFile}
+                            disabled={loading}
+                            variant="input"
+                            previewUrl={filePreviews[i]}
+                          />
+                        ))}
+                      </div>
+                    )}
+                    <textarea
+                      placeholder="Sobre que quieres las FlashCards, expresate..."
+                      value={formData.reference}
+                      onChange={(e) => {
+                        setFormData({ ...formData, reference: e.target.value });
+                      }}
+                      className={styles.textarea}
+                      disabled={loading}
+                    />
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <button
+                          className={`${styles.refUploadBtn} ${selectedFiles.length > 0 ? styles.refUploadBtnHasFile : ''}`}
+                          disabled={loading}
+                          type="button"
+                          title={selectedFiles.length > 0 ? `${selectedFiles.length} archivo(s) adjunto(s)` : "Adjuntar archivo"}
+                        >
+                          <Paperclip size={14} />
+                          {selectedFiles.length > 0 && <span className={styles.refBadge}>{selectedFiles.length}</span>}
+                        </button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" sideOffset={6} className={styles.dropdownContent}>
+                        <DropdownMenuItem
+                          onClick={() => {
+                            if (fileInputRef.current) {
+                              fileInputRef.current.accept = ACCEPTED_FILE_EXTENSIONS;
+                              fileInputRef.current.click();
+                            }
+                          }}
+                          className={styles.dropdownItem}
+                        >
+                          <Paperclip size={14} />
+                          <span>Subir archivos</span>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => {
+                            if (fileInputRef.current) {
+                              fileInputRef.current.accept = ACCEPTED_IMAGE_EXTENSIONS;
+                              fileInputRef.current.click();
+                            }
+                          }}
+                          className={styles.dropdownItem}
+                        >
+                          <Image size={14} />
+                          <span>Subir imágenes</span>
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
                 </div>
-                <button
-                  onClick={handleRemoveFile}
-                  style={{
-                    width: 24, height: 24, borderRadius: "50%", border: "none",
-                    background: "hsl(var(--destructive) / 0.1)", color: "hsl(var(--destructive))",
-                    cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center"
-                  }}
-                >
-                  <XCircle size={14} />
-                </button>
               </div>
-            ) : (
-              <button
-                type="button"
-                onClick={() => fileInputRef.current?.click()}
-                style={{
-                  display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem",
-                  padding: "0.75rem", border: "2px dashed hsl(var(--border))", borderRadius: "0.75rem",
-                  background: "transparent", color: "hsl(var(--muted-foreground))", cursor: "pointer",
-                  fontWeight: 600, fontSize: "0.85rem", transition: "all 0.2s ease", width: "100%"
-                }}
-                disabled={loading}
-              >
-                <Upload size={18} />
-                <span>Subir archivo (imagen o PDF)</span>
-              </button>
-            )}
-          </div>
-
-          <div className={styles.formRow}>
-            <div className={styles.formGroup}>
-              <label className={styles.label}>Cantidad de Tarjetas</label>
-              <input
-                type="number"
-                min="2"
-                max="25"
-                value={formData.quantity}
-                onChange={(e) => setFormData({ ...formData, quantity: parseInt(e.target.value) })}
-                className={styles.input}
-                disabled={loading}
-              />
             </div>
 
-            <div className={styles.formGroup}>
-              <label className={styles.label}>Privacidad</label>
-              <select
-                value={formData.acceso}
-                onChange={(e) => setFormData({ ...formData, acceso: e.target.value })}
-                className={styles.select}
-                disabled={loading}
-              >
-                <option title="Solo tu podras usarlas" value="private">
-                  Privado
-                </option>
-                <option title="Todos podran usarlas" value="public">
-                  Público
-                </option>
-              </select>
+            <div className={styles.dashboardSide}>
+              <div className={styles.sidePanel}>
+                <span className={styles.sidePanelLabel}>Cantidad</span>
+                <input
+                  type="number"
+                  min="2"
+                  max="25"
+                  value={formData.quantity}
+                  onChange={(e) => setFormData({ ...formData, quantity: parseInt(e.target.value) })}
+                  className={styles.input}
+                  disabled={loading}
+                />
+              </div>
+              <div className={styles.sidePanel}>
+                <span className={styles.sidePanelLabel}>Visibilidad</span>
+                <select
+                  value={formData.acceso}
+                  onChange={(e) => setFormData({ ...formData, acceso: e.target.value })}
+                  className={styles.select}
+                  disabled={loading}
+                >
+                  <option title="Solo tu podras usarlas" value="private">Privado</option>
+                  <option title="Todos podran usarlas" value="public">Público</option>
+                </select>
+              </div>
+              {creditsStatus && (
+                <div className={styles.creditBar}>
+                  <span>~{estimatedCost} créditos</span>
+                  <span>{creditsStatus.remaining}/{creditsStatus.total}</span>
+                  {!canAfford && <span className={styles.creditWarning}>Insuficiente</span>}
+                </div>
+              )}
             </div>
           </div>
         </div>
 
         <div className={styles.footer}>
-          <button
-            onClick={onClose}
-            className={styles.cancelBtn}
-            disabled={loading}
-          >
+          <button onClick={onClose} className={styles.cancelBtn} disabled={loading}>
             Cancelar
           </button>
           <button
@@ -227,30 +273,17 @@ export default function CrearCard({ onClose, onCardCreated }: CrearCardProps) {
           >
             {loading ? (
               <>
-                <Loader size={18} className={styles.spinner} />
+                <Loader size={16} className={styles.spinner} />
                 Generando...
               </>
             ) : (
               <>
-                <Sparkles size={18} />
+                <Sparkles size={16} />
                 Generar
               </>
             )}
           </button>
         </div>
-
-        {creditsStatus && (
-          <div className={styles.creditPreview}>
-            <span>Costo: ~{estimatedCost} créditos</span>
-            <span>•</span>
-            <span>
-              Tus créditos: {creditsStatus.remaining}/{creditsStatus.total}
-            </span>
-            {!canAfford && (
-              <span className={styles.creditWarning}>Crédito insuficiente</span>
-            )}
-          </div>
-        )}
       </div>
     </div>
   );

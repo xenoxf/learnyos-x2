@@ -324,12 +324,14 @@
 }
 
 .userMessage {
-  justify-content: flex-end;
+  flex-direction: column;
+  align-items: flex-end;
 }
 
 .botMessage {
   justify-content: flex-start;
   align-items: flex-start;
+  flex-direction: column;
 }
 
 .messageContent {
@@ -394,6 +396,43 @@
   background: hsl(var(--muted) / 0.5);
 }
 
+/* Failed / retry message */
+.messageFailed {
+  border: 1px solid hsl(var(--destructive) / 0.3) !important;
+  background: hsl(var(--destructive) / 0.08) !important;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.retryButton {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  border: 1px solid hsl(var(--destructive) / 0.3);
+  background: hsl(var(--destructive) / 0.1);
+  color: hsl(var(--destructive));
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all var(--transition-fast);
+  margin-left: auto;
+}
+
+.retryButton:hover {
+  background: hsl(var(--destructive) / 0.2);
+  transform: rotate(45deg);
+}
+
+.sendingIndicator {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 0.375rem;
+  opacity: 0.6;
+}
+
 /* Typing indicator */
 .typing {
   display: flex;
@@ -419,8 +458,16 @@
 }
 
 @keyframes jump {
-  0%, 80%, 100% { transform: translateY(0); }
-  40% { transform: translateY(-10px); }
+
+  0%,
+  80%,
+  100% {
+    transform: translateY(0);
+  }
+
+  40% {
+    transform: translateY(-10px);
+  }
 }
 
 /* ========== INPUT AREA ========== */
@@ -442,11 +489,11 @@
 .inputWrapper {
   display: flex;
   align-items: flex-end;
-  gap: 0.5rem;
+  gap: 0.375rem;
   background: hsl(var(--card));
   border: 1px solid hsl(var(--border));
   border-radius: 16px;
-  padding: 0.625rem;
+  padding: 0.5rem;
   box-shadow: var(--shadow-sm);
   transition: all var(--transition-base);
 }
@@ -456,19 +503,138 @@
   box-shadow: var(--shadow-md);
 }
 
-.textarea {
+.inputBody {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  position: relative;
+}
+
+/* ========== FILE CHIPS INSIDE INPUT (ChatGPT-style) ========== */
+.inlineFileRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+  padding: 0.375rem 0.5rem 0 0.5rem;
+  max-width: 100%;
+}
+
+.inlineFileChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.2rem 0.4rem 0.2rem 0.3rem;
+  background: linear-gradient(135deg, hsl(var(--accent) / 0.25), hsl(var(--primary) / 0.08));
+  border: 1px solid hsl(var(--border));
+  border-radius: 6px;
+  font-size: 0.7rem;
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 0;
+  animation: chipPop 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.inlineFileChip:hover {
+  border-color: hsl(var(--primary) / 0.3);
+  box-shadow: 0 1px 4px hsl(var(--primary) / 0.1);
+}
+
+.inlineChipProgress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: hsl(var(--muted));
+}
+
+.inlineChipProgressBar {
+  height: 100%;
+  background: linear-gradient(90deg, hsl(var(--primary)), hsl(var(--ring)));
+  transition: width 0.2s ease;
+  border-radius: 0 0 6px 6px;
+}
+
+.inlineChipThumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 3px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.inlineChipIcon {
+  width: 16px;
+  height: 16px;
+  border-radius: 3px;
+  background: hsl(var(--muted));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: hsl(var(--muted-foreground));
+}
+
+.inlineChipName {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: hsl(var(--foreground));
+  font-weight: 500;
+  max-width: 80px;
+  font-size: 0.65rem;
+}
+
+.inlineChipRemove {
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  border: none;
+  background: transparent;
+  color: hsl(var(--muted-foreground));
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all var(--transition-fast);
+  opacity: 0.6;
+}
+
+.inlineChipRemove:hover {
+  background: hsl(var(--destructive) / 0.15);
+  color: hsl(var(--destructive));
+  opacity: 1;
+}
+
+@keyframes chipPop {
+  from {
+    transform: scale(0.85);
+    opacity: 0;
+  }
+
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.textarea {
   border: none;
   background: transparent;
   color: hsl(var(--foreground));
   font-size: 0.9375rem;
   resize: none;
-  max-height: 120px;
+  field-sizing: content;
+  min-height: 24px;
+  max-height: min(180px, 60vh);
   font-family: inherit;
   outline: none;
   line-height: 1.5;
-  padding: 0.25rem 0.5rem;
-  min-height: 24px;
+  padding: 0.1875rem 0.5rem;
+  padding-right: 2.5rem;
 }
 
 .textarea::placeholder {
@@ -501,8 +667,15 @@
 
 /* ========== ANIMATIONS ========== */
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(6px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .spin {
@@ -510,8 +683,13 @@
 }
 
 @keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* ========== RESPONSIVE ========== */
@@ -602,20 +780,54 @@
   }
 }
 
-/* ========== FILE UPLOAD ========== */
+/* ========== DROPDOWN MENU (estilo ChatGPT) ========== */
+.dropdownContent {
+  min-width: 8rem;
+  overflow: hidden;
+  border-radius: 0.5rem;
+  border: 1px solid hsl(var(--border));
+  background: hsl(var(--popover));
+  padding: 0.25rem;
+  color: hsl(var(--popover-foreground));
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  z-index: 9999;
+}
+
+.dropdownItem {
+  display: flex;
+  cursor: pointer;
+  gap: 0.5rem;
+  align-items: center;
+  border-radius: 0.25rem;
+  padding: 0.375rem 0.5rem;
+  font-size: 0.875rem;
+  outline: none;
+  transition: background 0.15s ease;
+}
+
+.dropdownItem:hover,
+.dropdownItem:focus {
+  background: hsl(var(--accent));
+  color: hsl(var(--accent-foreground));
+}
+
+/* ========== FILE UPLOAD (estilo ChatGPT) ========== */
 .uploadButton {
-  width: 40px;
-  height: 40px;
-  border-radius: 12px;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
   border: none;
-  background: transparent;
+  background: hsl(var(--muted) / 0.3);
   color: hsl(var(--muted-foreground));
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all var(--transition-fast);
-  flex-shrink: 0;
+  position: absolute;
+  bottom: 0.4rem;
+  right: 0.4rem;
+  z-index: 2;
 }
 
 .uploadButton:hover:not(:disabled) {
@@ -624,108 +836,169 @@
 }
 
 .uploadButton:disabled {
-  opacity: 0.4;
+  opacity: 0.3;
   cursor: not-allowed;
 }
 
-.filePreview {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 0.75rem;
-  background: hsl(var(--accent) / 0.3);
-  border: 1px solid hsl(var(--border));
-  border-radius: 10px;
-  margin-bottom: 0.5rem;
-  font-size: 0.8125rem;
+.uploadButtonHasFiles {
+  color: hsl(var(--primary));
 }
 
-.filePreviewIcon {
-  width: 32px;
-  height: 32px;
-  border-radius: 6px;
-  object-fit: cover;
-  background: hsl(var(--muted));
-}
-
-.filePreviewInfo {
-  flex: 1;
-  min-width: 0;
-}
-
-.filePreviewName {
-  font-weight: 500;
-  color: hsl(var(--foreground));
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.filePreviewSize {
-  color: hsl(var(--muted-foreground));
-  font-size: 0.75rem;
-}
-
-.filePreviewRemove {
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  border: none;
-  background: hsl(var(--destructive) / 0.1);
-  color: hsl(var(--destructive));
-  cursor: pointer;
+.uploadBadge {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  min-width: 16px;
+  height: 16px;
+  border-radius: 8px;
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  font-size: 0.55rem;
+  font-weight: 700;
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
-  transition: all var(--transition-fast);
+  padding: 0 3px;
+  line-height: 1;
+  box-shadow: 0 1px 3px hsl(var(--foreground) / 0.15);
 }
 
-.filePreviewRemove:hover {
-  background: hsl(var(--destructive) / 0.2);
-}
-
-.fileMessage {
+/* ========== MESSAGE FILE CAROUSEL (Premium 2026) ========== */
+.msgFileCarousel {
   display: flex;
-  align-items: center;
   gap: 0.5rem;
-  margin-bottom: 0.375rem;
-  padding: 0.375rem 0.5rem;
-  background: hsl(var(--accent) / 0.2);
-  border-radius: 8px;
-  font-size: 0.8125rem;
-}
-
-/* File preview inside user message bubbles */
-.userMessageFile {
-  max-width: 75%;
-  margin-bottom: 0.375rem;
-}
-
-.userMessageImage {
-  width: 100%;
-  max-width: 280px;
-  max-height: 320px;
-  border-radius: 12px;
-  object-fit: contain;
-  background: hsl(var(--muted) / 0.3);
-  display: block;
-}
-
-.userMessageFileInfo {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 0.75rem;
-  background: hsl(var(--accent) / 0.3);
+  overflow-x: auto;
+  overflow-y: hidden;
+  max-width: 80%;
+  padding: 0.5rem 0.25rem;
+  margin-bottom: 0.5rem;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: thin;
+  -webkit-overflow-scrolling: touch;
   border-radius: 10px;
-  font-size: 0.8125rem;
-  color: hsl(var(--foreground));
 }
 
-.userMessageFileName {
-  font-weight: 500;
+.msgFileCarousel::-webkit-scrollbar {
+  height: 4px;
+}
+
+.msgFileCarousel::-webkit-scrollbar-track {
+  background: hsl(var(--muted) / 0.3);
+  border-radius: 4px;
+}
+
+.msgFileCarousel::-webkit-scrollbar-thumb {
+  background: hsl(var(--primary) / 0.4);
+  border-radius: 4px;
+}
+
+.msgFileCarousel::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--primary) / 0.6);
+}
+
+.msgCarouselCard {
+  flex-shrink: 0;
+  scroll-snap-align: start;
+  border-radius: 10px;
+  overflow: hidden;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+}
+
+.msgCarouselCard:hover {
+  transform: translateY(-3px) scale(1.03);
+}
+
+.msgCarouselCardImage {
+  width: 100px;
+  height: 100px;
+  box-shadow: 0 2px 8px hsl(var(--foreground) / 0.08);
+}
+
+.msgCarouselCardImage:hover {
+  box-shadow: 0 6px 20px hsl(var(--primary) / 0.2);
+  border-color: hsl(var(--primary) / 0.3);
+}
+
+.msgCarouselImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.3s ease;
+}
+
+.msgCarouselCardImage:hover .msgCarouselImg {
+  transform: scale(1.08);
+}
+
+.msgCarouselOverlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 0.4rem 0.5rem;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.75));
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+.msgCarouselName {
+  font-size: 0.6rem;
+  font-weight: 600;
+  color: #fff;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  display: block;
+}
+
+.msgCarouselCardFile {
+  width: 100px;
+  height: 100px;
+  background: linear-gradient(145deg, hsl(var(--card)), hsl(var(--muted) / 0.2));
+  box-shadow: 0 2px 8px hsl(var(--foreground) / 0.06);
+}
+
+.msgCarouselCardFile:hover {
+  box-shadow: 0 6px 20px hsl(var(--accent) / 0.25);
+  border-color: hsl(var(--primary) / 0.3);
+}
+
+.msgCarouselFileBody {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  padding: 0.5rem;
+}
+
+.msgCarouselFileIcon {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, hsl(var(--primary) / 0.12), hsl(var(--primary) / 0.04));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: hsl(var(--primary));
+  flex-shrink: 0;
+}
+
+.msgCarouselFileName {
+  font-size: 0.58rem;
+  font-weight: 600;
+  color: hsl(var(--foreground) / 0.8);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 80px;
+  text-align: center;
 }

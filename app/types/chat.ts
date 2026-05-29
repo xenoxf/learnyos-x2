@@ -6,11 +6,17 @@ export interface ChatMessage {
   content: string;
   role: MessageRole;
   createdAt: string;
+  status?: 'sending' | 'sent' | 'failed';
   file?: {
     name: string;
     url?: string;
     type: string;
   };
+  files?: Array<{
+    name: string;
+    url?: string;
+    type: string;
+  }>;
 }
 
 export interface Chat {
@@ -37,11 +43,11 @@ export interface SendMessageData {
   chatId?: number;
 }
 
-/** Datos para enviar un mensaje con archivo adjunto */
+/** Datos para enviar un mensaje con archivos adjuntos */
 export interface SendMessageWithFileData {
   prompt?: string;
   chatId?: number;
-  file: File;
+  files: File[];
 }
 
 /** Respuesta del backend POST /messages/send - devuelve la entidad Message */
@@ -62,6 +68,10 @@ export interface GetChatMessagesResponse {
     prompt: string;
     response: string;
     createdAt: string;
+    fileName?: string | null;
+    fileType?: string | null;
+    fileData?: string | null;
+    fileUrl?: string | null;
   }>;
 }
 

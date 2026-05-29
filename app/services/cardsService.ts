@@ -39,6 +39,9 @@ export const cardsService = {
   },
 
   generateFlashcards(data: GenerateFlashCardData): Promise<any> {
+    if (data.files && data.files.length > 0) {
+      return this.generateFlashcardsFromFile(data);
+    }
     if (data.file) {
       return this.generateFlashcardsFromFile(data);
     }
@@ -50,7 +53,8 @@ export const cardsService = {
   async generateFlashcardsFromFile(data: GenerateFlashCardData): Promise<any> {
     const token = httpClient.getToken();
     const formData = new FormData();
-    if (data.file) formData.append("file", data.file);
+    const files = data.files && data.files.length > 0 ? data.files : (data.file ? [data.file] : []);
+    files.forEach(f => formData.append("files", f));
     formData.append("reference", data.reference || "");
     formData.append("quantity", String(data.quantity || 5));
     formData.append("acceso", data.acceso || "public");

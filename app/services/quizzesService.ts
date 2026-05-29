@@ -43,7 +43,7 @@ export const quizzesService = {
   },
 
   generateExam(data: GenerateExamData): Promise<ExamKlek> {
-    if (data.file) {
+    if ((data.files && data.files.length > 0) || data.file) {
       return this.generateExamFromFile(data);
     }
     return httpClient.request<ExamKlek>("/exams/generate/topic_or_reference", { method: "POST", body: JSON.stringify(data) });
@@ -52,7 +52,8 @@ export const quizzesService = {
   async generateExamFromFile(data: GenerateExamData): Promise<any> {
     const token = httpClient.getToken();
     const formData = new FormData();
-    if (data.file) formData.append("file", data.file);
+    const files = data.files && data.files.length > 0 ? data.files : (data.file ? [data.file] : []);
+    files.forEach(f => formData.append("files", f));
     formData.append("reference", data.reference || "");
     formData.append("numberOfQuestions", String(data.numberOfQuestions || 10));
     formData.append("difficulty", data.difficulty || "medium");

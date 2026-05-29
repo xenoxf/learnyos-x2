@@ -14,9 +14,11 @@ import {
   PanelLeftClose,
   PanelLeft,
   X,
-  Image,
   FileText,
-  XCircle,
+  RefreshCw,
+  AlertTriangle,
+  Paperclip,
+  Image,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -24,11 +26,19 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import FilePreviewModal from "@/components/common/FilePreviewModal";
+import FileChip from "@/components/common/FileChip";
 import styles from "@/styles/chat.module.css";
 import type { ChatMessage, Chat } from "@/types";
 import { MarkdownRenderer } from "@/components/MarkdownRenderer";
 import { chatsService } from "@/services/chatsService";
 import { authService } from "@/services/authService";
+import {
+  ACCEPTED_FILE_TYPES,
+  ACCEPTED_FILE_EXTENSIONS,
+  ACCEPTED_IMAGE_EXTENSIONS,
+  MAX_FILE_SIZE,
+} from "@/lib/file-constants";
 
 export const dynamic = "force-dynamic";
 
@@ -46,8 +56,13 @@ export default function ChatPage() {
   const [isMobile, setIsMobile] = useState(false);
   const [copiedId, setCopiedId] = useState<number | null>(null);
   const [isGuest, setIsGuest] = useState(false);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [filePreview, setFilePreview] = useState<string | null>(null);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [filePreviews, setFilePreviews] = useState<string[]>([]);
+  const [uploadProgress, setUploadProgress] = useState<number | null>(null);
+  const [previewFile, setPreviewFile] = useState<{ url: string; name: string; type: string } | null>(null);
+  const failedInputsRef = useRef<
+    Map<number, { prompt: string; file?: { name: string; type: string; url?: string }; fileBlob?: Blob }>
+  >(new Map());
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -115,39 +130,47 @@ export default function ChatPage() {
     try {
       const response = await chatsService.getChatMessages(chatId);
       const messagesList = response.messages ?? [];
-      const chatMessages: ChatMessage[] = messagesList.flatMap((m) => [
-        {
-          id: m.id * 2,
-          chatId: response.chatId,
-          content: m.prompt,
-          role: "user",
-          createdAt: String(m.createdAt),
-        },
-        {
-          id: m.id * 2 + 1,
-          chatId: response.chatId,
-          content: m.response,
-          role: "assistant",
-          createdAt: String(m.createdAt),
-        },
-      ]);
+      const chatMessages: ChatMessage[] = messagesList.flatMap((m) => {
+        // Parse multi-file data (stored as || separated)
+        const names = m.fileName?.split('||').filter(Boolean) || [];
+        const types = m.fileType?.split('||').filter(Boolean) || [];
+        const datas = m.fileData?.split('||').filter(Boolean) || [];
+        const urls = m.fileUrl?.split('||').filter(Boolean) || [];
+
+        const files = names.length > 0
+          ? names.map((name, i) => {
+              const type = types[i] || '';
+              const fileUrl = urls[i]
+                ? `${process.env.NEXT_PUBLIC_BACKEND_URL || ""}${urls[i]}`
+                : type.startsWith("image/") && datas[i]
+                  ? `data:${type};base64,${datas[i]}`
+                  : undefined;
+              return { name, type, url: fileUrl };
+            })
+          : undefined;
+
+        return [
+          {
+            id: m.id * 2,
+            chatId: response.chatId,
+            content: m.prompt,
+            role: "user" as const,
+            createdAt: String(m.createdAt),
+            files,
+          },
+          {
+            id: m.id * 2 + 1,
+            chatId: response.chatId,
+            content: m.response,
+            role: "assistant" as const,
+            createdAt: String(m.createdAt),
+          },
+        ];
+      });
       setMessages(chatMessages);
     } catch {
       toast.error("Error", "No se pudieron cargar los mensajes");
     }
-  }, []);
-
-  // ==================== TEXTAREA ====================
-  const adjustTextareaHeight = useCallback(() => {
-    if (textareaRef.current) {
-      const ta = textareaRef.current;
-      ta.style.height = "auto";
-      ta.style.height = `${Math.min(ta.scrollHeight, 120)}px`;
-    }
-  }, []);
-
-  const resetTextareaHeight = useCallback(() => {
-    if (textareaRef.current) textareaRef.current.style.height = "auto";
   }, []);
 
   // ==================== ENVIAR MENSAJE ====================
@@ -156,24 +179,29 @@ export default function ChatPage() {
       toast.error("Acceso restringido", "Inicia sesión para usar el chat");
       return;
     }
-    if ((!inputValue.trim() && !selectedFile) || isLoading) return;
+    if ((!inputValue.trim() && selectedFiles.length === 0) || isLoading) return;
 
     const messageContent = inputValue.trim();
-    const fileToSend = selectedFile;
+    const filesToSend = [...selectedFiles];
     setInputValue("");
-    setSelectedFile(null);
-    setFilePreview(null);
+    setSelectedFiles([]);
+    setFilePreviews([]);
     setIsLoading(true);
     setIsStreaming(true);
     setStreamingContent("");
-    resetTextareaHeight();
+    setUploadProgress(null);
 
     const sendingToExistingChat = !!currentChat;
 
-    let fileUrl: string | undefined;
-    if (fileToSend?.type.startsWith("image/")) {
-      fileUrl = URL.createObjectURL(fileToSend);
-      objectUrlsRef.current.push(fileUrl);
+    const fileUrls: string[] = [];
+    for (const f of filesToSend) {
+      if (f.type.startsWith("image/")) {
+        const url = URL.createObjectURL(f);
+        fileUrls.push(url);
+        objectUrlsRef.current.push(url);
+      } else {
+        fileUrls.push("");
+      }
     }
 
     const userMessage: ChatMessage = {
@@ -182,13 +210,12 @@ export default function ChatPage() {
       content: messageContent || "",
       role: "user",
       createdAt: new Date().toISOString(),
-      file: fileToSend
-        ? {
-            name: fileToSend.name,
-            type: fileToSend.type,
-            url: fileUrl,
-          }
-        : undefined,
+      status: 'sending',
+      files: filesToSend.map((f, i) => ({
+        name: f.name,
+        type: f.type,
+        url: fileUrls[i] || undefined,
+      })),
     };
 
     setMessages((prev) => [...prev, userMessage]);
@@ -197,13 +224,21 @@ export default function ChatPage() {
     let newChatId: number | undefined;
 
     try {
-      if (fileToSend) {
-        // Send with file via FormData stream
+      if (filesToSend.length > 0) {
+        setUploadProgress(0);
+        let hasStreamed = false;
         for await (const chunk of chatsService.sendMessageStreamWithFile({
           prompt: messageContent,
           chatId: currentChat?.id,
-          file: fileToSend,
+          files: filesToSend,
+        }, (pct) => {
+          setUploadProgress(pct);
+          if (pct === 100) hasStreamed = true;
         })) {
+          if (!hasStreamed) {
+            hasStreamed = true;
+            setUploadProgress(100);
+          }
           if (chunk.type === "chunk") {
             fullContent += chunk.content || "";
             setStreamingContent(fullContent);
@@ -226,15 +261,21 @@ export default function ChatPage() {
         }
       }
 
+      // Mark user message as sent
+      setMessages((prev) =>
+        prev.map((m) => (m.id === userMessage.id ? { ...m, status: 'sent' as const } : m)),
+      );
+
       setStreamingContent("");
       setIsStreaming(false);
 
       if (!sendingToExistingChat && newChatId) {
+        const chatTitle = messageContent ||
+          (filesToSend.length === 1 ? filesToSend[0].name : `${filesToSend.length} archivos`) ||
+          "Archivo";
         const newChat: Chat = {
           id: newChatId,
-          title:
-            (messageContent || fileToSend?.name || "Archivo").slice(0, 40) +
-            ((messageContent || fileToSend?.name || "").length > 40 ? "..." : ""),
+          title: chatTitle.slice(0, 40) + (chatTitle.length > 40 ? "..." : ""),
           createdAt: new Date().toISOString(),
           messageCount: 1,
         };
@@ -256,12 +297,16 @@ export default function ChatPage() {
         await loadChats();
       }
     } catch {
-      setMessages((prev) => prev.filter((m) => m.id !== userMessage.id));
-      toast.error("Error", "No se pudo obtener la respuesta");
+      // Mark user message as failed instead of removing it
+      setMessages((prev) =>
+        prev.map((m) => (m.id === userMessage.id ? { ...m, status: 'failed' as const } : m)),
+      );
+      toast.error("Error", "No se pudo obtener la respuesta. Haz clic en el mensaje para reintentar.");
     } finally {
       setIsLoading(false);
       setIsStreaming(false);
       setStreamingContent("");
+      setUploadProgress(null);
     }
   }, [
     isGuest,
@@ -269,8 +314,7 @@ export default function ChatPage() {
     isLoading,
     currentChat,
     loadChats,
-    resetTextareaHeight,
-    selectedFile,
+    selectedFiles,
   ]);
 
   const handleNewChat = () => {
@@ -311,44 +355,60 @@ export default function ChatPage() {
   };
 
   // ==================== FILE HANDLING ====================
-  const ACCEPTED_FILE_TYPES = [
-    "image/png", "image/jpeg", "image/webp", "image/gif",
-    "application/pdf",
-  ];
-  const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
-
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const fileList = e.target.files;
+    if (!fileList || fileList.length === 0) return;
 
-    if (!ACCEPTED_FILE_TYPES.includes(file.type)) {
-      toast.error("Formato no soportado", "Solo imágenes (PNG, JPG, WEBP, GIF) y PDF");
-      return;
+    const added: File[] = [];
+    const newPreviews: string[] = [];
+
+    for (const file of Array.from(fileList)) {
+      if (!ACCEPTED_FILE_TYPES.includes(file.type as any)) {
+        toast.error("Formato no soportado", `"${file.name}": Solo imágenes (PNG, JPG, WEBP, GIF) y PDF`);
+        continue;
+      }
+
+      if (file.size > MAX_FILE_SIZE) {
+        toast.error("Archivo muy grande", `"${file.name}": El tamaño máximo es 10MB`);
+        continue;
+      }
+
+      if (selectedFiles.length + added.length >= 5) {
+        toast.error("Límite", "Máximo 5 archivos por mensaje");
+        break;
+      }
+
+      added.push(file);
+
+      if (file.type.startsWith("image/")) {
+        const reader = new FileReader();
+        const previewPromise = new Promise<string>((resolve) => {
+          reader.onload = (ev) => resolve(ev.target?.result as string || "");
+        });
+        reader.readAsDataURL(file);
+        newPreviews.push(""); // placeholder
+        previewPromise.then((dataUrl) => {
+          setFilePreviews((prev) => {
+            const next = [...prev];
+            const idx = selectedFiles.length + added.indexOf(file);
+            if (idx < next.length) next[idx] = dataUrl;
+            return next;
+          });
+        });
+      } else {
+        newPreviews.push("");
+      }
     }
 
-    if (file.size > MAX_FILE_SIZE) {
-      toast.error("Archivo muy grande", "El tamaño máximo es 10MB");
-      return;
-    }
+    setSelectedFiles((prev) => [...prev, ...added]);
+    setFilePreviews((prev) => [...prev, ...newPreviews]);
 
-    setSelectedFile(file);
-
-    // Create preview for images
-    if (file.type.startsWith("image/")) {
-      const reader = new FileReader();
-      reader.onload = (ev) => setFilePreview(ev.target?.result as string);
-      reader.readAsDataURL(file);
-    } else {
-      setFilePreview(null);
-    }
-
-    // Reset input
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
-  const handleRemoveFile = () => {
-    setSelectedFile(null);
-    setFilePreview(null);
+  const handleRemoveFile = (index: number) => {
+    setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
+    setFilePreviews((prev) => prev.filter((_, i) => i !== index));
   };
 
   const formatFileSize = (bytes: number) => {
@@ -365,6 +425,18 @@ export default function ChatPage() {
       toast.success("Copiado", "Mensaje copiado al portapapeles");
     } catch {
       toast.error("Error", "No se pudo copiar el mensaje");
+    }
+  };
+
+  const handleRetryMessage = (msg: ChatMessage) => {
+    if (isLoading || isGuest) return;
+    setInputValue(msg.content);
+    if (textareaRef.current) textareaRef.current.focus();
+    const hasFiles = !!(msg.files && msg.files.length > 0) || !!msg.file;
+    if (!hasFiles) {
+      toast.success("Reintentar", "Mensaje restaurado. Haz clic en enviar para reintentar.");
+    } else {
+      toast.info("Reintentar", "Texto restaurado. Vuelve a seleccionar los archivos y envía.");
     }
   };
 
@@ -411,9 +483,22 @@ export default function ChatPage() {
   }, [messages, streamingContent, scrollToBottom]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && !e.shiftKey) {
+    if (e.key === "Enter" && !e.shiftKey && !e.ctrlKey) {
       e.preventDefault();
-      if ((inputValue.trim() || selectedFile) && !isLoading) {
+      const ta = textareaRef.current;
+      if (ta) {
+        const start = ta.selectionStart;
+        const end = ta.selectionEnd;
+        const value = inputValue;
+        const newValue = value.substring(0, start) + "\n" + value.substring(end);
+        setInputValue(newValue);
+        requestAnimationFrame(() => {
+          ta.selectionStart = ta.selectionEnd = start + 1;
+        });
+      }
+    } else if (e.key === "Enter" && e.ctrlKey) {
+      e.preventDefault();
+      if ((inputValue.trim() || selectedFiles.length > 0) && !isLoading) {
         handleSendMessage();
       }
     }
@@ -524,26 +609,58 @@ export default function ChatPage() {
                 >
                   {msg.role === "user" ? (
                     <>
-                      {msg.file && (
-                        <div className={styles.userMessageFile}>
-                          {msg.file.type.startsWith("image/") && msg.file.url ? (
-                            <img
-                              src={msg.file.url}
-                              alt={msg.file.name}
-                              className={styles.userMessageImage}
-                            />
-                          ) : (
-                            <div className={styles.userMessageFileInfo}>
-                              <FileText size={18} />
-                              <span className={styles.userMessageFileName}>
-                                {msg.file.name}
-                              </span>
-                            </div>
-                          )}
+                      {(msg.files || (msg.file ? [msg.file] : [])).length > 0 && (
+                        <div className={styles.msgFileCarousel}>
+                          {(msg.files || (msg.file ? [msg.file] : [])).map((file, fi) => {
+                            const isImage = file.type.startsWith("image/") && file.url;
+                            return (
+                              <div
+                                key={fi}
+                                className={`${styles.msgCarouselCard} ${isImage ? styles.msgCarouselCardImage : styles.msgCarouselCardFile}`}
+                                title={file.name}
+                                onClick={() => isImage && setPreviewFile({ url: file.url!, name: file.name, type: file.type })}
+                              >
+                                {isImage ? (
+                                  <>
+                                    <img
+                                      src={file.url!}
+                                      alt={file.name}
+                                      className={styles.msgCarouselImg}
+                                      loading="lazy"
+                                    />
+                                    <div className={styles.msgCarouselOverlay}>
+                                      <span className={styles.msgCarouselName}>{file.name}</span>
+                                    </div>
+                                  </>
+                                ) : (
+                                  <div className={styles.msgCarouselFileBody}>
+                                    <div className={styles.msgCarouselFileIcon}>
+                                      <FileText size={18} />
+                                    </div>
+                                    <span className={styles.msgCarouselFileName}>{file.name}</span>
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
                         </div>
                       )}
-                      <div className={styles.messageContent}>
+                      <div className={`${styles.messageContent} ${msg.status === 'failed' ? styles.messageFailed : ''}`}>
                         {msg.content}
+                        {msg.status === 'failed' && (
+                          <button
+                            className={styles.retryButton}
+                            onClick={() => handleRetryMessage(msg)}
+                            title="Reintentar"
+                          >
+                            <RefreshCw size={14} />
+                          </button>
+                        )}
+                        {msg.status === 'sending' && (
+                          <span className={styles.sendingIndicator}>
+                            <Loader size={12} className={styles.spin} />
+                          </span>
+                        )}
                       </div>
                     </>
                   ) : (
@@ -598,95 +715,94 @@ export default function ChatPage() {
         {/* INPUT */}
         <div className={styles.inputArea}>
           <div className={styles.inputContainer}>
-            {/* File preview */}
-            {selectedFile && (
-              <div className={styles.filePreview}>
-                {filePreview ? (
-                  <img src={filePreview} alt="" className={styles.filePreviewIcon} />
-                ) : (
-                  <FileText size={18} className={styles.filePreviewIcon} style={{ padding: 4 }} />
-                )}
-                <div className={styles.filePreviewInfo}>
-                  <div className={styles.filePreviewName}>{selectedFile.name}</div>
-                  <div className={styles.filePreviewSize}>{formatFileSize(selectedFile.size)}</div>
-                </div>
-                <button
-                  className={styles.filePreviewRemove}
-                  onClick={handleRemoveFile}
-                  disabled={isLoading}
-                >
-                  <XCircle size={14} />
-                </button>
-              </div>
-            )}
-
             <div className={styles.inputWrapper}>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button
-                    className={styles.uploadButton}
-                    disabled={isLoading || isGuest}
-                    title="Añadir"
-                  >
-                    <Plus size={20} />
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="start" sideOffset={8}>
-                  <DropdownMenuItem
-                    onClick={() => {
-                      if (fileInputRef.current) {
-                        fileInputRef.current.accept = ".png,.jpg,.jpeg,.webp,.gif";
-                        fileInputRef.current.click();
-                      }
-                    }}
-                  >
-                    <Image size={16} />
-                    <span>Imagen</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={() => {
-                      if (fileInputRef.current) {
-                        fileInputRef.current.accept = ".pdf";
-                        fileInputRef.current.click();
-                      }
-                    }}
-                  >
-                    <FileText size={16} />
-                    <span>Documento PDF</span>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
               <input
                 ref={fileInputRef}
                 type="file"
-                accept=".png,.jpg,.jpeg,.webp,.gif,.pdf"
+                accept={ACCEPTED_FILE_EXTENSIONS}
+                multiple
                 onChange={handleFileSelect}
                 style={{ display: "none" }}
               />
-              <textarea
-                ref={textareaRef}
-                className={styles.textarea}
-                placeholder={
-                  isGuest
-                    ? "Inicia sesión para enviar mensajes..."
-                    : selectedFile
-                      ? "Describe el archivo o haz una pregunta..."
+              <div className={styles.inputBody}>
+                {selectedFiles.length > 0 && (
+                  <div className={styles.inlineFileRow}>
+                    {selectedFiles.map((f, i) => (
+                      <FileChip
+                        key={i}
+                        file={f}
+                        index={i}
+                        onRemove={handleRemoveFile}
+                        disabled={isLoading}
+                        variant="input"
+                        previewUrl={filePreviews[i]}
+                      />
+                    ))}
+                  </div>
+                )}
+                <textarea
+                  ref={textareaRef}
+                  className={styles.textarea}
+                  placeholder={
+                    isGuest
+                      ? "Inicia sesión para enviar mensajes..."
                       : "Envía un mensaje..."
-                }
-                value={inputValue}
-                onChange={(e) => {
-                  setInputValue(e.target.value);
-                  adjustTextareaHeight();
-                }}
-                onKeyDown={handleKeyDown}
-                rows={1}
-                disabled={isLoading || isGuest}
-                style={isGuest ? { opacity: 0.7 } : undefined}
-              />
+                  }
+                  value={inputValue}
+                  onChange={(e) => {
+                    setInputValue(e.target.value);
+                  }}
+                  onKeyDown={handleKeyDown}
+                  disabled={isLoading || isGuest}
+                  style={isGuest ? { opacity: 0.7 } : undefined}
+                />
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button
+                      className={`${styles.uploadButton} ${selectedFiles.length > 0 ? styles.uploadButtonHasFiles : ''}`}
+                      disabled={isLoading || isGuest}
+                      title={selectedFiles.length > 0 ? `${selectedFiles.length} archivo(s) adjunto(s)` : "Adjuntar archivo"}
+                    >
+                      <Paperclip size={18} />
+                      {selectedFiles.length > 0 && (
+                        <span className={styles.uploadBadge}>{selectedFiles.length}</span>
+                      )}
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start" sideOffset={8} className={styles.dropdownContent}>
+                    <DropdownMenuItem
+                      onClick={() => {
+                        if (fileInputRef.current) {
+                          fileInputRef.current.accept = ACCEPTED_FILE_EXTENSIONS;
+                          fileInputRef.current.multiple = true;
+                          fileInputRef.current.click();
+                        }
+                      }}
+                      className={styles.dropdownItem}
+                    >
+                      <Paperclip size={16} />
+                      <span>Subir archivos</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => {
+                        if (fileInputRef.current) {
+                          fileInputRef.current.accept = ACCEPTED_IMAGE_EXTENSIONS;
+                          fileInputRef.current.multiple = true;
+                          fileInputRef.current.click();
+                        }
+                      }}
+                      className={styles.dropdownItem}
+                    >
+                      <Image size={16} />
+                      <span>Subir imágenes</span>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
               <button
                 className={styles.sendButton}
                 onClick={handleSendMessage}
-                disabled={(!inputValue.trim() && !selectedFile) || isLoading || isGuest}
+                disabled={(!inputValue.trim() && selectedFiles.length === 0) || isLoading || isGuest}
                 style={
                   isGuest ? { opacity: 0.5, pointerEvents: "none" } : undefined
                 }
@@ -708,6 +824,17 @@ export default function ChatPage() {
           className={styles.overlay}
           onClick={() => setIsSidebarOpen(false)}
           aria-hidden="true"
+        />
+      )}
+
+      {/* FILE PREVIEW MODAL */}
+      {previewFile && (
+        <FilePreviewModal
+          isOpen={true}
+          onClose={() => setPreviewFile(null)}
+          fileUrl={previewFile.url}
+          fileName={previewFile.name}
+          fileType={previewFile.type}
         />
       )}
     </div>
