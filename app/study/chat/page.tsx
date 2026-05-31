@@ -55,7 +55,9 @@ export default function ChatPage() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [copiedId, setCopiedId] = useState<number | null>(null);
-  const [isGuest, setIsGuest] = useState(false);
+  const [isGuest, setIsGuest] = useState(() =>
+    typeof window !== "undefined" ? authService.isGuest() : false
+  );
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [filePreviews, setFilePreviews] = useState<string[]>([]);
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
@@ -74,11 +76,6 @@ export default function ChatPage() {
     return () => {
       urls.forEach(URL.revokeObjectURL);
     };
-  }, []);
-
-  // ==================== DETECTAR GUEST ====================
-  useEffect(() => {
-    setIsGuest(authService.isGuest());
   }, []);
 
   // ==================== SUGERENCIAS ====================
@@ -115,7 +112,9 @@ export default function ChatPage() {
       const response = await chatsService.getChats();
       setChats(Array.isArray(response) ? response : []);
     } catch {
-      toast.error("Error", "No se pudieron cargar las conversaciones");
+      if (!authService.isGuest()) {
+        toast.error("Error", "No se pudieron cargar las conversaciones");
+      }
     } finally {
       setIsChatsLoading(false);
     }
@@ -127,6 +126,7 @@ export default function ChatPage() {
 
   // ==================== CARGAR MENSAJES ====================
   const loadChatMessages = useCallback(async (chatId: number) => {
+    if (authService.isGuest()) return;
     try {
       const response = await chatsService.getChatMessages(chatId);
       const messagesList = response.messages ?? [];
@@ -483,20 +483,7 @@ export default function ChatPage() {
   }, [messages, streamingContent, scrollToBottom]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && !e.shiftKey && !e.ctrlKey) {
-      e.preventDefault();
-      const ta = textareaRef.current;
-      if (ta) {
-        const start = ta.selectionStart;
-        const end = ta.selectionEnd;
-        const value = inputValue;
-        const newValue = value.substring(0, start) + "\n" + value.substring(end);
-        setInputValue(newValue);
-        requestAnimationFrame(() => {
-          ta.selectionStart = ta.selectionEnd = start + 1;
-        });
-      }
-    } else if (e.key === "Enter" && e.ctrlKey) {
+    if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       if ((inputValue.trim() || selectedFiles.length > 0) && !isLoading) {
         handleSendMessage();

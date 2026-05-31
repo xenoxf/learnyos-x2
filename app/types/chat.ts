@@ -57,6 +57,8 @@ export interface SendMessageResponse {
   response: string;
   prompt: string;
   createdAt: string;
+  creditsRemaining?: number;
+  creditsTotal?: number;
 }
 
 /** Respuesta del backend GET /messages/chat/:chatId */
@@ -81,4 +83,5 @@ export interface StreamChunk {
   remaining?: number;
   total?: number;
   messageId?: number;
+  chatId?: number;
 }
