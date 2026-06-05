@@ -139,14 +139,14 @@ export default function ChatPage() {
 
         const files = names.length > 0
           ? names.map((name, i) => {
-              const type = types[i] || '';
-              const fileUrl = urls[i]
-                ? `${process.env.NEXT_PUBLIC_BACKEND_URL || ""}${urls[i]}`
-                : type.startsWith("image/") && datas[i]
-                  ? `data:${type};base64,${datas[i]}`
-                  : undefined;
-              return { name, type, url: fileUrl };
-            })
+            const type = types[i] || '';
+            const fileUrl = urls[i]
+              ? `${process.env.NEXT_PUBLIC_BACKEND_URL || ""}${urls[i]}`
+              : type.startsWith("image/") && datas[i]
+                ? `data:${type};base64,${datas[i]}`
+                : undefined;
+            return { name, type, url: fileUrl };
+          })
           : undefined;
 
         return [
@@ -743,49 +743,46 @@ export default function ChatPage() {
                   disabled={isLoading || isGuest}
                   style={isGuest ? { opacity: 0.7 } : undefined}
                 />
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <button
-                      className={`${styles.uploadButton} ${selectedFiles.length > 0 ? styles.uploadButtonHasFiles : ''}`}
-                      disabled={isLoading || isGuest}
-                      title={selectedFiles.length > 0 ? `${selectedFiles.length} archivo(s) adjunto(s)` : "Adjuntar archivo"}
-                    >
-                      <Paperclip size={18} />
-                      {selectedFiles.length > 0 && (
-                        <span className={styles.uploadBadge}>{selectedFiles.length}</span>
-                      )}
-                    </button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="start" sideOffset={8} className={styles.dropdownContent}>
-                    <DropdownMenuItem
-                      onClick={() => {
-                        if (fileInputRef.current) {
-                          fileInputRef.current.accept = ACCEPTED_FILE_EXTENSIONS;
-                          fileInputRef.current.multiple = true;
-                          fileInputRef.current.click();
-                        }
-                      }}
-                      className={styles.dropdownItem}
-                    >
-                      <Paperclip size={16} />
-                      <span>Subir archivos</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={() => {
-                        if (fileInputRef.current) {
-                          fileInputRef.current.accept = ACCEPTED_IMAGE_EXTENSIONS;
-                          fileInputRef.current.multiple = true;
-                          fileInputRef.current.click();
-                        }
-                      }}
-                      className={styles.dropdownItem}
-                    >
-                      <Image size={16} />
-                      <span>Subir imágenes</span>
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
+              </div><DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button
+                    className={`${styles.uploadButton} ${selectedFiles.length > 0 ? styles.uploadButtonHasFiles : ''}`}
+                    disabled={isLoading || isGuest}
+                    title={selectedFiles.length > 0 ? `${selectedFiles.length} archivo(s) adjunto(s)` : "Adjuntar archivo"}
+                  >
+                    <Paperclip size={18} />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start" sideOffset={8} className={styles.dropdownContent}>
+                  <DropdownMenuItem
+                    onClick={() => {
+                      if (fileInputRef.current) {
+                        fileInputRef.current.accept = ACCEPTED_FILE_EXTENSIONS;
+                        fileInputRef.current.multiple = true;
+                        fileInputRef.current.click();
+                      }
+                    }}
+                    className={styles.dropdownItem}
+                  >
+                    <Paperclip size={16} />
+                    <span>Subir archivos</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => {
+                      if (fileInputRef.current) {
+                        fileInputRef.current.accept = ACCEPTED_IMAGE_EXTENSIONS;
+                        fileInputRef.current.multiple = true;
+                        fileInputRef.current.click();
+                      }
+                    }}
+                    className={styles.dropdownItem}
+                  >
+                    <Image size={16} />
+                    <span>Subir imágenes</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
               <button
                 className={styles.sendButton}
                 onClick={handleSendMessage}

@@ -706,7 +706,7 @@
     width: 85%;
     max-width: 320px;
     transform: translateX(-100%);
-    z-index: 100;
+    z-index: 1900;
     transition: transform 0.25s ease;
     box-shadow: var(--shadow-xl);
   }
@@ -725,7 +725,8 @@
   }
 
   .toggleButton {
-    left: var(--spacing-md);
+    left: 9px;
+    top: 50px;
   }
 
   .messages {
@@ -824,9 +825,6 @@
   align-items: center;
   justify-content: center;
   transition: all var(--transition-fast);
-  position: absolute;
-  bottom: 0.4rem;
-  right: 0.4rem;
   z-index: 2;
 }
 
