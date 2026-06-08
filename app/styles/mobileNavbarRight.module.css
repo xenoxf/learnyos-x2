@@ -2,14 +2,15 @@
 /* Drop button - professional floating circle */
 .dropButton {
   position: fixed;
-  top: 5px;
-  left: 5px;
+  top: 0;
+  left: 0;
   width: 48px;
   height: 48px;
-  border-radius: 10px;
-  background: hsl(var(--background));
+  background: hsl(var(--secondary));
   color: hsl(var(--foreground));
-  border: 2px solid hsl(var(--foreground) / 0.15);
+  border-bottom: 2px solid hsl(var(--foreground) / 0.15);
+  border-right: 2px solid hsl(var(--foreground) / 0.15);
+
   cursor: pointer;
   z-index: 400;
   display: flex;
@@ -59,7 +60,6 @@
 }
 
 .dropButton:hover::after {
-  width: 28px;
   opacity: 0.6;
 }
 
@@ -72,8 +72,6 @@
 }
 
 .dropIcon {
-  width: 22px;
-  height: 22px;
   transition: transform 0.3s ease;
 }
 
@@ -216,29 +214,6 @@
 
 /* ==================== RESPONSIVE ==================== */
 @media (max-width: 768px) {
-  .dropButton {
-    right: 12px;
-    bottom: 72px;
-    width: 44px;
-    height: 44px;
-  }
-
-  .dropButton::before {
-    width: 12px;
-    height: 7px;
-    top: 5px;
-    left: 9px;
-  }
-
-  .dropButton::after {
-    width: 32px;
-    height: 7px;
-  }
-
-  .dropIcon {
-    width: 20px;
-    height: 20px;
-  }
 
   .sidebar {
     width: 260px;
@@ -246,29 +221,6 @@
 }
 
 @media (max-width: 480px) {
-  .dropButton {
-    right: 10px;
-    bottom: 68px;
-    width: 40px;
-    height: 40px;
-  }
-
-  .dropButton::before {
-    width: 10px;
-    height: 6px;
-    top: 4px;
-    left: 8px;
-  }
-
-  .dropButton::after {
-    width: 28px;
-    height: 6px;
-  }
-
-  .dropIcon {
-    width: 18px;
-    height: 18px;
-  }
 
   .sidebar {
     width: 240px;

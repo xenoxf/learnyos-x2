@@ -65,7 +65,7 @@ export function MobileNavbarRight() {
         type="button"
         aria-label="Abrir menú"
       >
-        <Menu size={22} className={styles.dropIcon} />
+        <Menu size={29} className={styles.dropIcon} />
       </button>
 
       {/* Sidebar from right */}
@@ -81,7 +81,7 @@ export function MobileNavbarRight() {
                 type="button"
                 aria-label="Cerrar"
               >
-                <ChevronLeft size={20} />
+                <ChevronLeft size={29} />
               </button>
             </div>
 
