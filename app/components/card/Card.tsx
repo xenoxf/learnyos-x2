@@ -1,29 +1,14 @@
 "use client";
 
 import React, { useState, useCallback } from "react";
-import { useRouter } from "next/navigation";
 import {
   Trash2,
-  Heart,
   User,
-  BookOpen,
   ArrowRight,
   BookmarkPlus,
   BookmarkCheck,
   Layers,
 } from "lucide-react";
-import { toast } from "@/hooks/useLocalToast";
-import { isGuestUser } from "@/lib/auth-utils";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import styles from "@/styles/quiz/quizCard.module.css"; // Reuse premium styles
 import type { CardsDeck } from "@/types";
 import { LikeButton } from "@/components/common/LikeButton";
@@ -38,12 +23,10 @@ interface CardProps {
 
 const CardContent: React.FC<CardProps> = ({
   card,
-  onCardDeleted,
   onOpen,
   isEspacio,
   onShowOptions,
 }) => {
-  const router = useRouter();
   const [isHovered, setIsHovered] = useState(false);
 
   const isOwner = card.canDelete ?? false;

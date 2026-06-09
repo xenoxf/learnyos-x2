@@ -1,13 +1,13 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState } from "react";
 import { toast } from "@/hooks/useLocalToast";
 import styles from "@/styles/quiz/agentSurface.module.css";
-import { Sparkles, Settings2, BrainCircuit, Wand2 } from "lucide-react";
+import { Settings2, BrainCircuit, Wand2 } from "lucide-react";
 
-export default function ExamAgentWorkspace({ onClose, onQuizCreated }) {
+export default function ExamAgentWorkspace({ onClose, onQuizCreated }: { onClose: () => void; onQuizCreated: (data: { reference: string }) => Promise<void> }) {
   const [intent, setIntent] = useState("");
-  const [isExpanding, setIsExpanding] = useState(false);
+
 
   const handleAction = async () => {
     if (intent.length < 5) {
@@ -35,7 +35,7 @@ export default function ExamAgentWorkspace({ onClose, onQuizCreated }) {
             placeholder="¿Qué examen quieres generar hoy? (ej: Historia del arte barroco)..."
             value={intent}
             onChange={(e) => setIntent(e.target.value)}
-            onFocus={() => setIsExpanding(true)}
+
           />
           <div className={styles.commandHint}>Cmd + K para herramientas</div>
         </div>

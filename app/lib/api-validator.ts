@@ -8,14 +8,8 @@ import type {
   AuthResponse,
   ExamDeck,
   ExamKlek,
-  ExamQuestion,
-  ExamOption,
-  FlashCardKlek,
   CardsDeck,
   NoteDeck,
-  NoteKlek,
-  Message,
-  Chat,
 } from '@/types';
 
 /**

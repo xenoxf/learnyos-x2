@@ -5,6 +5,7 @@ import { BarChart3, FileText, Target, Trophy, MessageSquare, ChevronRight } from
 import styles from "@/styles/klerk.module.css";
 import { attemptsService } from "@/services/attemptsService";
 import type { StatsHeroProps } from "@/types";
+import { errorHandler } from "@/services/errorHandler";
 
 export function StatsOverview({ onSeeDetails }: { onSeeDetails: () => void }) {
   const [stats, setStats] = useState<StatsHeroProps | null>(null);
@@ -16,7 +17,7 @@ export function StatsOverview({ onSeeDetails }: { onSeeDetails: () => void }) {
         const data = await attemptsService.getStats();
         setStats(data);
       } catch (error) {
-        console.error("Error fetching stats:", error);
+        errorHandler(error, "Error fetching stats");
       } finally {
         setIsLoading(false);
       }

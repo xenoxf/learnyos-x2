@@ -135,12 +135,6 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
     case "MATCH_CARDS": {
       const [first, second] = state.flippedCards;
       const newCombo = state.combo + 1;
-      const comboBonus =
-        action.matchType === "perfect"
-          ? 2
-          : action.matchType === "chain"
-            ? 3
-            : 1;
 
       return {
         ...state,
@@ -342,7 +336,7 @@ const GameStats: React.FC<GameStatsProps> = ({
   totalPairs,
   timeLeft,
   combo,
-  maxCombo,
+  maxCombo: _maxCombo,
   difficulty,
 }) => {
   const minutes = Math.floor(timeLeft / 60);

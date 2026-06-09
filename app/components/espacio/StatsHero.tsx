@@ -1,5 +1,5 @@
 import React from "react";
-import { TrendingUp, Award, CheckCircle } from "lucide-react";
+import { TrendingUp } from "lucide-react";
 import styles from "./StatsHero.module.css";
 import { StatsHeroProps } from "@/types";
 

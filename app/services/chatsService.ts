@@ -2,7 +2,7 @@
  * ChatsService - Handles chat messages
  */
 import { httpClient } from "./client";
-import type { Chat, ChatMessage, SendMessageData, SendMessageResponse, GetChatMessagesResponse, StreamChunk } from "@/types";
+import type { Chat, SendMessageData, SendMessageResponse, GetChatMessagesResponse, StreamChunk } from "@/types";
 
 const API_BASE = process.env.NEXT_PUBLIC_BACKEND_URL || "";
 const API_KEY = String(process.env.NEXT_PUBLIC_BACKEND_API_KEY || "");

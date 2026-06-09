@@ -11,13 +11,12 @@ import {
   type ViewMode,
 } from "@/components/study/StudyGrid";
 import type { ExamDeck } from "@/types";
-import { Skeleton } from "@/components/ui/skeleton";
-import styles from "@/styles/quiz/quizGrid.module.css";
 import { quizzesService } from "@/services/quizzesService";
 import SkeletonCard from "../SkeletonCard";
 import { useExams } from "@/hooks/useExams";
-import { httpClient } from "@/services/client";
 import type { GenerateExamData } from "@/types";
+import { toast } from "@/hooks/useLocalToast";
+import { errorHandler } from "@/services/errorHandler";
 
 interface QuizGridProps { }
 
@@ -36,14 +35,14 @@ const QUIZ_CONFIG = {
 };
 
 export default function QuizGrid({ }: QuizGridProps) {
-  const [isSearching, setIsSearching] = useState(false);
+  const [isSearching, _setIsSearching] = useState(false);
   const { generateExam } = useExams();
 
   const {
     searchValue,
     setSearchValue,
     items,
-    allItems,
+    allItems: _allItems,
     loading,
     viewMode,
     setViewMode,
@@ -72,16 +71,16 @@ export default function QuizGrid({ }: QuizGridProps) {
   const handleCreateExam = useCallback(async (formData: GenerateExamData) => {
     try {
       await generateExam(formData);
-      httpClient.clearCache();
       setViewMode(formData.acceso === "public" ? "public" : "private");
       refresh();
     } catch (err) {
-      console.error("Error al generar examen:", err);
+      toast.error("Error", "No se pudo generar el examen");
+      errorHandler(err, "Error generating quiz");
     }
   }, [generateExam, refresh, setViewMode]);
 
   // Búsqueda con debounce
-  const handleSearch = useCallback(async (query: string) => {
+  const handleSearch = useCallback(async (_query: string) => {
     // La búsqueda real la hace useStudyGrid vía filterItems sobre allItems
     // Si en el futuro necesitas búsqueda profunda en servidor, impleméntalo aquí.
   }, []);
@@ -134,7 +133,6 @@ export default function QuizGrid({ }: QuizGridProps) {
           <StudyGridContent
             loading={false}
             items={items}
-            allItems={allItems}
             resultText={resultText}
             config={QUIZ_CONFIG}
             renderCard={renderCard}

@@ -2,7 +2,6 @@
  * Base HTTP Client
  * Handles auth tokens, refresh, caching, and error handling
  */
-import { contentTransformer } from "./content-transformer";
 import { ApiError } from "./errorHandler";
 
 interface CacheEntry<T> {
@@ -17,7 +16,6 @@ class HttpClient {
   private cache = new Map<string, CacheEntry<any>>();
   private pendingRequests = new Map<string, Promise<any>>();
   private searchTimeouts = new Map<string, NodeJS.Timeout>();
-  private refreshPromise: Promise<boolean> | null = null;
 
   private readonly baseUrl: string;
   private readonly apiKey: string | undefined;
@@ -107,7 +105,6 @@ class HttpClient {
   async request<T>(
     endpoint: string,
     options: RequestInit = {},
-    retryCount = 0,
   ): Promise<T> {
     const cacheKey = `${options.method || "GET"}:${endpoint}:${options.body ? JSON.stringify(options.body) : ""}`;
 
@@ -118,12 +115,12 @@ class HttpClient {
 
     const requestPromise = (async () => {
       try {
-        const headers: HeadersInit = {
+        const headers: Record<string, string> = {
           "Content-Type": "application/json",
-          ...options.headers,
+          ...(options.headers as Record<string, string>),
         };
         if (this.apiKey)
-          (headers as Record<string, string>)["x-api-key"] = this.apiKey;
+          headers["x-api-key"] = this.apiKey;
         const token = this.getToken();
         if (token) headers["Authorization"] = `Bearer ${token}`;
 

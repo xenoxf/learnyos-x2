@@ -1,8 +1,8 @@
 "use client";
-import React, { useMemo, useEffect, useState } from 'react';
+import React, { useMemo, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
-import { Brain, Target, Zap, TrendingUp, Clock, MessageSquare } from 'lucide-react';
+import { Target, Zap, TrendingUp, Clock } from 'lucide-react';
 
 const OptimizedStatsCards: React.FC = React.memo(() => {
   const { loadData, getTodayKey } = useLocalStorage();
@@ -19,13 +19,13 @@ const OptimizedStatsCards: React.FC = React.memo(() => {
     const today = getTodayKey();
     
     const userStats = loadData(`learnyOS_userStats_${userId}`, {
-      dailyData: {},
+      dailyData: {} as Record<string, any>,
       totalStudyTime: 0,
       totalExperience: 0,
       level: 1
     });
 
-    const dailyData = userStats.dailyData as Record<string, any> | undefined;
+    const dailyData = userStats.dailyData;
     const todayData = dailyData?.[today] || {
       studyMinutes: 0,
       pomodorosCompleted: 0,

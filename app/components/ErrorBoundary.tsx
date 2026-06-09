@@ -1,8 +1,8 @@
 "use client"
 
 import React, { ReactNode, Component, ErrorInfo } from 'react';
-import { toast } from '@/hooks/useLocalToast';
 import { AlertCircle } from 'lucide-react';
+import { errorHandler } from "@/services/errorHandler";
 
 interface Props {
   children: ReactNode;
@@ -24,8 +24,8 @@ class ErrorBoundary extends Component<Props, State> {
     return { hasError: true, error };
   }
 
-  public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('Error caught by boundary:', error, errorInfo);
+  public componentDidCatch(error: Error, _errorInfo: ErrorInfo) {
+    errorHandler(error, "Error caught by boundary");
     
     // Aquí podrías enviar el error a un servicio de logging
     // logErrorToService(error, errorInfo);

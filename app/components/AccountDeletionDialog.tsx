@@ -11,6 +11,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { toast } from "@/hooks/useLocalToast";
+import { errorHandler } from "@/services/errorHandler";
 import { Trash2, Loader2 } from "lucide-react";
 
 interface AccountDeletionDialogProps {
@@ -22,7 +23,7 @@ interface AccountDeletionDialogProps {
 export const AccountDeletionDialog: React.FC<AccountDeletionDialogProps> = ({
   isOpen,
   onClose,
-  user,
+  user: _user,
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const handleDeleteRequest = async () => {
@@ -33,7 +34,8 @@ export const AccountDeletionDialog: React.FC<AccountDeletionDialogProps> = ({
       // apiService.logout();
       // window.location.href = '/';
     } catch (error) {
-      console.error("Error deleting account:", error);
+      toast.error("Error", "No se pudo eliminar la cuenta");
+      errorHandler(error, "Error deleting account");
       toast.error("Error", "Algo salió mal");
     } finally {
       setIsLoading(false);

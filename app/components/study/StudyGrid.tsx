@@ -290,14 +290,12 @@ export function StudyGridHeader({
 export function StudyGridContent<T extends StudyGridBaseItem>({
   loading,
   items,
-  allItems,
   resultText,
   config,
   renderCard,
 }: {
   loading: boolean;
   items: (T & { canDelete?: boolean })[];
-  allItems: (T & { canDelete?: boolean })[];
   resultText: string;
   config: StudyGridConfig;
   renderCard: (item: T & { canDelete?: boolean }) => React.ReactNode;

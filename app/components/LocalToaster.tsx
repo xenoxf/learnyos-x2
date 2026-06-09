@@ -10,7 +10,7 @@
 "use client";
 
 import React, { useCallback } from "react";
-import { useLocalToast, Toast, ToastType } from "@/hooks/useLocalToast";
+import { useLocalToast, ToastType } from "@/hooks/useLocalToast";
 import styles from "../styles/LocalToaster.module.css";
 import { CheckCircle, AlertCircle, Info, X } from "lucide-react";
 

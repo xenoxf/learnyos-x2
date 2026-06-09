@@ -19,6 +19,7 @@ import {
 import styles from "@/styles/quiz/quizPlayerFull.module.css";
 import QuizSkeleton from "./QuizSkeleton";
 import { toast } from "@/hooks/useLocalToast";
+import { errorHandler } from "@/services/errorHandler";
 import type { ExamKlek, ExamQuestion } from "@/types";
 import MarkdownRenderer from "../MarkdownRenderer";
 import { useRouter } from "next/navigation";
@@ -42,9 +43,6 @@ export default function QuizPlayerFull({ quizId }: QuizPlayerFullProps) {
   const [selectedAnswers, setSelectedAnswers] = useState<
     Record<number, number>
   >({});
-  const [answeredQuestions, setAnsweredQuestions] = useState<Set<number>>(
-    new Set(),
-  );
   const [showResults, setShowResults] = useState(false);
   const [showImmediateFeedback, setShowImmediateFeedback] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -73,7 +71,8 @@ export default function QuizPlayerFull({ quizId }: QuizPlayerFullProps) {
       } catch (err: any) {
         const message =
           err instanceof Error ? err.message : "Error al cargar quiz";
-        console.error("Quiz loading error:", err);
+        toast.error("Error", "No se pudo cargar el quiz");
+        errorHandler(err, "Quiz loading error");
         setError(message);
         toast.info("");
       } finally {
@@ -133,10 +132,6 @@ export default function QuizPlayerFull({ quizId }: QuizPlayerFullProps) {
   );
 
   const handleNext = useCallback(() => {
-    // Mark current question as answered (or skipped) before moving
-    const currentQuestionId = quiz!.questions[currentIndex].id || 0;
-    setAnsweredQuestions((prev) => new Set(prev).add(currentQuestionId));
-
     if (currentIndex < quiz!.questions.length - 1) {
       setCurrentIndex((prev) => prev + 1);
       setShowImmediateFeedback(false);
@@ -153,7 +148,6 @@ export default function QuizPlayerFull({ quizId }: QuizPlayerFullProps) {
   const handleReset = useCallback(() => {
     setCurrentIndex(0);
     setSelectedAnswers({});
-    setAnsweredQuestions(new Set());
     setShowResults(false);
     setShowImmediateFeedback(false);
   }, []);
@@ -197,18 +191,7 @@ export default function QuizPlayerFull({ quizId }: QuizPlayerFullProps) {
     });
   };
 
-  const calculateScore = useMemo(() => {
-    if (!quiz) return 0;
-    let correct = 0;
-    quiz.questions.forEach((q) => {
-      const selectedId = selectedAnswers[q.id || 0];
-      const correctOption = q.options.find((o) => o.isCorrect);
-      if (selectedId === correctOption?.id) {
-        correct++;
-      }
-    });
-    return ((correct / quiz.questions.length) * 100).toFixed(1);
-  }, [quiz, selectedAnswers]);
+
 
   // Calculate results for summary
   const results = useMemo(() => {
@@ -591,7 +574,7 @@ export default function QuizPlayerFull({ quizId }: QuizPlayerFullProps) {
                 )}
 
                 {/* Questions in this group */}
-                {group.questions.map((question, qIdx) => {
+                {group.questions.map((question, _qIdx) => {
                   const questionIdx = quiz.questions.findIndex(q => q.id === question.id);
                   const selectedOptionId = selectedAnswers[question.id || 0];
                   const selectedOption = question.options.find((o) => o.id === selectedOptionId);

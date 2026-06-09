@@ -2,7 +2,7 @@ import styles from "@/styles/espacio/card.module.css";
 import { UnifiedCardData } from "@/types";
 import { Skeleton } from "../ui/skeleton";
 import { useMemo } from "react";
-import { FileText, RefreshCw, Layers, Target, BookOpen } from "lucide-react";
+import { FileText, RefreshCw } from "lucide-react";
 
 interface CardDeckProps {
   items: UnifiedCardData[];

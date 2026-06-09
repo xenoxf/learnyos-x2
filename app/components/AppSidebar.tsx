@@ -6,20 +6,13 @@ import {
   MessageSquare,
   Brain,
   CreditCard,
-  NotebookPen,
-  LogOut,
   ChevronLeft,
-  Map,
-  Users,
-  Sparkles,
   Settings,
 } from "lucide-react";
-import { toast } from "@/hooks/useLocalToast";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import styles from "../styles/sidebar.module.css";
 import { ThemeToggleSidebr } from "./ThemeToogleSidebr";
-import { authService } from "@/services/authService";
 
 const menuItems = [
   {
@@ -58,7 +51,7 @@ interface User {
 export function AppSidebar({
   collapsed = false,
   onToggle,
-  onNavigate,
+  onNavigate: _onNavigate,
 }: AppSidebarProps) {
   const navigate = useRouter();
   const pathname = usePathname();
@@ -81,19 +74,6 @@ export function AppSidebar({
       }
     }
   }, []);
-
-  const handleLogout = () => {
-    authService.logout();
-    localStorage.removeItem("user");
-    localStorage.removeItem("token");
-    toast.success("Sesión cerrada", "Has cerrado sesión exitosamente");
-    navigate.push("/");
-  };
-
-  const handleNavigation = (url: string) => {
-    navigate.push(url);
-    onNavigate?.();
-  };
 
   const toggleSidebar = () => {
     setSidebarClosed(!sidebarClosed);

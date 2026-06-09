@@ -132,7 +132,7 @@ function AuthContent() {
     }
   };
 
-  const handleGoogleSuccess = (user: any) => {
+  const handleGoogleSuccess = (_user: any) => {
     router.push("/study");
     router.refresh();
   };

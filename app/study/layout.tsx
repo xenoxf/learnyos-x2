@@ -4,7 +4,6 @@ import React, {
   useState,
   useEffect,
   useCallback,
-  useMemo,
   lazy,
   Suspense,
   useRef,

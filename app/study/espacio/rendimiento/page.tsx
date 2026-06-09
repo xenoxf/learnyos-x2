@@ -2,37 +2,22 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import {
-  RefreshCw,
   AlertTriangle,
   FileText,
-  TrendingUp,
-  User,
-  X,
-  Check,
-  XCircle,
   Calendar,
   Eye,
-  Hash,
-  BookOpen,
-  Sparkles,
-  Code,
-  Tag,
   Award,
-  Heart,
   Link,
   LogIn,
 } from "lucide-react";
-import Image from "next/image";
+
 import styles from "@/styles/espacio/espacioPages.module.css";
 import { authService } from "@/services/authService";
 import { attemptsService } from "@/services/attemptsService";
-import { likesService } from "@/services/likesService";
 import { AttemptDetailModal } from "@/components/espacio/AttemptDetailModal";
 import { StatsHero } from "@/components/espacio/StatsHero";
-import { ExamDeck, StatsHeroProps, Attempt } from "@/types";
-import RestringidoForGuest from "@/components/restringidoForGuest";
-import { ItemCard, ItemCardSkeleton } from "@/components/espacio/ItemCard";
-import { Skeleton } from "@/components/ui/skeleton";
+import { StatsHeroProps, Attempt } from "@/types";
+import { ItemCard } from "@/components/espacio/ItemCard";
 import SkeletonCard from "@/components/SkeletonCard";
 
 export default function RendimientoPage() {
@@ -40,18 +25,11 @@ export default function RendimientoPage() {
   const [attemptStats, setAttemptStats] = useState<StatsHeroProps | null>(null);
   const [loading, setLoading] = useState(true);
   const [isGuest, setIsGuest] = useState(false);
-  const [user, setUser] = useState<any>(null);
   const [selectedAttempt, setSelectedAttempt] = useState<Attempt | null>(null);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
       setIsGuest(authService.isGuest());
-      const userData = localStorage.getItem("user");
-      if (userData) {
-        try {
-          setUser(JSON.parse(userData));
-        } catch { }
-      }
     }
   }, []);
 

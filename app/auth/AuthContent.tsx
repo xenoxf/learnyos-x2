@@ -1,17 +1,14 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
-import { GoogleAuthButton } from "@/components/GoogleAuthButton";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   AlertCircle,
   Loader2,
   Mail,
   Lock,
   User,
-  SplitIcon,
   Eye,
   EyeOff,
   ArrowBigLeft,
@@ -132,15 +129,6 @@ export function AuthContent() {
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleGoogleSuccess = (user: any) => {
-    router.push("/study");
-    router.refresh();
-  };
-
-  const handleGoogleError = (errorMessage: string) => {
-    setFormError(errorMessage);
   };
 
   return (

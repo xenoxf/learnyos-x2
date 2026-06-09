@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import styles from "@/styles/flashCards/crearCard.module.css";
 import {
-  X, Loader, Sparkles, FileText, Paperclip, Image,
+  X, Loader, Sparkles, Paperclip, Image,
 } from "lucide-react";
 import { toast } from "@/hooks/useLocalToast";
 import { creditsService } from "@/services/creditsService";
@@ -33,7 +33,7 @@ export default function CrearCard({ onClose, onCardCreated }: CrearCardProps) {
   });
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [filePreviews, setFilePreviews] = useState<string[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading] = useState(false);
   const [creditsStatus, setCreditsStatus] = useState<{
     remaining: number;
     total: number;

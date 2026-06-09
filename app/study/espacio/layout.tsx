@@ -9,15 +9,12 @@ import {
   FileText,
   CreditCard,
   Brain,
-  Shield,
   TrendingUp,
   ChevronDown,
-  ChevronLeft,
   Menu,
   X,
   PanelLeftClose,
   PanelLeft,
-  Palette,
 } from "lucide-react";
 import {
   Popover,

@@ -1,19 +1,16 @@
 "use client";
 
 import React, { useState, useCallback, useEffect, useRef } from "react";
-import { useRouter, usePathname } from "next/navigation";
+import { usePathname } from "next/navigation";
 import {
   Settings2,
   MessageSquare,
   Brain,
   CreditCard,
-  NotebookPen,
   Book,
-  LogOut,
   Menu,
   ChevronLeft,
 } from "lucide-react";
-import { toast } from "@/hooks/useLocalToast";
 import { ThemeToggleSidebr } from "./ThemeToogleSidebr";
 import styles from "@/styles/mobileNavbarRight.module.css";
 import Link from "next/link";
@@ -32,7 +29,6 @@ const NAV_ITEMS: MenuItem[] = [
 ];
 
 export function MobileNavbarRight() {
-  const router = useRouter();
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const sidebarRef = useRef<HTMLDivElement>(null);

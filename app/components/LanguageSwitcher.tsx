@@ -1,7 +1,7 @@
 'use client';
 
 import { useI18n } from '@/i18n/provider';
-import { locales, localeNames, type Locale } from '@/i18n/config';
+import { locales, localeNames } from '@/i18n/config';
 import styles from '@/styles/languageSwitcher.module.css';
 
 export function LanguageSwitcher() {

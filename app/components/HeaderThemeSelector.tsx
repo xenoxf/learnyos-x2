@@ -17,8 +17,8 @@
  * - CSS puro (sin Tailwind)
  */
 
-import React, { useState } from 'react';
-import { useTheme, Theme } from '@/contexts/ThemeContext';
+import React from 'react';
+import { useTheme } from '@/contexts/ThemeContext';
 import { Palette } from 'lucide-react';
 import styles from '@/styles/headerThemeSelector.module.css';
 
@@ -33,7 +33,7 @@ const themes = [
 ];
 
 export const HeaderThemeSelector: React.FC = () => {
-  const { theme, setTheme } = useTheme();
+  const { theme: _theme, setTheme } = useTheme();
 
   return (
     <div className={`${styles.themeSelector} ${styles.group}`}>

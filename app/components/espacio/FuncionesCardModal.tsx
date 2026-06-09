@@ -17,7 +17,6 @@ import {
   FileText,
 } from "lucide-react";
 import styles from "./FuncionesCardModal.module.css";
-import { LikeButton } from "@/components/common/LikeButton";
 import { UnifiedCardData } from "@/types";
 
 interface FuncionesCardModalProps {
@@ -123,12 +122,6 @@ export function FuncionesCardModal({
   };
 
   const lengthInfo = getLengthInfo();
-
-  const getLikeType = (): "note" | "flashcard" | "exam" => {
-    if (contentType === "note") return "note";
-    if (contentType === "flashcard") return "flashcard";
-    return "exam";
-  };
 
   return (
     <div

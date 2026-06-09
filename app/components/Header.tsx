@@ -6,13 +6,6 @@ import { ThemeToggle } from "./ThemeToggle";
 import { Button } from "./ui/button";
 
 export default function Header() {
-  const user =
-    typeof window !== "undefined"
-      ? localStorage.getItem("user")
-        ? JSON.parse(localStorage.getItem("user")!)
-        : null
-      : null;
-
   return (
     <>
       {/* Header - not fixed on mobile */}

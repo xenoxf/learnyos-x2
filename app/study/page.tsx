@@ -14,6 +14,7 @@ import { QuickActions } from "@/components/study/QuickActions";
 import { ContentLists } from "@/components/study/ContentLists";
 import { InspirationSection } from "@/components/study/InspirationSection";
 import { ApiQuoteSection } from "@/components/study/ApiQuoteSection";
+import { errorHandler } from "@/services/errorHandler";
 
 export default function StudyPage() {
   const router = useRouter();
@@ -32,7 +33,7 @@ export default function StudyPage() {
         setPublicExams(exams.slice(0, 6));
         setPublicCards(cards.slice(0, 6));
       } catch (error) {
-        console.error("Error fetching community content:", error);
+        errorHandler(error, "Error fetching community content");
       } finally {
         setIsLoadingContent(false);
       }
@@ -61,7 +62,6 @@ export default function StudyPage() {
       </header>
 
       <main className={styles.main}>
-        <PomodoroTimerWidget />
 
         <StatsOverview onSeeDetails={() => router.push("/study/espacio/rendimiento")} />
 
@@ -73,6 +73,7 @@ export default function StudyPage() {
           isLoading={isLoadingContent}
           onSelectCard={setSelectedCardId}
         />
+        <PomodoroTimerWidget />
 
         <InspirationSection />
 

@@ -16,6 +16,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import styles from "./LikeButton.module.css";
+import { errorHandler } from "@/services/errorHandler";
 
 interface LikeButtonProps {
   id: number;
@@ -65,7 +66,7 @@ export const LikeButton: React.FC<LikeButtonProps> = ({
         setLikesCount(result.count);
         setUserLiked(result.liked);
       } catch (error) {
-        console.error("Error toggling like:", error);
+        errorHandler(error, "Error toggling like");
       } finally {
         setIsLiking(false);
       }

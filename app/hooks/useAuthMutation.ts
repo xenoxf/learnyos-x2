@@ -1,7 +1,6 @@
 "use client";
 
 import { useMutation } from "@tanstack/react-query";
-import type { AuthResponse, User } from "@/types";
 import { authService } from "@/services/authService";
 
 export function useAuthMutation() {

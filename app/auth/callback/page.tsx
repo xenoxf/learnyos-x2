@@ -60,12 +60,7 @@ function CallbackContent() {
           setStatus("ok");
           router.replace("/study");
         })
-        .catch((err: unknown) => {
-          const msg =
-            err instanceof Error
-              ? err.message
-              : "Error durante la autenticación con Google.";
-          // toast.error("Error", msg);
+        .catch(() => {
           setStatus("error");
           router.replace("/auth");
         });

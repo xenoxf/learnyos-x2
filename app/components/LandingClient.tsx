@@ -17,7 +17,6 @@ import {
   Target,
   CheckCircle2,
   ArrowRight,
-  Clock,
   BookOpen,
   PenTool,
   BarChart3,
@@ -357,7 +356,6 @@ export const LandingClient: React.FC = () => {
 
             <div className={styles.howToUseGrid}>
               {steps.map((step, index) => {
-                const StepIcon = step.icon;
                 return (
                   <div
                     key={index}

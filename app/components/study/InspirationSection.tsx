@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Flame, Eye, Moon, Heart, ArrowRight, Copy, Check, Sparkles } from "lucide-react";
 import styles from "@/styles/klerk.module.css";
 import { getCategoryPhrases, iconMap } from "./PhrasesData";

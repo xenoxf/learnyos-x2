@@ -1,6 +1,6 @@
 import {
-  Sparkles, Flame, Eye, Moon, Heart, RefreshCw, Star, Target, Zap,
-  Clock, Brain, TrendingUp, Sun, Skull, Infinity, Timer, Mountain,
+  Sparkles, Flame, Eye, Moon, Star, Target, Zap,
+  Clock, Brain, Skull, Infinity, Timer, Mountain,
   Gem, BookOpen, FileText, MessageSquare, ArrowRight, Layers, Copy, Check,
 } from "lucide-react";
 

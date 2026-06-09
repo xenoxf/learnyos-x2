@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { X, UserX, ArrowBigLeft, ArrowLeft, LogIn } from "lucide-react";
+import { UserX, ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "@/hooks/useLocalToast";
 import LoadingModal from "@/components/loadingModal";

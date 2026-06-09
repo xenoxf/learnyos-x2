@@ -258,7 +258,7 @@ export function PomodoroTimerWidget() {
     return ((total - pomoState.secondsLeft) / total) * 100;
   })();
 
-  const isFocus = pomoState.mode === "focus";
+
   const isShortBreak = pomoState.mode === "shortBreak";
   const isLongBreak = pomoState.mode === "longBreak";
 

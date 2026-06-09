@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import { useTheme, Theme } from "@/contexts/ThemeContext";
 import { themes } from "@/lib/themes";
 import { Button } from "@/components/ui/button";
@@ -10,7 +9,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Sun, Moon } from "lucide-react";
+
 
 import styles from "@/styles/themeToggleSidebar.module.css";
 
@@ -22,7 +21,6 @@ export const ThemeToggleSidebr: React.FC<ThemeToggleSidebrProps> = ({
   isCollapse,
 }) => {
   const { theme, setTheme } = useTheme();
-  const isDark = theme === "dark";
 
   const currentTheme = themes.find((t) => t.name === theme);
 

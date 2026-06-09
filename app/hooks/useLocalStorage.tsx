@@ -1,5 +1,6 @@
 "use client"
 
+import { errorHandler } from "@/services/errorHandler";
 import { useState, useEffect, useCallback } from 'react';
 
 interface DayData {
@@ -98,7 +99,7 @@ export const useLocalStorage = () => {
         return { ...defaultValue, ...parsed };
       }
     } catch (error) {
-      console.error(`Error loading ${key} from localStorage:`, error);
+      errorHandler(error, "Error loading/saving key");
     }
     return defaultValue;
   }, []);
@@ -107,7 +108,7 @@ export const useLocalStorage = () => {
     try {
       localStorage.setItem(key, JSON.stringify(data));
     } catch (error) {
-      console.error(`Error saving ${key} to localStorage:`, error);
+      errorHandler(error, "Error loading/saving key");
     }
   }, []);
 
@@ -191,7 +192,6 @@ export const useLocalStorage = () => {
       date.setDate(startOfWeek.getDate() + i);
       const dateString = date.toDateString();
       const dayData = currentStats.dailyData[dateString];
-      const isToday = date.toDateString() === today.toDateString();
       const isFuture = date > today;
 
       weeklyData.push({

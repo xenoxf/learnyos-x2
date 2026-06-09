@@ -19,9 +19,8 @@
    OPTIMIZACIONES DE RENDIMIENTO
    ============================================ */
 
-/* GPU acceleration para animaciones comunes */
+/* GPU acceleration - aplicar solo a elementos animados, no globalmente */
 * {
-  will-change: auto;
   -webkit-tap-highlight-color: transparent;
 }
 

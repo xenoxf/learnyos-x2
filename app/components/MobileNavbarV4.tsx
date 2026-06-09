@@ -1,28 +1,22 @@
 "use client";
 
-import React, { useCallback, useEffect, useState, useRef } from "react";
-import { useRouter, usePathname } from "next/navigation";
+import { useCallback } from "react";
+import type { ElementType } from "react";
+import { usePathname } from "next/navigation";
 import {
-  Book,
   MessageSquare,
   Brain,
   CreditCard,
-  NotebookPen,
   Settings2,
-  LogOut,
   Home,
 } from "lucide-react";
-import { toast } from "@/hooks/useLocalToast";
-import { ThemeToggleSidebr } from "./ThemeToogleSidebr";
 import styles from "@/styles/mobileNavbarV4.module.css";
 import Link from "next/link";
-import { tree } from "next/dist/build/templates/app-page";
-import { authService } from "@/services/authService";
 
 interface NavItem {
   title: string;
   url: string;
-  icon: React.ElementType;
+  icon: ElementType;
 }
 
 const NAV_ITEMS: NavItem[] = [
@@ -33,49 +27,13 @@ const NAV_ITEMS: NavItem[] = [
 ];
 
 export function MobileNavbarV4() {
-  const router = useRouter();
   const pathname = usePathname();
-  const [isHidden, setIsHidden] = useState(false);
-  const lastScrollYRef = useRef(0);
-  const tickingRef = useRef(false);
 
   const isActive = useCallback(
     (url: string) =>
       url === "/study" ? pathname === url : pathname?.startsWith(url + "/"),
     [pathname],
   );
-
-  const handleLogout = useCallback(async () => {
-    try {
-      await authService.logout();
-      toast.success("Sesión cerrada", "Has cerrado sesión correctamente");
-      router.push("/auth");
-    } catch {
-      toast.error("Error", "No se pudo cerrar la sesión");
-    }
-  }, [router]);
-
-  // Handle scroll to hide/show navbar
-  useEffect(() => {
-    const handleScroll = () => {
-      if (!tickingRef.current) {
-        window.requestAnimationFrame(() => {
-          const currentScrollY = window.scrollY;
-          if (currentScrollY > lastScrollYRef.current && currentScrollY > 60) {
-            setIsHidden(true);
-          } else {
-            setIsHidden(false);
-          }
-          lastScrollYRef.current = currentScrollY;
-          tickingRef.current = false;
-        });
-        tickingRef.current = true;
-      }
-    };
-
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
 
   return (
     <div className={styles.navbar}>

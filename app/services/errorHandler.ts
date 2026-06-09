@@ -46,6 +46,15 @@ export function parseApiError(error: unknown): ApiError {
 }
 
 /**
+ * Standard error handler that logs errors with context
+ * Uses console.error for server-side logging while providing a unified interface
+ */
+export function errorHandler(error: unknown, context: string): void {
+  const apiError = parseApiError(error);
+  console.error(`[${context}]`, apiError.message, { status: apiError.status, errorCode: apiError.errorCode, details: apiError.details });
+}
+
+/**
  * Get user-friendly error message
  */
 export function getUserFriendlyMessage(error: unknown): string {

@@ -4,14 +4,12 @@ import React, { useState, useEffect, useRef } from "react";
 import { toast } from "@/hooks/useLocalToast";
 import styles from "@/styles/quiz/createQuizModal.module.css";
 import type { GenerateExamData } from "@/types";
-import { useRouter } from "next/navigation";
 import { creditsService } from "@/services/creditsService";
 import { useExams } from "@/hooks/useExams";
 import {
   Sparkles, AlertTriangle, RefreshCw, Zap, X, Target, Shield,
-  FileText, Paperclip, Image,
+  Paperclip, Image,
 } from "lucide-react";
-import { httpClient } from "@/services/client";
 import {
   ACCEPTED_FILE_TYPES, ACCEPTED_FILE_EXTENSIONS, ACCEPTED_IMAGE_EXTENSIONS, MAX_FILE_SIZE,
 } from "@/lib/file-constants";

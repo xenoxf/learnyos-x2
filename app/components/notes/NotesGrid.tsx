@@ -11,10 +11,10 @@ import {
   type ViewMode,
 } from "@/components/study/StudyGrid";
 import type { NoteDeck } from "@/types";
-import { Skeleton } from "@/components/ui/skeleton";
-import styles from "@/styles/notes/NotesGrid.module.css";
+
 import { notesService } from "@/services/notesService";
 import SkeletonCard from "../SkeletonCard";
+import { errorHandler } from "@/services/errorHandler";
 
 interface NotesGridProps { }
 
@@ -38,7 +38,7 @@ export default function NotesGrid({ }: NotesGridProps) {
     searchValue,
     setSearchValue,
     items,
-    allItems,
+    allItems: _allItems,
     loading,
     viewMode,
     setViewMode,
@@ -70,7 +70,7 @@ export default function NotesGrid({ }: NotesGridProps) {
       try {
         await notesService.searchNotes(query, 20, 0, true);
       } catch (error) {
-        console.error("Error en búsqueda:", error);
+        errorHandler(error, "Error en búsqueda");
       } finally {
         setIsSearching(false);
       }
@@ -125,7 +125,6 @@ export default function NotesGrid({ }: NotesGridProps) {
           <StudyGridContent
             loading={false}
             items={items}
-            allItems={allItems}
             resultText={resultText}
             config={NOTES_CONFIG}
             renderCard={renderCard}

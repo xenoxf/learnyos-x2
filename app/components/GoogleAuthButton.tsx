@@ -3,7 +3,6 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { toast } from "@/hooks/useLocalToast";
 import { authService } from "@/services/authService";
 
@@ -13,11 +12,10 @@ interface GoogleAuthButtonProps {
 }
 
 export function GoogleAuthButton({
-  onSuccess,
+  onSuccess: _onSuccess,
   onError,
 }: GoogleAuthButtonProps) {
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
 
   const handleGoogleClick = async () => {
     try {

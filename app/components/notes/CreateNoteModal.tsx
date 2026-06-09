@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { toast } from "@/hooks/useLocalToast";
 import styles from "@/styles/notes/createNoteModal.module.css";
 import { X, Loader, Sparkles, AlertTriangle, CheckCircle2 } from "lucide-react";
-import type { GenerateNoteData, ApiErrorResponse } from "@/types";
+import type { GenerateNoteData } from "@/types";
 import { useRouter } from "next/navigation";
 import { notesService } from "@/services/notesService";
 import { creditsService } from "@/services/creditsService";

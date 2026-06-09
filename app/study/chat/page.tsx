@@ -13,10 +13,8 @@ import {
   Bot,
   PanelLeftClose,
   PanelLeft,
-  X,
   FileText,
   RefreshCw,
-  AlertTriangle,
   Paperclip,
   Image,
 } from "lucide-react";
@@ -55,16 +53,13 @@ export default function ChatPage() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [copiedId, setCopiedId] = useState<number | null>(null);
-  const [isGuest, setIsGuest] = useState(() =>
+  const [isGuest] = useState(() =>
     typeof window !== "undefined" ? authService.isGuest() : false
   );
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [filePreviews, setFilePreviews] = useState<string[]>([]);
-  const [uploadProgress, setUploadProgress] = useState<number | null>(null);
+  const [_uploadProgress, setUploadProgress] = useState<number | null>(null);
   const [previewFile, setPreviewFile] = useState<{ url: string; name: string; type: string } | null>(null);
-  const failedInputsRef = useRef<
-    Map<number, { prompt: string; file?: { name: string; type: string; url?: string }; fileBlob?: Blob }>
-  >(new Map());
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -409,12 +404,6 @@ export default function ChatPage() {
   const handleRemoveFile = (index: number) => {
     setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
     setFilePreviews((prev) => prev.filter((_, i) => i !== index));
-  };
-
-  const formatFileSize = (bytes: number) => {
-    if (bytes < 1024) return `${bytes} B`;
-    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
   };
 
   const handleCopyMessage = async (text: string, messageId: number) => {
