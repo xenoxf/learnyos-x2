@@ -256,7 +256,7 @@ export default function RootLayout({
           content="default"
         />
         <meta name="apple-mobile-web-app-title" content="LearnYos" />
-
+        <meta name="msvalidate.01" content="D5D53250A849D5F02E537D03E804D46D" />
         <style
           dangerouslySetInnerHTML={{
             __html: `
