@@ -2,7 +2,36 @@
  * ChatsService - Handles chat messages
  */
 import { httpClient } from "./client";
-import type { Chat, ChatMessage, SendMessageData, SendMessageResponse, GetChatMessagesResponse, StreamChunk } from "@/types";
+import type { Chat, SendMessageData, SendMessageResponse, GetChatMessagesResponse, StreamChunk, UploadImageResponse } from "@/types";
+
+const API_BASE = process.env.NEXT_PUBLIC_BACKEND_URL || "";
+const API_KEY = String(process.env.NEXT_PUBLIC_BACKEND_API_KEY || "");
+
+async function* streamFromResponse(response: Response): AsyncIterable<StreamChunk> {
+  const reader = response.body?.getReader();
+  if (!reader) throw new Error("Streaming no soportado");
+  const decoder = new TextDecoder();
+  let buffer = "";
+
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split("\n");
+      buffer = lines.pop() || "";
+      for (const line of lines) {
+        if (line.startsWith("data: ")) {
+          try {
+            yield JSON.parse(line.slice(6));
+          } catch { /* ignore */ }
+        }
+      }
+    }
+  } finally {
+    reader.releaseLock();
+  }
+}
 
 export const chatsService = {
   getChats(): Promise<Chat[]> {
@@ -38,5 +67,33 @@ export const chatsService = {
 
   deleteAllChats(): Promise<void> {
     return httpClient.request<void>("/messages/chat/all", { method: "DELETE" });
+  },
+
+  async uploadImage(file: File): Promise<UploadImageResponse> {
+    const token = httpClient.getToken();
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const headers: Record<string, string> = {};
+    if (API_KEY) headers["x-api-key"] = API_KEY;
+    if (token) headers["Authorization"] = `Bearer ${token}`;
+
+    const res = await fetch(`${API_BASE}/upload/image`, { method: "POST", headers, body: formData });
+    if (!res.ok) throw new Error((await res.json().catch(() => ({}))).message || "Upload failed");
+    return res.json();
+  },
+
+  async uploadImages(files: File[]): Promise<UploadImageResponse[]> {
+    const token = httpClient.getToken();
+    const formData = new FormData();
+    files.forEach(f => formData.append("files", f));
+
+    const headers: Record<string, string> = {};
+    if (API_KEY) headers["x-api-key"] = API_KEY;
+    if (token) headers["Authorization"] = `Bearer ${token}`;
+
+    const res = await fetch(`${API_BASE}/upload/images`, { method: "POST", headers, body: formData });
+    if (!res.ok) throw new Error((await res.json().catch(() => ({}))).message || "Upload failed");
+    return res.json();
   },
 };

@@ -2,7 +2,7 @@
  * CardsService - Handles flashcards CRUD and generation
  */
 import { httpClient } from "./client";
-import type { CardsDeck, CardKlek, GenerateFlashCardData } from "@/types";
+import type { CardsDeck, CardKlek, GenerateFlashCardData, ReviewResult, DueReviewDeck, ReviewStats } from "@/types";
 
 export const cardsService = {
   getFlashcards(): Promise<CardsDeck[]> {
@@ -68,5 +68,21 @@ export const cardsService = {
 
   getCardLocked(id: number): Promise<CardKlek> {
     return httpClient.request<CardKlek>(`/flash-cards/locked/${id}`, { method: "GET" });
+  },
+
+  reviewFlashcard(flashcardId: number, quality: number): Promise<ReviewResult> {
+    return httpClient.request<ReviewResult>(`/flash-cards/${flashcardId}/review`, { method: "POST", body: JSON.stringify({ quality }) });
+  },
+
+  getDueReviews(): Promise<DueReviewDeck[]> {
+    return httpClient.request<DueReviewDeck[]>("/flash-cards/reviews/today", { method: "GET" });
+  },
+
+  getReviewStats(): Promise<ReviewStats> {
+    return httpClient.request<ReviewStats>("/flash-cards/reviews/stats", { method: "GET" });
+  },
+
+  addFlashcardsToDeck(deckId: number, flashcards: Array<{ front: string; back: string; hint?: string }>): Promise<any> {
+    return httpClient.request<any>(`/flash-cards/${deckId}/cards`, { method: "POST", body: JSON.stringify({ flashcards }) });
   },
 };

@@ -6,6 +6,18 @@ export interface ChatMessage {
   content: string;
   role: MessageRole;
   createdAt: string;
+  status?: 'sending' | 'sent' | 'failed';
+  file?: {
+    name: string;
+    url?: string;
+    type: string;
+  };
+  files?: Array<{
+    name: string;
+    url?: string;
+    type: string;
+  }>;
+  toolCalls?: ToolCallInfo[];
 }
 
 export interface Chat {
@@ -50,13 +62,32 @@ export interface GetChatMessagesResponse {
     prompt: string;
     response: string;
     createdAt: string;
+    fileName?: string | null;
+    fileType?: string | null;
+    fileData?: string | null;
+    fileUrl?: string | null;
+    toolCalls?: ToolCallInfo[] | null;
   }>;
 }
 
+export interface ToolCallInfo {
+  name: string;
+  args: any;
+  result: any;
+}
+
+export interface UploadImageResponse {
+  url: string;
+  markdown: string;
+  filename: string;
+}
+
 export interface StreamChunk {
-  type: "credits" | "chunk" | "done";
+  type: "credits" | "chunk" | "done" | "tool";
   content?: string;
   remaining?: number;
   total?: number;
   messageId?: number;
+  chatId?: number;
+  toolName?: string;
 }

@@ -8,3 +8,4 @@ export * from "./credits";
 export * from "./attempts";
 export * from "./globalChat";
 export * from "./common";
+export * from "./analytics";

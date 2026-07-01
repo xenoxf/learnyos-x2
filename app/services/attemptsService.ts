@@ -9,7 +9,9 @@ export const attemptsService = {
     examId: number
     correctAnswers: number
     totalQuestions: number
-    examTitle: string 
+    examTitle: string
+    timeSpent?: number
+    isAutoSubmitted?: boolean
   }): Promise<void> {
     return httpClient.request<void>("/exam-attempts", { 
       method: "POST", 
@@ -27,5 +29,9 @@ export const attemptsService = {
 
   getStats(): Promise<StatsHeroProps> {
     return httpClient.request("/exam-attempts/stats", { method: "GET" });
+  },
+
+  getExamAttempts(examId: number): Promise<Attempt[]> {
+    return httpClient.request<Attempt[]>(`/exam-attempts/exam/${examId}`, { method: "GET" });
   },
 };

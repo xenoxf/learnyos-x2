@@ -18,7 +18,7 @@ import {
   Code,
   Tag,
   Award,
-  Heart,
+  BarChart3,
 } from "lucide-react";
 import Image from "next/image";
 import styles from "@/styles/espacio/espacioPages.module.css";
@@ -27,10 +27,10 @@ import { attemptsService } from "@/services/attemptsService";
 import { likesService } from "@/services/likesService";
 import { AttemptDetailModal } from "@/components/espacio/AttemptDetailModal";
 import { StatsHero } from "@/components/espacio/StatsHero";
-import { ExamDeck, StatsHeroProps, Attempt } from "@/types";
+import AnalyticsDashboard from "@/components/espacio/AnalyticsDashboard";
+import { StatsHeroProps, Attempt } from "@/types";
 import RestringidoForGuest from "@/components/restringidoForGuest";
-import { ItemCard, ItemCardSkeleton } from "@/components/espacio/ItemCard";
-import { Skeleton } from "@/components/ui/skeleton";
+import { ItemCard } from "@/components/espacio/ItemCard";
 import SkeletonCard from "@/components/SkeletonCard";
 
 export default function RendimientoPage() {
@@ -40,6 +40,7 @@ export default function RendimientoPage() {
   const [isGuest, setIsGuest] = useState(false);
   const [user, setUser] = useState<any>(null);
   const [selectedAttempt, setSelectedAttempt] = useState<Attempt | null>(null);
+  const [showAnalytics, setShowAnalytics] = useState(false);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -105,9 +106,16 @@ export default function RendimientoPage() {
     <>
       <header className={styles.espacioPageHeader}>
         <h1 className={styles.espacioPageTitle}>Mi Rendimiento</h1>
+        <button
+          className={styles.retryButton}
+          onClick={() => setShowAnalytics((p) => !p)}
+          type="button"
+        >
+          <BarChart3 size={16} />
+          {showAnalytics ? "Historial" : "Analíticas"}
+        </button>
       </header>
 
-      {/* Attempt Detail Modal - PRO UI */}
       {selectedAttempt && (
         <AttemptDetailModal
           attempt={selectedAttempt}
@@ -116,25 +124,33 @@ export default function RendimientoPage() {
       )}
 
       <div className={styles.tabContent}>
-        {attemptStats && attemptStats.totalAttempts > 0 && (
-          <StatsHero
-            bestScore={attemptStats.bestScore}
-            totalAttempts={attemptStats.totalAttempts}
-            avgCorrect={attemptStats.avgCorrect}
-            totalQuestions={attemptStats.totalQuestions}
-          />
+        {showAnalytics && (
+          <div style={{ marginBottom: "1.5rem" }}>
+            <AnalyticsDashboard />
+          </div>
         )}
 
-        {attempts.length < 1 ? (
-          <div className={styles.emptyState}>
-            <div className={styles.emptyIconCircle}>
-              <FileText size={40} />
-            </div>
-            <h3>Tu historial está vacío</h3>
-            <p>Empieza a estudiar para ver tus resultados aquí.</p>
-          </div>
-        ) : (
-          <div className={styles.itemsList}>
+        {!showAnalytics && (
+          <>
+            {attemptStats && attemptStats.totalAttempts > 0 && (
+              <StatsHero
+                bestScore={attemptStats.bestScore}
+                totalAttempts={attemptStats.totalAttempts}
+                avgCorrect={attemptStats.avgCorrect}
+                totalQuestions={attemptStats.totalQuestions}
+              />
+            )}
+
+            {attempts.length < 1 ? (
+              <div className={styles.emptyState}>
+                <div className={styles.emptyIconCircle}>
+                  <FileText size={40} />
+                </div>
+                <h3>Tu historial está vacío</h3>
+                <p>Empieza a estudiar para ver tus resultados aquí.</p>
+              </div>
+            ) : (
+              <div className={styles.itemsList}>
             {attempts.map((att) => {
               const score = (att.correctAnswers / att.totalQuestions) * 100;
               const variant =
@@ -176,6 +192,8 @@ export default function RendimientoPage() {
               );
             })}
           </div>
+            )}
+          </>
         )}
       </div>
     </>
