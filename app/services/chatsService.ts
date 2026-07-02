@@ -35,6 +35,53 @@ export const chatsService = {
     }
   },
 
+  async *sendMessageStreamWithFile(data: SendMessageData & { files: File[] }): AsyncIterable<StreamChunk> {
+    const token = httpClient.getToken();
+    const formData = new FormData();
+    data.files.forEach(f => formData.append("files", f));
+    formData.append("prompt", data.prompt);
+    if (data.chatId) formData.append("chatId", String(data.chatId));
+
+    const headers: Record<string, string> = {};
+    if (API_KEY) headers["x-api-key"] = API_KEY;
+    if (token) headers["Authorization"] = `Bearer ${token}`;
+
+    const res = await fetch(`${API_BASE}/messages/send/stream/with-file`, {
+      method: "POST",
+      headers,
+      body: formData,
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ message: `Error ${res.status}` }));
+      throw new Error(err.message || "Error en stream con archivos");
+    }
+
+    const reader = res.body?.getReader();
+    if (!reader) throw new Error("No se pudo leer el stream");
+
+    const decoder = new TextDecoder();
+    let buffer = "";
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split("\n");
+      buffer = lines.pop() || "";
+
+      for (const line of lines) {
+        const trimmed = line.trim();
+        if (!trimmed || !trimmed.startsWith("data:")) continue;
+        try {
+          const data = JSON.parse(trimmed.slice(5).trim());
+          yield data as StreamChunk;
+        } catch {}
+      }
+    }
+  },
+
   deleteChat(chatId: number): Promise<void> {
     return httpClient.request<void>(`/messages/chat/${chatId}`, { method: "DELETE" });
   },

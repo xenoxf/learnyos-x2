@@ -15,32 +15,54 @@ import {
   PanelLeftClose,
   PanelLeft,
   Image,
+  X,
 } from "lucide-react";
 import styles from "@/styles/chat.module.css";
 import type { ChatMessage, Chat } from "@/types";
 import { MarkdownRenderer } from "@/components/MarkdownRenderer";
 import { chatsService } from "@/services/chatsService";
 import { authService } from "@/services/authService";
+import { SlashCommandModal } from "@/components/chat/SlashCommandModal";
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
 
-export const dynamic = "force-dynamic";
+const TOOL_LABELS: Record<string, string> = {
+  web_search: "🔍 Buscando en internet...",
+  scrape_url: "🌐 Leyendo página web...",
+  generate_exam: "📝 Generando examen...",
+  generate_flashcards: "🃏 Creando flashcards...",
+  generate_notes: "📄 Generando apuntes...",
+  get_user_content: "📂 Consultando tu contenido...",
+  create_exam_manual: "📝 Creando examen personalizado...",
+  create_flashcard_manual: "🃏 Creando flashcards personalizadas...",
+};
+
+const TOOL_EMOJI: Record<string, string> = {
+  web_search: "🔍",
+  scrape_url: "🌐",
+  generate_exam: "📝",
+  generate_flashcards: "🃏",
+  generate_notes: "📄",
+  get_user_content: "📂",
+  create_exam_manual: "📝",
+  create_flashcard_manual: "🃏",
+};
 
 function ToolIndicator({ name }: { name: string | null }) {
   if (!name) return null;
-  const labels: Record<string, string> = {
-    web_search: "🔍 Buscando en internet...",
-    scrape_url: "🌐 Leyendo página web...",
-    generate_exam: "📝 Generando examen...",
-    generate_flashcards: "🃏 Creando flashcards...",
-    generate_notes: "📄 Generando apuntes...",
-  };
-  const label = labels[name] || name || "🔧 Usando herramienta...";
+  const label = TOOL_LABELS[name] || "🔧 Usando herramienta...";
   return (
     <div className="flex items-center gap-2 text-sm text-muted-foreground py-2">
       <span className="animate-pulse">{label}</span>
     </div>
   );
+}
+
+function extractToolName(raw: string | null): string | null {
+  if (!raw) return null;
+  const match = raw.match(/\[Usando herramienta:\s*(\w+)/);
+  if (match) return match[1];
+  return raw;
 }
 
 export default function ChatPage() {
@@ -58,7 +80,10 @@ export default function ChatPage() {
   const [copiedId, setCopiedId] = useState<number | null>(null);
   const [isGuest, setIsGuest] = useState(false);
   const [currentTool, setCurrentTool] = useState<string | null>(null);
-  const [uploadingImage, setUploadingImage] = useState(false);
+  const [attachedFiles, setAttachedFiles] = useState<File[]>([]);
+  const [creditsRemaining, setCreditsRemaining] = useState<number | null>(null);
+  const [slashCommand, setSlashCommand] = useState<"exam" | "flashcards" | null>(null);
+  const [slashPrompt, setSlashPrompt] = useState("");
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
@@ -68,48 +93,46 @@ export default function ChatPage() {
     setIsGuest(authService.isGuest());
   }, []);
 
-  // ==================== IMAGE UPLOAD ====================
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    if (!file.type.startsWith("image/")) {
-      toast.error("Formato no soportado", "Solo imágenes (PNG, JPG, WEBP, GIF)");
-      return;
-    }
-
-    if (file.size > MAX_FILE_SIZE) {
-      toast.error("Archivo muy grande", "El tamaño máximo es 10MB");
-      return;
-    }
-
-    setUploadingImage(true);
-    try {
-      const result = await chatsService.uploadImage(file);
-      const markdown = result.markdown || `![${result.filename}](${result.url})`;
-      setInputValue((prev) => prev + (prev ? "\n" : "") + markdown);
-      toast.success("Imagen subida", "La imagen se insertó en el mensaje");
-    } catch (err: any) {
-      toast.error("Error", err.message || "No se pudo subir la imagen");
-    } finally {
-      setUploadingImage(false);
-      if (imageInputRef.current) imageInputRef.current.value = "";
-    }
+  // ==================== FILE ATTACHMENT ====================
+  const handleAttachFiles = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    const validFiles = files.filter(f => {
+      if (f.size > MAX_FILE_SIZE) {
+        toast.error("Archivo muy grande", `${f.name} excede 10MB`);
+        return false;
+      }
+      return true;
+    });
+    setAttachedFiles(prev => [...prev, ...validFiles].slice(0, 5));
+    if (imageInputRef.current) imageInputRef.current.value = "";
   };
+
+  const removeAttachedFile = (index: number) => {
+    setAttachedFiles(prev => prev.filter((_, i) => i !== index));
+  };
+
+  // ==================== SLASH COMMAND RESULT ====================
+  const handleSlashResult = useCallback((result: { type: string; message: string }) => {
+    const assistantMsg: ChatMessage = {
+      id: Date.now() + 1,
+      chatId: currentChat?.id,
+      content: result.message,
+      role: "assistant",
+      createdAt: new Date().toISOString(),
+    };
+    setMessages(prev => [...prev, assistantMsg]);
+  }, [currentChat?.id]);
 
   // ==================== SUGERENCIAS ====================
   const suggestions = [
     { icon: "🧠", title: "Ciencia", text: "Explica la teoría cuántica" },
-    {
-      icon: "🤖",
-      title: "Tecnología",
-      text: "¿Cómo funciona el machine learning?",
-    },
-    {
-      icon: "📚",
-      title: "Historia",
-      text: "Resumen de la Segunda Guerra Mundial",
-    },
+    { icon: "🤖", title: "Tecnología", text: "¿Cómo funciona el machine learning?" },
+    { icon: "📚", title: "Historia", text: "Resumen de la Segunda Guerra Mundial" },
+  ];
+
+  const slashSuggestions = [
+    { icon: "📝", title: "/exam-g", text: "Generar examen con IA" },
+    { icon: "🃏", title: "/flashcards-g", text: "Generar flashcards con IA" },
   ];
 
   // ==================== DETECTAR MÓVIL ====================
@@ -211,14 +234,28 @@ export default function ChatPage() {
     if (!inputValue.trim() || isLoading) return;
 
     const messageContent = inputValue.trim();
+
+    // Detectar slash commands
+    if (messageContent.startsWith("/exam-g") || messageContent.startsWith("/flashcards-g")) {
+      const afterCmd = messageContent.replace(/^\/(exam-g|flashcards-g)\s*/, "").trim();
+      setSlashCommand(messageContent.startsWith("/exam-g") ? "exam" : "flashcards");
+      setSlashPrompt(afterCmd);
+      setInputValue("");
+      resetTextareaHeight();
+      return;
+    }
+
     setInputValue("");
     setIsLoading(true);
     setIsStreaming(true);
     setStreamingContent("");
     setCurrentTool(null);
+    setCreditsRemaining(null);
     resetTextareaHeight();
 
     const sendingToExistingChat = !!currentChat;
+    const currentFiles = [...attachedFiles];
+    setAttachedFiles([]);
 
     const userMessage: ChatMessage = {
       id: Date.now(),
@@ -226,20 +263,27 @@ export default function ChatPage() {
       content: messageContent,
       role: "user",
       createdAt: new Date().toISOString(),
+      files: currentFiles.length > 0 ? currentFiles.map(f => ({
+        name: f.name,
+        type: f.type,
+        url: URL.createObjectURL(f),
+      })) : undefined,
     };
 
     setMessages((prev) => [...prev, userMessage]);
 
     let fullContent = "";
     let newChatId: number | undefined;
+    const stream = currentFiles.length > 0
+      ? chatsService.sendMessageStreamWithFile({ prompt: messageContent, chatId: currentChat?.id, files: currentFiles })
+      : chatsService.sendMessageStream({ prompt: messageContent, chatId: currentChat?.id });
 
     try {
-      for await (const chunk of chatsService.sendMessageStream({
-        prompt: messageContent,
-        chatId: currentChat?.id,
-      })) {
-        if (chunk.type === "tool") {
-          setCurrentTool(chunk.content || chunk.toolName || null);
+      for await (const chunk of stream) {
+        if (chunk.type === "credits") {
+          setCreditsRemaining(chunk.remaining ?? null);
+        } else if (chunk.type === "tool") {
+          setCurrentTool(extractToolName(chunk.content || null));
         } else if (chunk.type === "chunk") {
           setCurrentTool(null);
           fullContent += chunk.content || "";
@@ -249,16 +293,13 @@ export default function ChatPage() {
         }
       }
 
-      // Limpiar streaming
       setStreamingContent("");
       setIsStreaming(false);
 
       if (!sendingToExistingChat && newChatId) {
         const newChat: Chat = {
           id: newChatId,
-          title:
-            messageContent.slice(0, 40) +
-            (messageContent.length > 40 ? "..." : ""),
+          title: messageContent.slice(0, 40) + (messageContent.length > 40 ? "..." : ""),
           createdAt: new Date().toISOString(),
           messageCount: 1,
         };
@@ -293,6 +334,7 @@ export default function ChatPage() {
     inputValue,
     isLoading,
     currentChat,
+    attachedFiles,
     loadChats,
     resetTextareaHeight,
   ]);
@@ -392,6 +434,15 @@ export default function ChatPage() {
 
   // ==================== RENDER ====================
   return (
+    <>
+      {slashCommand && (
+        <SlashCommandModal
+          command={slashCommand}
+          initialPrompt={slashPrompt}
+          onClose={() => setSlashCommand(null)}
+          onResult={handleSlashResult}
+        />
+      )}
     <div className={styles.container}>
       {/* SIDEBAR */}
       <aside
@@ -471,6 +522,22 @@ export default function ChatPage() {
               <h1>¡Hola! Soy Junior</h1>
               <p>¿Qué te gustaría preguntar hoy?</p>
               <div className={styles.suggestions}>
+                {slashSuggestions.map((s, i) => (
+                  <button
+                    key={`slash-${i}`}
+                    className={styles.suggestionCard}
+                    onClick={() => setInputValue(s.title + " ")}
+                  >
+                    <span className={styles.suggestionIcon}>{s.icon}</span>
+                    <div className={styles.suggestionContent}>
+                      <span className={styles.suggestionTitle}>{s.title}</span>
+                      <span className={styles.suggestionText}>{s.text}</span>
+                    </div>
+                  </button>
+                ))}
+              </div>
+              <div className="mt-3 text-xs text-muted-foreground">ó pregúntame algo:</div>
+              <div className={styles.suggestions}>
                 {suggestions.map((s, i) => (
                   <button
                     key={i}
@@ -529,12 +596,7 @@ export default function ChatPage() {
                                 className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[10px] font-medium bg-muted text-muted-foreground border border-border"
                                 title={tc.args ? JSON.stringify(tc.args).slice(0, 100) : ''}
                               >
-                                {tc.name === "web_search" && "🔍"}
-                                {tc.name === "scrape_url" && "🌐"}
-                                {tc.name === "generate_exam" && "📝"}
-                                {tc.name === "generate_flashcards" && "🃏"}
-                                {tc.name === "generate_notes" && "📄"}
-                                {!["web_search","scrape_url","generate_exam","generate_flashcards","generate_notes"].includes(tc.name) && "🔧"}
+                                <span>{TOOL_EMOJI[tc.name] || "🔧"}</span>
                                 <span>{tc.name}</span>
                               </span>
                             ))}
@@ -598,6 +660,23 @@ export default function ChatPage() {
         {/* INPUT */}
         <div className={styles.inputArea}>
           <div className={styles.inputContainer}>
+            {attachedFiles.length > 0 && (
+              <div className="flex flex-wrap gap-2 px-3 pt-2">
+                {attachedFiles.map((f, i) => (
+                  <div key={i} className="flex items-center gap-1.5 px-2 py-1 bg-muted rounded-lg text-xs">
+                    {f.type.startsWith("image/") ? (
+                      <img src={URL.createObjectURL(f)} alt={f.name} className="w-6 h-6 rounded object-cover" />
+                    ) : (
+                      <span className="text-muted-foreground">📄</span>
+                    )}
+                    <span className="truncate max-w-[100px]">{f.name}</span>
+                    <button onClick={() => removeAttachedFile(i)} className="text-muted-foreground hover:text-foreground ml-1" type="button">
+                      <X size={12} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
             <div className={styles.inputWrapper}>
               <textarea
                 ref={textareaRef}
@@ -605,7 +684,7 @@ export default function ChatPage() {
                 placeholder={
                   isGuest
                     ? "Inicia sesión para enviar mensajes..."
-                    : "Envía un mensaje..."
+                    : "/flashcards-g o /exam-g para crear • Envía un mensaje..."
                 }
                 value={inputValue}
                 onChange={(e) => {
@@ -620,26 +699,23 @@ export default function ChatPage() {
               <button
                 className={styles.uploadButton}
                 onClick={() => imageInputRef.current?.click()}
-                disabled={isLoading || isGuest || uploadingImage}
-                title="Subir imagen"
+                disabled={isLoading || isGuest || attachedFiles.length >= 5}
+                title="Adjuntar archivos"
               >
-                {uploadingImage ? (
-                  <Loader size={16} className={styles.spin} />
-                ) : (
-                  <Image size={16} />
-                )}
+                <Image size={16} />
               </button>
               <input
                 ref={imageInputRef}
                 type="file"
-                accept=".png,.jpg,.jpeg,.webp,.gif"
-                onChange={handleImageUpload}
+                multiple
+                accept=".png,.jpg,.jpeg,.webp,.gif,.pdf"
+                onChange={handleAttachFiles}
                 style={{ display: "none" }}
               />
               <button
                 className={styles.sendButton}
                 onClick={handleSendMessage}
-                disabled={!inputValue.trim() || isLoading || isGuest}
+                disabled={(!inputValue.trim() && attachedFiles.length === 0) || isLoading || isGuest}
                 style={
                   isGuest ? { opacity: 0.5, pointerEvents: "none" } : undefined
                 }
@@ -651,6 +727,11 @@ export default function ChatPage() {
                 )}
               </button>
             </div>
+            {creditsRemaining != null && (
+              <div className="px-3 py-1 text-[10px] text-muted-foreground text-right">
+                💎 {creditsRemaining} créditos restantes
+              </div>
+            )}
           </div>
         </div>
       </main>
@@ -664,5 +745,6 @@ export default function ChatPage() {
         />
       )}
     </div>
+    </>
   );
 }
