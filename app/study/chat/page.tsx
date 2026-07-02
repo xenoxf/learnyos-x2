@@ -52,8 +52,8 @@ function ToolIndicator({ name }: { name: string | null }) {
   if (!name) return null;
   const label = TOOL_LABELS[name] || "🔧 Usando herramienta...";
   return (
-    <div className="flex items-center gap-2 text-sm text-muted-foreground py-2">
-      <span className="animate-pulse">{label}</span>
+    <div className={styles.toolIndicator}>
+      <span className={styles.toolPulse}>{label}</span>
     </div>
   );
 }
@@ -84,6 +84,8 @@ export default function ChatPage() {
   const [creditsRemaining, setCreditsRemaining] = useState<number | null>(null);
   const [slashCommand, setSlashCommand] = useState<"exam" | "flashcards" | null>(null);
   const [slashPrompt, setSlashPrompt] = useState("");
+  const [showSlashAutocomplete, setShowSlashAutocomplete] = useState(false);
+  const [slashAutocompleteIdx, setSlashAutocompleteIdx] = useState(0);
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
@@ -426,11 +428,45 @@ export default function ChatPage() {
   }, [messages, streamingContent, scrollToBottom]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (showSlashAutocomplete) {
+      if (e.key === "ArrowDown") {
+        e.preventDefault();
+        setSlashAutocompleteIdx(prev => (prev + 1) % slashSuggestions.length);
+      } else if (e.key === "ArrowUp") {
+        e.preventDefault();
+        setSlashAutocompleteIdx(prev => (prev - 1 + slashSuggestions.length) % slashSuggestions.length);
+      } else if (e.key === "Enter" || e.key === "Tab") {
+        e.preventDefault();
+        selectSlashCommand(slashAutocompleteIdx);
+      } else if (e.key === "Escape") {
+        setShowSlashAutocomplete(false);
+      }
+      return;
+    }
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSendMessage();
     }
   };
+
+  const selectSlashCommand = useCallback((idx: number) => {
+    const cmd = slashSuggestions[idx];
+    if (cmd) {
+      setInputValue(cmd.title + " ");
+      setShowSlashAutocomplete(false);
+      adjustTextareaHeight();
+      textareaRef.current?.focus();
+    }
+  }, [adjustTextareaHeight]);
+
+  const detectSlashAutocomplete = useCallback((value: string) => {
+    if (value === "/") {
+      setShowSlashAutocomplete(true);
+      setSlashAutocompleteIdx(0);
+    } else if (!value.startsWith("/") || value.includes(" ")) {
+      setShowSlashAutocomplete(false);
+    }
+  }, []);
 
   // ==================== RENDER ====================
   return (
@@ -536,7 +572,7 @@ export default function ChatPage() {
                   </button>
                 ))}
               </div>
-              <div className="mt-3 text-xs text-muted-foreground">ó pregúntame algo:</div>
+              <div className={styles.welcomeHint}>ó pregúntame algo:</div>
               <div className={styles.suggestions}>
                 {suggestions.map((s, i) => (
                   <button
@@ -564,16 +600,16 @@ export default function ChatPage() {
                     <>
                       <div className={styles.messageContent}>
                         {msg.files && msg.files.length > 0 && (
-                          <div className="flex flex-wrap gap-2 mb-2">
+                          <div className={styles.userFilesRow}>
                             {msg.files.map((f, i) => (
                               f.url ? (
                                 f.type.startsWith("image/") ? (
-                                  <img key={i} src={f.url} alt={f.name} className="max-w-[200px] rounded-lg border" />
+                                  <img key={i} src={f.url} alt={f.name} className={styles.userFileImg} />
                                 ) : (
-                                  <span key={i} className="text-xs px-2 py-1 bg-muted rounded">{f.name}</span>
+                                  <span key={i} className={styles.userFileLabel}>{f.name}</span>
                                 )
                               ) : (
-                                <span key={i} className="text-xs px-2 py-1 bg-muted rounded">{f.name}</span>
+                                <span key={i} className={styles.userFileLabel}>{f.name}</span>
                               )
                             ))}
                           </div>
@@ -589,11 +625,11 @@ export default function ChatPage() {
                       <div className={styles.messageContentBot}>
                         <MarkdownRenderer content={msg.content} />
                         {msg.toolCalls && msg.toolCalls.length > 0 && (
-                          <div className="flex flex-wrap gap-1.5 mt-1.5 mb-1">
+                          <div className={styles.toolCallsRow}>
                             {msg.toolCalls.map((tc, i) => (
                               <span
                                 key={i}
-                                className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[10px] font-medium bg-muted text-muted-foreground border border-border"
+                                className={styles.toolCallBadge}
                                 title={tc.args ? JSON.stringify(tc.args).slice(0, 100) : ''}
                               >
                                 <span>{TOOL_EMOJI[tc.name] || "🔧"}</span>
@@ -661,16 +697,16 @@ export default function ChatPage() {
         <div className={styles.inputArea}>
           <div className={styles.inputContainer}>
             {attachedFiles.length > 0 && (
-              <div className="flex flex-wrap gap-2 px-3 pt-2">
+              <div className={styles.attachFilesRow}>
                 {attachedFiles.map((f, i) => (
-                  <div key={i} className="flex items-center gap-1.5 px-2 py-1 bg-muted rounded-lg text-xs">
+                  <div key={i} className={styles.attachFileChip}>
                     {f.type.startsWith("image/") ? (
-                      <img src={URL.createObjectURL(f)} alt={f.name} className="w-6 h-6 rounded object-cover" />
+                      <img src={URL.createObjectURL(f)} alt={f.name} className={styles.attachFileThumb} />
                     ) : (
-                      <span className="text-muted-foreground">📄</span>
+                      <span className={styles.attachFileIcon}>📄</span>
                     )}
-                    <span className="truncate max-w-[100px]">{f.name}</span>
-                    <button onClick={() => removeAttachedFile(i)} className="text-muted-foreground hover:text-foreground ml-1" type="button">
+                    <span className={styles.attachFileName}>{f.name}</span>
+                    <button onClick={() => removeAttachedFile(i)} className={styles.attachFileRemove} type="button">
                       <X size={12} />
                     </button>
                   </div>
@@ -678,24 +714,49 @@ export default function ChatPage() {
               </div>
             )}
             <div className={styles.inputWrapper}>
-              <textarea
-                ref={textareaRef}
-                className={styles.textarea}
-                placeholder={
-                  isGuest
-                    ? "Inicia sesión para enviar mensajes..."
-                    : "/flashcards-g o /exam-g para crear • Envía un mensaje..."
-                }
-                value={inputValue}
-                onChange={(e) => {
-                  setInputValue(e.target.value);
-                  adjustTextareaHeight();
-                }}
-                onKeyDown={handleKeyDown}
-                rows={1}
-                disabled={isLoading || isGuest}
-                style={isGuest ? { opacity: 0.7 } : undefined}
-              />
+              <div className={styles.inputBody}>
+                {showSlashAutocomplete && (
+                  <div className={styles.slashPopover} role="listbox" aria-label="Comandos disponibles">
+                    <div className={styles.slashPopoverHeader}>Comandos</div>
+                    {slashSuggestions.map((s, i) => (
+                      <button
+                        key={s.title}
+                        role="option"
+                        aria-selected={i === slashAutocompleteIdx}
+                        className={`${styles.slashOption} ${i === slashAutocompleteIdx ? styles.slashOptionActive : ""}`}
+                        onClick={() => selectSlashCommand(i)}
+                        onMouseEnter={() => setSlashAutocompleteIdx(i)}
+                        type="button"
+                      >
+                        <span className={styles.slashOptionIcon}>{s.icon}</span>
+                        <span className={styles.slashOptionInfo}>
+                          <span className={styles.slashOptionTitle}>{s.title}</span>
+                          <span className={styles.slashOptionDesc}>{s.text}</span>
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+                <textarea
+                  ref={textareaRef}
+                  className={styles.textarea}
+                  placeholder={
+                    isGuest
+                      ? "Inicia sesión para enviar mensajes..."
+                      : "/flashcards-g o /exam-g para crear • Envía un mensaje..."
+                  }
+                  value={inputValue}
+                  onChange={(e) => {
+                    setInputValue(e.target.value);
+                    detectSlashAutocomplete(e.target.value);
+                    adjustTextareaHeight();
+                  }}
+                  onKeyDown={handleKeyDown}
+                  rows={1}
+                  disabled={isLoading || isGuest}
+                  style={isGuest ? { opacity: 0.7 } : undefined}
+                />
+              </div>
               <button
                 className={styles.uploadButton}
                 onClick={() => imageInputRef.current?.click()}
@@ -728,7 +789,7 @@ export default function ChatPage() {
               </button>
             </div>
             {creditsRemaining != null && (
-              <div className="px-3 py-1 text-[10px] text-muted-foreground text-right">
+              <div className={styles.creditsBar}>
                 💎 {creditsRemaining} créditos restantes
               </div>
             )}
