@@ -7,32 +7,6 @@ import type { Chat, SendMessageData, SendMessageResponse, GetChatMessagesRespons
 const API_BASE = process.env.NEXT_PUBLIC_BACKEND_URL || "";
 const API_KEY = String(process.env.NEXT_PUBLIC_BACKEND_API_KEY || "");
 
-async function* streamFromResponse(response: Response): AsyncIterable<StreamChunk> {
-  const reader = response.body?.getReader();
-  if (!reader) throw new Error("Streaming no soportado");
-  const decoder = new TextDecoder();
-  let buffer = "";
-
-  try {
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      buffer += decoder.decode(value, { stream: true });
-      const lines = buffer.split("\n");
-      buffer = lines.pop() || "";
-      for (const line of lines) {
-        if (line.startsWith("data: ")) {
-          try {
-            yield JSON.parse(line.slice(6));
-          } catch { /* ignore */ }
-        }
-      }
-    }
-  } finally {
-    reader.releaseLock();
-  }
-}
-
 export const chatsService = {
   getChats(): Promise<Chat[]> {
     return httpClient.request<Chat[]>("/messages/chats", { method: "GET" });
