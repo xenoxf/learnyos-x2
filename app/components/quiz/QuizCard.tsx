@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import {
   Trash2,
   HelpCircle,
-  Heart,
   User,
   BookOpen,
   ScrollText,
@@ -16,17 +15,6 @@ import {
   BookmarkCheck,
 } from "lucide-react";
 import { toast } from "@/hooks/useLocalToast";
-import { isGuestUser } from "@/lib/auth-utils";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import styles from "@/styles/quiz/quizCard.module.css";
 import type { ExamDeck } from "@/types";
 import { LikeButton } from "@/components/common/LikeButton";
@@ -39,6 +27,11 @@ interface QuizCardProps {
 }
 
 const difficultyConfig: Record<string, { label: string; color: string; icon: React.ReactNode }> = {
+  very_easy: {
+    label: "Muy Fácil",
+    color: "cyan",
+    icon: <Zap size={14} />,
+  },
   easy: {
     label: "Fácil",
     color: "emerald",
@@ -54,6 +47,16 @@ const difficultyConfig: Record<string, { label: string; color: string; icon: Rea
     color: "rose",
     icon: <Zap size={14} />,
   },
+  very_hard: {
+    label: "Muy Difícil",
+    color: "violet",
+    icon: <Zap size={14} />,
+  },
+  expert: {
+    label: "Experto",
+    color: "indigo",
+    icon: <Zap size={14} />,
+  },
 };
 
 const typeConfig = {
@@ -63,7 +66,6 @@ const typeConfig = {
 
 export default function QuizCard({
   quiz,
-  onQuizDeleted,
   isEspacio,
   onShowOptions,
 }: QuizCardProps) {

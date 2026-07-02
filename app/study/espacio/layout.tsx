@@ -9,17 +9,20 @@ import {
   FileText,
   CreditCard,
   Brain,
-  Shield,
   TrendingUp,
   ChevronDown,
-  ChevronLeft,
   Menu,
   X,
   PanelLeftClose,
   PanelLeft,
-  Palette,
 } from "lucide-react";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import styles from "@/styles/espacio/espacioLayout.module.css";
+import { cn } from "@/lib/utils";
 
 interface EspacioNavItem {
   id: string;
@@ -105,8 +108,9 @@ export default function EspacioLayout({
 
   const toggleFunciones = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
+    if (sidebarCollapsed && !isMobile) return; // Popover will handle it
     setFuncionesExpanded((p) => !p);
-  }, []);
+  }, [sidebarCollapsed, isMobile]);
 
   const toggleSidebarCollapse = useCallback(() => {
     setSidebarCollapsed((prev) => {
@@ -124,6 +128,48 @@ export default function EspacioLayout({
       const active = isActive(item.href);
 
       if (item.children) {
+        const hasActiveChild = item.children.some(child => isActive(child.href));
+        
+        if (sidebarCollapsed && !isMobile) {
+          return (
+            <Popover key={item.id}>
+              <PopoverTrigger asChild>
+                <button
+                  className={cn(
+                    styles.navItem, 
+                    hasActiveChild ? styles.navItemActive : "",
+                    styles.navGroupHeaderCollapsed
+                  )}
+                  title={item.label}
+                  type="button"
+                >
+                  <Icon size={18} />
+                </button>
+              </PopoverTrigger>
+              <PopoverContent side="right" align="start" className={styles.navPopoverContent}>
+                <div className={styles.navPopoverHeader}>{item.label}</div>
+                <div className={styles.navPopoverChildren}>
+                  {item.children.map((child) => {
+                    const ChildIcon = child.icon;
+                    const childActive = isActive(child.href);
+                    return (
+                      <Link
+                        key={child.id}
+                        href={child.href}
+                        className={cn(styles.navGroupChild, childActive ? styles.navGroupChildActive : "")}
+                        onClick={closeSidebar}
+                      >
+                        <ChildIcon size={16} />
+                        <span>{child.label}</span>
+                      </Link>
+                    );
+                  })}
+                </div>
+              </PopoverContent>
+            </Popover>
+          );
+        }
+
         return (
           <div key={item.id} className={styles.navGroup}>
             <button

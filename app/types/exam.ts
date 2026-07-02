@@ -74,6 +74,8 @@ export interface GenerateExamData {
   difficulty: string;
   type?: "quiz" | "icfes";
   acceso?: string;
+  file?: File;
+  files?: File[];
 }
 
 export interface GenerateQuickQuizData {

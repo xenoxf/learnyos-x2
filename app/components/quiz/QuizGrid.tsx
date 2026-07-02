@@ -11,10 +11,12 @@ import {
   type ViewMode,
 } from "@/components/study/StudyGrid";
 import type { ExamDeck } from "@/types";
-import { Skeleton } from "@/components/ui/skeleton";
-import styles from "@/styles/quiz/quizGrid.module.css";
 import { quizzesService } from "@/services/quizzesService";
 import SkeletonCard from "../SkeletonCard";
+import { useExams } from "@/hooks/useExams";
+import type { GenerateExamData } from "@/types";
+import { toast } from "@/hooks/useLocalToast";
+import { errorHandler } from "@/services/errorHandler";
 
 interface QuizGridProps { }
 
@@ -33,13 +35,14 @@ const QUIZ_CONFIG = {
 };
 
 export default function QuizGrid({ }: QuizGridProps) {
-  const [isSearching, setIsSearching] = useState(false);
+  const [isSearching, _setIsSearching] = useState(false);
+  const { generateExam } = useExams();
 
   const {
     searchValue,
     setSearchValue,
     items,
-    allItems,
+    allItems: _allItems,
     loading,
     viewMode,
     setViewMode,
@@ -48,6 +51,7 @@ export default function QuizGrid({ }: QuizGridProps) {
     handleCreateClick,
     handleCloseModal,
     handleItemDeleted,
+    refresh,
     isGuest,
   } = useStudyGrid<ExamDeck & StudyGridBaseItem>({
     actions: {
@@ -64,18 +68,21 @@ export default function QuizGrid({ }: QuizGridProps) {
     defaultViewMode: "public",
   });
 
-  // Búsqueda con debounce optimizado
-  const handleSearch = useCallback(async (query: string) => {
-    if (query.trim().length >= 2) {
-      setIsSearching(true);
-      try {
-        await quizzesService.searchExams(query, 20, 0, true);
-      } catch (error) {
-        console.error("Error en búsqueda:", error);
-      } finally {
-        setIsSearching(false);
-      }
+  const handleCreateExam = useCallback(async (formData: GenerateExamData) => {
+    try {
+      await generateExam(formData);
+      setViewMode(formData.acceso === "public" ? "public" : "private");
+      refresh();
+    } catch (err) {
+      toast.error("Error", "No se pudo generar el examen");
+      errorHandler(err, "Error generating quiz");
     }
+  }, [generateExam, refresh, setViewMode]);
+
+  // Búsqueda con debounce
+  const handleSearch = useCallback(async (_query: string) => {
+    // La búsqueda real la hace useStudyGrid vía filterItems sobre allItems
+    // Si en el futuro necesitas búsqueda profunda en servidor, impleméntalo aquí.
   }, []);
 
   useEffect(() => {
@@ -126,7 +133,6 @@ export default function QuizGrid({ }: QuizGridProps) {
           <StudyGridContent
             loading={false}
             items={items}
-            allItems={allItems}
             resultText={resultText}
             config={QUIZ_CONFIG}
             renderCard={renderCard}
@@ -137,7 +143,7 @@ export default function QuizGrid({ }: QuizGridProps) {
       {showCreate && (
         <CreateQuizModal
           onClose={handleCloseModal}
-          onQuizCreated={handleItemDeleted}
+          onQuizCreated={handleCreateExam}
         />
       )}
     </>

@@ -8,7 +8,7 @@
  * para soporte completo de temas.
  */
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect } from 'react';
 
 export type ToastType = 'success' | 'error' | 'warning' | 'info';
 

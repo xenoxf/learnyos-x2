@@ -1,6 +1,6 @@
 "use client";
 
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import type { NoteDeck } from "@/types";
 import { notesService } from "@/services/notesService";
 
@@ -14,11 +14,6 @@ export function useNotes() {
   } = useQuery({
     queryKey: ["notes"],
     queryFn: () => notesService.getNotes(),
-  });
-
-  const { data: publicNotes = [] } = useQuery({
-    queryKey: ["notes", "public"],
-    queryFn: () => notesService.getNotesPublic(),
   });
 
   const addNote = (note: NoteDeck) => {

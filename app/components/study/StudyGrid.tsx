@@ -50,6 +50,13 @@ export interface StudyGridProps<T extends StudyGridBaseItem> {
   createModal?: React.ReactNode;
 }
 
+const normalizeText = (text: string) => {
+  return text
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+};
+
 export function useStudyGrid<
   T extends StudyGridBaseItem & { code?: string | null },
 >({
@@ -66,8 +73,13 @@ export function useStudyGrid<
   const [allItems, setAllItems] = useState<(T & { canDelete?: boolean })[]>([]);
   const [loading, setLoading] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>(defaultViewMode);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [showCreate, setShowCreate] = useState(false);
   const [isGuest, setIsGuest] = useState(false);
+
+  const refresh = useCallback(() => {
+    setRefreshTrigger((prev) => prev + 1);
+  }, []);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -87,19 +99,26 @@ export function useStudyGrid<
 
   const filterItems = useCallback(
     (itemsToFilter: (T & { canDelete?: boolean })[], term: string) => {
-      const trimmed = term.trim().toLowerCase();
-      if (!trimmed) {
+      const normalizedTerm = normalizeText(term.trim());
+      if (!normalizedTerm) {
         setItems(itemsToFilter);
         return;
       }
 
       const filtered = itemsToFilter.filter((item) => {
         const anyItem = item as any;
+        const title = normalizeText(anyItem.title || "");
+        const description = normalizeText(anyItem.description || "");
+        const area = normalizeText(anyItem.area || "");
+        const tema = normalizeText(anyItem.tema || "");
+        const code = normalizeText(anyItem.code || "");
+
         return (
-          anyItem.title?.toLowerCase().includes(trimmed) ||
-          anyItem.description?.toLowerCase().includes(trimmed) ||
-          anyItem.area?.toLowerCase().includes(trimmed) ||
-          anyItem.tema?.toLowerCase().includes(trimmed)
+          title.includes(normalizedTerm) ||
+          description.includes(normalizedTerm) ||
+          area.includes(normalizedTerm) ||
+          tema.includes(normalizedTerm) ||
+          code.includes(normalizedTerm)
         );
       });
       setItems(filtered);
@@ -108,8 +127,6 @@ export function useStudyGrid<
   );
 
   const loadItems = useCallback(async () => {
-    if (loading) return;
-
     try {
       setLoading(true);
       const data = await actions.onLoad(viewMode);
@@ -138,13 +155,12 @@ export function useStudyGrid<
     searchValue,
     viewMode,
     filterItems,
-    loading,
   ]);
 
   useEffect(() => {
     loadItems();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [viewMode]);
+  }, [viewMode, refreshTrigger]);
 
   useEffect(() => {
     if (searchValue.trim().length === 0) {
@@ -173,9 +189,8 @@ export function useStudyGrid<
   const handleItemDeleted = useCallback(async () => {
     if (actions.onItemDeleted) {
       await actions.onItemDeleted();
-    } else {
-      await loadItems();
     }
+    await loadItems();
   }, [actions, loadItems]);
 
   const resultText = useMemo(() => {
@@ -202,6 +217,7 @@ export function useStudyGrid<
     handleCloseModal,
     handleItemDeleted,
     loadItems,
+    refresh,
     isGuest,
   };
 }
@@ -274,14 +290,12 @@ export function StudyGridHeader({
 export function StudyGridContent<T extends StudyGridBaseItem>({
   loading,
   items,
-  allItems,
   resultText,
   config,
   renderCard,
 }: {
   loading: boolean;
   items: (T & { canDelete?: boolean })[];
-  allItems: (T & { canDelete?: boolean })[];
   resultText: string;
   config: StudyGridConfig;
   renderCard: (item: T & { canDelete?: boolean }) => React.ReactNode;

@@ -1,9 +1,8 @@
 import React from "react";
-import { X, Award, Check, XCircle, Hash, BookOpen, User, Calendar } from "lucide-react";
+import { X, Award, Check, XCircle, Hash, BookOpen, User } from "lucide-react";
 import styles from "./AttemptDetailModal.module.css";
 
 import { Attempt } from "@/types";
-import { authService } from "@/services/authService";
 import { useAuth } from "@/hooks/useAuth";
 
 interface AttemptDetailModalProps {

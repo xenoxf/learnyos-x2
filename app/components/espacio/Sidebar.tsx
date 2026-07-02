@@ -75,20 +75,12 @@ const Sidebar = () => {
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [funcionesExpanded, setFuncionesExpanded] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
 
   const isActive = useCallback(
     (href: string): boolean =>
       pathname === href || pathname?.startsWith(href + "/"),
     [pathname],
   );
-
-  useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth <= 1024);
-    check();
-    window.addEventListener("resize", check);
-    return () => window.removeEventListener("resize", check);
-  }, []);
 
   useEffect(() => {
     const funcionesParent = NAV_ITEMS.find((i) => i.id === "funciones");

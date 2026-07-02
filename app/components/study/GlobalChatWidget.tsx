@@ -7,12 +7,13 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
-import { MessageSquare, X, Send, User } from "lucide-react";
+import { MessageSquare, X, Send } from "lucide-react";
 import { toast } from "@/hooks/useLocalToast";
 import styles from "@/styles/components/GlobalChatWidget.module.css";
 import type { GlobalChatMessage } from "@/types/globalChat";
 import { globalChatService } from "@/services/globalChatService";
 import { authService } from "@/services/authService";
+import { errorHandler } from "@/services/errorHandler";
 
 export function GlobalChatWidget() {
   const [isOpen, setIsOpen] = useState(false);
@@ -30,7 +31,7 @@ export function GlobalChatWidget() {
       const data = await globalChatService.getMessages(50);
       setMessages(data.reverse()); // Mostrar más recientes primero
     } catch (error) {
-      console.error("Error loading global chat:", error);
+      errorHandler(error, "Error loading global chat");
     } finally {
       setLoading(false);
     }

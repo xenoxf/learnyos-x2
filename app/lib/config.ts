@@ -1,8 +1,8 @@
 // ==================== API CONFIGURATION ====================
 
 export const API_CONFIG = {
-  // Base URL
-  BASE_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api',
+  // Base URL — usar NEXT_PUBLIC_BACKEND_URL, este fallback es solo desarrollo local
+  BASE_URL: process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:2300',
   
   // Google OAuth
   GOOGLE_CLIENT_ID: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || '',
@@ -29,7 +29,7 @@ export const API_CONFIG = {
     
     // Exams
     EXAMS: '/exams',
-    EXAMS_GENERATE: '/exams/generate/topic_or_referencia',
+    EXAMS_GENERATE: '/exams/generate/topic_or_reference',
     
     // Flashcards
     FLASHCARDS: '/flash-cards',
@@ -41,7 +41,7 @@ export const API_CONFIG = {
     
     // Messages
     CHATS: '/messages/chats',
-    CHAT_CREATE: '/messages/chat/create',
+    CHAT_CREATE: '/messages/chats', // POST al mismo endpoint
     MESSAGES_SEND: '/messages/send',
 
     // Exams extra

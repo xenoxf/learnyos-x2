@@ -1,0 +1,28 @@
+LEARNYOS - PLATAFORMA DE ESTUDIO INTELIGENTE
+
+1. RESUMEN EJECUTIVO
+LearnyOS es una solución educativa integral diseñada para optimizar el aprendizaje mediante el uso de Inteligencia Artificial Generativa. Nuestra plataforma transforma la manera en que los estudiantes consumen información, permitiéndoles crear materiales de estudio personalizados en segundos, mejorando la retención y el rendimiento académico.
+
+2. EL PROBLEMA
+Los estudiantes actuales enfrentan una sobrecarga de información y a menudo carecen de herramientas eficientes para organizar sus conocimientos. Los métodos de estudio tradicionales son lentos y no se adaptan al ritmo individual de cada usuario.
+
+3. NUESTRA SOLUCIÓN
+Ofrecemos un ecosistema de herramientas interconectadas:
+- Generador de Quizzes: Crea exámenes estilo ICFES/Saber 11 a partir de cualquier tema.
+- Flashcards Inteligentes: Implementamos Repaso Espaciado (Spaced Repetition) para una memorización a largo plazo.
+- Chat con IA (Junior IA): Un asistente tutor disponible 24/7 que resuelve dudas con contexto pedagógico.
+- Notas Automáticas: Conversión de contenido denso en estructuras de aprendizaje claras y manejables.
+
+4. TECNOLOGÍA
+- Frontend: Next.js 14 con TypeScript y CSS Modules para una interfaz rápida y responsiva.
+- Backend: NestJS con PostgreSQL, garantizando robustez y escalabilidad.
+- IA: Integración con Groq (Llama/Mixtral) para un procesamiento de lenguaje natural de alta velocidad.
+- Seguridad: Autenticación segura vía JWT y Google OAuth.
+
+5. IMPACTO Y VISIÓN
+LearnyOS busca democratizar el acceso a herramientas de estudio de alta calidad, permitiendo que cualquier estudiante, independientemente de sus recursos, cuente con un tutor personalizado impulsado por IA. Estamos construyendo el futuro del "EdTech".
+
+6. EQUIPO
+Un equipo multidisciplinario enfocado en la excelencia técnica y la innovación educativa.
+
+Para más información, visite nuestro repositorio o contáctenos en soporte@learnyos.com

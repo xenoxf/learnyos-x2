@@ -3,22 +3,36 @@
 import React, { useState, useEffect, useRef } from "react";
 import { toast } from "@/hooks/useLocalToast";
 import styles from "@/styles/quiz/createQuizModal.module.css";
-import type { GenerateExamData, ApiErrorResponse } from "@/types";
-import { useRouter } from "next/navigation";
+import type { GenerateExamData } from "@/types";
 import { creditsService } from "@/services/creditsService";
-import { quizzesService } from "@/services/quizzesService";
-import { Sparkles, AlertTriangle, RefreshCw, Zap, X, Target, Info, Shield } from "lucide-react";
+import { useExams } from "@/hooks/useExams";
+import {
+  Sparkles, AlertTriangle, RefreshCw, Zap, X, Target, Shield,
+  Paperclip, Image,
+} from "lucide-react";
+import {
+  ACCEPTED_FILE_TYPES, ACCEPTED_FILE_EXTENSIONS, ACCEPTED_IMAGE_EXTENSIONS, MAX_FILE_SIZE,
+} from "@/lib/file-constants";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import FileChip from "@/components/common/FileChip";
+
+const MAX_FILES = 5;
 
 interface CreateQuizModalProps {
   onClose: () => void;
-  onQuizCreated: () => void;
+  onQuizCreated: (data: GenerateExamData) => Promise<void>;
 }
 
 export default function CreateQuizModal({
   onClose,
   onQuizCreated,
 }: CreateQuizModalProps) {
-  const [loading, setLoading] = useState(false);
+  const { isGenerating } = useExams();
   const [creditsStatus, setCreditsStatus] = useState<{
     remaining: number;
     total: number;
@@ -28,16 +42,62 @@ export default function CreateQuizModal({
     numberOfQuestions: 10,
     difficulty: "medium",
     type: "quiz",
-    acceso: "private",
+    acceso: "public",
   });
   const [touched, setTouched] = useState({ reference: false });
-  const router = useRouter();
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [filePreviews, setFilePreviews] = useState<string[]>([]);
 
-  // Añade esta referencia para evitar actualizaciones después del desmontaje
   const isMounted = useRef(true);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const objectUrlsRef = useRef<string[]>([]);
 
   useEffect(() => {
-    // Limpia la referencia cuando se desmonta el componente
+    return () => {
+      objectUrlsRef.current.forEach(URL.revokeObjectURL);
+    };
+  }, []);
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const fileList = e.target.files;
+    if (!fileList || fileList.length === 0) return;
+    const newFiles: File[] = [];
+    const newPreviews: string[] = [];
+    for (const f of Array.from(fileList)) {
+      if (selectedFiles.length + newFiles.length >= MAX_FILES) {
+        toast.error("Límite alcanzado", `Máximo ${MAX_FILES} archivos`);
+        break;
+      }
+      if (!ACCEPTED_FILE_TYPES.includes(f.type as any)) {
+        toast.error("Formato no soportado", "Solo imágenes (PNG, JPG, WEBP, GIF) y PDF");
+        continue;
+      }
+      if (f.size > MAX_FILE_SIZE) {
+        toast.error("Archivo muy grande", `${f.name}: máximo ${MAX_FILE_SIZE / (1024 * 1024)}MB`);
+        continue;
+      }
+      newFiles.push(f);
+      if (f.type.startsWith("image/")) {
+        const url = URL.createObjectURL(f);
+        objectUrlsRef.current.push(url);
+        newPreviews.push(url);
+      } else {
+        newPreviews.push("");
+      }
+    }
+    if (newFiles.length > 0) {
+      setSelectedFiles(prev => [...prev, ...newFiles]);
+      setFilePreviews(prev => [...prev, ...newPreviews]);
+    }
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const handleRemoveFile = (index: number) => {
+    setSelectedFiles(prev => prev.filter((_, i) => i !== index));
+    setFilePreviews(prev => prev.filter((_, i) => i !== index));
+  };
+
+  useEffect(() => {
     return () => {
       isMounted.current = false;
     };
@@ -58,52 +118,34 @@ export default function CreateQuizModal({
     formData.numberOfQuestions,
     formData.difficulty,
     formData.reference || "",
+    formData.acceso || 'public'
   );
   const canAfford = creditsStatus
     ? creditsStatus.remaining >= estimatedCost
     : true;
-  const isValid = formData.reference.trim().length >= 3;
+  const isValid = formData.reference.trim().length >= 3 || selectedFiles.length > 0;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setTouched({ reference: true });
 
     if (!isValid) {
-      toast.error("Error", "Debes proporcionar un texto con más de 3 caracteres");
+      toast.warning("Instrucciones", "Proporciona un texto de referencia o sube un archivo");
+      return;
+    }
+    if (formData.numberOfQuestions < 2 || formData.numberOfQuestions > 25) {
+      toast.warning("Instrucciones", "El numero de preguntas debe ser minimo 2 y maximo 25 preguntas");
       return;
     }
 
-    // Cerramos el modal inmediatamente
-    toast.info("Enviado", "Junior está redactando tu examen... te avisaremos en segundos.");
+    toast.info("Enviado", "Junior está analizando y redactando tu examen... te avisaremos en segundos.");
     onClose();
-
-    // El proceso sigue en segundo plano
-    try {
-      await quizzesService.generateExam(formData);
-      // Verifica si el componente sigue montado antes de mostrar el toast
-      if (isMounted.current) {
-        toast.success("Éxito", "Tu nuevo examen ya está disponible en tu biblioteca.");
-        onQuizCreated();
-        router.refresh();
-      }
-    } catch (err: any) {
-      if (isMounted.current) {
-        let message = "No pudimos crear el examen";
-        let details = "";
-        if (err?.response?.data) {
-          const errorData = err.response.data as ApiErrorResponse;
-          message = errorData.message || message;
-          details = errorData.details || "";
-        }
-        toast.error("Fallo en la creación", details || message);
-      }
-    }
+    await onQuizCreated({ ...formData, files: selectedFiles.length > 0 ? selectedFiles : undefined });
   };
 
   return (
     <div className={styles.overlay} onClick={onClose}>
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
-        {/* Resto del JSX igual */}
         <div className={styles.header}>
           <div className={styles.headerTitle}>
             <Sparkles className={styles.headerIcon} size={20} />
@@ -115,142 +157,194 @@ export default function CreateQuizModal({
         </div>
 
         <form className={styles.form} onSubmit={handleSubmit}>
-          {/* Resto del formulario igual */}
-          <div className={styles.formLayout}>
-            {/* Left Column: Context & Credits */}
+          <div className={styles.dashboardLayout}>
             <div className={styles.mainColumn}>
               <div className={styles.formGroup}>
                 <label className={styles.label}>
                   <div className={styles.labelWithIcon}>
-                    <Target size={16} />
-                    <span>Tema o Referencia Académica</span>
+                    <Target size={14} />
+                    <span>Tema o Referencia</span>
                   </div>
                   <span className={`${styles.charCount} ${isValid ? styles.charCountValid : ""}`}>
-                    {formData.reference.length} carac.
+                    {formData.reference.length}
                   </span>
                 </label>
-                <textarea
-                  className={`${styles.textarea} ${touched.reference && !isValid ? styles.textareaError : ""}`}
-                  placeholder="Ej: 'Segunda Guerra Mundial' o pega un texto académico para generar preguntas basadas en él..."
-                  value={formData.reference}
-                  onChange={(e) => {
-                    setFormData({ ...formData, reference: e.target.value });
-                    if (!touched.reference) setTouched({ reference: true });
-                  }}
-                  disabled={loading}
-                />
-              </div>
-
-              {/* Integrated Credit Card - Optimized Flow */}
-              <div className={`${styles.creditsCard} ${!canAfford ? styles.creditsWarning : ""}`}>
-                <div className={styles.creditsInfo}>
-                  <Zap size={18} className={canAfford ? styles.zapActive : styles.zapInactive} />
-                  <div className={styles.creditsText}>
-                    <span className={styles.creditsLabel}>Inversión de Créditos</span>
-                    <span className={styles.creditsValue}>{estimatedCost} créditos</span>
+                <div className={styles.textareaWrapper}>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept={ACCEPTED_FILE_EXTENSIONS}
+                    multiple
+                    onChange={handleFileSelect}
+                    style={{ display: "none" }}
+                  />
+                  <div className={styles.examInputBody}>
+                    {selectedFiles.length > 0 && (
+                      <div className={styles.examFileRow}>
+                        {selectedFiles.map((f, i) => (
+                          <FileChip
+                            key={i}
+                            file={f}
+                            index={i}
+                            onRemove={handleRemoveFile}
+                            disabled={isGenerating}
+                            variant="input"
+                            previewUrl={filePreviews[i]}
+                          />
+                        ))}
+                      </div>
+                    )}
+                    <textarea
+                      className={`${styles.textarea} ${touched.reference && !isValid ? styles.textareaError : ""}`}
+                      placeholder="Ej: 'Segunda Guerra Mundial' o pega un texto académico..."
+                      value={formData.reference}
+                      onChange={(e) => {
+                        setFormData({ ...formData, reference: e.target.value });
+                        if (!touched.reference) setTouched({ reference: true });
+                      }}
+                      disabled={isGenerating}
+                    />
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <button
+                          className={`${styles.examUploadBtn} ${selectedFiles.length > 0 ? styles.examUploadBtnHasFile : ''}`}
+                          disabled={isGenerating}
+                          type="button"
+                          title={selectedFiles.length > 0 ? `${selectedFiles.length} archivo(s) adjunto(s)` : "Adjuntar archivo"}
+                        >
+                          <Paperclip size={14} />
+                          {selectedFiles.length > 0 && <span className={styles.examBadge}>{selectedFiles.length}</span>}
+                        </button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" sideOffset={6} className={styles.dropdownContent}>
+                        <DropdownMenuItem
+                          onClick={() => {
+                            if (fileInputRef.current) {
+                              fileInputRef.current.accept = ACCEPTED_FILE_EXTENSIONS;
+                              fileInputRef.current.click();
+                            }
+                          }}
+                          className={styles.dropdownItem}
+                        >
+                          <Paperclip size={14} />
+                          <span>Subir archivos</span>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => {
+                            if (fileInputRef.current) {
+                              fileInputRef.current.accept = ACCEPTED_IMAGE_EXTENSIONS;
+                              fileInputRef.current.click();
+                            }
+                          }}
+                          className={styles.dropdownItem}
+                        >
+                          <Image size={14} />
+                          <span>Subir imágenes</span>
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
                 </div>
-                {!canAfford && (
-                  <div className={styles.warningBox}>
-                    <AlertTriangle size={14} />
-                    <span>Créditos insuficientes ({creditsStatus?.remaining || 0} disp.)</span>
-                  </div>
-                )}
-                {canAfford && creditsStatus && (
-                  <span className={styles.balanceInfo}>Balance tras generar: {creditsStatus.remaining - estimatedCost}</span>
-                )}
               </div>
+
+              {!canAfford && (
+                <div className={styles.warningBox}>
+                  <AlertTriangle size={14} />
+                  <span>Créditos insuficientes ({creditsStatus?.remaining || 0} disponibles)</span>
+                </div>
+              )}
             </div>
 
-            {/* Right Column: Precise Configuration */}
             <div className={styles.sideColumn}>
-              <div className={styles.configHeader}>
-                <Info size={14} />
-                <span>Configuración</span>
-              </div>
-
-              <div className={styles.configGrid}>
-                <div className={styles.formGroup}>
-                  <label className={styles.label}>Nº Preguntas</label>
-                  <input
-                    type="number"
-                    className={styles.input}
-                    min="1"
-                    max="50"
-                    value={formData.numberOfQuestions}
-                    onChange={(e) => setFormData({ ...formData, numberOfQuestions: parseInt(e.target.value) || 1 })}
-                    disabled={loading}
-                  />
-                </div>
-
-                <div className={styles.formGroup}>
-                  <label className={styles.label}>Nivel de Dificultad</label>
-                  <select
-                    className={styles.select}
-                    value={formData.difficulty}
-                    onChange={(e) => setFormData({ ...formData, difficulty: e.target.value as any })}
-                    disabled={loading}
-                  >
-                    <option value="very_easy">Muy Fácil</option>
-                    <option value="easy">Fácil</option>
-                    <option value="medium">Medio</option>
-                    <option value="hard">Difícil</option>
-                    <option value="very_hard">Muy Difícil</option>
-                    <option value="expert">Experto</option>
-                  </select>
-                </div>
-
-                <div className={styles.formGroup}>
-                  <label className={styles.label}>Tipo de Formato</label>
-                  <select
-                    className={styles.select}
-                    value={formData.type}
-                    onChange={(e) => setFormData({ ...formData, type: e.target.value as any })}
-                    disabled={loading}
-                  >
-                    <option value="quiz">Quiz Dinámico</option>
-                    <option value="icfes">Simulacro ICFES</option>
-                  </select>
-                </div>
-
-                <div className={styles.formGroup}>
-                  <label className={styles.label}>Visibilidad</label>
-                  <select
-                    className={styles.select}
-                    value={formData.acceso}
-                    onChange={(e) => setFormData({ ...formData, acceso: e.target.value as any })}
-                    disabled={loading}
-                  >
-                    <option value="private">Privado (Solo yo)</option>
-                    <option value="public">Público (Comunidad)</option>
-                  </select>
+              <div className={styles.sidePanel}>
+                <span className={styles.sidePanelLabel}>Configuración</span>
+                <div className={styles.configGrid}>
+                  <div className={styles.formGroup}>
+                    <label className={styles.label}>Preguntas</label>
+                    <input
+                      type="number"
+                      className={styles.input}
+                      min="2"
+                      max="25"
+                      value={formData.numberOfQuestions}
+                      onChange={(e) => setFormData({ ...formData, numberOfQuestions: parseInt(e.target.value) || 1 })}
+                      disabled={isGenerating}
+                    />
+                  </div>
+                  <div className={styles.formGroup}>
+                    <label className={styles.label}>Dificultad</label>
+                    <select
+                      className={styles.select}
+                      value={formData.difficulty}
+                      onChange={(e) => setFormData({ ...formData, difficulty: e.target.value as any })}
+                      disabled={isGenerating}
+                    >
+                      <option value="very_easy">Muy Fácil</option>
+                      <option value="easy">Fácil</option>
+                      <option value="medium">Medio</option>
+                      <option value="hard">Difícil</option>
+                      <option value="very_hard">Muy Difícil</option>
+                      <option value="expert">Experto</option>
+                    </select>
+                  </div>
+                  <div className={styles.formGroup}>
+                    <label className={styles.label}>Formato</label>
+                    <select
+                      className={styles.select}
+                      value={formData.type}
+                      onChange={(e) => setFormData({ ...formData, type: e.target.value as any })}
+                      disabled={isGenerating}
+                    >
+                      <option value="quiz">Quiz Dinámico</option>
+                      <option value="icfes">Simulacro ICFES</option>
+                    </select>
+                  </div>
+                  <div className={styles.formGroup}>
+                    <label className={styles.label}>Visibilidad</label>
+                    <select
+                      className={styles.select}
+                      value={formData.acceso}
+                      onChange={(e) => setFormData({ ...formData, acceso: e.target.value as any })}
+                      disabled={isGenerating}
+                    >
+                      <option value="private">Privado</option>
+                      <option value="public">Público</option>
+                    </select>
+                  </div>
                 </div>
               </div>
+
+              {creditsStatus && (
+                <div className={styles.creditBar}>
+                  <span>~{estimatedCost} créditos</span>
+                  <span>{creditsStatus.remaining}/{creditsStatus.total}</span>
+                </div>
+              )}
 
               <div className={styles.securityNote}>
                 <Shield size={12} />
-                <span>Generación segura y validada</span>
+                <span>Generación segura</span>
               </div>
             </div>
           </div>
 
           <div className={styles.modalFooter}>
-            <button type="button" className={styles.secondaryBtn} onClick={onClose} disabled={loading}>
-              Descartar
+            <button type="button" className={styles.secondaryBtn} onClick={onClose} disabled={isGenerating}>
+              Cancelar
             </button>
             <button
               type="submit"
               className={styles.primaryBtn}
-              disabled={loading || !isValid || !canAfford}
+              disabled={isGenerating || !isValid || !canAfford}
             >
-              {loading ? (
+              {isGenerating ? (
                 <>
-                  <RefreshCw size={18} className={styles.spinner} />
-                  <span>Construyendo examen...</span>
+                  <RefreshCw size={16} className={styles.spinner} />
+                  <span>Generando...</span>
                 </>
               ) : (
                 <>
-                  <Zap size={18} />
+                  <Zap size={16} />
                   <span>Generar Examen</span>
                 </>
               )}
@@ -258,7 +352,6 @@ export default function CreateQuizModal({
           </div>
         </form>
       </div>
-
     </div>
   );
 }

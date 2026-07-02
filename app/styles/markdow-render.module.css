@@ -391,7 +391,8 @@
 }
 
 .strong {
-  font-weight: 700; /* Bold estándar, no exagerado */
+  font-weight: 700;
+  /* Bold estándar, no exagerado */
   color: hsl(var(--foreground));
 }
 
@@ -596,7 +597,8 @@
    LISTS - CLASSES
    ============================================ */
 
-.ul, .ol {
+.ul,
+.ol {
   margin: 1em 0;
   padding-left: 1.5em;
 }
@@ -606,7 +608,8 @@
   line-height: 1.6;
 }
 
-.li > .ul, .li > .ol {
+.li>.ul,
+.li>.ol {
   margin: 0.5em 0 0.5em 1em;
 }
 

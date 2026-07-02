@@ -46,8 +46,39 @@
 }
 
 .sidebarCollapsed {
-  width: 60px;
+  width: 70px;
   overflow-x: hidden;
+}
+
+.sidebarCollapsed .navItem,
+.sidebarCollapsed .navGroupHeader {
+  justify-content: center;
+  padding: 0.625rem 0;
+  gap: 0;
+  width: 44px;
+  margin: 0 auto 0.25rem;
+}
+
+.sidebarCollapsed .navItemActive {
+  background: hsl(var(--primary) / 0.15);
+  color: hsl(var(--primary));
+}
+
+.sidebarCollapsed .navItem:hover,
+.sidebarCollapsed .navGroupHeader:hover {
+  background: hsl(var(--accent) / 0.4);
+}
+
+.sidebarCollapsed .navItem span,
+.sidebarCollapsed .navGroupHeader span,
+.sidebarCollapsed .groupArrow {
+  display: none;
+}
+
+.sidebarCollapsed .navItem svg,
+.sidebarCollapsed .navGroupHeader svg {
+  width: 20px;
+  height: 20px;
 }
 
 .sidebarCloseBtn {
@@ -127,6 +158,16 @@
   color: hsl(var(--foreground));
 }
 
+.navGroupHeaderCollapsed {
+  justify-content: center;
+  padding: 0.625rem 0;
+  width: 44px;
+  margin: 0 auto 0.25rem;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
 .navGroupExpanded {
   color: hsl(var(--foreground));
   font-weight: 600;
@@ -148,6 +189,31 @@
   gap: 0.125rem;
   padding-left: 0.75rem;
   margin-top: 0.125rem;
+}
+
+.navPopoverContent {
+  width: 180px !important;
+  padding: 0.5rem !important;
+  background: hsl(var(--card)) !important;
+  border: 1px solid hsl(var(--border)) !important;
+  border-radius: 0.75rem !important;
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1) !important;
+  z-index: 100 !important;
+}
+
+.navPopoverHeader {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: hsl(var(--muted-foreground));
+  padding: 0.25rem 0.5rem 0.5rem;
+  border-bottom: 1px solid hsl(var(--border) / 0.5);
+  margin-bottom: 0.25rem;
+}
+
+.navPopoverChildren {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
 }
 
 .navGroupChild {
@@ -185,10 +251,10 @@
 /* ==================== SIDEBAR TOGGLE BUTTON (DESKTOP) ==================== */
 .espacioSidebarToggle {
   position: absolute;
-  top: 0.75rem;
+  top: 1.25rem;
   left: 220px;
-  width: 28px;
-  height: 28px;
+  width: 26px;
+  height: 26px;
   border-radius: 50%;
   background: hsl(var(--card));
   color: hsl(var(--muted-foreground));
@@ -197,12 +263,14 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s ease;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   z-index: 20;
+  transform: translateX(-50%);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .espacioSidebarToggleCollapsed {
-  left: 60px;
+  left: 70px;
 }
 
 .espacioSidebarToggle:hover {

@@ -93,7 +93,7 @@ export const StudyTimer: React.FC = () => {
       const userId = localStorage.getItem('currentUserId') || 'default-user';
       const today = getTodayKey();
       const userStats = loadData(`learnyOS_userStats_${userId}`, {
-        dailyData: {},
+        dailyData: {} as Record<string, any>,
         totalStudyTime: 0
       });
       

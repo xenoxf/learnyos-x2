@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { ArrowLeft, FileText } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -9,7 +9,6 @@ import { toast } from "@/hooks/useLocalToast";
 import type { NoteKlek } from "@/types";
 import {
   normalizeNoteContentBody,
-  noteSectionHeading,
 } from "@/lib/noteContent";
 import { notesService } from "@/services/notesService";
 
@@ -30,8 +29,6 @@ export default function NoteDetail({ noteId, onBack }: NoteDetailProps) {
         const data = await notesService.getNote(noteId);
         if (!cancelled) setNote(data);
       } catch (err) {
-        const message =
-          err instanceof Error ? err.message : "Error al cargar nota";
         toast.info("");
         onBack();
       } finally {
@@ -98,12 +95,7 @@ export default function NoteDetail({ noteId, onBack }: NoteDetailProps) {
           </div>
         ) : (
           <div className={styles.detailContentList}>
-            {sections.map((content, index) => {
-              const heading = noteSectionHeading(
-                content.tema,
-                content.title,
-                content.order ?? index,
-              );
+            {sections.map((content, _index) => {
               const md = normalizeNoteContentBody(content.content);
 
               return (

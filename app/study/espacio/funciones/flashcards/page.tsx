@@ -1,17 +1,14 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, useMemo } from "react";
-import { RefreshCw, AlertTriangle, FileText } from "lucide-react";
+import React, { useState, useEffect, useCallback } from "react";
+
 import { toast } from "@/hooks/useLocalToast";
-import { Skeleton } from "@/components/ui/skeleton";
 import CardKlekComponent from "@/components/card/CardKlek";
 import {
   FuncionesCardModal,
 } from "@/components/espacio/FuncionesCardModal";
-import styles from "@/styles/espacio/espacioPages.module.css";
 import { cardsService } from "@/services/cardsService";
-import { ManageItem, UnifiedCardData } from "@/types";
-import Card from "@/components/card/Card";
+import type { UnifiedCardData } from "@/types";
 import CardDeck from "@/components/espacio/card";
 
 export default function FuncionesFlashcardsPage() {

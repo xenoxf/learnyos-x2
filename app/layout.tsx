@@ -1,7 +1,5 @@
 import { Providers } from "./providers";
 import "./globals.css";
-import "katex/dist/katex.min.css";
-import "highlight.js/styles/github-dark.css";
 import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import { LocalToaster } from "./components/LocalToaster";
@@ -20,40 +18,93 @@ export const viewport: Viewport = {
 
 const appUrl =
   process.env.NEXT_PUBLIC_APP_URL || "https://learnyos.vercel.app";
+const isDev = process.env.NODE_ENV === "development";
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "https://learnyos.vercel.app"),
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_APP_URL || "https://learnyos.vercel.app"
+  ),
   title: {
-    default: "LearnYos | Plataforma de Aprendizaje con IA",
+    default:
+      "LearnYos | Plataforma de Estudio con IA — Exámenes, Flashcards y Tutor Inteligente",
     template: "%s | LearnYos",
   },
-  description: "Domina cualquier tema con LearnYos. La plataforma de estudio avanzada con IA, Spaced Repetition y Active Recall.",
-  keywords: ["LearnYos", "IA educativa", "estudio inteligente", "active recall", "spaced repetition"],
-  authors: [{ name: "Jesus Camacho" }],
+  description:
+    "LearnYos es la plataforma de aprendizaje activo potenciada por inteligencia artificial. Crea exámenes online, flashcards compartidas y estudia con Junior IA, tu tutor personal 24/7. Aprende más rápido con estudio colaborativo.",
+  keywords: [
+    "plataforma de estudio con IA",
+    "exámenes online gratuitos",
+    "flashcards compartidas",
+    "tutor inteligente artificial",
+    "aprendizaje colaborativo",
+    "estudio interactivo",
+    "evaluación de conocimientos",
+    "Junior IA tutor",
+    "crear exámenes online",
+    "flashcards educativas",
+    "LearnYos",
+    "estudio con inteligencia artificial",
+    "plataforma educativa",
+    "quiz online",
+    "aprendizaje activo",
+  ],
+  authors: [{ name: "Jesus Camacho", url: appUrl }],
+  creator: "Jesus Camacho",
+  publisher: "LearnYos",
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
   openGraph: {
     type: "website",
-    locale: "es_CO",
-    title: "LearnYos | Potencia tu Aprendizaje",
-    description: "Crea exámenes, flashcards y notas inteligentes con IA.",
+    locale: "es_ES",
+    alternateLocale: ["en_US"],
+    title: "LearnYos — Plataforma de Estudio con IA",
+    description:
+      "Crea exámenes, flashcards y estudia con inteligencia artificial. Tu tutor personal Junior IA disponible 24/7.",
     siteName: "LearnYos",
+    url: appUrl,
+    images: [
+      {
+        url: `${appUrl}/og-image.png`,
+        width: 1200,
+        height: 630,
+        alt: "LearnYos — Plataforma de Estudio con IA",
+      },
+    ],
   },
-};
-
-// 🔥 Structured Data (SEO PRO)
-const structuredData = {
-  "@context": "https://schema.org",
-  "@type": "WebApplication",
-  name: "LearnYos",
-  description:
-    "La plataforma de estudio más avanzada que combina inteligencia artificial y metodologías probadas para maximizar tu aprendizaje",
-  url: appUrl,
-  applicationCategory: "EducationalApplication",
-  operatingSystem: "Web",
-  offers: {
-    "@type": "Offer",
-    price: "0",
-    priceCurrency: "USD",
+  twitter: {
+    card: "summary_large_image",
+    title: "LearnYos — Plataforma de Estudio con IA",
+    description:
+      "Crea exámenes, flashcards y estudia con inteligencia artificial. Tu tutor personal Junior IA disponible 24/7.",
+    images: [`${appUrl}/og-image.png`],
+    creator: "@learnyos",
+    site: "@learnyos",
   },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  verification: {
+    google: process.env.GOOGLE_SITE_VERIFICATION || "",
+  },
+  alternates: {
+    canonical: isDev ? undefined : appUrl,
+    languages: {
+      es: `${appUrl}/`,
+      en: `${appUrl}/en/`,
+    },
+  },
+  category: "education",
 };
 
 export default function RootLayout({
@@ -61,27 +112,160 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const organizationSchema = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: "LearnYos",
+    url: appUrl,
+    logo: `${appUrl}/logo-100x100.png`,
+    description:
+      "Plataforma de aprendizaje activo potenciada por inteligencia artificial especializada en exámenes, flashcards y tutoría inteligente.",
+    sameAs: [],
+    contactPoint: {
+      "@type": "ContactPoint",
+      contactType: "customer support",
+      availableLanguage: ["Spanish", "English"],
+    },
+  };
+
+  const softwareAppSchema = {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    name: "LearnYos",
+    applicationCategory: "EducationalApplication",
+    operatingSystem: "Web",
+    description:
+      "Plataforma de estudio con inteligencia artificial que permite crear exámenes online, flashcards compartidas y estudiar con un tutor IA personal llamado Junior.",
+    url: appUrl,
+    offers: {
+      "@type": "Offer",
+      price: "0",
+      priceCurrency: "USD",
+      availability: "https://schema.org/InStock",
+    },
+    aggregateRating: {
+      "@type": "AggregateRating",
+      ratingValue: "4.8",
+      ratingCount: "120",
+    },
+    screenshot: `${appUrl}/landing/hero-study.png`,
+    featureList: [
+      "Exámenes online interactivos",
+      "Flashcards compartidas por la comunidad",
+      "Tutor IA Junior disponible 24/7",
+      "Notas de estudio generadas por IA",
+      "Seguimiento de progreso y estadísticas",
+      "Aprendizaje colaborativo",
+    ],
+  };
+
+  const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: [
+      {
+        "@type": "Question",
+        name: "¿Qué es LearnYos?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "LearnYos es una plataforma de aprendizaje activo potenciada por inteligencia artificial donde puedes crear exámenes online, flashcards compartidas y estudiar con Junior IA, tu tutor personal disponible 24/7.",
+        },
+      },
+      {
+        "@type": "Question",
+        name: "¿LearnYos es gratuito?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "Sí, LearnYos ofrece un plan gratuito con créditos diarios renovables que te permiten generar quizzes, flashcards, notas y chatear con el tutor IA. También puedes usar la plataforma como invitado sin registrarte.",
+        },
+      },
+      {
+        "@type": "Question",
+        name: "¿Qué es Junior IA?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "Junior IA es el tutor inteligente de LearnYos, un asistente de estudio basado en inteligencia artificial disponible 24/7 que puede explicarte conceptos complejos, resolver dudas y ayudarte a entender cualquier tema de forma personalizada.",
+        },
+      },
+      {
+        "@type": "Question",
+        name: "¿Puedo crear mis propios exámenes y flashcards?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "Sí, en LearnYos puedes crear tus propios exámenes online y flashcards, compartirlos con la comunidad o mantenerlos privados. También puedes generar contenido automáticamente con inteligencia artificial.",
+        },
+      },
+      {
+        "@type": "Question",
+        name: "¿Cómo funciona el sistema de créditos diarios?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "LearnYos utiliza un sistema de créditos diarios gratuitos que se renuevan cada medianoche. Cada acción como generar un quiz, crear flashcards o chatear con Junior IA consume créditos. Los créditos no usados no se acumulan, pero se renuevan completamente cada día.",
+        },
+      },
+    ],
+  };
+
+  const webAppSchema = {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    name: "LearnYos",
+    description:
+      "Plataforma de evaluación de conocimientos basada en comunidad e inteligencia artificial, especializada en exámenes y flashcards.",
+    url: appUrl,
+    applicationCategory: "EducationalApplication",
+    operatingSystem: "Web",
+    browserRequirements: "Requires JavaScript",
+    offers: {
+      "@type": "Offer",
+      price: "0",
+      priceCurrency: "USD",
+    },
+  };
+
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Inicio",
+        item: appUrl,
+      },
+    ],
+  };
+
   return (
     <html lang="es" suppressHydrationWarning>
       <head>
-        <link rel="canonical" href={appUrl} />
-
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link
           rel="preconnect"
           href="https://fonts.gstatic.com"
           crossOrigin="anonymous"
         />
-
-        {/* CSS crítico inline - evita FOUC */}
-        <style dangerouslySetInnerHTML={{
-          __html: `
+        <link rel="icon" href="/favicon.ico" sizes="any" />
+        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta
+          name="apple-mobile-web-app-status-bar-style"
+          content="default"
+        />
+        <meta name="apple-mobile-web-app-title" content="LearnYos" />
+        <meta name="msvalidate.01" content="D5D53250A849D5F02E537D03E804D46D" />
+        <style
+          dangerouslySetInnerHTML={{
+            __html: `
             *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
             html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
             body {
               background-color: hsl(0 0% 100%);
               color: hsl(0 0% 3.9%);
-              font-family: Arial, Helvetica, sans-serif;
+              font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
               line-height: 1.5;
               -webkit-font-smoothing: antialiased;
               -moz-osx-font-smoothing: grayscale;
@@ -95,35 +279,76 @@ export default function RootLayout({
             img { max-width: 100%; height: auto; display: block; }
             a { color: inherit; text-decoration: none; }
             button { cursor: pointer; font-family: inherit; }
-            
-            /* Auth page critical CSS - prevents FOUC */
-            .authPage { width: 100%; height: 100dvh; height: 100vh; display: flex; justify-content: center; align-items: center; flex-direction: column; background-color: hsl(var(--background, 0 0% 100%)); color: hsl(var(--foreground, 0 0% 3.9%)); }
-            .auth { width: 100%; max-width: 460px; display: flex; justify-content: center; align-items: center; flex-direction: column; }
-            .containerTitle { width: 100%; margin-bottom: 1.5rem; text-align: center; }
-            .appTitle { font-size: 1.875rem; font-weight: 900; color: hsl(var(--foreground, 0 0% 3.9%)); margin: 0.5rem 0 0 0; }
-            .authWindow { width: 100%; background-color: hsl(var(--card, 0 0% 100%)); color: hsl(var(--card-foreground, 0 0% 3.9%)); border: 1px solid hsl(var(--border, 0 0% 89.8%)); border-radius: 0.5rem; box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1); }
-            .cardTitle { font-size: 1.5rem; font-weight: 700; color: hsl(var(--foreground, 0 0% 3.9%)); }
-            .cardContent { display: flex; flex-direction: column; gap: 1.5rem; }
-            .authBtnVolver { background-color: hsl(var(--primary, 0 0% 9%)); color: hsl(var(--primary-foreground, 0 0% 98%)); position: absolute; top: 1rem; left: 1rem; width: 2.5rem; height: 2.5rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; border: none; z-index: 10; }
-            .divider { display: flex; align-items: center; gap: 1rem; }
-            .dividerLine { flex: 1; height: 1px; background: hsl(var(--border, 0 0% 89.8%)); }
-            .dividerText { font-size: 0.875rem; color: hsl(var(--muted-foreground, 0 0% 45.1%)); white-space: nowrap; }
+            .skip-link {
+              position: absolute;
+              top: -9999px;
+              left: 50%;
+              transform: translateX(-50%);
+              background: hsl(0 0% 9%);
+              color: hsl(0 0% 98%);
+              padding: 0.75rem 1.5rem;
+              border-radius: 8px;
+              z-index: 99999;
+              text-decoration: none;
+              font-weight: 600;
+              font-size: 1rem;
+            }
+            .skip-link:focus {
+              top: 1rem;
+            }
             @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-          `
-        }} />
-
-        {/* 🔥 SEO estructurado */}
-        <Script
-          id="structured-data"
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify(structuredData),
+          `,
           }}
-          strategy="afterInteractive"
         />
+
+        {!isDev && (
+          <>
+            <Script
+              id="organization-schema"
+              type="application/ld+json"
+              dangerouslySetInnerHTML={{
+                __html: JSON.stringify(organizationSchema),
+              }}
+              strategy="afterInteractive"
+            />
+            <Script
+              id="software-app-schema"
+              type="application/ld+json"
+              dangerouslySetInnerHTML={{
+                __html: JSON.stringify(softwareAppSchema),
+              }}
+              strategy="afterInteractive"
+            />
+            <Script
+              id="faq-schema"
+              type="application/ld+json"
+              dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+              strategy="afterInteractive"
+            />
+            <Script
+              id="web-app-schema"
+              type="application/ld+json"
+              dangerouslySetInnerHTML={{
+                __html: JSON.stringify(webAppSchema),
+              }}
+              strategy="afterInteractive"
+            />
+            <Script
+              id="breadcrumb-schema"
+              type="application/ld+json"
+              dangerouslySetInnerHTML={{
+                __html: JSON.stringify(breadcrumbSchema),
+              }}
+              strategy="afterInteractive"
+            />
+          </>
+        )}
       </head>
 
-      <body className="body">
+      <body className="body" cz-shortcut-listen="true">
+        <a href="#main-content" className="skip-link">
+          Saltar al contenido principal
+        </a>
         <Providers>{children}</Providers>
         <LocalToaster position="top-right" />
       </body>

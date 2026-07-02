@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, useMemo } from "react";
+import { useEffect, useCallback, useMemo } from "react";
 import CardContent from "./Card";
 import CrearCard from "./CrearCard";
 import {
@@ -11,10 +11,11 @@ import {
   type ViewMode,
 } from "@/components/study/StudyGrid";
 import type { CardsDeck } from "@/types";
-import { Skeleton } from "@/components/ui/skeleton";
-import styles from "@/styles/card/CardGrid.module.css";
 import { cardsService } from "@/services/cardsService";
 import SkeletonCard from "../SkeletonCard";
+import { httpClient } from "@/services/client";
+import { toast } from "@/hooks/useLocalToast";
+import { errorHandler } from "@/services/errorHandler";
 
 interface CardGridProps {
   onCardSelect?: (cardId: number) => void;
@@ -34,13 +35,12 @@ const CARDS_CONFIG = {
 };
 
 export default function CardGrid({ onCardSelect }: CardGridProps) {
-  const [isSearching, setIsSearching] = useState(false);
 
   const {
     searchValue,
     setSearchValue,
     items,
-    allItems,
+    allItems: _allItems,
     loading,
     viewMode,
     setViewMode,
@@ -49,7 +49,7 @@ export default function CardGrid({ onCardSelect }: CardGridProps) {
     handleCreateClick,
     handleCloseModal,
     handleItemDeleted,
-    loadItems,
+    refresh,
     isGuest,
   } = useStudyGrid<CardsDeck & StudyGridBaseItem>({
     actions: {
@@ -64,7 +64,7 @@ export default function CardGrid({ onCardSelect }: CardGridProps) {
         return validCards;
       }, []),
       onItemOpen: useCallback(
-        (card) => {
+        (card: CardsDeck & StudyGridBaseItem) => {
           onCardSelect?.(card.id);
         },
         [onCardSelect],
@@ -74,18 +74,21 @@ export default function CardGrid({ onCardSelect }: CardGridProps) {
     defaultViewMode: "public",
   });
 
-  // Búsqueda con debounce optimizado
-  const handleSearch = useCallback(async (query: string) => {
-    if (query.trim().length >= 2) {
-      setIsSearching(true);
-      try {
-        await cardsService.searchFlashcards(query, 20, 0, true);
-      } catch (error) {
-        console.error("Error en búsqueda:", error);
-      } finally {
-        setIsSearching(false);
-      }
+  const handleCreateCard = useCallback(async (data: { reference: string; quantity: number; acceso: string }) => {
+    try {
+      await cardsService.generateFlashcards(data);
+      httpClient.clearCache();
+      setViewMode(data.acceso === "public" ? "public" : "private");
+      refresh();
+    } catch (err) {
+      toast.error("Error", "No se pudieron generar las flashcards");
+      errorHandler(err, "Error generating flashcards");
     }
+  }, [refresh, setViewMode]);
+
+  // Búsqueda con debounce
+  const handleSearch = useCallback(async (_query: string) => {
+    // La búsqueda real la hace useStudyGrid vía filterItems
   }, []);
 
   useEffect(() => {
@@ -107,7 +110,6 @@ export default function CardGrid({ onCardSelect }: CardGridProps) {
       <CardContent
         key={card.id}
         card={card}
-        onCardDeleted={handleItemDeleted}
         onOpen={() => onCardSelect?.(card.id)}
       />
     ),
@@ -132,17 +134,11 @@ export default function CardGrid({ onCardSelect }: CardGridProps) {
           <SkeletonCard />
         )}
 
-        {/* Search loading */}
-        {isSearching && isSearchActive && (
-          <SkeletonCard />
-        )}
-
         {/* Normal display - Solo cuando no está cargando */}
-        {!loading && !isSearching && (
+        {!loading && (
           <StudyGridContent
             loading={false}
             items={items}
-            allItems={allItems}
             resultText={resultText}
             config={CARDS_CONFIG}
             renderCard={renderCard}
@@ -152,7 +148,7 @@ export default function CardGrid({ onCardSelect }: CardGridProps) {
       {showCreate && (
         <CrearCard
           onClose={handleCloseModal}
-          onCardCreated={handleItemDeleted}
+          onCardCreated={handleCreateCard}
         />
       )}
     </>

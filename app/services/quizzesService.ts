@@ -4,6 +4,9 @@
 import { httpClient } from "./client";
 import type { ExamDeck, ExamKlek, GenerateExamData } from "@/types";
 
+const API_BASE = process.env.NEXT_PUBLIC_BACKEND_URL || "";
+const API_KEY = String(process.env.NEXT_PUBLIC_BACKEND_API_KEY || "");
+
 export const quizzesService = {
   getExams(): Promise<ExamDeck[]> {
     return httpClient.request<ExamDeck[]>("/exams", { method: "GET" });
@@ -40,7 +43,39 @@ export const quizzesService = {
   },
 
   generateExam(data: GenerateExamData): Promise<ExamKlek> {
+    if ((data.files && data.files.length > 0) || data.file) {
+      return this.generateExamFromFile(data);
+    }
     return httpClient.request<ExamKlek>("/exams/generate/topic_or_reference", { method: "POST", body: JSON.stringify(data) });
+  },
+
+  async generateExamFromFile(data: GenerateExamData): Promise<any> {
+    const token = httpClient.getToken();
+    const formData = new FormData();
+    const files = data.files && data.files.length > 0 ? data.files : (data.file ? [data.file] : []);
+    files.forEach(f => formData.append("files", f));
+    formData.append("reference", data.reference || "");
+    formData.append("numberOfQuestions", String(data.numberOfQuestions || 10));
+    formData.append("difficulty", data.difficulty || "medium");
+    formData.append("type", data.type || "quiz");
+    formData.append("acceso", data.acceso || "public");
+
+    const headers: Record<string, string> = {};
+    if (API_KEY) headers["x-api-key"] = API_KEY;
+    if (token) headers["Authorization"] = `Bearer ${token}`;
+
+    const response = await fetch(`${API_BASE}/exams/generate/from-file`, {
+      method: "POST",
+      headers,
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      throw new Error(err.message || `Error: ${response.status}`);
+    }
+
+    return response.json();
   },
 
   updateExamScore(id: number, score: number): Promise<ExamDeck[]> {

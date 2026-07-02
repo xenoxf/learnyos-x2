@@ -6,12 +6,10 @@ import styles from "@/styles/restricted.module.css";
 
 interface RestringidoForGuestProps {
   message?: string;
-  show?: boolean;
 }
 
 export default function RestringidoForGuest({
   message = "Debes iniciar sesión para acceder a esta sección",
-  show = true,
 }: RestringidoForGuestProps) {
   const router = useRouter();
 

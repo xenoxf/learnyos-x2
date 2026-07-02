@@ -37,6 +37,7 @@ import { quizzesService } from "@/services/quizzesService";
 import { cardsService } from "@/services/cardsService";
 import { notesService } from "@/services/notesService";
 import { creditsService } from "@/services/creditsService";
+import { errorHandler } from "@/services/errorHandler";
 
 type TabType =
   | "general"
@@ -81,57 +82,6 @@ interface CreditsStatus {
   };
 }
 
-const DEFAULT_MULTIPLIERS = {
-  EXAM_PER_QUESTION: 0.5,
-  EXAM_DIFFICULTY: { easy: 1.0, medium: 1.3, hard: 1.7 },
-  NOTE_DETAIL: { breve: 1.0, medio: 1.4, detallado: 1.9 },
-  FLASHCARD_PER_CARD: 0.4,
-  TOPIC_LENGTH_THRESHOLD: 100,
-};
-
-function calculateExamCost(
-  numberOfQuestions: number,
-  difficulty: string,
-  topic: string,
-  costs: CreditsStatus["costs"],
-  multipliers?: CreditsStatus["multipliers"],
-): number {
-  const m = multipliers || DEFAULT_MULTIPLIERS;
-  const base = costs.EXAM_GENERATION;
-  const questionCost = numberOfQuestions * m.EXAM_PER_QUESTION;
-  const difficultyMult =
-    m.EXAM_DIFFICULTY[difficulty as keyof typeof m.EXAM_DIFFICULTY] || 1.3;
-  const topicExtra = topic.length > m.TOPIC_LENGTH_THRESHOLD ? 1 : 0;
-  return Math.ceil((base + questionCost) * difficultyMult + topicExtra);
-}
-
-function calculateNoteCost(
-  levelOfDetail: string,
-  topic: string,
-  costs: CreditsStatus["costs"],
-  multipliers?: CreditsStatus["multipliers"],
-): number {
-  const m = multipliers || DEFAULT_MULTIPLIERS;
-  const base = costs.NOTE_GENERATION;
-  const detailMult =
-    m.NOTE_DETAIL[levelOfDetail as keyof typeof m.NOTE_DETAIL] || 1.4;
-  const topicExtra = topic.length > m.TOPIC_LENGTH_THRESHOLD ? 1 : 0;
-  return Math.ceil(base * detailMult + topicExtra);
-}
-
-function calculateFlashcardCost(
-  numberOfCards: number,
-  topic: string,
-  costs: CreditsStatus["costs"],
-  multipliers?: CreditsStatus["multipliers"],
-): number {
-  const m = multipliers || DEFAULT_MULTIPLIERS;
-  const base = costs.FLASHCARD_GENERATION;
-  const cardCost = numberOfCards * m.FLASHCARD_PER_CARD;
-  const topicExtra = topic.length > m.TOPIC_LENGTH_THRESHOLD ? 1 : 0;
-  return Math.ceil(base + cardCost + topicExtra);
-}
-
 export default function SettingsPage() {
   const router = useRouter();
   const { alert, alertState, handleClose, handleConfirm } = useCustomAlert();
@@ -166,7 +116,7 @@ export default function SettingsPage() {
       const status = await creditsService.getStatus();
       setCredits(status);
     } catch (error) {
-      console.error("Error loading credits:", error);
+      errorHandler(error, "Error loading credits");
     } finally {
       setCreditsLoading(false);
     }

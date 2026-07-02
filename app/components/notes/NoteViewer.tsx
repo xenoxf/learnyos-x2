@@ -1,14 +1,13 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, useMemo } from "react";
-import { ChevronDown, ChevronUp, FileText } from "lucide-react";
+import React, { useState, useEffect, useMemo } from "react";
+import { FileText } from "lucide-react";
 import MarkdownRenderer from "../MarkdownRenderer";
 import styles from "@/styles/notes/noteViewer.module.css";
 import { toast } from "@/hooks/useLocalToast";
 import type { NoteKlek } from "@/types";
 import {
   normalizeNoteContentBody,
-  noteSectionHeading,
 } from "@/lib/noteContent";
 import { notesService } from "@/services/notesService";
 
@@ -20,9 +19,7 @@ interface NoteViewerProps {
 export default function NoteViewer({ noteId, onClose }: NoteViewerProps) {
   const [note, setNote] = useState<NoteKlek | null>(null);
   const [loading, setLoading] = useState(true);
-  const [expandedSections, setExpandedSections] = useState<
-    Record<number, boolean>
-  >({});
+
 
   useEffect(() => {
     let cancelled = false;
@@ -32,8 +29,6 @@ export default function NoteViewer({ noteId, onClose }: NoteViewerProps) {
         const data = await notesService.getNote(noteId);
         if (!cancelled) setNote(data);
       } catch (err) {
-        const message =
-          err instanceof Error ? err.message : "Error al cargar nota";
         toast.info("");
         onClose();
       } finally {
@@ -46,10 +41,6 @@ export default function NoteViewer({ noteId, onClose }: NoteViewerProps) {
     };
   }, [noteId, onClose]);
 
-  const toggleSection = useCallback((index: number) => {
-    setExpandedSections((prev) => ({ ...prev, [index]: !prev[index] }));
-  }, []);
-
   const sections = useMemo(() => {
     if (!note?.noteContents?.length) return [];
     return [...note.noteContents].sort(
@@ -57,14 +48,7 @@ export default function NoteViewer({ noteId, onClose }: NoteViewerProps) {
     );
   }, [note]);
 
-  // Expand first 2 sections by default
-  useEffect(() => {
-    const initialExpanded: Record<number, boolean> = {};
-    sections.forEach((_, index) => {
-      initialExpanded[index] = index < 2;
-    });
-    setExpandedSections(initialExpanded);
-  }, [sections]);
+
 
   if (loading) {
     return (
@@ -125,7 +109,7 @@ export default function NoteViewer({ noteId, onClose }: NoteViewerProps) {
             </div>
           ) : (
             <div className={styles.contentList}>
-              {sections.map((content, index) => {
+              {sections.map((content, _index) => {
                 const md = normalizeNoteContentBody(content.content);
 
                 return (

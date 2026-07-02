@@ -1,10 +1,12 @@
 "use client";
+
 import React, { useState, useMemo } from "react";
 import styles from "@/styles/landing.module.css";
 import { Button } from "./ui/button";
 import { AuthFG } from "./AuthFG";
 import { ThemeToggle } from "./ThemeToggle";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import LoadingModal from "./loadingModal";
 import Image from "next/image";
 import {
@@ -15,46 +17,41 @@ import {
   Target,
   CheckCircle2,
   ArrowRight,
-  Clock,
   BookOpen,
   PenTool,
   BarChart3,
   Shield,
+  HelpCircle,
 } from "lucide-react";
 import { authService } from "@/services/authService";
 
-export const LandingPage: React.FC = () => {
+export const LandingClient: React.FC = () => {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  // Handle "Comenzar" / "Comenzar Gratis" button
   const handleOpenAuth = async () => {
     if (typeof window === "undefined") return;
 
     const token = localStorage.getItem("token");
     const userStr = localStorage.getItem("user");
 
-    // If has token AND user data, validate and redirect
     if (token && userStr) {
       setLoading(true);
       try {
         const user = JSON.parse(userStr);
 
-        // If guest, redirect directly (guests can browse)
         if (user?.isGuest === true) {
           router.push("/study");
           return;
         }
 
-        // Verify token with backend
         const isValid = await authService.verifyToken();
         if (isValid) {
           router.push("/study");
           return;
         }
 
-        // Token invalid, clear and show auth modal
         localStorage.removeItem("token");
         localStorage.removeItem("user");
       } catch {
@@ -65,18 +62,15 @@ export const LandingPage: React.FC = () => {
       }
     }
 
-    // No valid session, show auth modal
     setShowAuthModal(true);
   };
 
-  // Handle "Comenzar como invitado" button
   const handleLoginAsGuest = async () => {
     if (typeof window === "undefined") return;
 
     const token = localStorage.getItem("token");
     const userStr = localStorage.getItem("user");
 
-    // If already has a valid token (user or guest), redirect to study
     if (token && userStr) {
       setLoading(true);
       try {
@@ -92,7 +86,6 @@ export const LandingPage: React.FC = () => {
       }
     }
 
-    // No valid token, login as guest
     setLoading(true);
     try {
       await authService.loginAsGuest();
@@ -109,99 +102,147 @@ export const LandingPage: React.FC = () => {
   const features = useMemo(
     () => [
       {
-        icon: Brain,
-        title: "Ayuda Inteligente",
+        icon: Target,
+        title: "Ponte a Prueba",
         description:
-          "Obtén respuestas claras y explicaciones que se adaptan a tu forma de aprender.",
-      },
-      {
-        icon: FileText,
-        title: "Quizzes Personalizados",
-        description:
-          "Crea cuestionarios sobre cualquier tema y recibe retroalimentación al instante.",
+          "Evalúa tus conocimientos con exámenes diseñados para retar tu comprensión real.",
       },
       {
         icon: Layers,
-        title: "Flashcards Efectivas",
+        title: "Flashcards de la Comunidad",
         description:
-          "Sistema de repaso espaciado para recordar lo que estudias por más tiempo.",
+          "Accede a miles de tarjetas creadas por otros usuarios o crea las tuyas propias.",
       },
       {
         icon: Sparkles,
-        title: "Notas Automáticas",
+        title: "Junior IA",
         description:
-          "Convierte cualquier contenido en notas organizadas y fáciles de repasar.",
+          "Tu tutor personal disponible 24/7 para explicarte conceptos complejos de forma sencilla.",
       },
       {
-        icon: Target,
-        title: "Ritmo Personal",
+        icon: Brain,
+        title: "Aprendizaje Colaborativo",
         description:
-          "El contenido se adapta a tu velocidad y nivel de comprensión.",
+          "Comparte tus mejores exámenes y ayuda a otros a dominar nuevos temas.",
+      },
+      {
+        icon: Shield,
+        title: "Progreso Seguro",
+        description:
+          "Sigue tu evolución y descubre en qué áreas necesitas reforzar más.",
+      },
+      {
+        icon: CheckCircle2,
+        title: "Validación Inmediata",
+        description:
+          "Recibe feedback instantáneo en cada respuesta para aprender de tus errores.",
       },
     ],
-    [],
+    []
   );
 
-  const benefits = useMemo(
+  const steps = useMemo(
     () => [
       {
-        title: "Estudia de forma más eficiente",
+        title: "Explora la comunidad",
         description:
-          "Identifica qué necesitas reforzar y enfoca tu tiempo en lo que realmente importa.",
-        icon: Clock,
+          "Busca exámenes y flashcards creados por otros usuarios sobre cualquier tema que quieras dominar. ¡El conocimiento es compartido!",
+        icon: BookOpen,
+        image: "/landing/community-explore.png",
+        instruction:
+          "Captura de pantalla: Panel principal o buscador donde se vean exámenes y flashcards de otros usuarios.",
       },
       {
-        title: "Retén más información",
+        title: "Ponte a prueba",
         description:
-          "Técnicas de active recall y repaso espaciado para mejorar tu memoria.",
-        icon: CheckCircle2,
+          "Realiza exámenes interactivos y practica con flashcards dinámicas. Nuestro sistema está diseñado para que retengas la información de verdad.",
+        icon: Target,
+        image: "/landing/quiz-session.png",
+        instruction:
+          "Captura de pantalla: Una sesión activa de examen o flashcards mostrando una pregunta.",
       },
       {
-        title: "Material ilimitado",
+        title: "Consulta con Junior IA",
         description:
-          "Genera quizzes, flashcards y notas sobre cualquier tema que necesites.",
+          "¿No entiendes una respuesta? Junior IA te lo explica. Nuestro tutor inteligente está integrado para resolver tus dudas al instante.",
         icon: Sparkles,
+        image: "/landing/ai-chat-help.png",
+        instruction:
+          "Captura de pantalla: Chat con Junior IA explicando algún concepto educativo.",
+      },
+      {
+        title: "Crea y comparte",
+        description:
+          "Diseña tus propios exámenes y flashcards en minutos. Compártelos con la comunidad y conviértete en un referente de aprendizaje.",
+        icon: PenTool,
+        image: "/landing/create-content.png",
+        instruction:
+          "Captura de pantalla: Pantalla de creación de nuevo examen o conjunto de flashcards.",
       },
     ],
-    [],
+    []
   );
 
   const tools = useMemo(
     () => [
       {
-        icon: BookOpen,
-        name: "Quizzes",
-        description: "Pon a prueba tu conocimiento",
+        icon: FileText,
+        name: "Exámenes",
+        description: "Evalúa lo que sabes con pruebas reales",
         image: "/tools/quiz-preview.png",
         imageAlt:
-          "Vista previa de quiz con preguntas de opción múltiple en la plataforma LearnYos",
+          "Vista previa de examen con preguntas de opción múltiple en LearnYos",
       },
       {
         icon: Layers,
         name: "Flashcards",
-        description: "Memoriza de forma efectiva",
+        description: "Memoriza compartiendo con otros",
         image: "/tools/flashcards-preview.png",
-        imageAlt:
-          "Tarjetas de estudio flashcards mostrando frente y reverso con sistema de repaso espaciado",
-      },
-      {
-        icon: PenTool,
-        name: "Notas",
-        description: "Organiza tu aprendizaje",
-        image: "/tools/notes-preview.png",
-        imageAlt:
-          "Notas de estudio organizadas con formato markdown y secciones estructuradas",
+        imageAlt: "Tarjetas de estudio flashcards comunitarias",
       },
       {
         icon: BarChart3,
         name: "Junior IA",
-        description: "Aprende con Junior",
+        description: "Tu tutor inteligente personal",
         image: "/tools/quiz.png",
-        imageAlt: "Chat IA para usar como tutor en tu aprendizaje",
+        imageAlt: "Chat IA para resolver dudas de estudio",
       },
     ],
-    [],
+    []
   );
+
+  const faqs = useMemo(
+    () => [
+      {
+        question: "¿Qué es LearnYos?",
+        answer:
+          "LearnYos es una plataforma de aprendizaje activo potenciada por inteligencia artificial donde puedes crear exámenes online, flashcards compartidas y estudiar con Junior IA, tu tutor personal disponible 24/7.",
+      },
+      {
+        question: "¿LearnYos es gratuito?",
+        answer:
+          "Sí, LearnYos ofrece un plan gratuito con créditos diarios renovables que te permiten generar quizzes, flashcards, notas y chatear con el tutor IA. También puedes usar la plataforma como invitado sin registrarte.",
+      },
+      {
+        question: "¿Qué es Junior IA?",
+        answer:
+          "Junior IA es el tutor inteligente de LearnYos, un asistente de estudio basado en inteligencia artificial disponible 24/7 que puede explicarte conceptos complejos, resolver dudas y ayudarte a entender cualquier tema de forma personalizada.",
+      },
+      {
+        question: "¿Puedo crear mis propios exámenes y flashcards?",
+        answer:
+          "Sí, en LearnYos puedes crear tus propios exámenes online y flashcards, compartirlos con la comunidad o mantenerlos privados. También puedes generar contenido automáticamente con inteligencia artificial.",
+      },
+      {
+        question: "¿Cómo funciona el sistema de créditos diarios?",
+        answer:
+          "LearnYos utiliza un sistema de créditos diarios gratuitos que se renuevan cada medianoche. Cada acción como generar un quiz, crear flashcards o chatear con Junior IA consume créditos. Los créditos no usados no se acumulan, pero se renuevan completamente cada día.",
+      },
+    ],
+    []
+  );
+
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   return (
     <>
@@ -222,7 +263,7 @@ export const LandingPage: React.FC = () => {
               <div className={styles.brandInfo}>
                 <span className={styles.brandName}>LearnYos</span>
                 <div className={styles.brandSubtitle}>
-                  Tu compañero de estudio
+                  Evalúa y comparte conocimiento
                 </div>
               </div>
             </div>
@@ -253,16 +294,16 @@ export const LandingPage: React.FC = () => {
                   role="complementary"
                   aria-label="Tag promocional"
                 >
-                  📚 Tu espacio de aprendizaje personal
+                  🚀 La red social del aprendizaje activo
                 </div>
                 <h1 id="hero-title" className={styles.heroTitle}>
-                  Estudia de forma más{" "}
-                  <span className={styles.heroTitleGradient}>inteligente</span>
+                  Pon a prueba tu <br />
+                  <span className={styles.heroTitleGradient}>conocimiento</span>
                 </h1>
                 <p className={styles.heroDescription}>
-                  LearnYos te ayuda a aprender mejor con herramientas diseñadas
-                  para potenciar tu estudio. Crea quizzes, flashcards y notas al
-                  instante.
+                  No solo estudies, demuestra lo que sabes. Crea exámenes y
+                  flashcards, compártelos con la comunidad y aprende con nuestro
+                  tutor IA.
                 </p>
               </div>
               <div className={styles.heroCTA}>
@@ -278,13 +319,13 @@ export const LandingPage: React.FC = () => {
             </div>
             <div
               className={styles.heroImage}
-              aria-label="Ilustración de la plataforma LearnYos mostrando un estudiante usando las herramientas de estudio"
+              aria-label="Ilustración de la plataforma LearnYos mostrando un estudiante usando las herramientas de evaluación"
               role="img"
             >
               <div className={styles.heroImageBox}>
                 <Image
                   src="/landing/hero-study.png"
-                  alt="Ilustración de estudiante usando laptop con quizzes, flashcards y notas - herramientas de estudio de LearnYos"
+                  alt="Ilustración de estudiante usando LearnYos para realizar exámenes y compartir flashcards"
                   width={600}
                   height={400}
                   priority
@@ -296,15 +337,67 @@ export const LandingPage: React.FC = () => {
           </div>
         </section>
 
+        {/* How to Use Section */}
+        <section
+          className={styles.howToUseSection}
+          id="como-usar"
+          aria-labelledby="how-to-use-title"
+        >
+          <div className={styles.howToUseContent}>
+            <div className={styles.howToUseHeader}>
+              <h2 id="how-to-use-title" className={styles.howToUseTitle}>
+                Cómo usar LearnYos
+              </h2>
+              <p className={styles.howToUseDescription}>
+                Domina la plataforma en 4 sencillos pasos y potencia tu
+                aprendizaje.
+              </p>
+            </div>
+
+            <div className={styles.howToUseGrid}>
+              {steps.map((step, index) => {
+                return (
+                  <div
+                    key={index}
+                    className={`${styles.howToUseStep} ${index % 2 !== 0 ? styles.howToUseStepReverse : ""}`}
+                  >
+                    <div className={styles.stepContent}>
+                      <div className={styles.stepNumber}>{index + 1}</div>
+                      <h3 className={styles.stepTitle}>{step.title}</h3>
+                      <p className={styles.stepDescription}>
+                        {step.description}
+                      </p>
+                    </div>
+                    <div className={styles.stepImageContainer}>
+                      <Image
+                        src={step.image}
+                        alt={`Paso ${index + 1}: ${step.title} en LearnYos`}
+                        fill
+                        className={styles.stepImage}
+                        sizes="(max-width: 1024px) 100vw, 50vw"
+                        loading={index < 2 ? "eager" : "lazy"}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+
         {/* Tools Section */}
-        <section className={styles.toolsSection} aria-labelledby="tools-title">
+        <section
+          className={styles.toolsSection}
+          aria-labelledby="tools-title"
+          id="herramientas"
+        >
           <div className={styles.toolsSectionContent}>
             <div className={styles.toolsHeader}>
               <h2 id="tools-title" className={styles.toolsTitle}>
-                Todo lo que necesitas para estudiar
+                Herramientas de Evaluación
               </h2>
               <p className={styles.toolsDescription}>
-                Herramientas prácticas para cada etapa de tu aprendizaje
+                Diseñadas para validar tu conocimiento de forma efectiva.
               </p>
             </div>
             <div className={styles.toolsShowcase}>
@@ -366,14 +459,15 @@ export const LandingPage: React.FC = () => {
         <section
           className={styles.featuresSection}
           aria-labelledby="features-title"
+          id="caracteristicas"
         >
           <div className={styles.featuresSectionContent}>
             <div className={styles.featuresHeader}>
               <h2 id="features-title" className={styles.featuresTitle}>
-                Características que marcan la diferencia
+                ¿Por qué usar LearnYos?
               </h2>
               <p className={styles.featuresDescription}>
-                Cada función está diseñada para hacer tu estudio más efectivo.
+                Convertimos el estudio pasivo en aprendizaje activo y social.
               </p>
             </div>
             <div className={styles.featuresGrid} role="list">
@@ -408,39 +502,51 @@ export const LandingPage: React.FC = () => {
           </div>
         </section>
 
-        {/* Benefits Section */}
+        {/* FAQ Section — SEO Featured Snippets */}
         <section
-          className={styles.benefitsSection}
-          aria-labelledby="benefits-title"
+          className={styles.faqSection}
+          aria-labelledby="faq-title"
+          id="preguntas-frecuentes"
         >
-          <div className={styles.benefitsSectionContent}>
-            <div className={styles.benefitsHeader}>
-              <h2 id="benefits-title" className={styles.benefitsTitle}>
-                ¿Por qué elegir LearnYos?
+          <div className={styles.faqSectionContent}>
+            <div className={styles.faqHeader}>
+              <h2 id="faq-title" className={styles.faqTitle}>
+                Preguntas Frecuentes sobre LearnYos
               </h2>
-              <p className={styles.benefitsDescription}>
-                Métodos comprobados para optimizar tu aprendizaje
+              <p className={styles.faqDescription}>
+                Resolvemos tus dudas sobre la plataforma de estudio con IA más
+                completa.
               </p>
             </div>
-            <div className={styles.benefitsGrid}>
-              {benefits.map((benefit, index) => {
-                const BenefitIcon = benefit.icon;
-                return (
-                  <article
-                    key={index}
-                    className={styles.benefitCard}
-                    role="listitem"
+            <div className={styles.faqList}>
+              {faqs.map((faq, index) => (
+                <div key={index} className={styles.faqItem}>
+                  <button
+                    className={styles.faqQuestion}
+                    onClick={() =>
+                      setOpenFaq(openFaq === index ? null : index)
+                    }
+                    aria-expanded={openFaq === index}
+                    aria-controls={`faq-answer-${index}`}
                   >
-                    <div className={styles.benefitIcon} aria-hidden="true">
-                      <BenefitIcon size={32} />
-                    </div>
-                    <h3 className={styles.benefitTitle}>{benefit.title}</h3>
-                    <p className={styles.benefitDescription}>
-                      {benefit.description}
-                    </p>
-                  </article>
-                );
-              })}
+                    <HelpCircle size={20} aria-hidden="true" />
+                    <span>{faq.question}</span>
+                    <ArrowRight
+                      size={16}
+                      className={`${styles.faqArrow} ${openFaq === index ? styles.faqArrowOpen : ""}`}
+                      aria-hidden="true"
+                    />
+                  </button>
+                  <div
+                    id={`faq-answer-${index}`}
+                    className={`${styles.faqAnswer} ${openFaq === index ? styles.faqAnswerOpen : ""}`}
+                    role="region"
+                    aria-labelledby={`faq-question-${index}`}
+                  >
+                    <p>{faq.answer}</p>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </section>
@@ -453,11 +559,11 @@ export const LandingPage: React.FC = () => {
           <div className={styles.securityContent}>
             <Shield className={styles.securityIcon} size={48} />
             <h2 id="security-title" className={styles.securityTitle}>
-              Tu privacidad es primero
+              Tu conocimiento es privado
             </h2>
             <p className={styles.securityText}>
-              Tus datos están protegidos y nunca compartimos tu información con
-              terceros. Estudia con tranquilidad.
+              Tú decides qué compartir con la comunidad. Tus datos y progreso
+              están siempre protegidos con nosotros.
             </p>
           </div>
         </section>
@@ -466,10 +572,10 @@ export const LandingPage: React.FC = () => {
         <section className={styles.ctaSection} aria-labelledby="cta-title">
           <div className={styles.ctaContent}>
             <h2 id="cta-title" className={styles.ctaTitle}>
-              Comienza a estudiar mejor hoy
+              Únete a la comunidad hoy
             </h2>
             <p className={styles.ctaDescription}>
-              Prueba la aplicación sin registrarte
+              Comienza a evaluar lo que sabes de forma gratuita
             </p>
             <Button
               className={styles.ctaButton}
@@ -498,16 +604,23 @@ export const LandingPage: React.FC = () => {
               </div>
               <span className={styles.footerBrandName}>LearnYos</span>
             </div>
-            <div className={styles.footerLinks}>
+            <nav className={styles.footerLinks} aria-label="Enlaces del sitio">
+              <Link href="/about" className={styles.footerLink}>
+                Sobre LearnYos
+              </Link>
               <a
                 href="/terms.html"
-                target="_blank"
-                rel="noopener noreferrer"
                 className={styles.footerLink}
               >
                 Términos y Condiciones
               </a>
-            </div>
+              <a
+                href="/privacy.html"
+                className={styles.footerLink}
+              >
+                Política de Privacidad
+              </a>
+            </nav>
             <p className={styles.footerCopy}>
               © {new Date().getFullYear()} LearnYos. Todos los derechos
               reservados.

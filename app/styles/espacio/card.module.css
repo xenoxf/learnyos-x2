@@ -5,6 +5,7 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 14px;
+  padding: 0.8rem;
   align-items: start;
 }
 
@@ -92,7 +93,8 @@
   flex-wrap: wrap;
   gap: 6px;
   padding: 10px 16px 12px;
-  margin-top: auto;          /* empuja los badges hacia abajo */
+  margin-top: auto;
+  /* empuja los badges hacia abajo */
 }
 
 .itemBadge,
@@ -169,7 +171,9 @@
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* ============================================
@@ -270,8 +274,15 @@
 
 /* Shimmer animation */
 @keyframes shimmer {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: 0.4; }
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.4;
+  }
 }
 
 /* ============================================

@@ -5,25 +5,13 @@ import { useRouter } from "next/navigation";
 import {
   Trash2,
   FileText,
-  Heart,
   User,
   BookOpen,
   ArrowRight,
   BookmarkPlus,
   BookmarkCheck,
 } from "lucide-react";
-import { toast } from "@/hooks/useLocalToast";
-import { isGuestUser } from "@/lib/auth-utils";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+
 import styles from "@/styles/quiz/quizCard.module.css"; // Reuse premium styles
 import type { NoteDeck } from "@/types";
 import { LikeButton } from "@/components/common/LikeButton";
@@ -37,7 +25,6 @@ interface NoteCardProps {
 
 export default function NoteCard({
   note,
-  onNoteDeleted,
   isEspacio,
   onShowOptions,
 }: NoteCardProps) {

@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import type { User } from "@/types";
 import { authService } from "@/services/authService";
+import { errorHandler } from "@/services/errorHandler";
 
 interface AuthState {
   user: User | null;
@@ -39,7 +40,7 @@ export function useAuth() {
       }));
       return updated;
     } catch (error) {
-      console.error("Error updating user:", error);
+      errorHandler(error, "Error updating user");
       throw error;
     }
   }, []);

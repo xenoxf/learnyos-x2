@@ -2,7 +2,7 @@
 
 import { useCallback } from "react";
 import { useRouter } from "next/navigation";
-import type { AuthResponse, LoginInput, RegisterInput } from "@/types";
+import type { LoginInput, RegisterInput } from "@/types";
 import { authService } from "@/services/authService";
 
 export const useAuthFlow = () => {

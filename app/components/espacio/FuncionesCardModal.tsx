@@ -17,7 +17,6 @@ import {
   FileText,
 } from "lucide-react";
 import styles from "./FuncionesCardModal.module.css";
-import { LikeButton } from "@/components/common/LikeButton";
 import { UnifiedCardData } from "@/types";
 
 interface FuncionesCardModalProps {
@@ -124,12 +123,6 @@ export function FuncionesCardModal({
 
   const lengthInfo = getLengthInfo();
 
-  const getLikeType = (): "note" | "flashcard" | "exam" => {
-    if (contentType === "note") return "note";
-    if (contentType === "flashcard") return "flashcard";
-    return "exam";
-  };
-
   return (
     <div
       className={`${styles.overlay} ${isClosing ? styles.overlayClosing : ""}`}
@@ -225,18 +218,6 @@ export function FuncionesCardModal({
                   </div>
                 </div>
 
-                <div className={styles.likeSection}>
-                  <div className={styles.likeHeader}>
-                    <span className={styles.metaLabel}>¿Te gusta este contenido?</span>
-                  </div>
-                  <LikeButton 
-                    id={card.id} 
-                    type={getLikeType()} 
-                    initialLikes={card.likesCount} 
-                    initialLiked={card.userLiked}
-                    isOwner={isOwner}
-                  />
-                </div>
               </div>
             </div>
           </div>
@@ -249,11 +230,11 @@ export function FuncionesCardModal({
             <span>Comenzar a estudiar</span>
             <ArrowRight size={18} className={styles.arrowIcon} />
           </button>
-          
+
           {isOwner && onDelete && (
-            <button 
-              className={styles.dangerBtn} 
-              onClick={handleDelete} 
+            <button
+              className={styles.dangerBtn}
+              onClick={handleDelete}
               type="button"
               title="Eliminar permanentemente"
             >

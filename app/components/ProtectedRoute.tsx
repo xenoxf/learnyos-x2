@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { authService } from "@/services/authService";
+import { errorHandler } from "@/services/errorHandler";
 
 export function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -38,7 +39,7 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
           router.push("/auth");
         }
       } catch (error) {
-        console.error("Token verification error:", error);
+        errorHandler(error, "Token verification error");
         setIsTokenValid(false);
         localStorage.removeItem("token");
         localStorage.removeItem("user");
