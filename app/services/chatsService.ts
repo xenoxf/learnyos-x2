@@ -2,7 +2,7 @@
  * ChatsService - Handles chat messages
  */
 import { httpClient } from "./client";
-import type { Chat, SendMessageData, SendMessageResponse, GetChatMessagesResponse, StreamChunk } from "@/types";
+import type { Chat, SendMessageData, SendMessageResponse, GetChatMessagesResponse, StreamChunk, UploadImageResponse } from "@/types";
 
 const API_BASE = process.env.NEXT_PUBLIC_BACKEND_URL || "";
 const API_KEY = String(process.env.NEXT_PUBLIC_BACKEND_API_KEY || "");
@@ -61,67 +61,39 @@ export const chatsService = {
     }
   },
 
-  /**
-   * Envía un mensaje con archivos adjuntos al chat mediante streaming SSE.
-   * Usa XHR para tracking de progreso de subida.
-   */
-  async *sendMessageStreamWithFile(
-    data: {
-      prompt?: string;
-      chatId?: number;
-      files: File[];
-    },
-    onProgress?: (pct: number) => void,
-  ): AsyncIterable<StreamChunk> {
-    const token = httpClient.getToken();
-    const formData = new FormData();
-    for (const f of data.files) {
-      formData.append("files", f);
-    }
-    if (data.prompt) formData.append("prompt", data.prompt);
-    if (data.chatId) formData.append("chatId", String(data.chatId));
-
-    const xhr = new XMLHttpRequest();
-
-    const result = await new Promise<ReadableStream<Uint8Array>>((resolve, reject) => {
-      xhr.open("POST", `${API_BASE}/messages/send/stream/with-file`);
-
-      if (API_KEY) xhr.setRequestHeader("x-api-key", API_KEY);
-      if (token) xhr.setRequestHeader("Authorization", `Bearer ${token}`);
-
-      xhr.upload.onprogress = (e) => {
-        if (e.lengthComputable && onProgress) {
-          onProgress(Math.round((e.loaded / e.total) * 100));
-        }
-      };
-
-      xhr.onload = () => {
-        if (xhr.status >= 200 && xhr.status < 300) {
-          resolve((xhr as any).response as ReadableStream<Uint8Array>);
-        } else {
-          try {
-            const err = JSON.parse(xhr.responseText);
-            reject(new Error(err.message || `Error: ${xhr.status}`));
-          } catch {
-            reject(new Error(`Error: ${xhr.status}`));
-          }
-        }
-      };
-
-      xhr.onerror = () => reject(new Error("Error de conexión"));
-      (xhr as any).responseType = "stream";
-      xhr.send(formData);
-    });
-
-    const response = new Response(result);
-    yield* streamFromResponse(response);
-  },
-
   deleteChat(chatId: number): Promise<void> {
     return httpClient.request<void>(`/messages/chat/${chatId}`, { method: "DELETE" });
   },
 
   deleteAllChats(): Promise<void> {
     return httpClient.request<void>("/messages/chat/all", { method: "DELETE" });
+  },
+
+  async uploadImage(file: File): Promise<UploadImageResponse> {
+    const token = httpClient.getToken();
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const headers: Record<string, string> = {};
+    if (API_KEY) headers["x-api-key"] = API_KEY;
+    if (token) headers["Authorization"] = `Bearer ${token}`;
+
+    const res = await fetch(`${API_BASE}/upload/image`, { method: "POST", headers, body: formData });
+    if (!res.ok) throw new Error((await res.json().catch(() => ({}))).message || "Upload failed");
+    return res.json();
+  },
+
+  async uploadImages(files: File[]): Promise<UploadImageResponse[]> {
+    const token = httpClient.getToken();
+    const formData = new FormData();
+    files.forEach(f => formData.append("files", f));
+
+    const headers: Record<string, string> = {};
+    if (API_KEY) headers["x-api-key"] = API_KEY;
+    if (token) headers["Authorization"] = `Bearer ${token}`;
+
+    const res = await fetch(`${API_BASE}/upload/images`, { method: "POST", headers, body: formData });
+    if (!res.ok) throw new Error((await res.json().catch(() => ({}))).message || "Upload failed");
+    return res.json();
   },
 };

@@ -43,6 +43,27 @@ export const API_CONFIG = {
     CHATS: '/messages/chats',
     CHAT_CREATE: '/messages/chats', // POST al mismo endpoint
     MESSAGES_SEND: '/messages/send',
+
+    // Exams extra
+    EXAMS_MANUAL: '/exams/manual',
+    EXAMS_TIMED: '/exams/timed',
+    EXAMS_TIMER: '/exams/:id/timer',
+
+    // Flashcards review
+    FLASHCARDS_REVIEW: '/flash-cards/:id/review',
+    FLASHCARDS_REVIEWS_TODAY: '/flash-cards/reviews/today',
+    FLASHCARDS_REVIEWS_STATS: '/flash-cards/reviews/stats',
+    FLASHCARDS_CARDS: '/flash-cards/:deckId/cards',
+
+    // Upload
+    UPLOAD_IMAGE: '/upload/image',
+    UPLOAD_IMAGES: '/upload/images',
+
+    // Analytics
+    ANALYTICS_DASHBOARD: '/analytics/dashboard',
+    ANALYTICS_SUBJECTS: '/analytics/subjects',
+    ANALYTICS_WEEKLY: '/analytics/weekly',
+    ANALYTICS_STREAKS: '/analytics/streaks',
   },
 } as const;
 

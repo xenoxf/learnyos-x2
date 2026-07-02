@@ -11,34 +11,38 @@ import {
   Plus,
   MessageSquare,
   Bot,
+  User,
   PanelLeftClose,
   PanelLeft,
-  FileText,
-  RefreshCw,
-  Paperclip,
+  X,
   Image,
 } from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import FilePreviewModal from "@/components/common/FilePreviewModal";
-import FileChip from "@/components/common/FileChip";
 import styles from "@/styles/chat.module.css";
 import type { ChatMessage, Chat } from "@/types";
 import { MarkdownRenderer } from "@/components/MarkdownRenderer";
 import { chatsService } from "@/services/chatsService";
 import { authService } from "@/services/authService";
-import {
-  ACCEPTED_FILE_TYPES,
-  ACCEPTED_FILE_EXTENSIONS,
-  ACCEPTED_IMAGE_EXTENSIONS,
-  MAX_FILE_SIZE,
-} from "@/lib/file-constants";
+
+const MAX_FILE_SIZE = 10 * 1024 * 1024;
 
 export const dynamic = "force-dynamic";
+
+function ToolIndicator({ name }: { name: string | null }) {
+  if (!name) return null;
+  const labels: Record<string, string> = {
+    web_search: "🔍 Buscando en internet...",
+    scrape_url: "🌐 Leyendo página web...",
+    generate_exam: "📝 Generando examen...",
+    generate_flashcards: "🃏 Creando flashcards...",
+    generate_notes: "📄 Generando apuntes...",
+  };
+  const label = labels[name] || name || "🔧 Usando herramienta...";
+  return (
+    <div className="flex items-center gap-2 text-sm text-muted-foreground py-2">
+      <span className="animate-pulse">{label}</span>
+    </div>
+  );
+}
 
 export default function ChatPage() {
   // ==================== STATE ====================
@@ -53,25 +57,46 @@ export default function ChatPage() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [copiedId, setCopiedId] = useState<number | null>(null);
-  const [isGuest] = useState(() =>
-    typeof window !== "undefined" ? authService.isGuest() : false
-  );
-  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
-  const [filePreviews, setFilePreviews] = useState<string[]>([]);
-  const [_uploadProgress, setUploadProgress] = useState<number | null>(null);
-  const [previewFile, setPreviewFile] = useState<{ url: string; name: string; type: string } | null>(null);
+  const [isGuest, setIsGuest] = useState(false);
+  const [currentTool, setCurrentTool] = useState<string | null>(null);
+  const [uploadingImage, setUploadingImage] = useState(false);
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const objectUrlsRef = useRef<string[]>([]);
+  const imageInputRef = useRef<HTMLInputElement>(null);
 
-  // Cleanup object URLs on unmount
+  // ==================== DETECTAR GUEST ====================
   useEffect(() => {
-    const urls = objectUrlsRef.current;
-    return () => {
-      urls.forEach(URL.revokeObjectURL);
-    };
+    setIsGuest(authService.isGuest());
   }, []);
+
+  // ==================== IMAGE UPLOAD ====================
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      toast.error("Formato no soportado", "Solo imágenes (PNG, JPG, WEBP, GIF)");
+      return;
+    }
+
+    if (file.size > MAX_FILE_SIZE) {
+      toast.error("Archivo muy grande", "El tamaño máximo es 10MB");
+      return;
+    }
+
+    setUploadingImage(true);
+    try {
+      const result = await chatsService.uploadImage(file);
+      const markdown = result.markdown || `![${result.filename}](${result.url})`;
+      setInputValue((prev) => prev + (prev ? "\n" : "") + markdown);
+      toast.success("Imagen subida", "La imagen se insertó en el mensaje");
+    } catch (err: any) {
+      toast.error("Error", err.message || "No se pudo subir la imagen");
+    } finally {
+      setUploadingImage(false);
+      if (imageInputRef.current) imageInputRef.current.value = "";
+    }
+  };
 
   // ==================== SUGERENCIAS ====================
   const suggestions = [
@@ -107,9 +132,7 @@ export default function ChatPage() {
       const response = await chatsService.getChats();
       setChats(Array.isArray(response) ? response : []);
     } catch {
-      if (!authService.isGuest()) {
-        toast.error("Error", "No se pudieron cargar las conversaciones");
-      }
+      toast.error("Error", "No se pudieron cargar las conversaciones");
     } finally {
       setIsChatsLoading(false);
     }
@@ -121,12 +144,10 @@ export default function ChatPage() {
 
   // ==================== CARGAR MENSAJES ====================
   const loadChatMessages = useCallback(async (chatId: number) => {
-    if (authService.isGuest()) return;
     try {
       const response = await chatsService.getChatMessages(chatId);
       const messagesList = response.messages ?? [];
       const chatMessages: ChatMessage[] = messagesList.flatMap((m) => {
-        // Parse multi-file data (stored as || separated)
         const names = m.fileName?.split('||').filter(Boolean) || [];
         const types = m.fileType?.split('||').filter(Boolean) || [];
         const datas = m.fileData?.split('||').filter(Boolean) || [];
@@ -159,6 +180,7 @@ export default function ChatPage() {
             content: m.response,
             role: "assistant" as const,
             createdAt: String(m.createdAt),
+            toolCalls: m.toolCalls || undefined,
           },
         ];
       });
@@ -168,49 +190,43 @@ export default function ChatPage() {
     }
   }, []);
 
+  // ==================== TEXTAREA ====================
+  const adjustTextareaHeight = useCallback(() => {
+    if (textareaRef.current) {
+      const ta = textareaRef.current;
+      ta.style.height = "auto";
+      ta.style.height = `${Math.min(ta.scrollHeight, 120)}px`;
+    }
+  }, []);
+
+  const resetTextareaHeight = useCallback(() => {
+    if (textareaRef.current) textareaRef.current.style.height = "auto";
+  }, []);
+
   // ==================== ENVIAR MENSAJE ====================
   const handleSendMessage = useCallback(async () => {
     if (isGuest) {
       toast.error("Acceso restringido", "Inicia sesión para usar el chat");
       return;
     }
-    if ((!inputValue.trim() && selectedFiles.length === 0) || isLoading) return;
+    if (!inputValue.trim() || isLoading) return;
 
     const messageContent = inputValue.trim();
-    const filesToSend = [...selectedFiles];
     setInputValue("");
-    setSelectedFiles([]);
-    setFilePreviews([]);
     setIsLoading(true);
     setIsStreaming(true);
     setStreamingContent("");
-    setUploadProgress(null);
+    setCurrentTool(null);
+    resetTextareaHeight();
 
     const sendingToExistingChat = !!currentChat;
-
-    const fileUrls: string[] = [];
-    for (const f of filesToSend) {
-      if (f.type.startsWith("image/")) {
-        const url = URL.createObjectURL(f);
-        fileUrls.push(url);
-        objectUrlsRef.current.push(url);
-      } else {
-        fileUrls.push("");
-      }
-    }
 
     const userMessage: ChatMessage = {
       id: Date.now(),
       chatId: currentChat?.id,
-      content: messageContent || "",
+      content: messageContent,
       role: "user",
       createdAt: new Date().toISOString(),
-      status: 'sending',
-      files: filesToSend.map((f, i) => ({
-        name: f.name,
-        type: f.type,
-        url: fileUrls[i] || undefined,
-      })),
     };
 
     setMessages((prev) => [...prev, userMessage]);
@@ -219,58 +235,31 @@ export default function ChatPage() {
     let newChatId: number | undefined;
 
     try {
-      if (filesToSend.length > 0) {
-        setUploadProgress(0);
-        let hasStreamed = false;
-        for await (const chunk of chatsService.sendMessageStreamWithFile({
-          prompt: messageContent,
-          chatId: currentChat?.id,
-          files: filesToSend,
-        }, (pct) => {
-          setUploadProgress(pct);
-          if (pct === 100) hasStreamed = true;
-        })) {
-          if (!hasStreamed) {
-            hasStreamed = true;
-            setUploadProgress(100);
-          }
-          if (chunk.type === "chunk") {
-            fullContent += chunk.content || "";
-            setStreamingContent(fullContent);
-          } else if (chunk.type === "done") {
-            newChatId = (chunk as any).chatId;
-          }
-        }
-      } else {
-        // Normal text-only stream
-        for await (const chunk of chatsService.sendMessageStream({
-          prompt: messageContent,
-          chatId: currentChat?.id,
-        })) {
-          if (chunk.type === "chunk") {
-            fullContent += chunk.content || "";
-            setStreamingContent(fullContent);
-          } else if (chunk.type === "done") {
-            newChatId = (chunk as any).chatId;
-          }
+      for await (const chunk of chatsService.sendMessageStream({
+        prompt: messageContent,
+        chatId: currentChat?.id,
+      })) {
+        if (chunk.type === "tool") {
+          setCurrentTool(chunk.content || chunk.toolName || null);
+        } else if (chunk.type === "chunk") {
+          setCurrentTool(null);
+          fullContent += chunk.content || "";
+          setStreamingContent(fullContent);
+        } else if (chunk.type === "done") {
+          newChatId = (chunk as any).chatId;
         }
       }
 
-      // Mark user message as sent
-      setMessages((prev) =>
-        prev.map((m) => (m.id === userMessage.id ? { ...m, status: 'sent' as const } : m)),
-      );
-
+      // Limpiar streaming
       setStreamingContent("");
       setIsStreaming(false);
 
       if (!sendingToExistingChat && newChatId) {
-        const chatTitle = messageContent ||
-          (filesToSend.length === 1 ? filesToSend[0].name : `${filesToSend.length} archivos`) ||
-          "Archivo";
         const newChat: Chat = {
           id: newChatId,
-          title: chatTitle.slice(0, 40) + (chatTitle.length > 40 ? "..." : ""),
+          title:
+            messageContent.slice(0, 40) +
+            (messageContent.length > 40 ? "..." : ""),
           createdAt: new Date().toISOString(),
           messageCount: 1,
         };
@@ -292,16 +281,13 @@ export default function ChatPage() {
         await loadChats();
       }
     } catch {
-      // Mark user message as failed instead of removing it
-      setMessages((prev) =>
-        prev.map((m) => (m.id === userMessage.id ? { ...m, status: 'failed' as const } : m)),
-      );
-      toast.error("Error", "No se pudo obtener la respuesta. Haz clic en el mensaje para reintentar.");
+      setMessages((prev) => prev.filter((m) => m.id !== userMessage.id));
+      toast.error("Error", "No se pudo obtener la respuesta");
     } finally {
       setIsLoading(false);
       setIsStreaming(false);
       setStreamingContent("");
-      setUploadProgress(null);
+      setCurrentTool(null);
     }
   }, [
     isGuest,
@@ -309,7 +295,7 @@ export default function ChatPage() {
     isLoading,
     currentChat,
     loadChats,
-    selectedFiles,
+    resetTextareaHeight,
   ]);
 
   const handleNewChat = () => {
@@ -349,63 +335,6 @@ export default function ChatPage() {
     }
   };
 
-  // ==================== FILE HANDLING ====================
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const fileList = e.target.files;
-    if (!fileList || fileList.length === 0) return;
-
-    const added: File[] = [];
-    const newPreviews: string[] = [];
-
-    for (const file of Array.from(fileList)) {
-      if (!ACCEPTED_FILE_TYPES.includes(file.type as any)) {
-        toast.error("Formato no soportado", `"${file.name}": Solo imágenes (PNG, JPG, WEBP, GIF) y PDF`);
-        continue;
-      }
-
-      if (file.size > MAX_FILE_SIZE) {
-        toast.error("Archivo muy grande", `"${file.name}": El tamaño máximo es 10MB`);
-        continue;
-      }
-
-      if (selectedFiles.length + added.length >= 5) {
-        toast.error("Límite", "Máximo 5 archivos por mensaje");
-        break;
-      }
-
-      added.push(file);
-
-      if (file.type.startsWith("image/")) {
-        const reader = new FileReader();
-        const previewPromise = new Promise<string>((resolve) => {
-          reader.onload = (ev) => resolve(ev.target?.result as string || "");
-        });
-        reader.readAsDataURL(file);
-        newPreviews.push(""); // placeholder
-        previewPromise.then((dataUrl) => {
-          setFilePreviews((prev) => {
-            const next = [...prev];
-            const idx = selectedFiles.length + added.indexOf(file);
-            if (idx < next.length) next[idx] = dataUrl;
-            return next;
-          });
-        });
-      } else {
-        newPreviews.push("");
-      }
-    }
-
-    setSelectedFiles((prev) => [...prev, ...added]);
-    setFilePreviews((prev) => [...prev, ...newPreviews]);
-
-    if (fileInputRef.current) fileInputRef.current.value = "";
-  };
-
-  const handleRemoveFile = (index: number) => {
-    setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
-    setFilePreviews((prev) => prev.filter((_, i) => i !== index));
-  };
-
   const handleCopyMessage = async (text: string, messageId: number) => {
     try {
       await navigator.clipboard.writeText(text);
@@ -417,37 +346,23 @@ export default function ChatPage() {
     }
   };
 
-  const handleRetryMessage = (msg: ChatMessage) => {
-    if (isLoading || isGuest) return;
-    setInputValue(msg.content);
-    if (textareaRef.current) textareaRef.current.focus();
-    const hasFiles = !!(msg.files && msg.files.length > 0) || !!msg.file;
-    if (!hasFiles) {
-      toast.success("Reintentar", "Mensaje restaurado. Haz clic en enviar para reintentar.");
-    } else {
-      toast.info("Reintentar", "Texto restaurado. Vuelve a seleccionar los archivos y envía.");
-    }
-  };
-
   // ==================== SCROLL INTELIGENTE ====================
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const isNearBottomRef = useRef(true);
   const [shouldAutoScroll, setShouldAutoScroll] = useState(true);
 
-  // Detectar si el usuario está cerca del fondo
   const checkIfNearBottom = useCallback(() => {
     const container = messagesContainerRef.current;
     if (!container) return;
 
-    const threshold = 150; // px desde el fondo
+    const threshold = 150;
     const distanceFromBottom =
       container.scrollHeight - container.scrollTop - container.clientHeight;
     isNearBottomRef.current = distanceFromBottom <= threshold;
     setShouldAutoScroll(isNearBottomRef.current);
   }, []);
 
-  // Scroll automático - solo si el usuario está cerca del fondo
   const scrollToBottom = useCallback(() => {
     if (!shouldAutoScroll) return;
 
@@ -461,12 +376,10 @@ export default function ChatPage() {
     });
   }, [shouldAutoScroll]);
 
-  // Escuchar scroll del usuario
   const handleMessagesScroll = useCallback(() => {
     checkIfNearBottom();
   }, [checkIfNearBottom]);
 
-  // Auto-scroll cuando llegan nuevos mensajes
   useEffect(() => {
     scrollToBottom();
   }, [messages, streamingContent, scrollToBottom]);
@@ -474,9 +387,7 @@ export default function ChatPage() {
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
-      if ((inputValue.trim() || selectedFiles.length > 0) && !isLoading) {
-        handleSendMessage();
-      }
+      handleSendMessage();
     }
   };
 
@@ -585,64 +496,51 @@ export default function ChatPage() {
                 >
                   {msg.role === "user" ? (
                     <>
-                      {(msg.files || (msg.file ? [msg.file] : [])).length > 0 && (
-                        <div className={styles.msgFileCarousel}>
-                          {(msg.files || (msg.file ? [msg.file] : [])).map((file, fi) => {
-                            const isImage = file.type.startsWith("image/") && file.url;
-                            return (
-                              <div
-                                key={fi}
-                                className={`${styles.msgCarouselCard} ${isImage ? styles.msgCarouselCardImage : styles.msgCarouselCardFile}`}
-                                title={file.name}
-                                onClick={() => isImage && setPreviewFile({ url: file.url!, name: file.name, type: file.type })}
-                              >
-                                {isImage ? (
-                                  <>
-                                    <img
-                                      src={file.url!}
-                                      alt={file.name}
-                                      className={styles.msgCarouselImg}
-                                      loading="lazy"
-                                    />
-                                    <div className={styles.msgCarouselOverlay}>
-                                      <span className={styles.msgCarouselName}>{file.name}</span>
-                                    </div>
-                                  </>
+                      <div className={styles.messageContent}>
+                        {msg.files && msg.files.length > 0 && (
+                          <div className="flex flex-wrap gap-2 mb-2">
+                            {msg.files.map((f, i) => (
+                              f.url ? (
+                                f.type.startsWith("image/") ? (
+                                  <img key={i} src={f.url} alt={f.name} className="max-w-[200px] rounded-lg border" />
                                 ) : (
-                                  <div className={styles.msgCarouselFileBody}>
-                                    <div className={styles.msgCarouselFileIcon}>
-                                      <FileText size={18} />
-                                    </div>
-                                    <span className={styles.msgCarouselFileName}>{file.name}</span>
-                                  </div>
-                                )}
-                              </div>
-                            );
-                          })}
-                        </div>
-                      )}
-                      <div className={`${styles.messageContent} ${msg.status === 'failed' ? styles.messageFailed : ''}`}>
-                        {msg.content}
-                        {msg.status === 'failed' && (
-                          <button
-                            className={styles.retryButton}
-                            onClick={() => handleRetryMessage(msg)}
-                            title="Reintentar"
-                          >
-                            <RefreshCw size={14} />
-                          </button>
+                                  <span key={i} className="text-xs px-2 py-1 bg-muted rounded">{f.name}</span>
+                                )
+                              ) : (
+                                <span key={i} className="text-xs px-2 py-1 bg-muted rounded">{f.name}</span>
+                              )
+                            ))}
+                          </div>
                         )}
-                        {msg.status === 'sending' && (
-                          <span className={styles.sendingIndicator}>
-                            <Loader size={12} className={styles.spin} />
-                          </span>
-                        )}
+                        <div>{msg.content}</div>
+                      </div>
+                      <div className={styles.messageAvatar}>
+                        <User size={18} />
                       </div>
                     </>
                   ) : (
                     <>
                       <div className={styles.messageContentBot}>
                         <MarkdownRenderer content={msg.content} />
+                        {msg.toolCalls && msg.toolCalls.length > 0 && (
+                          <div className="flex flex-wrap gap-1.5 mt-1.5 mb-1">
+                            {msg.toolCalls.map((tc, i) => (
+                              <span
+                                key={i}
+                                className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[10px] font-medium bg-muted text-muted-foreground border border-border"
+                                title={tc.args ? JSON.stringify(tc.args).slice(0, 100) : ''}
+                              >
+                                {tc.name === "web_search" && "🔍"}
+                                {tc.name === "scrape_url" && "🌐"}
+                                {tc.name === "generate_exam" && "📝"}
+                                {tc.name === "generate_flashcards" && "🃏"}
+                                {tc.name === "generate_notes" && "📄"}
+                                {!["web_search","scrape_url","generate_exam","generate_flashcards","generate_notes"].includes(tc.name) && "🔧"}
+                                <span>{tc.name}</span>
+                              </span>
+                            ))}
+                          </div>
+                        )}
                         <button
                           className={styles.copyButton}
                           onClick={() => handleCopyMessage(msg.content, msg.id)}
@@ -660,21 +558,31 @@ export default function ChatPage() {
                 </div>
               ))}
 
-              {/* Streaming message - SEPARADO del array para evitar parpadeo */}
-              {isLoading && isStreaming && streamingContent && (
+              {/* Streaming message */}
+              {isLoading && isStreaming && streamingContent && !currentTool && (
                 <div className={`${styles.message} ${styles.botMessage}`}>
                   <div className={styles.messageContentBot}>
                     <MarkdownRenderer content={streamingContent} />
+                    <div className={styles.streamingIndicator}>
+                      <Loader size={14} className={styles.spin} />
+                    </div>
                   </div>
                 </div>
               )}
 
-              {/* Loading indicator - solo cuando espera primer chunk */}
-              {isLoading && isStreaming && !streamingContent && (
+              {/* Tool indicator */}
+              {isLoading && isStreaming && !streamingContent && currentTool && (
                 <div className={`${styles.message} ${styles.botMessage}`}>
                   <div className={styles.messageAvatar}>
                     <Bot size={18} />
                   </div>
+                  <ToolIndicator name={currentTool} />
+                </div>
+              )}
+
+              {/* Loading indicator */}
+              {isLoading && isStreaming && !streamingContent && !currentTool && (
+                <div className={`${styles.message} ${styles.botMessage}`}>
                   <div className={styles.typing}>
                     <span></span>
                     <span></span>
@@ -692,90 +600,47 @@ export default function ChatPage() {
         <div className={styles.inputArea}>
           <div className={styles.inputContainer}>
             <div className={styles.inputWrapper}>
+              <textarea
+                ref={textareaRef}
+                className={styles.textarea}
+                placeholder={
+                  isGuest
+                    ? "Inicia sesión para enviar mensajes..."
+                    : "Envía un mensaje..."
+                }
+                value={inputValue}
+                onChange={(e) => {
+                  setInputValue(e.target.value);
+                  adjustTextareaHeight();
+                }}
+                onKeyDown={handleKeyDown}
+                rows={1}
+                disabled={isLoading || isGuest}
+                style={isGuest ? { opacity: 0.7 } : undefined}
+              />
+              <button
+                className={styles.uploadButton}
+                onClick={() => imageInputRef.current?.click()}
+                disabled={isLoading || isGuest || uploadingImage}
+                title="Subir imagen"
+              >
+                {uploadingImage ? (
+                  <Loader size={16} className={styles.spin} />
+                ) : (
+                  <Image size={16} />
+                )}
+              </button>
               <input
-                ref={fileInputRef}
+                ref={imageInputRef}
                 type="file"
-                accept={ACCEPTED_FILE_EXTENSIONS}
-                multiple
-                onChange={handleFileSelect}
+                accept=".png,.jpg,.jpeg,.webp,.gif"
+                onChange={handleImageUpload}
                 style={{ display: "none" }}
               />
-              <div className={styles.inputBody}>
-                {selectedFiles.length > 0 && (
-                  <div className={styles.inlineFileRow}>
-                    {selectedFiles.map((f, i) => (
-                      <FileChip
-                        key={i}
-                        file={f}
-                        index={i}
-                        onRemove={handleRemoveFile}
-                        disabled={isLoading}
-                        variant="input"
-                        previewUrl={filePreviews[i]}
-                      />
-                    ))}
-                  </div>
-                )}
-                <textarea
-                  ref={textareaRef}
-                  className={styles.textarea}
-                  placeholder={
-                    isGuest
-                      ? "Inicia sesión para enviar mensajes..."
-                      : "Envía un mensaje..."
-                  }
-                  value={inputValue}
-                  onChange={(e) => {
-                    setInputValue(e.target.value);
-                  }}
-                  onKeyDown={handleKeyDown}
-                  disabled={isLoading || isGuest}
-                  style={isGuest ? { opacity: 0.7 } : undefined}
-                />
-              </div><DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button
-                    className={`${styles.uploadButton} ${selectedFiles.length > 0 ? styles.uploadButtonHasFiles : ''}`}
-                    disabled={isLoading || isGuest}
-                    title={selectedFiles.length > 0 ? `${selectedFiles.length} archivo(s) adjunto(s)` : "Adjuntar archivo"}
-                  >
-                    <Paperclip size={18} />
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="start" sideOffset={8} className={styles.dropdownContent}>
-                  <DropdownMenuItem
-                    onClick={() => {
-                      if (fileInputRef.current) {
-                        fileInputRef.current.accept = ACCEPTED_FILE_EXTENSIONS;
-                        fileInputRef.current.multiple = true;
-                        fileInputRef.current.click();
-                      }
-                    }}
-                    className={styles.dropdownItem}
-                  >
-                    <Paperclip size={16} />
-                    <span>Subir archivos</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={() => {
-                      if (fileInputRef.current) {
-                        fileInputRef.current.accept = ACCEPTED_IMAGE_EXTENSIONS;
-                        fileInputRef.current.multiple = true;
-                        fileInputRef.current.click();
-                      }
-                    }}
-                    className={styles.dropdownItem}
-                  >
-                    <Image size={16} />
-                    <span>Subir imágenes</span>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-
               <button
                 className={styles.sendButton}
                 onClick={handleSendMessage}
-                disabled={(!inputValue.trim() && selectedFiles.length === 0) || isLoading || isGuest}
+                disabled={!inputValue.trim() || isLoading || isGuest}
                 style={
                   isGuest ? { opacity: 0.5, pointerEvents: "none" } : undefined
                 }
@@ -797,17 +662,6 @@ export default function ChatPage() {
           className={styles.overlay}
           onClick={() => setIsSidebarOpen(false)}
           aria-hidden="true"
-        />
-      )}
-
-      {/* FILE PREVIEW MODAL */}
-      {previewFile && (
-        <FilePreviewModal
-          isOpen={true}
-          onClose={() => setPreviewFile(null)}
-          fileUrl={previewFile.url}
-          fileName={previewFile.name}
-          fileType={previewFile.type}
         />
       )}
     </div>

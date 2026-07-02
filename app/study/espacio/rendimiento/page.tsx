@@ -2,21 +2,34 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import {
+  RefreshCw,
   AlertTriangle,
   FileText,
+  TrendingUp,
+  User,
+  X,
+  Check,
+  XCircle,
   Calendar,
   Eye,
+  Hash,
+  BookOpen,
+  Sparkles,
+  Code,
+  Tag,
   Award,
-  Link,
-  LogIn,
+  BarChart3,
 } from "lucide-react";
-
+import Image from "next/image";
 import styles from "@/styles/espacio/espacioPages.module.css";
 import { authService } from "@/services/authService";
 import { attemptsService } from "@/services/attemptsService";
+import { likesService } from "@/services/likesService";
 import { AttemptDetailModal } from "@/components/espacio/AttemptDetailModal";
 import { StatsHero } from "@/components/espacio/StatsHero";
+import AnalyticsDashboard from "@/components/espacio/AnalyticsDashboard";
 import { StatsHeroProps, Attempt } from "@/types";
+import RestringidoForGuest from "@/components/restringidoForGuest";
 import { ItemCard } from "@/components/espacio/ItemCard";
 import SkeletonCard from "@/components/SkeletonCard";
 
@@ -25,11 +38,19 @@ export default function RendimientoPage() {
   const [attemptStats, setAttemptStats] = useState<StatsHeroProps | null>(null);
   const [loading, setLoading] = useState(true);
   const [isGuest, setIsGuest] = useState(false);
+  const [user, setUser] = useState<any>(null);
   const [selectedAttempt, setSelectedAttempt] = useState<Attempt | null>(null);
+  const [showAnalytics, setShowAnalytics] = useState(false);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
       setIsGuest(authService.isGuest());
+      const userData = localStorage.getItem("user");
+      if (userData) {
+        try {
+          setUser(JSON.parse(userData));
+        } catch {}
+      }
     }
   }, []);
 
@@ -66,44 +87,18 @@ export default function RendimientoPage() {
   }, []);
 
   if (isGuest) {
-
-
     return (
-      <div className={styles.guestMessage}>
-        <AlertTriangle size={48} />
-        <h3>Función Premium</h3>
-        <p>
-          Para gestionar tus flashcards, notas y quizzes necesitas una cuenta
-          registrada.
-        </p>
-        <p style={{ fontSize: "0.85rem", opacity: 0.8 }}>
-          Puedes explorar el contenido público en cada sección.
-        </p>
-        <div style={{ display: "flex", gap: "0.75rem", marginTop: "0.5rem" }}>
-          <Link
-            href="/auth"
-            className={styles.retryButton}
-            onClick={() => setLoading(true)}
-          >
-            <LogIn size={16} />
-            <span>Iniciar Sesión</span>
-          </Link>
-          <Link
-            href="/study/flashcards"
-            className={`${styles.retryButton} ${styles.secondaryButton}`}
-            onClick={() => setLoading(true)}
-          >
-            <span>Explorar público</span>
-          </Link>
-        </div>
-      </div>
+      <>
+        <RestringidoForGuest />
+      </>
     );
   }
 
   if (loading) {
     return (
-      <SkeletonCard />
-
+      <div className={styles.itemsList}>
+        <SkeletonCard />
+      </div>
     );
   }
 
@@ -111,9 +106,16 @@ export default function RendimientoPage() {
     <>
       <header className={styles.espacioPageHeader}>
         <h1 className={styles.espacioPageTitle}>Mi Rendimiento</h1>
+        <button
+          className={styles.retryButton}
+          onClick={() => setShowAnalytics((p) => !p)}
+          type="button"
+        >
+          <BarChart3 size={16} />
+          {showAnalytics ? "Historial" : "Analíticas"}
+        </button>
       </header>
 
-      {/* Attempt Detail Modal - PRO UI */}
       {selectedAttempt && (
         <AttemptDetailModal
           attempt={selectedAttempt}
@@ -122,25 +124,33 @@ export default function RendimientoPage() {
       )}
 
       <div className={styles.tabContent}>
-        {attemptStats && attemptStats.totalAttempts > 0 && (
-          <StatsHero
-            bestScore={attemptStats.bestScore}
-            totalAttempts={attemptStats.totalAttempts}
-            avgCorrect={attemptStats.avgCorrect}
-            totalQuestions={attemptStats.totalQuestions}
-          />
+        {showAnalytics && (
+          <div style={{ marginBottom: "1.5rem" }}>
+            <AnalyticsDashboard />
+          </div>
         )}
 
-        {attempts.length < 1 ? (
-          <div className={styles.emptyState}>
-            <div className={styles.emptyIconCircle}>
-              <FileText size={40} />
-            </div>
-            <h3>Tu historial está vacío</h3>
-            <p>Empieza a estudiar para ver tus resultados aquí.</p>
-          </div>
-        ) : (
-          <div className={styles.itemsList}>
+        {!showAnalytics && (
+          <>
+            {attemptStats && attemptStats.totalAttempts > 0 && (
+              <StatsHero
+                bestScore={attemptStats.bestScore}
+                totalAttempts={attemptStats.totalAttempts}
+                avgCorrect={attemptStats.avgCorrect}
+                totalQuestions={attemptStats.totalQuestions}
+              />
+            )}
+
+            {attempts.length < 1 ? (
+              <div className={styles.emptyState}>
+                <div className={styles.emptyIconCircle}>
+                  <FileText size={40} />
+                </div>
+                <h3>Tu historial está vacío</h3>
+                <p>Empieza a estudiar para ver tus resultados aquí.</p>
+              </div>
+            ) : (
+              <div className={styles.itemsList}>
             {attempts.map((att) => {
               const score = (att.correctAnswers / att.totalQuestions) * 100;
               const variant =
@@ -182,6 +192,8 @@ export default function RendimientoPage() {
               );
             })}
           </div>
+            )}
+          </>
         )}
       </div>
     </>

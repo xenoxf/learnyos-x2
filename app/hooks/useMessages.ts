@@ -10,6 +10,7 @@ export function useMessages() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [currentTool, setCurrentTool] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchChats = async () => {
@@ -50,10 +51,12 @@ export function useMessages() {
     messages,
     loading,
     error,
+    currentTool,
     setSelectedChat,
     setMessages,
     addMessage,
     addChat,
     removeChat,
+    setCurrentTool,
   };
 }

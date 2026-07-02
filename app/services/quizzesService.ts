@@ -94,4 +94,16 @@ export const quizzesService = {
   getExamLocked(id: number): Promise<ExamKlek> {
     return httpClient.request<ExamKlek>(`/exams/locked/${id}`, { method: "GET" });
   },
+
+  createManualExam(data: any): Promise<any> {
+    return httpClient.request<any>("/exams/manual", { method: "POST", body: JSON.stringify(data) });
+  },
+
+  getTimedExams(): Promise<ExamDeck[]> {
+    return httpClient.request<ExamDeck[]>("/exams/timed", { method: "GET" });
+  },
+
+  updateTimerSettings(id: number, settings: { timeLimitMinutes?: number; shuffleQuestions?: boolean; showResults?: boolean }): Promise<any> {
+    return httpClient.request<any>(`/exams/${id}/timer`, { method: "PUT", body: JSON.stringify(settings) });
+  },
 };
