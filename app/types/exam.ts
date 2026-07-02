@@ -43,6 +43,9 @@ export interface ExamDeck {
   userLiked: boolean;
   canDelete?: boolean;
   timeLimitMinutes?: number;
+  createdAt?: string;
+  shuffleQuestions?: boolean;
+  showResults?: boolean;
 }
 
 /**

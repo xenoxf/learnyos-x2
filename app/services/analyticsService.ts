@@ -11,10 +11,10 @@ export const analyticsService = {
   },
 
   getWeeklyActivity(): Promise<WeeklyActivity[]> {
-    return httpClient.request<WeeklyActivity[]>("/analytics/weekly-activity", { method: "GET" });
+    return httpClient.request<WeeklyActivity[]>("/analytics/weekly", { method: "GET" });
   },
 
-  getStreak(): Promise<StreakInfo> {
-    return httpClient.request<StreakInfo>("/analytics/streak", { method: "GET" });
+  getStreaks(): Promise<StreakInfo> {
+    return httpClient.request<StreakInfo>("/analytics/streaks", { method: "GET" });
   },
 };
