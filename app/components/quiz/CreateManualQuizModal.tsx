@@ -4,6 +4,8 @@ import React, { useState, useCallback } from "react";
 import { X, Plus, Trash2, Save } from "lucide-react";
 import { toast } from "@/hooks/useLocalToast";
 import { quizzesService } from "@/services/quizzesService";
+import styles from "@/styles/quiz/createManualQuizModal.module.css";
+import { MiniEditor } from "@/components/MiniEditor";
 
 interface Option {
   text: string;
@@ -103,7 +105,15 @@ export function CreateManualQuizModal({
     return true;
   }, [title, questions]);
 
-  const handleSave = async () => {
+  const getErrorMessage = (err: unknown): string => {
+    if (err instanceof Error) return err.message;
+    if (typeof err === "string") return err;
+    if (err && typeof err === "object" && "message" in err) return String((err as { message: unknown }).message);
+    return "No se pudo guardar el examen";
+  };
+
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault();
     if (!validate()) return;
     setSaving(true);
     try {
@@ -130,161 +140,238 @@ export function CreateManualQuizModal({
       toast.success("Guardado", "Examen creado exitosamente");
       onQuizCreated?.();
       onClose();
-    } catch (err: any) {
-      toast.error("Error", err.message || "No se pudo guardar el examen");
+    } catch (err: unknown) {
+      toast.error("Error", getErrorMessage(err));
     } finally {
       setSaving(false);
     }
   };
 
+  const handleOverlayKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Escape") onClose();
+  };
+
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={onClose}>
-      <div className="bg-card border border-border rounded-2xl w-full max-w-3xl max-h-[85vh] flex flex-col shadow-2xl animate-in fade-in zoom-in-95 duration-200" onClick={e => e.stopPropagation()}>
-        <div className="flex items-center justify-between px-6 py-4 border-b border-border">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+    <div
+      className={styles.overlay}
+      onClick={onClose}
+      onKeyDown={handleOverlayKeyDown}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="manual-quiz-title"
+    >
+      {/* Focus trap: add a container with tabIndex={-1} and manage focus for full a11y */}
+      <div className={styles.modal} onClick={e => e.stopPropagation()}>
+        <div className={styles.header}>
+          <div className={styles.headerTitle}>
+            <div className={styles.headerIcon}>
               <Plus size={16} />
             </div>
-            <h2 className="text-lg font-bold">Crear Examen Manual</h2>
+            <h2 id="manual-quiz-title" className={styles.title}>Crear Examen Manual</h2>
           </div>
-          <button onClick={onClose} className="w-8 h-8 rounded-lg hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors" type="button">
+          <button
+            onClick={onClose}
+            className={styles.closeBtn}
+            type="button"
+            aria-label="Cerrar modal"
+          >
             <X size={18} />
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-6 space-y-6">
-          {/* Metadata */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Título *</label>
+        <form onSubmit={handleSave} className={styles.body}>
+          <div className={styles.grid2}>
+            <div className={styles.fieldGroup}>
+              <label htmlFor="quiz-title" className={styles.fieldLabel}>Título *</label>
               <input
+                id="quiz-title"
                 value={title}
                 onChange={e => setTitle(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl bg-muted border border-border focus:outline-none focus:ring-2 focus:ring-primary/30 text-sm"
+                className={styles.input}
                 placeholder="Ej: Examen de álgebra básica"
+                required
+                autoFocus
               />
             </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Área</label>
+            <div className={styles.fieldGroup}>
+              <label htmlFor="quiz-area" className={styles.fieldLabel}>Área</label>
               <input
+                id="quiz-area"
                 value={area}
                 onChange={e => setArea(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl bg-muted border border-border focus:outline-none focus:ring-2 focus:ring-primary/30 text-sm"
+                className={styles.input}
                 placeholder="Ej: Matemáticas"
               />
             </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Tema</label>
+            <div className={styles.fieldGroup}>
+              <label htmlFor="quiz-tema" className={styles.fieldLabel}>Tema</label>
               <input
+                id="quiz-tema"
                 value={tema}
                 onChange={e => setTema(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl bg-muted border border-border focus:outline-none focus:ring-2 focus:ring-primary/30 text-sm"
+                className={styles.input}
                 placeholder="Ej: Álgebra"
               />
             </div>
-            <div className="flex gap-3">
-              <div className="flex-1 space-y-2">
-                <label className="text-sm font-medium">Dificultad</label>
-                <select value={difficulty} onChange={e => setDifficulty(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl bg-muted border border-border focus:outline-none focus:ring-2 focus:ring-primary/30 text-sm">
+            <div className={styles.flexRow}>
+              <div className={styles.fieldGroup}>
+                <label htmlFor="quiz-difficulty" className={styles.fieldLabel}>Dificultad</label>
+                <select
+                  id="quiz-difficulty"
+                  value={difficulty}
+                  onChange={e => setDifficulty(e.target.value)}
+                  className={styles.input}
+                >
                   {["very_easy","easy","medium","hard","very_hard","expert"].map(d => (
                     <option key={d} value={d}>{d.replace(/_/g, " ")}</option>
                   ))}
                 </select>
               </div>
-              <div className="flex-1 space-y-2">
-                <label className="text-sm font-medium">Visibilidad</label>
-                <select value={acceso} onChange={e => setAcceso(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl bg-muted border border-border focus:outline-none focus:ring-2 focus:ring-primary/30 text-sm">
+              <div className={styles.fieldGroup}>
+                <label htmlFor="quiz-acceso" className={styles.fieldLabel}>Visibilidad</label>
+                <select
+                  id="quiz-acceso"
+                  value={acceso}
+                  onChange={e => setAcceso(e.target.value)}
+                  className={styles.input}
+                >
                   <option value="public">Público</option>
                   <option value="private">Privado</option>
                 </select>
               </div>
             </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Límite de tiempo (minutos)</label>
-              <input type="number" min={0} value={timeLimitMinutes} onChange={e => setTimeLimitMinutes(Number(e.target.value))}
-                className="w-full px-3 py-2 rounded-xl bg-muted border border-border focus:outline-none focus:ring-2 focus:ring-primary/30 text-sm" />
+            <div className={styles.fieldGroup}>
+              <label htmlFor="quiz-time" className={styles.fieldLabel}>Límite de tiempo (minutos)</label>
+              <input
+                id="quiz-time"
+                type="number"
+                min={0}
+                value={timeLimitMinutes}
+                onChange={e => setTimeLimitMinutes(Number(e.target.value))}
+                className={styles.input}
+                placeholder="0 = sin límite"
+              />
             </div>
-            <div className="flex items-center gap-4 pt-6">
-              <label className="flex items-center gap-2 text-sm">
-                <input type="checkbox" checked={shuffleQuestions} onChange={e => setShuffleQuestions(e.target.checked)}
-                  className="rounded border-border" />
+            <div className={styles.checkboxRow}>
+              <label className={styles.checkboxLabel}>
+                <input
+                  type="checkbox"
+                  checked={shuffleQuestions}
+                  onChange={e => setShuffleQuestions(e.target.checked)}
+                  className={styles.checkbox}
+                />
                 Aleatorizar preguntas
               </label>
-              <label className="flex items-center gap-2 text-sm">
-                <input type="checkbox" checked={showResults} onChange={e => setShowResults(e.target.checked)}
-                  className="rounded border-border" />
+              <label className={styles.checkboxLabel}>
+                <input
+                  type="checkbox"
+                  checked={showResults}
+                  onChange={e => setShowResults(e.target.checked)}
+                  className={styles.checkbox}
+                />
                 Mostrar resultados
               </label>
             </div>
           </div>
 
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Descripción</label>
-            <textarea value={description} onChange={e => setDescription(e.target.value)} rows={2}
-              className="w-full px-3 py-2 rounded-xl bg-muted border border-border focus:outline-none focus:ring-2 focus:ring-primary/30 text-sm resize-none"
-              placeholder="Descripción opcional del examen" />
+          <div className={styles.fieldGroup}>
+            <label htmlFor="quiz-description" className={styles.fieldLabel}>Descripción</label>
+            <textarea
+              id="quiz-description"
+              value={description}
+              onChange={e => setDescription(e.target.value)}
+              rows={2}
+              className={styles.textarea}
+              placeholder="Descripción opcional del examen"
+            />
           </div>
 
-          {/* Preguntas */}
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm font-semibold">Preguntas ({questions.length})</h3>
-              <button onClick={addQuestion}
-                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg bg-primary text-primary-foreground hover:opacity-90 transition-opacity"
-                type="button">
+          <div className={styles.section}>
+            <div className={styles.sectionHeader}>
+              <h3 className={styles.sectionTitle}>Preguntas ({questions.length})</h3>
+              <button
+                onClick={addQuestion}
+                className={styles.addBtn}
+                type="button"
+              >
                 <Plus size={14} /> Agregar pregunta
               </button>
             </div>
 
             {questions.map((q, qi) => (
-              <div key={qi} className="rounded-xl border border-border bg-card p-4 space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-semibold text-muted-foreground">Pregunta {qi + 1}</span>
+              <div key={qi} className={styles.questionCard}>
+                <div className={styles.sectionHeader}>
+                  <span className={styles.cardLabel}>Pregunta {qi + 1}</span>
                   {questions.length > 1 && (
-                    <button onClick={() => removeQuestion(qi)}
-                      className="text-muted-foreground hover:text-destructive transition-colors" type="button">
+                    <button
+                      onClick={() => removeQuestion(qi)}
+                      className={styles.deleteBtn}
+                      type="button"
+                      aria-label={`Eliminar pregunta ${qi + 1}`}
+                    >
                       <Trash2 size={14} />
                     </button>
                   )}
                 </div>
 
-                <textarea value={q.question} onChange={e => updateQuestion(qi, "question", e.target.value)} rows={2}
-                  className="w-full px-3 py-2 rounded-xl bg-muted border border-border focus:outline-none focus:ring-2 focus:ring-primary/30 text-sm resize-none"
-                  placeholder="Escribe la pregunta..." />
+                <MiniEditor
+                  value={q.question}
+                  onChange={v => updateQuestion(qi, "question", v)}
+                  placeholder="Escribe la pregunta..."
+                  minRows={2}
+                  label="Pregunta"
+                />
 
-                <textarea value={q.explanation} onChange={e => updateQuestion(qi, "explanation", e.target.value)} rows={1}
-                  className="w-full px-3 py-2 rounded-xl bg-muted border border-border focus:outline-none focus:ring-2 focus:ring-primary/30 text-sm resize-none"
-                  placeholder="Explicación (opcional)" />
+                <MiniEditor
+                  value={q.explanation}
+                  onChange={v => updateQuestion(qi, "explanation", v)}
+                  placeholder="Explicación (opcional)"
+                  minRows={1}
+                  label="Explicación"
+                />
 
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[11px] font-medium text-muted-foreground">Opciones</span>
-                    <button onClick={() => addOption(qi)}
-                      className="text-[11px] text-primary hover:underline" type="button">
+                <div className={styles.optionsSection}>
+                  <div className={styles.optionsHeader}>
+                    <span className={styles.optionsLabel}>Opciones</span>
+                    <button
+                      onClick={() => addOption(qi)}
+                      className={styles.addOptionBtn}
+                      type="button"
+                      aria-label="Agregar opción"
+                    >
                       + Opción
                     </button>
                   </div>
                   {q.options.map((o, oi) => (
-                    <div key={oi} className="flex items-center gap-2">
+                    <div key={oi} className={styles.optionRow}>
                       <button
                         onClick={() => setCorrectOption(qi, oi)}
-                        className={`shrink-0 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${o.isCorrect ? "border-green-500 bg-green-500" : "border-border hover:border-primary"}`}
+                        className={`${styles.radioBtn} ${o.isCorrect ? styles.radioActive : styles.radioInactive}`}
                         type="button"
-                        title={o.isCorrect ? "Correcta" : "Marcar como correcta"}
+                        aria-label={o.isCorrect ? "Opción correcta" : "Marcar como correcta"}
                       >
-                        {o.isCorrect && <div className="w-2 h-2 rounded-full bg-white" />}
+                        {o.isCorrect && <div className={styles.radioDot} />}
                       </button>
-                      <input value={o.text} onChange={e => updateOption(qi, oi, "text", e.target.value)}
-                        className="flex-1 px-3 py-1.5 rounded-lg bg-muted border border-border focus:outline-none focus:ring-2 focus:ring-primary/30 text-sm"
-                        placeholder={`Opción ${oi + 1}`} />
-                      <input value={o.feedback} onChange={e => updateOption(qi, oi, "feedback", e.target.value)}
-                        className="w-24 px-2 py-1.5 rounded-lg bg-muted border border-border focus:outline-none focus:ring-2 focus:ring-primary/30 text-xs"
-                        placeholder="Feedback" />
+                      <input
+                        value={o.text}
+                        onChange={e => updateOption(qi, oi, "text", e.target.value)}
+                        className={styles.optionInput}
+                        placeholder={`Opción ${oi + 1}`}
+                        required
+                      />
+                      <input
+                        value={o.feedback}
+                        onChange={e => updateOption(qi, oi, "feedback", e.target.value)}
+                        className={styles.feedbackInput}
+                        placeholder="Feedback"
+                      />
                       {q.options.length > 2 && (
-                        <button onClick={() => removeOption(qi, oi)}
-                          className="text-muted-foreground hover:text-destructive transition-colors shrink-0" type="button">
+                        <button
+                          onClick={() => removeOption(qi, oi)}
+                          className={styles.removeOptionBtn}
+                          type="button"
+                          aria-label="Eliminar opción"
+                        >
                           <X size={14} />
                         </button>
                       )}
@@ -294,20 +381,25 @@ export function CreateManualQuizModal({
               </div>
             ))}
           </div>
-        </div>
 
-        <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-border">
-          <button onClick={onClose}
-            className="px-4 py-2 rounded-xl text-sm font-medium hover:bg-muted transition-colors" type="button">
-            Cancelar
-          </button>
-          <button onClick={handleSave} disabled={saving}
-            className="flex items-center gap-2 px-5 py-2 rounded-xl bg-primary text-primary-foreground text-sm font-medium hover:opacity-90 disabled:opacity-50 transition-all"
-            type="button">
-            <Save size={16} />
-            {saving ? "Guardando..." : "Guardar Examen"}
-          </button>
-        </div>
+          <div className={styles.footer}>
+            <button
+              onClick={onClose}
+              className={styles.cancelBtn}
+              type="button"
+            >
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              disabled={saving}
+              className={styles.saveBtn}
+            >
+              <Save size={16} />
+              {saving ? "Guardando..." : "Guardar Examen"}
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );

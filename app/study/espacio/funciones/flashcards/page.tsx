@@ -1,17 +1,14 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
-import { Plus, Sparkles } from "lucide-react";
 import { toast } from "@/hooks/useLocalToast";
 import CardKlekComponent from "@/components/card/CardKlek";
 import {
   FuncionesCardModal,
 } from "@/components/espacio/FuncionesCardModal";
-import { CreateManualFlashcardModal } from "@/components/card/CreateManualFlashcardModal";
 import { cardsService } from "@/services/cardsService";
 import type { UnifiedCardData } from "@/types";
 import CardDeck from "@/components/espacio/card";
-import CrearCard from "@/components/card/CrearCard";
 
 export default function FuncionesFlashcardsPage() {
   const [items, setItems] = useState<UnifiedCardData[]>([]);
@@ -20,8 +17,6 @@ export default function FuncionesFlashcardsPage() {
   const [selectedItem, setSelectedItem] = useState<UnifiedCardData | null>(null);
   const [showKlek, setShowKlek] = useState(false);
   const [selectedForModal, setSelectedForModal] = useState<UnifiedCardData | null>(null);
-  const [showManualCreate, setShowManualCreate] = useState(false);
-  const [showAiCreate, setShowAiCreate] = useState(false);
 
   const loadItems = useCallback(async () => {
     try {
@@ -92,37 +87,6 @@ export default function FuncionesFlashcardsPage() {
           isOwner={true}
         />
       )}
-
-      {showManualCreate && (
-        <CreateManualFlashcardModal
-          onClose={() => setShowManualCreate(false)}
-          onCardCreated={loadItems}
-        />
-      )}
-
-      {showAiCreate && (
-        <CrearCard
-          onClose={() => setShowAiCreate(false)}
-          onCardCreated={loadItems}
-        />
-      )}
-
-      <div className="flex items-center justify-end gap-2 px-4 py-3">
-        <button
-          onClick={() => setShowAiCreate(true)}
-          className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
-          type="button"
-        >
-          <Sparkles size={14} /> Crear con IA
-        </button>
-        <button
-          onClick={() => setShowManualCreate(true)}
-          className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg bg-primary text-primary-foreground hover:opacity-90 transition-opacity"
-          type="button"
-        >
-          <Plus size={14} /> Nuevo Manual
-        </button>
-      </div>
 
       <CardDeck
         items={items}

@@ -14,7 +14,6 @@ import {
   User,
   PanelLeftClose,
   PanelLeft,
-  Image,
   X,
 } from "lucide-react";
 import styles from "@/styles/chat.module.css";
@@ -126,12 +125,6 @@ export default function ChatPage() {
   }, [currentChat?.id]);
 
   // ==================== SUGERENCIAS ====================
-  const suggestions = [
-    { icon: "🧠", title: "Ciencia", text: "Explica la teoría cuántica" },
-    { icon: "🤖", title: "Tecnología", text: "¿Cómo funciona el machine learning?" },
-    { icon: "📚", title: "Historia", text: "Resumen de la Segunda Guerra Mundial" },
-  ];
-
   const slashSuggestions = [
     { icon: "📝", title: "/exam-g", text: "Generar examen con IA" },
     { icon: "🃏", title: "/flashcards-g", text: "Generar flashcards con IA" },
@@ -551,43 +544,11 @@ export default function ChatPage() {
           onScroll={handleMessagesScroll}
         >
           {messages.length === 0 && !isStreaming ? (
-            <div className={styles.welcome}>
-              <div className={styles.welcomeIcon}>
-                <Bot size={48} />
-              </div>
-              <h1>¡Hola! Soy Junior</h1>
-              <p>¿Qué te gustaría preguntar hoy?</p>
-              <div className={styles.suggestions}>
-                {slashSuggestions.map((s, i) => (
-                  <button
-                    key={`slash-${i}`}
-                    className={styles.suggestionCard}
-                    onClick={() => setInputValue(s.title + " ")}
-                  >
-                    <span className={styles.suggestionIcon}>{s.icon}</span>
-                    <div className={styles.suggestionContent}>
-                      <span className={styles.suggestionTitle}>{s.title}</span>
-                      <span className={styles.suggestionText}>{s.text}</span>
-                    </div>
-                  </button>
-                ))}
-              </div>
-              <div className={styles.welcomeHint}>ó pregúntame algo:</div>
-              <div className={styles.suggestions}>
-                {suggestions.map((s, i) => (
-                  <button
-                    key={i}
-                    className={styles.suggestionCard}
-                    onClick={() => setInputValue(s.text)}
-                  >
-                    <span className={styles.suggestionIcon}>{s.icon}</span>
-                    <div className={styles.suggestionContent}>
-                      <span className={styles.suggestionTitle}>{s.title}</span>
-                      <span className={styles.suggestionText}>{s.text}</span>
-                    </div>
-                  </button>
-                ))}
-              </div>
+              <div className={styles.welcome}>
+                <div className={styles.welcomeIcon}>
+                  <Bot size={48} />
+                </div>
+                <p className={styles.welcomeText}>aprende algo, preguntando</p>
             </div>
           ) : (
             <>
@@ -763,7 +724,7 @@ export default function ChatPage() {
                 disabled={isLoading || isGuest || attachedFiles.length >= 5}
                 title="Adjuntar archivos"
               >
-                <Image size={16} />
+                <Plus size={16} />
               </button>
               <input
                 ref={imageInputRef}

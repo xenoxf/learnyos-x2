@@ -1,24 +1,19 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
-import { Plus, Sparkles } from "lucide-react";
 import { toast } from "@/hooks/useLocalToast";
 import {
   FuncionesCardModal,
 } from "@/components/espacio/FuncionesCardModal";
-import { CreateManualQuizModal } from "@/components/quiz/CreateManualQuizModal";
 import { quizzesService } from "@/services/quizzesService";
 import type { UnifiedCardData } from "@/types";
 import CardDeck from "@/components/espacio/card";
-import CreateQuizModal from "@/components/quiz/CreateQuizModal";
 
 export default function FuncionesQuizzesPage() {
   const [items, setItems] = useState<UnifiedCardData[]>([]);
   const [loading, setLoading] = useState(true);
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const [selectedForModal, setSelectedForModal] = useState<UnifiedCardData | null>(null);
-  const [showManualCreate, setShowManualCreate] = useState(false);
-  const [showAiCreate, setShowAiCreate] = useState(false);
 
   const loadItems = useCallback(async () => {
     try {
@@ -75,37 +70,6 @@ export default function FuncionesQuizzesPage() {
           isOwner={true}
         />
       )}
-
-      {showManualCreate && (
-        <CreateManualQuizModal
-          onClose={() => setShowManualCreate(false)}
-          onQuizCreated={loadItems}
-        />
-      )}
-
-      {showAiCreate && (
-        <CreateQuizModal
-          onClose={() => setShowAiCreate(false)}
-          onQuizCreated={loadItems}
-        />
-      )}
-
-      <div className="flex items-center justify-end gap-2 px-4 py-3">
-        <button
-          onClick={() => setShowAiCreate(true)}
-          className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
-          type="button"
-        >
-          <Sparkles size={14} /> Crear con IA
-        </button>
-        <button
-          onClick={() => setShowManualCreate(true)}
-          className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg bg-primary text-primary-foreground hover:opacity-90 transition-opacity"
-          type="button"
-        >
-          <Plus size={14} /> Nuevo Manual
-        </button>
-      </div>
 
       <CardDeck 
         items={items} 

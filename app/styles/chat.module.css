@@ -264,6 +264,13 @@
   font-size: 0.9375rem;
 }
 
+.welcomeText {
+  color: hsl(var(--muted-foreground));
+  font-size: 1rem;
+  font-weight: 500;
+  margin-top: var(--spacing-md);
+}
+
 .suggestions {
   display: grid;
   grid-template-columns: repeat(3, 1fr);

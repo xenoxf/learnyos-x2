@@ -5,6 +5,7 @@ import { X, Sparkles, Loader } from "lucide-react";
 import { toast } from "@/hooks/useLocalToast";
 import { quizzesService } from "@/services/quizzesService";
 import { cardsService } from "@/services/cardsService";
+import styles from "@/styles/chat/slashCommandModal.module.css";
 
 interface SlashCommandModalProps {
   command: "exam" | "flashcards";
@@ -62,8 +63,9 @@ export function SlashCommandModal({ command, initialPrompt, onClose, onResult }:
       }
       toast.success("Generado", `${command === "exam" ? "Examen" : "Flashcards"} creado exitosamente`);
       onClose();
-    } catch (err: any) {
-      toast.error("Error", err.message || `No se pudo generar ${command === "exam" ? "el examen" : "las flashcards"}`);
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : "";
+      toast.error("Error", errorMessage || `No se pudo generar ${command === "exam" ? "el examen" : "las flashcards"}`);
     } finally {
       setLoading(false);
     }
@@ -77,56 +79,56 @@ export function SlashCommandModal({ command, initialPrompt, onClose, onResult }:
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-start justify-center z-50 pt-[12vh] px-4" onClick={onClose}>
-      <div className="bg-card border border-border rounded-2xl w-full max-w-lg shadow-2xl animate-in fade-in zoom-in-95 slide-in-from-top-4 duration-200" onClick={e => e.stopPropagation()}>
-        <div className="flex items-center justify-between px-5 py-4 border-b border-border">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-              <Sparkles size={15} className="text-primary" />
+    <div className={styles.overlay} onClick={onClose}>
+      <div className={styles.modal} onClick={e => e.stopPropagation()}>
+        <div className={styles.header}>
+          <div className={styles.headerContent}>
+            <div className={styles.headerIcon}>
+              <Sparkles size={15} />
             </div>
-            <span className="font-semibold text-sm">
+            <span className={styles.headerTitle}>
               {command === "exam" ? "/exam-g — Generar Examen" : "/flashcards-g — Generar Flashcards"}
             </span>
           </div>
-          <button onClick={onClose} className="w-7 h-7 rounded-lg hover:bg-muted flex items-center justify-center text-muted-foreground" type="button">
+          <button onClick={onClose} className={styles.closeBtn} type="button">
             <X size={16} />
           </button>
         </div>
 
-        <div className="p-5 space-y-4">
-          <div className="space-y-1.5">
-            <label className="text-xs font-medium text-muted-foreground">Tema o referencia</label>
+        <div className={styles.body}>
+          <div className={styles.fieldGroup}>
+            <label className={styles.fieldLabel}>Tema o referencia</label>
             <input
               ref={inputRef}
               value={reference}
               onChange={e => setReference(e.target.value)}
               onKeyDown={handleKeyDown}
-              className="w-full px-3.5 py-2.5 rounded-xl bg-muted border border-border focus:outline-none focus:ring-2 focus:ring-primary/30 text-sm"
+              className={styles.input}
               placeholder={command === "exam" ? "Ej: Revolución Francesa, Álgebra lineal..." : "Ej: Verbos en inglés, Química orgánica..."}
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1.5">
-              <label className="text-xs font-medium text-muted-foreground">
+          <div className={styles.grid2}>
+            <div className={styles.fieldGroup}>
+              <label className={styles.fieldLabel}>
                 {command === "exam" ? "Preguntas" : "Cantidad"}
               </label>
-              <div className="flex items-center gap-2">
+              <div className={styles.rangeRow}>
                 <input
                   type="range"
                   min={2}
                   max={25}
                   value={quantity}
                   onChange={e => setQuantity(Number(e.target.value))}
-                  className="flex-1 accent-primary"
+                  className={styles.range}
                 />
-                <span className="text-xs font-mono w-6 text-right text-muted-foreground">{quantity}</span>
+                <span className={styles.rangeValue}>{quantity}</span>
               </div>
             </div>
-            <div className="space-y-1.5">
-              <label className="text-xs font-medium text-muted-foreground">Visibilidad</label>
+            <div className={styles.fieldGroup}>
+              <label className={styles.fieldLabel}>Visibilidad</label>
               <select value={acceso} onChange={e => setAcceso(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl bg-muted border border-border focus:outline-none focus:ring-2 focus:ring-primary/30 text-sm text-muted-foreground">
+                className={styles.select}>
                 <option value="public">🌍 Público</option>
                 <option value="private">🔒 Privado</option>
               </select>
@@ -134,20 +136,20 @@ export function SlashCommandModal({ command, initialPrompt, onClose, onResult }:
           </div>
 
           {command === "exam" && (
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1.5">
-                <label className="text-xs font-medium text-muted-foreground">Dificultad</label>
+            <div className={styles.grid2}>
+              <div className={styles.fieldGroup}>
+                <label className={styles.fieldLabel}>Dificultad</label>
                 <select value={difficulty} onChange={e => setDifficulty(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl bg-muted border border-border focus:outline-none focus:ring-2 focus:ring-primary/30 text-sm text-muted-foreground">
+                  className={styles.select}>
                   {["very_easy","easy","medium","hard","very_hard","expert"].map(d => (
                     <option key={d} value={d}>{d.replace(/_/g, " ")}</option>
                   ))}
                 </select>
               </div>
-              <div className="space-y-1.5">
-                <label className="text-xs font-medium text-muted-foreground">Formato</label>
+              <div className={styles.fieldGroup}>
+                <label className={styles.fieldLabel}>Formato</label>
                 <select value={examType} onChange={e => setExamType(e.target.value as "quiz" | "icfes")}
-                  className="w-full px-3 py-2 rounded-xl bg-muted border border-border focus:outline-none focus:ring-2 focus:ring-primary/30 text-sm text-muted-foreground">
+                  className={styles.select}>
                   <option value="quiz">Quiz</option>
                   <option value="icfes">ICFES</option>
                 </select>
@@ -156,15 +158,15 @@ export function SlashCommandModal({ command, initialPrompt, onClose, onResult }:
           )}
         </div>
 
-        <div className="flex items-center justify-end gap-2 px-5 py-4 border-t border-border">
+        <div className={styles.footer}>
           <button onClick={onClose}
-            className="px-4 py-2 rounded-xl text-sm font-medium hover:bg-muted transition-colors" type="button">
+            className={styles.cancelBtn} type="button">
             Cancelar
           </button>
           <button onClick={handleGenerate} disabled={loading || !reference.trim()}
-            className="flex items-center gap-2 px-5 py-2 rounded-xl bg-primary text-primary-foreground text-sm font-medium hover:opacity-90 disabled:opacity-50 transition-all"
+            className={styles.generateBtn}
             type="button">
-            {loading ? <Loader size={15} className="animate-spin" /> : <Sparkles size={15} />}
+            {loading ? <Loader size={15} className={styles.spinner} /> : <Sparkles size={15} />}
             {loading ? "Generando..." : "Generar"}
           </button>
         </div>
