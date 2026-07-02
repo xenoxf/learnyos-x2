@@ -14,7 +14,6 @@ import {
   User,
   PanelLeftClose,
   PanelLeft,
-  X,
   Image,
 } from "lucide-react";
 import styles from "@/styles/chat.module.css";
