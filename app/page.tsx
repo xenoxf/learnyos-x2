@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { LandingClient } from "@/components/LandingClient";
 
 const appUrl =
-  process.env.NEXT_PUBLIC_APP_URL || "https://learnyos.vercel.app";
+  process.env.NEXT_PUBLIC_APP_URL || "https://learnyos.xenooxf.me";
 
 export const metadata: Metadata = {
   title:

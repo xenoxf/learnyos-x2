@@ -17,12 +17,12 @@ export const viewport: Viewport = {
 };
 
 const appUrl =
-  process.env.NEXT_PUBLIC_APP_URL || "https://learnyos.vercel.app";
+  process.env.NEXT_PUBLIC_APP_URL || "https://learnyos.xenooxf.me";
 const isDev = process.env.NODE_ENV === "development";
 
 export const metadata: Metadata = {
   metadataBase: new URL(
-    process.env.NEXT_PUBLIC_APP_URL || "https://learnyos.vercel.app"
+    process.env.NEXT_PUBLIC_APP_URL || "https://learnyos.xenooxf.me"
   ),
   title: {
     default:
@@ -244,7 +244,7 @@ export default function RootLayout({
           rel="preconnect"
           href="https://fonts.gstatic.com"
           crossOrigin="anonymous"
-        />
+        /><meta name="google-site-verification" content="LruU6jVYJTCmpn818HaKGGozFLFQinS86KkK20oRN7A" />
         <link rel="icon" href="/favicon.ico" sizes="any" />
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
