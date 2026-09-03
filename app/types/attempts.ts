@@ -22,6 +22,8 @@ export interface Attempt {
   examCreatorName: string;
   examDescription: string;
   examType: string;
+  timeSpent?: number;
+  isAutoSubmitted?: boolean;
 }
 
 export type StatsHeroProps = {

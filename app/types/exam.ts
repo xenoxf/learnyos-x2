@@ -42,6 +42,10 @@ export interface ExamDeck {
   likesCount: number;
   userLiked: boolean;
   canDelete?: boolean;
+  timeLimitMinutes?: number;
+  createdAt?: string;
+  shuffleQuestions?: boolean;
+  showResults?: boolean;
 }
 
 /**
@@ -62,6 +66,9 @@ export interface ExamKlek {
   canDelete?: boolean;
   code?: string;
   createdAt?: string;
+  timeLimitMinutes?: number;
+  shuffleQuestions?: boolean;
+  showResults?: boolean;
 }
 
 export interface GenerateExamData {

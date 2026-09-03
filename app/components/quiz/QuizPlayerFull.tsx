@@ -50,6 +50,10 @@ export default function QuizPlayerFull({ quizId }: QuizPlayerFullProps) {
   const isIcfesMode = quiz?.type === 'icfes';
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const questionRefs = useRef<{ [key: number]: HTMLDivElement | null }>({});
+  const [timeRemaining, setTimeRemaining] = useState<number | null>(null);
+  const startTimeRef = useRef<number>(Date.now());
+  const isAutoSubmittedRef = useRef(false);
+  const handleSubmitRef = useRef<() => void>(() => {});
 
   useEffect(() => {
     const loadQuiz = async () => {
@@ -81,6 +85,39 @@ export default function QuizPlayerFull({ quizId }: QuizPlayerFullProps) {
     };
     loadQuiz();
   }, [quizId]);
+
+  // Timer countdown for timed exams
+  useEffect(() => {
+    if (!quiz?.timeLimitMinutes || showResults) return;
+    const totalSeconds = quiz.timeLimitMinutes * 60;
+    startTimeRef.current = Date.now();
+    setTimeRemaining(totalSeconds);
+    isAutoSubmittedRef.current = false;
+
+    const interval = setInterval(() => {
+      setTimeRemaining((prev) => {
+        if (prev === null || prev <= 0) {
+          clearInterval(interval);
+          return 0;
+        }
+        const next = prev - 1;
+        if (next <= 0) {
+          clearInterval(interval);
+          // Auto-submit on next tick to avoid state conflicts
+          setTimeout(() => {
+            if (!showResults && !isAutoSubmittedRef.current) {
+              isAutoSubmittedRef.current = true;
+              handleSubmitRef.current();
+            }
+          }, 0);
+          return 0;
+        }
+        return next;
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [quiz?.timeLimitMinutes, quiz?.id, showResults]);
 
   // Group questions by context for ICFES mode
   const groupedQuestions = useMemo(() => {
@@ -160,12 +197,17 @@ export default function QuizPlayerFull({ quizId }: QuizPlayerFullProps) {
         const correctOption = q.options.find((o) => o.isCorrect);
         return selectedId === correctOption?.id;
       }).length;
+      const timeSpent = quiz.timeLimitMinutes
+        ? Math.round((Date.now() - startTimeRef.current) / 1000)
+        : undefined;
       try {
         await attemptsService.recordAttempt({
           examId: quiz.id,
           correctAnswers: correctCount,
           totalQuestions: quiz.questions.length,
           examTitle: quiz.title,
+          timeSpent,
+          isAutoSubmitted: isAutoSubmittedRef.current,
         });
       } catch {
         // Silent fail - don't block results
@@ -173,6 +215,9 @@ export default function QuizPlayerFull({ quizId }: QuizPlayerFullProps) {
     }
     setShowResults(true);
   }, [quiz, selectedAnswers]);
+
+  // Keep ref in sync
+  handleSubmitRef.current = handleSubmit;
 
   const handleConfirmAnswer = useCallback(() => {
     setShowImmediateFeedback(true);
@@ -192,6 +237,23 @@ export default function QuizPlayerFull({ quizId }: QuizPlayerFullProps) {
   };
 
 
+
+  const formatTime = (seconds: number): string => {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+  };
+
+  const timerDisplay = timeRemaining !== null && quiz?.timeLimitMinutes ? (
+    <div
+      className={`w-full py-2 px-4 text-center text-sm font-semibold text-white transition-colors duration-300 ${
+        timeRemaining <= 60 ? "bg-red-600 animate-pulse" : "bg-primary"
+      }`}
+    >
+      {timeRemaining <= 60 && timeRemaining > 0 ? "⚠️ " : ""}
+      Tiempo restante: {formatTime(timeRemaining)}
+    </div>
+  ) : null;
 
   // Calculate results for summary
   const results = useMemo(() => {
@@ -553,6 +615,8 @@ export default function QuizPlayerFull({ quizId }: QuizPlayerFullProps) {
             />
           </div>
 
+          {timerDisplay}
+
           {/* Scrollable Questions */}
           <div
             ref={scrollContainerRef}
@@ -756,6 +820,8 @@ export default function QuizPlayerFull({ quizId }: QuizPlayerFullProps) {
             style={{ width: `${((currentIndex + 1) / totalQuestions) * 100}%` }}
           />
         </div>
+
+        {timerDisplay}
 
         {/* Question Content */}
         <div className={styles.mainContent}>

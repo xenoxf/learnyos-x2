@@ -17,6 +17,7 @@ export interface ChatMessage {
     url?: string;
     type: string;
   }>;
+  toolCalls?: ToolCallInfo[];
 }
 
 export interface Chat {
@@ -43,13 +44,6 @@ export interface SendMessageData {
   chatId?: number;
 }
 
-/** Datos para enviar un mensaje con archivos adjuntos */
-export interface SendMessageWithFileData {
-  prompt?: string;
-  chatId?: number;
-  files: File[];
-}
-
 /** Respuesta del backend POST /messages/send - devuelve la entidad Message */
 export interface SendMessageResponse {
   id: number;
@@ -57,8 +51,6 @@ export interface SendMessageResponse {
   response: string;
   prompt: string;
   createdAt: string;
-  creditsRemaining?: number;
-  creditsTotal?: number;
 }
 
 /** Respuesta del backend GET /messages/chat/:chatId */
@@ -74,14 +66,28 @@ export interface GetChatMessagesResponse {
     fileType?: string | null;
     fileData?: string | null;
     fileUrl?: string | null;
+    toolCalls?: ToolCallInfo[] | null;
   }>;
 }
 
+export interface ToolCallInfo {
+  name: string;
+  args: any;
+  result: any;
+}
+
+export interface UploadImageResponse {
+  url: string;
+  markdown: string;
+  filename: string;
+}
+
 export interface StreamChunk {
-  type: "credits" | "chunk" | "done";
+  type: "credits" | "chunk" | "done" | "tool";
   content?: string;
   remaining?: number;
   total?: number;
   messageId?: number;
   chatId?: number;
+  toolName?: string;
 }

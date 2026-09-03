@@ -6,7 +6,6 @@ import rehypeKatex from "rehype-katex";
 import rehypeHighlight from "rehype-highlight";
 import rehypeSanitize, { defaultSchema } from "rehype-sanitize";
 import { Check, Copy } from "lucide-react";
-import Image from "next/image";
 import "highlight.js/styles/atom-one-dark.css";
 import "katex/dist/katex.min.css";
 import styles from "../styles/markdow-render.module.css";
@@ -160,38 +159,24 @@ const createComponents = () => ({
       {children}
     </a>
   ),
-  img: ({ node, alt, src, ...props }: any) => {
-    // Si es una imagen externa o no podemos determinar el tamaño, usar img normal con lazy loading
+  img: ({ alt, src }: any) => {
     const isExternal = src?.startsWith('http');
 
-    if (isExternal) {
-      return (
-        <Image
-          className={styles.image}
-          src={src}
-          alt={alt || "Imagen"}
-          width={800}
-          height={600}
-          loading="lazy"
-          style={{ width: '100%', height: 'auto' }}
-          {...props}
-        />
-      );
-    }
-
-    // Para imágenes locales, usar next/image con fill
     return (
-      <div className={styles.imageWrapper} style={{ position: 'relative', width: '100%', height: 'auto' }}>
-        <Image
-          className={styles.image}
-          src={src}
-          alt={alt || "Imagen"}
-          fill
-          loading="lazy"
-          style={{ objectFit: 'contain' }}
-          {...props}
-        />
-      </div>
+      <img
+        src={src}
+        alt={alt || "Imagen"}
+        loading="lazy"
+        className={styles.image}
+        style={{
+          maxWidth: '100%',
+          height: 'auto',
+          borderRadius: '12px',
+          margin: '1em 0',
+        }}
+        width={isExternal ? 800 : undefined}
+        height={isExternal ? 600 : undefined}
+      />
     );
   },
   hr: ({ node, ...props }: any) => <hr className={styles.hr} {...props} />,

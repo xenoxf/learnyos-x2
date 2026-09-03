@@ -264,6 +264,13 @@
   font-size: 0.9375rem;
 }
 
+.welcomeText {
+  color: hsl(var(--muted-foreground));
+  font-size: 1rem;
+  font-weight: 500;
+  margin-top: var(--spacing-md);
+}
+
 .suggestions {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -810,6 +817,214 @@
 .dropdownItem:focus {
   background: hsl(var(--accent));
   color: hsl(var(--accent-foreground));
+}
+
+/* ========== TOOL INDICATOR ========== */
+.toolIndicator {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: hsl(var(--muted-foreground));
+  padding: 0.5rem 0;
+}
+
+/* ========== WELCOME HINT ========== */
+.welcomeHint {
+  margin-top: 0.75rem;
+  font-size: 0.75rem;
+  color: hsl(var(--muted-foreground));
+}
+
+/* ========== USER FILES IN MESSAGE ========== */
+.userFilesRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.userFileImg {
+  max-width: 200px;
+  border-radius: 0.5rem;
+  border: 1px solid hsl(var(--border));
+}
+
+.userFileLabel {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  background: hsl(var(--muted));
+  border-radius: 0.375rem;
+}
+
+/* ========== TOOL CALL BADGES ========== */
+.toolCallsRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+  margin-top: 0.375rem;
+  margin-bottom: 0.25rem;
+}
+
+.toolCallBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.125rem 0.375rem;
+  border-radius: 0.375rem;
+  font-size: 0.625rem;
+  font-weight: 500;
+  background: hsl(var(--muted));
+  color: hsl(var(--muted-foreground));
+  border: 1px solid hsl(var(--border));
+}
+
+/* ========== ATTACHED FILES IN INPUT ========== */
+.attachFilesRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 0.75rem 0.75rem 0 0.75rem;
+}
+
+.attachFileChip {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.25rem 0.5rem;
+  background: hsl(var(--muted));
+  border-radius: 0.5rem;
+  font-size: 0.75rem;
+}
+
+.attachFileThumb {
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 0.25rem;
+  object-fit: cover;
+}
+
+.attachFileIcon {
+  color: hsl(var(--muted-foreground));
+}
+
+.attachFileName {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100px;
+}
+
+.attachFileRemove {
+  color: hsl(var(--muted-foreground));
+  margin-left: 0.25rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color var(--transition-fast);
+}
+
+.attachFileRemove:hover {
+  color: hsl(var(--foreground));
+}
+
+/* ========== CREDITS BAR ========== */
+.creditsBar {
+  padding: 0.25rem 0.75rem;
+  font-size: 0.625rem;
+  color: hsl(var(--muted-foreground));
+  text-align: right;
+}
+
+/* ========== SLASH AUTOCOMPLETE ========== */
+.slashPopover {
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  right: 0;
+  margin-bottom: 0.375rem;
+  background: hsl(var(--popover));
+  border: 1px solid hsl(var(--border));
+  border-radius: 0.75rem;
+  box-shadow: 0 8px 24px -4px hsl(var(--foreground) / 0.12), 0 2px 8px -2px hsl(var(--foreground) / 0.06);
+  overflow: hidden;
+  z-index: 100;
+  animation: fadeIn 0.15s ease;
+}
+
+.slashPopoverHeader {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: hsl(var(--muted-foreground));
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid hsl(var(--border));
+  background: hsl(var(--muted) / 0.3);
+}
+
+.slashOption {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.625rem 0.75rem;
+  cursor: pointer;
+  transition: background var(--transition-fast);
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+  font-family: inherit;
+  font-size: 0.8125rem;
+  color: hsl(var(--popover-foreground));
+}
+
+.slashOption:hover,
+.slashOptionActive {
+  background: hsl(var(--accent));
+  color: hsl(var(--accent-foreground));
+}
+
+.slashOptionIcon {
+  font-size: 1rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.slashOptionInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  min-width: 0;
+}
+
+.slashOptionTitle {
+  font-weight: 600;
+  font-size: 0.8125rem;
+}
+
+.slashOptionDesc {
+  font-size: 0.6875rem;
+  color: hsl(var(--muted-foreground));
+}
+
+.slashOption:hover .slashOptionDesc,
+.slashOptionActive .slashOptionDesc {
+  color: hsl(var(--accent-foreground) / 0.7);
+}
+
+/* ========== TOOL PULSE ========== */
+.toolPulse {
+  animation: toolPulse 2s ease-in-out infinite;
+}
+
+@keyframes toolPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
 }
 
 /* ========== FILE UPLOAD (estilo ChatGPT) ========== */

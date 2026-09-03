@@ -44,3 +44,42 @@ export interface GenerateFlashCardData {
   file?: File;
   files?: File[];
 }
+
+export interface FlashCardReview {
+  id: number;
+  front: string;
+  back: string;
+  hint?: string;
+  interval: number;
+  easeFactor: number;
+  reviewCount: number;
+  nextReviewDate: string | null;
+  lastReviewDate: string | null;
+}
+
+export interface DueReviewDeck {
+  cardId: number;
+  cardTitle: string;
+  flashcards: Array<{
+    id: number;
+    front: string;
+    back: string;
+    hint: string | null;
+  }>;
+}
+
+export interface ReviewStats {
+  totalCards: number;
+  reviewedToday: number;
+  dueToday: number;
+  averageEaseFactor: number;
+  averageInterval: number;
+}
+
+export interface ReviewResult {
+  id: number;
+  interval: number;
+  easeFactor: number;
+  reviewCount: number;
+  nextReviewDate: string;
+}

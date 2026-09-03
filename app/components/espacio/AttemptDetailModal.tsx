@@ -120,6 +120,16 @@ export const AttemptDetailModal: React.FC<AttemptDetailModalProps> = ({
                     })}
                   </span>
                 </div>
+                {attempt.timeSpent != null && (
+                  <div className={styles.detailItem}>
+                    <span>Tiempo</span>
+                    <span>
+                      {attempt.timeSpent >= 60
+                        ? `${Math.floor(attempt.timeSpent / 60)}m ${attempt.timeSpent % 60}s`
+                        : `${attempt.timeSpent}s`}
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
           </div>

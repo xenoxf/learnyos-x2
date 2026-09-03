@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
-
 import { toast } from "@/hooks/useLocalToast";
 import CardKlekComponent from "@/components/card/CardKlek";
 import {
@@ -17,8 +16,7 @@ export default function FuncionesFlashcardsPage() {
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const [selectedItem, setSelectedItem] = useState<UnifiedCardData | null>(null);
   const [showKlek, setShowKlek] = useState(false);
-  const [selectedForModal, setSelectedForModal] =
-    useState<UnifiedCardData | null>(null);
+  const [selectedForModal, setSelectedForModal] = useState<UnifiedCardData | null>(null);
 
   const loadItems = useCallback(async () => {
     try {

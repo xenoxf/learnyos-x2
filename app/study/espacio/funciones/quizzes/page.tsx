@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
-
 import { toast } from "@/hooks/useLocalToast";
 import {
   FuncionesCardModal,
@@ -14,8 +13,7 @@ export default function FuncionesQuizzesPage() {
   const [items, setItems] = useState<UnifiedCardData[]>([]);
   const [loading, setLoading] = useState(true);
   const [deletingId, setDeletingId] = useState<number | null>(null);
-  const [selectedForModal, setSelectedForModal] =
-    useState<UnifiedCardData | null>(null);
+  const [selectedForModal, setSelectedForModal] = useState<UnifiedCardData | null>(null);
 
   const loadItems = useCallback(async () => {
     try {
