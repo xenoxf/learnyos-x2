@@ -26,6 +26,10 @@ import {
   BookOpen,
   MessageSquare,
   RefreshCw,
+  Wifi,
+  Check,
+  X,
+  Loader,
 } from "lucide-react";
 import { useCustomAlert } from "@/hooks/useCustomAlert";
 import { CustomAlert } from "@/components/CustomAlert";
@@ -37,6 +41,7 @@ import { quizzesService } from "@/services/quizzesService";
 import { cardsService } from "@/services/cardsService";
 import { notesService } from "@/services/notesService";
 import { creditsService } from "@/services/creditsService";
+import { aiService } from "@/services/aiService";
 import { errorHandler } from "@/services/errorHandler";
 
 type TabType =
@@ -45,7 +50,8 @@ type TabType =
   | "notes"
   | "flashcards"
   | "quizzes"
-  | "terminos";
+  | "terminos"
+  | "ia";
 
 interface ManageItem {
   id: number;
@@ -89,12 +95,18 @@ export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState<TabType>("general");
   const [items, setItems] = useState<ManageItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [deletingId, setDeletingId] = useState<number | null>(0);
   const [deletingAll, setDeletingAll] = useState(false);
   const [user, setUser] = useState<any>(null);
   const [credits, setCredits] = useState<CreditsStatus | null>(null);
   const [creditsLoading, setCreditsLoading] = useState(false);
   const [isGuest, setIsGuest] = useState(false);
+  // IA state
+  const [providers, setProviders] = useState<any[]>([]);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [testResult, setTestResult] = useState<any>(null);
+  const [selectedProvider, setSelectedProvider] = useState('groq');
+  const [selectedMode, setSelectedMode] = useState('ahorro');
 
   // Cargar datos de usuario
   useEffect(() => {
@@ -189,6 +201,68 @@ export default function SettingsPage() {
       loadCredits();
     }
   }, [activeTab, isGuest, loadCredits]);
+
+  // Cargar IA config y providers cuando se abre la pestaña IA
+  useEffect(() => {
+    if (activeTab === "ia" && !isGuest) {
+      loadProviders();
+      loadAiConfig();
+    }
+  }, [activeTab, isGuest]);
+
+  const loadProviders = useCallback(async () => {
+    try {
+      setAiLoading(true);
+      const data = await aiService.getProviders();
+      setProviders(data);
+    } catch (e) {
+      toast.error("Error", "No se pudieron cargar los proveedores");
+    } finally {
+      setAiLoading(false);
+    }
+  }, []);
+
+  const loadAiConfig = useCallback(async () => {
+    try {
+      const data = await aiService.getConfig();
+      setSelectedProvider(data.provider || "groq");
+      setSelectedMode(data.mode || "ahorro");
+    } catch (e) {
+      // ignore
+    }
+  }, []);
+
+  const handleUpdateAiConfig = useCallback(async () => {
+    try {
+      await aiService.updateConfig({
+        provider: selectedProvider,
+        mode: selectedMode,
+        fallbackEnabled: true,
+      });
+      toast.success("Guardado", "Configuración de IA actualizada");
+      loadAiConfig();
+    } catch (e) {
+      toast.error("Error", "No se pudo guardar la configuración");
+    }
+  }, [selectedProvider, selectedMode, loadAiConfig]);
+
+  const handleTestConnection = useCallback(async () => {
+    try {
+      setTestResult(null);
+      const res = await aiService.testConnection({
+        provider: selectedProvider,
+        model: selectedProvider === "gemini" ? "gemini-2.5-flash-lite" : "llama-3.1-8b-instant",
+      });
+      setTestResult(res);
+      if (res.ok) {
+        toast.success("Conexión", `${res.model} responde correctamente`);
+      } else {
+        toast.error("Error", res.error || "Conexión fallida");
+      }
+    } catch (e) {
+      toast.error("Error", "Error al probar conexión");
+    }
+  }, [selectedProvider]);
 
   const handleDelete = async (id: number, title: string) => {
     const confirmed = await alert.show({
@@ -319,6 +393,7 @@ export default function SettingsPage() {
       },
       { id: "quizzes" as TabType, label: "Mis Quizzes", icon: Brain },
       { id: "terminos" as TabType, label: "Términos", icon: Shield },
+      { id: "ia" as TabType, label: "Mi IA", icon: Sparkles },
     ],
     [],
   );
@@ -447,6 +522,129 @@ export default function SettingsPage() {
                   </div>
                 </div>
               </section>
+            </div>
+          )}
+
+          {/* IA TAB */}
+          {activeTab === "ia" && !isGuest ? (
+            <div className={styles.creditsContent}>
+              <section className={styles.creditsHero}>
+                <div className={styles.creditsHeroIcon}>
+                  <Sparkles size={32} />
+                </div>
+                <h2 className={styles.creditsHeroTitle}>Configuración de IA</h2>
+                <p className={styles.creditsHeroSubtitle}>
+                  Siempre modo ahorro activo. Selecciona tu proveedor y modelo.
+                </p>
+              </section>
+
+              {aiLoading ? (
+                <div className={styles.creditsLoading}>
+                  <Loader size={24} className={styles.spinner} />
+                  <p>Cargando proveedores...</p>
+                </div>
+              ) : (
+                <>
+                  {/* Proveedor */}
+                  <section className={styles.creditsMainCard}>
+                    <div className={styles.creditsMainHeader}>
+                      <div className={styles.creditsMainIcon}>
+                        <Wifi size={28} />
+                      </div>
+                      <h3 className={styles.creditsMainTitle}>Proveedor de IA</h3>
+                    </div>
+                    <div className={styles.creditsCostsGrid}>
+                      {providers.map((p: any) => (
+                        <div
+                          key={p.id}
+                          role="button"
+                          tabIndex={0}
+                          className={`${styles.creditsCostItem} ${selectedProvider === p.id ? styles.creditsCostActive || "" : ""}`}
+                          style={{
+                            cursor: 'pointer',
+                            border: selectedProvider === p.id ? '2px solid #3b82f6' : '2px solid transparent',
+                          }}
+                          onClick={() => setSelectedProvider(p.id)}
+                          onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") setSelectedProvider(p.id); }}
+                        >
+                          <div className={styles.creditsCostInfo}>
+                            <span className={styles.creditsCostName}>
+                              {p.id === 'groq' ? '🦎 Groq' : '🟢 Gemini'}
+                            </span>
+                            <span className={styles.creditsCostValue}>
+                              {p.models.map((m: any) => m.label).join(', ')}
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </section>
+
+                  {/* Modo siempre ahorro */}
+                  <section className={styles.creditsMainCard}>
+                    <div className={styles.creditsMainHeader}>
+                      <div className={styles.creditsMainIcon}>
+                        <Zap size={28} />
+                      </div>
+                      <h3 className={styles.creditsMainTitle}>Modo de ahorro</h3>
+                    </div>
+                    <p className={styles.creditsCostsNote}>
+                      Siempre activo. Usa los modelos más rápidos y baratos. Nunca se usa GPT-OSS 120B.
+                    </p>
+                    <div style={{ marginTop: '1rem' }}>
+                      <span style={{ fontSize: '0.9rem', color: '#22c55e' }}>
+                        ✅ Ahorro siempre activo
+                      </span>
+                    </div>
+                  </section>
+
+                  {/* Botones de acción */}
+                  <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1rem' }}>
+                    <button
+                      className={styles.logoutButton}
+                      style={{ background: '#3b82f6', color: 'white', border: 'none', padding: '0.5rem 1.5rem', borderRadius: '0.5rem', cursor: 'pointer' }}
+                      onClick={handleUpdateAiConfig}
+                      type="button"
+                    >
+                      Guardar
+                    </button>
+                    <button
+                      className={styles.logoutButton}
+                      style={{ background: '#6b7280', color: 'white', border: 'none', padding: '0.5rem 1.5rem', borderRadius: '0.5rem', cursor: 'pointer' }}
+                      onClick={handleTestConnection}
+                      type="button"
+                    >
+                      <Wifi size={16} style={{ display: 'inline', marginRight: '0.5rem' }} />
+                      Probar conexión
+                    </button>
+                  </div>
+
+                  {/* Resultado de prueba */}
+                  {testResult && (
+                    <section className={styles.creditsMainCard} style={{ marginTop: '1rem' }}>
+                      <div className={styles.creditsMainHeader}>
+                        <div className={styles.creditsMainIcon}>
+                          {testResult.ok ? <Check size={20} /> : <X size={20} />}
+                        </div>
+                        <h3 className={styles.creditsMainTitle}>
+                          {testResult.ok ? 'Conexión exitosa' : 'Conexión fallida'}
+                        </h3>
+                      </div>
+                      <p style={{ fontSize: '0.85rem' }}>
+                        {testResult.ok
+                          ? `✅ ${testResult.model} respondió en ${testResult.latencyMs}ms`
+                          : `❌ ${testResult.error || 'Error desconocido'}`}
+                      </p>
+                    </section>
+                  )}
+                </>
+              )}
+            </div>
+          ) : (
+            <div className={styles.guestMessage}>
+              <AlertTriangle size={32} />
+              <h3>Funcionalidad restringida</h3>
+              <p>Inicia sesión para configurar tu IA.</p>
             </div>
           )}
 

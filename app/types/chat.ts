@@ -83,11 +83,19 @@ export interface UploadImageResponse {
 }
 
 export interface StreamChunk {
-  type: "credits" | "chunk" | "done" | "tool";
+  type: "credits" | "chunk" | "done" | "tool" | "action" | "error";
   content?: string;
   remaining?: number;
   total?: number;
   messageId?: number;
   chatId?: number;
   toolName?: string;
+  status?: "start" | "done" | "error";
+  resultSummary?: string;
+  kind?: "exam_created" | "flashcards_created" | "notes_created";
+  id?: number;
+  title?: string;
+  url?: string;
+  modelUsed?: string;
+  provider?: string;
 }

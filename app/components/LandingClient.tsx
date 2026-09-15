@@ -289,13 +289,6 @@ export const LandingClient: React.FC = () => {
           <div className={styles.heroContent}>
             <div className={styles.heroText}>
               <div className={styles.heroTextInner}>
-                <div
-                  className={styles.heroTag}
-                  role="complementary"
-                  aria-label="Tag promocional"
-                >
-                  🚀 La red social del aprendizaje activo
-                </div>
                 <h1 id="hero-title" className={styles.heroTitle}>
                   Pon a prueba tu <br />
                   <span className={styles.heroTitleGradient}>conocimiento</span>

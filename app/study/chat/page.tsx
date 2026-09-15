@@ -21,7 +21,9 @@ import type { ChatMessage, Chat } from "@/types";
 import { MarkdownRenderer } from "@/components/MarkdownRenderer";
 import { chatsService } from "@/services/chatsService";
 import { authService } from "@/services/authService";
+import { AgentActionCard } from "@/components/chat/AgentActionCard";
 import { SlashCommandModal } from "@/components/chat/SlashCommandModal";
+import { GlobalSearchModal } from "@/components/search/GlobalSearchModal";
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
 
@@ -85,6 +87,7 @@ export default function ChatPage() {
   const [slashPrompt, setSlashPrompt] = useState("");
   const [showSlashAutocomplete, setShowSlashAutocomplete] = useState(false);
   const [slashAutocompleteIdx, setSlashAutocompleteIdx] = useState(0);
+  const [actionCards, setActionCards] = useState<Array<{kind: string; title: string; id?: number}>>([]);
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
@@ -278,7 +281,10 @@ export default function ChatPage() {
         if (chunk.type === "credits") {
           setCreditsRemaining(chunk.remaining ?? null);
         } else if (chunk.type === "tool") {
-          setCurrentTool(extractToolName(chunk.content || null));
+          setCurrentTool(chunk.toolName || extractToolName(chunk.content || null));
+        } else if (chunk.type === "action") {
+          setActionCards((prev) => [...prev, { kind: chunk.kind || "", title: chunk.title || "", id: chunk.id }]);
+          setCurrentTool(null);
         } else if (chunk.type === "chunk") {
           setCurrentTool(null);
           fullContent += chunk.content || "";
@@ -766,6 +772,10 @@ export default function ChatPage() {
           aria-hidden="true"
         />
       )}
+      {actionCards.map((card, i) => (
+        <AgentActionCard key={i} kind={card.kind as any} title={card.title} id={card.id} />
+      ))}
+      <GlobalSearchModal />
     </div>
     </>
   );
