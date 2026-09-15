@@ -1,5 +1,4 @@
 import React from "react";
-import { TrendingUp } from "lucide-react";
 import styles from "./StatsHero.module.css";
 import { StatsHeroProps } from "@/types";
 
@@ -15,13 +14,8 @@ export const StatsHero: React.FC<StatsHeroProps> = ({
       {bestScore && totalAttempts && totalQuestions && avgCorrect &&
         < section className={styles.hero} >
           <div className={styles.header}>
-            <div className={styles.iconWrapper}>
-              <TrendingUp size={24} />
-            </div>
-            <div>
-              <h2 className={styles.title}>Estadísticas de Aprendizaje</h2>
-              <p className={styles.subtitle}>Has completado {totalAttempts} desafíos</p>
-            </div>
+            <h2 className={styles.title}>Rendimiento</h2>
+            <p className={styles.subtitle}>{totalAttempts} desafíos completados</p>
           </div>
           <div className={styles.grid}>
             <div className={styles.statBox}>

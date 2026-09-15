@@ -4,22 +4,45 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import {
-  User,
-  Mail,
   LogOut,
-  Info,
-  Shield,
-  FileText,
-  Loader2,
-  Zap,
+  ChevronRight,
+  Coins,
   TrendingUp,
   Sparkles,
-  ArrowRight,
+  Layers,
+  BadgeCheck,
 } from "lucide-react";
 import { toast } from "@/hooks/useLocalToast";
-import styles from "@/styles/espacio/general.module.css";
+import ui from "@/styles/espacio/ui.module.css";
 import { authService } from "@/services/authService";
 import { ThemeToggleSidebr } from "@/components/ThemeToogleSidebr";
+
+const NAV_ROWS = [
+  {
+    label: "Mis créditos",
+    help: "Balance, uso y costos",
+    icon: Coins,
+    href: "/study/espacio/creditos",
+  },
+  {
+    label: "Mi IA",
+    help: "Proveedor del chat y del agente",
+    icon: Sparkles,
+    href: "/study/espacio/ia",
+  },
+  {
+    label: "Mi rendimiento",
+    help: "Estadísticas de estudio",
+    icon: TrendingUp,
+    href: "/study/espacio/rendimiento",
+  },
+  {
+    label: "Mis funciones",
+    help: "Flashcards, notas y quizzes",
+    icon: Layers,
+    href: "/study/espacio/funciones/flashcards",
+  },
+];
 
 export default function GeneralPage() {
   const router = useRouter();
@@ -43,15 +66,16 @@ export default function GeneralPage() {
       toast.success("Sesión cerrada", "Has cerrado sesión exitosamente");
       router.push("/auth");
     } catch {
-      toast.error("Error", "No se pudo cerrar la sesión");
+      toast.error("Error", "No se pudo cerrar la sesión.");
     }
   }, [router]);
 
   if (loading) {
     return (
-      <div className={styles.loadingState}>
-        <Loader2 className={styles.spinner} size={32} />
-        <p>Cargando...</p>
+      <div className={ui.page}>
+        <div className={ui.stateBox}>
+          <p>Cargando…</p>
+        </div>
       </div>
     );
   }
@@ -59,179 +83,154 @@ export default function GeneralPage() {
   const initial = user?.name?.[0]?.toUpperCase() || "U";
   const isGuest = user?.isGuest === true;
 
-  const quickActions = [
-    {
-      title: "Mis Créditos",
-      description: "Gestiona tu balance",
-      icon: Zap,
-      href: "/study/espacio/creditos",
-      color: "from-yellow-500 to-orange-500",
-    },
-    {
-      title: "Mi Rendimiento",
-      description: "Estadísticas de estudio",
-      icon: TrendingUp,
-      href: "/study/espacio/rendimiento",
-      color: "from-green-500 to-emerald-500",
-    },
-    {
-      title: "Mis Funciones",
-      description: "Flashcards, Notas, Quizzes",
-      icon: Sparkles,
-      href: "/study/espacio/funciones/flashcards",
-      color: "from-purple-500 to-pink-500",
-    },
-  ];
-
   return (
-    <div className={styles.container}>
-      {/* Profile Header */}
-      <header className={styles.profileHeader}>
-        <div className={styles.profileInfo}>
-          <div className={styles.profileAvatar}>
-            {user?.picture ? (
-              <Image
-                src={user.picture}
-                alt=""
-                className={styles.userAvatar}
-                width={64}
-                height={64}
-                unoptimized
-              />
-            ) : (
-              <div className={styles.userAvatarPlaceholder}>{initial}</div>
-            )}
-            {!isGuest && <div className={styles.verifiedBadge}>✓</div>}
-          </div>
-          <div className={styles.profileDetails}>
-            <h1 className={styles.profileName}>{user?.name || "Usuario"}</h1>
-            <p className={styles.profileEmail}>{user?.email || "Sin correo"}</p>
-            {isGuest && (
-              <div className={styles.guestBadge}>
-                <Info size={14} />
-                <span>Modo Invitado</span>
-              </div>
-            )}
-          </div>
-        </div>
+    <div className={ui.page}>
+      <header className={ui.pageHeader}>
+        <h1 className={ui.pageTitle}>Mi espacio</h1>
+        <p className={ui.pageDesc}>Tu cuenta y tus ajustes en un solo lugar.</p>
       </header>
 
-      {/* Quick Actions */}
-      <section className={styles.quickActions}>
-        <h2 className={styles.sectionTitle}>Acciones Rápidas</h2>
-        <div className={styles.actionsGrid}>
-          {quickActions.map((action) => {
-            const Icon = action.icon;
+      <section className={ui.section} aria-label="Perfil">
+        <div className={ui.panel}>
+          <div className={ui.row}>
+            <div className={ui.profileRow}>
+              <div className={ui.avatar} aria-hidden="true">
+                {user?.picture ? (
+                  <Image
+                    src={user.picture}
+                    alt=""
+                    width={40}
+                    height={40}
+                    unoptimized
+                  />
+                ) : (
+                  initial
+                )}
+              </div>
+              <div>
+                <p className={ui.profileName}>
+                  {user?.name || "Usuario"}{" "}
+                  {!isGuest && (
+                    <BadgeCheck
+                      size={15}
+                      style={{
+                        display: "inline",
+                        verticalAlign: "-2px",
+                        color: "hsl(var(--primary))",
+                      }}
+                      aria-label="Cuenta verificada"
+                    />
+                  )}
+                </p>
+                <p className={ui.profileMail}>
+                  {user?.email || "Sin correo"}
+                </p>
+              </div>
+            </div>
+            <div className={ui.rowControl}>
+              {isGuest && (
+                <span className={`${ui.pill} ${ui.pillNeutral}`}>
+                  <span className={ui.pillDot} />
+                  Invitado
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className={ui.section} aria-labelledby="esp-nav-title">
+        <div className={ui.sectionHead}>
+          <h2 className={ui.sectionTitle} id="esp-nav-title">
+            Secciones
+          </h2>
+        </div>
+        <nav className={ui.panel} aria-label="Secciones de Mi espacio">
+          {NAV_ROWS.map((item) => {
+            const Icon = item.icon;
             return (
               <button
-                key={action.href}
-                className={`${styles.actionCard} ${styles[`actionCard${action.color.replace(/\s/g, "")}`]}`}
-                onClick={() => router.push(action.href)}
+                key={item.href}
                 type="button"
+                className={ui.rowLink}
+                onClick={() => router.push(item.href)}
               >
-                <div
-                  className={`${styles.actionIcon} ${styles[`actionIcon${action.color.replace(/\s/g, "")}`]}`}
-                >
-                  <Icon size={24} />
+                <div className={ui.rowText}>
+                  <span className={ui.rowLabel}>{item.label}</span>
+                  <span className={ui.rowHelp}>{item.help}</span>
                 </div>
-                <div className={styles.actionInfo}>
-                  <h3 className={styles.actionTitle}>{action.title}</h3>
-                  <p className={styles.actionDescription}>
-                    {action.description}
-                  </p>
+                <div className={ui.rowControl}>
+                  <Icon
+                    size={16}
+                    style={{ color: "hsl(var(--muted-foreground))" }}
+                    aria-hidden="true"
+                  />
+                  <ChevronRight
+                    size={16}
+                    className={ui.rowChevron}
+                    aria-hidden="true"
+                  />
                 </div>
-                <ArrowRight size={18} className={styles.actionArrow} />
               </button>
             );
           })}
-        </div>
+        </nav>
       </section>
 
-      {/* Account Info */}
-      <section className={styles.accountSection}>
-        <h2 className={styles.sectionTitle}>Cuenta</h2>
-        <div className={styles.infoCard}>
-          <div className={styles.infoItem}>
-            <div className={styles.infoIconWrapper}>
-              <User size={18} />
-            </div>
-            <div className={styles.infoContent}>
-              <span className={styles.infoLabel}>Nombre</span>
-              <span className={styles.infoValue}>
-                {user?.name || "Sin nombre"}
-              </span>
-            </div>
-          </div>
-          <div className={styles.infoDivider} />
-          <div className={styles.infoItem}>
-            <div className={styles.infoIconWrapper}>
-              <Mail size={18} />
-            </div>
-            <div className={styles.infoContent}>
-              <span className={styles.infoLabel}>Correo Electrónico</span>
-              <span className={styles.infoValue}>
-                {user?.email || "Sin correo"}
-              </span>
-            </div>
-          </div>
+      <section className={ui.section} aria-labelledby="esp-legal-title">
+        <div className={ui.sectionHead}>
+          <h2 className={ui.sectionTitle} id="esp-legal-title">
+            Legal
+          </h2>
         </div>
-      </section>
-
-      {/* Legal & About */}
-      <section className={styles.legalSection}>
-        <h2 className={styles.sectionTitle}>Legal</h2>
-        <div className={styles.legalGrid}>
+        <div className={ui.panel}>
           <a
             href="/privacy.html"
-            className={styles.legalCard}
+            className={ui.rowLink}
             target="_blank"
             rel="noopener noreferrer"
           >
-            <div className={styles.legalIcon}>
-              <Shield size={20} />
+            <div className={ui.rowText}>
+              <span className={ui.rowLabel}>Política de privacidad</span>
+              <span className={ui.rowHelp}>Cómo protegemos tus datos</span>
             </div>
-            <div className={styles.legalInfo}>
-              <h3>Política de Privacidad</h3>
-              <p>Cómo protegemos tus datos</p>
-            </div>
+            <ChevronRight
+              size={16}
+              className={ui.rowChevron}
+              aria-hidden="true"
+            />
           </a>
           <a
             href="/terms.html"
-            className={styles.legalCard}
+            className={ui.rowLink}
             target="_blank"
             rel="noopener noreferrer"
           >
-            <div className={styles.legalIcon}>
-              <FileText size={20} />
+            <div className={ui.rowText}>
+              <span className={ui.rowLabel}>Términos de uso</span>
+              <span className={ui.rowHelp}>Reglas del servicio</span>
             </div>
-            <div className={styles.legalInfo}>
-              <h3>Términos de Uso</h3>
-              <p>Reglas del servicio</p>
-            </div>
+            <ChevronRight
+              size={16}
+              className={ui.rowChevron}
+              aria-hidden="true"
+            />
           </a>
-        </div>
-      </section>
-
-      {/* About */}
-      <section className={styles.aboutSection}>
-        <div className={styles.aboutCard}>
-          <Info size={20} className={styles.aboutIcon} />
-          <div className={styles.aboutInfo}>
-            <h3>LearnYos</h3>
-            <p className={styles.version}>Versión 1.0.0</p>
+          <div className={ui.row}>
+            <div className={ui.rowText}>
+              <span className={ui.rowLabel}>LearnYos</span>
+              <span className={ui.rowHelp}>Versión 1.0.0</span>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Logout Button */}
-      <button
-        className={styles.logoutButton}
-        onClick={handleLogout}
-        type="button"
-      >
-        <LogOut size={18} />
-        <span>Cerrar Sesión</span>
-      </button>
+      <div className={ui.btnRow}>
+        <button className={ui.btnDanger} onClick={handleLogout} type="button">
+          <LogOut size={16} />
+          Cerrar sesión
+        </button>
+      </div>
       <ThemeToggleSidebr isCollapse={false} />
     </div>
   );

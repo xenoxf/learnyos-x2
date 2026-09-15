@@ -1,20 +1,10 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
-import {
-  Sparkles,
-  Wifi,
-  Zap,
-  Check,
-  X,
-  AlertTriangle,
-  RefreshCw,
-  LogIn,
-  Info,
-} from "lucide-react";
+import { Wifi, Check, X, AlertTriangle, RefreshCw, LogIn, Info } from "lucide-react";
 import Link from "next/link";
 import { toast } from "@/hooks/useLocalToast";
-import styles from "@/styles/espacio/ia.module.css";
+import ui from "@/styles/espacio/ui.module.css";
 import { aiService } from "@/services/aiService";
 import { authService } from "@/services/authService";
 
@@ -27,24 +17,28 @@ interface AiProvider {
   defaultModel: string;
 }
 
-const pickUsableProvider = (provs: AiProvider[], preferred?: string): string => {
+const PROVIDER_META: Record<string, { name: string; model: string }> = {
+  groq: { name: "Groq", model: "GPT-OSS 20B" },
+  gemini: { name: "Gemini", model: "Flash Lite" },
+};
+
+function pickUsableProvider(provs: AiProvider[], preferred?: string): string {
   const known = preferred === "groq" || preferred === "gemini" ? preferred : "groq";
   const usable = (id: string) =>
     provs.length === 0 ||
     provs.find((p) => p.id === id)?.available !== false;
   if (usable(known)) return known;
-  // El guardado no tiene keys: mostrar el primero disponible (el backend
-  // igual hace fallback solo, esto es solo para la UI)
   return provs.find((p) => p.available)?.id || known;
-};
+}
 
 export default function EspacioIaPage() {
   const [providers, setProviders] = useState<AiProvider[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState(false);
   const [isGuest, setIsGuest] = useState(false);
-  const [selectedProvider, setSelectedProvider] = useState("groq");
-  const [testResult, setTestResult] = useState<{
+  const [selected, setSelected] = useState("groq");
+  const [dirty, setDirty] = useState(false);
+  const [test, setTest] = useState<{
     ok: boolean;
     model?: string;
     latencyMs?: number;
@@ -54,9 +48,7 @@ export default function EspacioIaPage() {
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      setIsGuest(authService.isGuest());
-    }
+    if (typeof window !== "undefined") setIsGuest(authService.isGuest());
   }, []);
 
   const load = useCallback(async () => {
@@ -68,7 +60,9 @@ export default function EspacioIaPage() {
         aiService.getConfig().catch(() => null),
       ]);
       setProviders(provs);
-      setSelectedProvider(pickUsableProvider(provs, cfg?.provider));
+      setSelected(pickUsableProvider(provs, cfg?.provider));
+      setDirty(false);
+      setTest(null);
     } catch {
       setLoadError(true);
     } finally {
@@ -81,65 +75,58 @@ export default function EspacioIaPage() {
     else setLoading(false);
   }, [isGuest, load]);
 
+  const choose = (id: string) => {
+    setSelected(id);
+    setDirty(true);
+    setTest(null);
+  };
+
   const handleSave = useCallback(async () => {
     try {
       setSaving(true);
       await aiService.updateConfig({
-        provider: selectedProvider,
+        provider: selected,
         mode: "ahorro",
         fallbackEnabled: true,
       });
-      toast.success("Guardado", "Configuración de IA actualizada");
+      setDirty(false);
+      toast.success("Guardado", "Proveedor actualizado");
     } catch {
-      toast.error("Error", "No se pudo guardar la configuración");
+      toast.error("Error", "No se pudo guardar");
     } finally {
       setSaving(false);
     }
-  }, [selectedProvider]);
+  }, [selected]);
 
   const handleTest = useCallback(async () => {
     try {
       setTesting(true);
-      setTestResult(null);
+      setTest(null);
       const res = await aiService.testConnection({
-        provider: selectedProvider,
+        provider: selected,
         model:
-          selectedProvider === "gemini"
+          selected === "gemini"
             ? "gemini-2.5-flash-lite"
             : "openai/gpt-oss-20b",
       });
-      setTestResult(res);
-      if (res.ok) {
-        toast.success("Conexión", `${res.model} responde correctamente`);
-      } else {
-        toast.error("Error", res.error || "Conexión fallida");
-      }
+      setTest(res);
     } catch {
-      toast.error("Error", "Error al probar conexión");
+      setTest({ ok: false, error: "No se pudo completar la prueba" });
     } finally {
       setTesting(false);
     }
-  }, [selectedProvider]);
+  }, [selected]);
 
   if (isGuest) {
     return (
-      <div className={styles.guestMessage}>
-        <AlertTriangle size={48} />
-        <h3>Función Premium</h3>
-        <p>Para configurar tu IA necesitas una cuenta registrada.</p>
-        <p style={{ fontSize: "0.85rem", opacity: 0.8 }}>
-          Regístrate y recibe créditos gratis cada día.
-        </p>
-        <div style={{ display: "flex", gap: "0.75rem", marginTop: "0.5rem" }}>
-          <Link href="/auth" className={styles.retryButton}>
+      <div className={ui.page}>
+        <div className={ui.stateBox}>
+          <AlertTriangle size={28} className={ui.stateIconDanger} />
+          <h3>Inicia sesión para configurar tu IA</h3>
+          <p>El proveedor de IA es una opción de tu cuenta.</p>
+          <Link href="/auth" className={ui.btnPrimary}>
             <LogIn size={16} />
-            <span>Iniciar Sesión</span>
-          </Link>
-          <Link
-            href="/study/flashcards"
-            className={`${styles.retryButton} ${styles.secondaryButton}`}
-          >
-            <span>Explorar público</span>
+            Iniciar sesión
           </Link>
         </div>
       </div>
@@ -148,33 +135,34 @@ export default function EspacioIaPage() {
 
   if (loading) {
     return (
-      <>
-        <header className={styles.espacioPageHeader}>
-          <h1 className={styles.espacioPageTitle}>Mi IA</h1>
+      <div className={ui.page}>
+        <header className={ui.pageHeader}>
+          <h1 className={ui.pageTitle}>Mi IA</h1>
         </header>
-        <div className={styles.loadingState}>
-          <RefreshCw size={24} className={styles.spinner} />
-          <p>Cargando proveedores...</p>
+        <div className={ui.stateBox}>
+          <RefreshCw size={20} className={ui.spinner} />
+          <p>Cargando proveedores…</p>
         </div>
-      </>
+      </div>
     );
   }
 
   if (loadError) {
     return (
-      <>
-        <header className={styles.espacioPageHeader}>
-          <h1 className={styles.espacioPageTitle}>Mi IA</h1>
+      <div className={ui.page}>
+        <header className={ui.pageHeader}>
+          <h1 className={ui.pageTitle}>Mi IA</h1>
         </header>
-        <div className={styles.errorState}>
-          <AlertTriangle size={32} />
-          <p>No se pudieron cargar los proveedores</p>
-          <button className={styles.retryButton} onClick={load} type="button">
+        <div className={ui.stateBox}>
+          <AlertTriangle size={28} className={ui.stateIconDanger} />
+          <h3>No se pudo cargar</h3>
+          <p>Revisa que el backend esté en línea e inténtalo de nuevo.</p>
+          <button className={ui.btnSecondary} onClick={load} type="button">
             <RefreshCw size={16} />
-            <span>Reintentar</span>
+            Reintentar
           </button>
         </div>
-      </>
+      </div>
     );
   }
 
@@ -182,111 +170,165 @@ export default function EspacioIaPage() {
     providers.length > 0 && providers.every((p) => p.available === false);
 
   return (
-    <>
-      <header className={styles.espacioPageHeader}>
-        <h1 className={styles.espacioPageTitle}>Mi IA</h1>
+    <div className={ui.page}>
+      <header className={ui.pageHeader}>
+        <h1 className={ui.pageTitle}>Mi IA</h1>
+        <p className={ui.pageDesc}>
+          Qué modelo responde en el chat y genera tu contenido. Siempre en
+          modo ahorro.
+        </p>
       </header>
 
-      <div className={styles.tabContent}>
-        <section className={styles.iaHero}>
-          <Sparkles size={32} />
-          <h2>Configuración de IA</h2>
-          <p>
-            Siempre modo ahorro activo. Si un proveedor no tiene key o falla,
-            se usa el otro automáticamente.
+      <section className={ui.section} aria-labelledby="ia-prov-title">
+        <div className={ui.sectionHead}>
+          <h2 className={ui.sectionTitle} id="ia-prov-title">
+            Proveedor
+          </h2>
+          <p className={ui.sectionHelp}>
+            Si el elegido no tiene clave o falla, se usa el otro sin que
+            tengas que hacer nada.
           </p>
-        </section>
-
-        <section className={styles.iaCard}>
-          <h3>
-            <Wifi size={20} />
-            Proveedor de IA
-          </h3>
-          {noneAvailable && (
-            <p className={styles.iaWarning}>
-              ⚠️ Ningún proveedor tiene API key en el backend. El chat y el
-              agente no pueden responder hasta configurarla.
-            </p>
-          )}
-          <div className={styles.iaGrid}>
-            {providers.map((p) => (
-              <button
-                key={p.id}
-                type="button"
-                onClick={() => setSelectedProvider(p.id)}
-                className={`${styles.iaProvider} ${selectedProvider === p.id ? styles.iaProviderSelected : ""}`}
-                aria-pressed={selectedProvider === p.id}
-              >
-                <span className={styles.iaProviderName}>
-                  {p.id === "groq" ? "🦎 Groq" : "🟢 Gemini"}
-                </span>
-                <span className={styles.iaProviderModels}>
-                  {(p.models || []).map((m) => m.label).join(" · ")}
-                </span>
-                <span
-                  className={`${styles.iaBadge} ${p.available === false ? styles.iaBadgeMissing : styles.iaBadgeOk}`}
-                >
-                  {p.available === false ? "sin API key" : "listo"}
-                </span>
-              </button>
-            ))}
-          </div>
-        </section>
-
-        <section className={styles.iaCard}>
-          <h3>
-            <Zap size={20} />
-            Modo de ahorro
-          </h3>
-          <p className={styles.iaNote}>
-            Siempre activo. Usa los modelos más rápidos y baratos (GPT-OSS 20B
-            en Groq, Flash Lite en Gemini).
-          </p>
-          <span className={styles.iaAhorroPill}>
-            <Check size={16} />
-            Ahorro siempre activo
-          </span>
-        </section>
-
-        <div className={styles.iaActions}>
-          <button
-            className={styles.retryButton}
-            onClick={handleSave}
-            disabled={saving}
-            type="button"
-          >
-            {saving ? "Guardando..." : "Guardar"}
-          </button>
-          <button
-            className={`${styles.retryButton} ${styles.secondaryButton}`}
-            onClick={handleTest}
-            disabled={testing}
-            type="button"
-          >
-            <Wifi size={16} />
-            <span>{testing ? "Probando..." : "Probar conexión"}</span>
-          </button>
         </div>
-
-        {testResult && (
-          <section className={styles.iaCard}>
-            <h3>
-              {testResult.ok ? <Check size={20} /> : <X size={20} />}
-              {testResult.ok ? "Conexión exitosa" : "Conexión fallida"}
-            </h3>
-            <div
-              className={`${styles.iaResult} ${testResult.ok ? styles.iaResultOk : styles.iaResultFail}`}
-            >
-              <Info size={16} style={{ flexShrink: 0, marginTop: 2 }} />
-              <p>
-                {testResult.ok
-                  ? `✅ ${testResult.model} respondió en ${testResult.latencyMs}ms`
-                  : `❌ ${testResult.error || "Error desconocido"}`}
-              </p>
+        <div className={ui.panel}>
+          <div className={ui.row}>
+            <div className={ui.rowText}>
+              <span className={ui.rowLabel}>Modelo activo</span>
+              <span className={ui.rowHelp}>
+                Chat, agente, títulos y generación de contenido.
+              </span>
             </div>
-          </section>
-        )}
+            <div className={ui.rowControl}>
+              <div
+                className={ui.segmented}
+                role="group"
+                aria-label="Proveedor de IA"
+              >
+                {providers.map((p) => {
+                  const meta = PROVIDER_META[p.id] ?? {
+                    name: p.label,
+                    model: "",
+                  };
+                  const active = selected === p.id;
+                  return (
+                    <button
+                      key={p.id}
+                      type="button"
+                      className={ui.segment}
+                      aria-pressed={active}
+                      onClick={() => choose(p.id)}
+                    >
+                      <span
+                        className={ui.pillDot}
+                        style={{
+                          background: p.available
+                            ? "hsl(142 60% 40%)"
+                            : "hsl(38 90% 48%)",
+                        }}
+                        aria-hidden="true"
+                      />
+                      <span>
+                        <span className={ui.segmentName}>{meta.name}</span>
+                        {meta.model && (
+                          <>
+                            {" · "}
+                            <span className={ui.segmentSub}>{meta.model}</span>
+                          </>
+                        )}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+          <div className={ui.row}>
+            <div className={ui.rowText}>
+              <span className={ui.rowLabel}>Estado</span>
+              <span className={ui.rowHelp}>
+                {noneAvailable
+                  ? "Ningún proveedor tiene clave en el backend."
+                  : "Disponibilidad según las claves del backend."}
+              </span>
+            </div>
+            <div className={ui.rowControl}>
+              {noneAvailable ? (
+                <span className={`${ui.pill} ${ui.pillWarn}`}>
+                  <span className={ui.pillDot} />
+                  Sin claves
+                </span>
+              ) : (
+                <span className={`${ui.pill} ${ui.pillOk}`}>
+                  <span className={ui.pillDot} />
+                  Operativo
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className={ui.section} aria-labelledby="ia-mode-title">
+        <div className={ui.sectionHead}>
+          <h2 className={ui.sectionTitle} id="ia-mode-title">
+            Consumo
+          </h2>
+        </div>
+        <div className={ui.panel}>
+          <div className={ui.row}>
+            <div className={ui.rowText}>
+              <span className={ui.rowLabel}>Modo ahorro</span>
+              <span className={ui.rowHelp}>
+                Modelos baratos y rápidos. No se puede desactivar.
+              </span>
+            </div>
+            <div className={ui.rowControl}>
+              <span className={`${ui.pill} ${ui.pillNeutral}`}>
+                <span className={ui.pillDot} />
+                Siempre activo
+              </span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div className={ui.btnRow}>
+        <button
+          className={ui.btnPrimary}
+          onClick={handleSave}
+          disabled={saving || !dirty}
+          type="button"
+        >
+          {saving ? "Guardando…" : "Guardar cambios"}
+        </button>
+        <button
+          className={ui.btnSecondary}
+          onClick={handleTest}
+          disabled={testing}
+          type="button"
+        >
+          <Wifi size={16} />
+          {testing ? "Probando…" : "Probar conexión"}
+        </button>
       </div>
-    </>
+
+      {test && (
+        <p className={ui.note} role="status">
+          {test.ok ? (
+            <Check size={15} style={{ color: "hsl(142 60% 40%)" }} />
+          ) : (
+            <X size={15} style={{ color: "hsl(var(--destructive))" }} />
+          )}
+          {test.ok
+            ? `${PROVIDER_META[selected]?.name ?? selected} responde (${test.latencyMs} ms).`
+            : (test.error ?? "La prueba falló.")}
+        </p>
+      )}
+
+      <p className={ui.note}>
+        <Info size={15} />
+        Lo que el agente crea (exámenes, flashcards, notas) se guarda en tu
+        biblioteca aunque cambies de proveedor después.
+      </p>
+    </div>
   );
 }

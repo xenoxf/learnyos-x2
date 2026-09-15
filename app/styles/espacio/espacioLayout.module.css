@@ -124,6 +124,16 @@
   color: hsl(var(--foreground));
 }
 
+.navItem:focus-visible,
+.navGroupHeader:focus-visible,
+.navGroupChild:focus-visible,
+.espacioSidebarToggle:focus-visible,
+.mobileMenuBtn:focus-visible,
+.sidebarCloseBtn:focus-visible {
+  outline: 2px solid hsl(var(--primary));
+  outline-offset: 2px;
+}
+
 .navItemActive {
   background: hsl(var(--primary) / 0.12);
   color: hsl(var(--primary));

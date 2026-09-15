@@ -1,29 +1,47 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
-import {
-  Coins,
-  Sparkles,
-  TrendingUp,
-  Zap,
-  BookOpen,
-  FileText,
-  CreditCard,
-  MessageSquare,
-  AlertTriangle,
-  RefreshCw,
-  LogIn,
-  BarChart3,
-  Info,
-  Clock,
-  Upload,
-} from "lucide-react";
+import { AlertTriangle, RefreshCw, LogIn, Info } from "lucide-react";
 import { toast } from "@/hooks/useLocalToast";
-import styles from "@/styles/espacio/creditos.module.css";
+import ui from "@/styles/espacio/ui.module.css";
 import { CreditsStatus } from "@/types";
 import { creditsService } from "@/services/creditsService";
 import { authService } from "@/services/authService";
 import Link from "next/link";
+
+const USAGE_ROWS = [
+  { key: "examGenerations", label: "Quizzes generados" },
+  { key: "noteGenerations", label: "Notas generadas" },
+  { key: "flashcardGenerations", label: "Flashcards generadas" },
+  { key: "chatMessages", label: "Mensajes de chat" },
+] as const;
+
+const COST_ROWS: Array<{
+  label: string;
+  help: string;
+  value: (c: CreditsStatus) => string;
+}> = [
+  {
+    label: "Generar quiz",
+    help: "+0,5 por pregunta · ×1,0 / ×1,3 / ×1,7 según dificultad",
+    value: (c) => `desde ${c.costs.EXAM_GENERATION}`,
+  },
+  {
+    label: "Generar notas",
+    help: "×1,0 breve · ×1,4 medio · ×1,9 detallado",
+    value: (c) => `desde ${c.costs.NOTE_GENERATION}`,
+  },
+  {
+    label: "Generar flashcards",
+    help: "+0,4 por tarjeta",
+    value: (c) => `desde ${c.costs.FLASHCARD_GENERATION}`,
+  },
+  {
+    label: "Mensaje de chat",
+    help: "Costo fijo por mensaje enviado",
+    value: (c) => `${c.costs.CHAT_MESSAGE} crédito`,
+  },
+];
 
 export default function EspacioCreditosContent() {
   const [credits, setCredits] = useState<CreditsStatus | null>(null);
@@ -55,220 +73,167 @@ export default function EspacioCreditosContent() {
 
   if (isGuest) {
     return (
-      <div className={styles.guestMessage}>
-        <AlertTriangle size={48} />
-        <h3>Función Premium</h3>
-        <p>
-          Para gestionar tus créditos necesitas una cuenta registrada.
-        </p>
-        <p style={{ fontSize: "0.85rem", opacity: 0.8 }}>
-          Regístrate y recibe créditos gratis cada día.
-        </p>
-        <div style={{ display: "flex", gap: "0.75rem", marginTop: "0.5rem" }}>
-          <Link
-            href="/auth"
-            className={styles.retryButton}
-            onClick={() => setLoading(true)}
-          >
-            <LogIn size={16} />
-            <span>Iniciar Sesión</span>
-          </Link>
-          <Link
-            href="/study/flashcards"
-            className={`${styles.retryButton} ${styles.secondaryButton}`}
-            onClick={() => setLoading(true)}
-          >
-            <span>Explorar público</span>
-          </Link>
+      <div className={ui.page}>
+        <div className={ui.stateBox}>
+          <AlertTriangle size={28} className={ui.stateIconDanger} />
+          <h3>Los créditos son de tu cuenta</h3>
+          <p>Regístrate y recibe créditos gratis cada día.</p>
+          <div className={ui.btnRow} style={{ justifyContent: "center" }}>
+            <Link href="/auth" className={ui.btnPrimary}>
+              <LogIn size={16} />
+              Iniciar sesión
+            </Link>
+            <Link href="/study/flashcards" className={ui.btnSecondary}>
+              Explorar público
+            </Link>
+          </div>
         </div>
       </div>
     );
   }
 
-  if (loading) {
+  if (loading || !credits) {
     return (
-      <>
-        <header className={styles.espacioPageHeader}>
-          <h1 className={styles.espacioPageTitle}>Mis Créditos</h1>
+      <div className={ui.page}>
+        <header className={ui.pageHeader}>
+          <h1 className={ui.pageTitle}>Mis créditos</h1>
         </header>
-        <div className={styles.loadingState}>
-          <RefreshCw size={24} className={styles.spinner} />
-          <p>Cargando...</p>
-        </div>
-      </>
+        {loading ? (
+          <div className={ui.stateBox}>
+            <RefreshCw size={20} className={ui.spinner} />
+            <p>Cargando…</p>
+          </div>
+        ) : (
+          <div className={ui.stateBox}>
+            <AlertTriangle size={28} className={ui.stateIconDanger} />
+            <h3>No se pudo cargar</h3>
+            <p>Inténtalo de nuevo en un momento.</p>
+            <button className={ui.btnSecondary} onClick={loadCredits} type="button">
+              <RefreshCw size={16} />
+              Reintentar
+            </button>
+          </div>
+        )}
+      </div>
     );
   }
 
-  if (!credits) {
-    return (
-      <>
-        <header className={styles.espacioPageHeader}>
-          <h1 className={styles.espacioPageTitle}>Mis Créditos</h1>
-        </header>
-        <div className={styles.errorState}>
-          <AlertTriangle size={32} />
-          <p>No se pudieron cargar los créditos</p>
-          <button
-            className={styles.retryButton}
-            onClick={loadCredits}
-            type="button"
-          >
-            <RefreshCw size={16} />
-            <span>Reintentar</span>
-          </button>
-        </div>
-      </>
-    );
-  }
-
-  const breakdownItems = [
-    { key: 'examGenerations' as const, label: 'Quizzes generados', icon: BookOpen, color: 'hsl(var(--primary))' },
-    { key: 'noteGenerations' as const, label: 'Notas generadas', icon: FileText, color: 'hsl(142, 76%, 36%)' },
-    { key: 'flashcardGenerations' as const, label: 'Flashcards generados', icon: CreditCard, color: 'hsl(271, 76%, 53%)' },
-    { key: 'chatMessages' as const, label: 'Mensajes de chat', icon: MessageSquare, color: 'hsl(199, 89%, 48%)' },
-  ] as const;
+  const maxUse = Math.max(
+    ...USAGE_ROWS.map((r) => credits.breakdown[r.key]),
+    1,
+  );
 
   return (
-    <>
-      <header className={styles.espacioPageHeader}>
-        <h1 className={styles.espacioPageTitle}>Mis Créditos</h1>
+    <div className={ui.page}>
+      <header className={ui.pageHeader}>
+        <h1 className={ui.pageTitle}>Mis créditos</h1>
+        <p className={ui.pageDesc}>
+          Gratuitos y se renuevan cada día a medianoche. No se acumulan.
+        </p>
       </header>
 
-      <div className={styles.tabContent}>
-        <section className={styles.creditsHero}>
-          <Sparkles size={32} />
-          <h2>Tus Créditos Diarios</h2>
-          <p>Se renuevan automáticamente cada día a medianoche</p>
-        </section>
-
-        <section className={styles.creditsMainCard}>
-          <div className={styles.creditsMainHeader}>
-            <Coins size={28} />
-            <div>
-              <span className={styles.creditsMainLabel}>Disponibles</span>
-              <div className={styles.creditsMainNumbers}>
-                <span className={styles.creditsRemaining}>
-                  {credits.remaining}
+      <section className={ui.section} aria-labelledby="cr-bal-title">
+        <div className={ui.sectionHead}>
+          <h2 className={ui.sectionTitle} id="cr-bal-title">
+            Balance de hoy
+          </h2>
+        </div>
+        <div className={ui.panel}>
+          <div className={ui.row}>
+            <div className={ui.statRow}>
+              <div className={ui.stat}>
+                <span className={ui.statValue}>{credits.remaining}</span>
+                <span className={ui.statLabel}>
+                  disponibles de {credits.total}
                 </span>
-                <span className={styles.creditsSeparator}>/</span>
-                <span className={styles.creditsTotal}>{credits.total}</span>
+              </div>
+              <div className={ui.stat}>
+                <span className={ui.statValue}>{credits.percentageUsed}%</span>
+                <span className={ui.statLabel}>usado hoy</span>
               </div>
             </div>
           </div>
-          <div className={styles.creditsProgressBar}>
-            <div
-              className={styles.creditsProgressFill}
-              style={{ width: `${Math.min(credits.percentageUsed, 100)}%` }}
-            />
+          <div className={ui.row}>
+            <div style={{ flex: 1 }}>
+              <div className={ui.meter}>
+                <div
+                  className={ui.meterFill}
+                  style={{
+                    width: `${Math.min(credits.percentageUsed, 100)}%`,
+                  }}
+                />
+              </div>
+            </div>
           </div>
-          <div className={styles.creditsPercentage}>
-            <TrendingUp size={16} />
-            <span>{credits.percentageUsed}% usado hoy</span>
-          </div>
-        </section>
+        </div>
+      </section>
 
-        <section className={styles.usageCard}>
-          <h3>
-            <BarChart3 size={18} /> Uso de Hoy
-          </h3>
-          <div className={styles.usageGrid}>
-            {breakdownItems.map(({ key, label, icon: Icon, color }) => {
-              const count = credits.breakdown[key];
-              const maxBar = Math.max(
-                ...breakdownItems.map((i) => credits.breakdown[i.key]),
-                1,
-              );
-              const pct = (count / maxBar) * 100;
-              return (
-                <div key={key} className={styles.usageItem}>
-                  <div className={styles.usageItemHeader}>
-                    <div className={styles.usageItemLeft}>
-                      <Icon size={16} style={{ color }} />
-                      <span className={styles.usageItemLabel}>{label}</span>
-                    </div>
-                    <span className={styles.usageItemCount}>{count}</span>
-                  </div>
-                  <div className={styles.usageBar}>
+      <section className={ui.section} aria-labelledby="cr-use-title">
+        <div className={ui.sectionHead}>
+          <h2 className={ui.sectionTitle} id="cr-use-title">
+            Uso de hoy
+          </h2>
+        </div>
+        <div className={ui.panel}>
+          {USAGE_ROWS.map((r) => {
+            const count = credits.breakdown[r.key];
+            return (
+              <div className={ui.row} key={r.key}>
+                <div className={ui.rowText}>
+                  <span className={ui.rowLabel}>{r.label}</span>
+                </div>
+                <div
+                  className={ui.rowControl}
+                  style={{ gap: 12, minWidth: 120, justifyContent: "flex-end" }}
+                >
+                  <div className={ui.meter} style={{ width: 72 }}>
                     <div
-                      className={styles.usageBarFill}
-                      style={{ width: `${pct}%`, backgroundColor: color }}
+                      className={ui.meterFill}
+                      style={{ width: `${(count / maxUse) * 100}%` }}
                     />
                   </div>
+                  <span className={ui.mono} style={{ fontSize: 14 }}>
+                    {count}
+                  </span>
                 </div>
-              );
-            })}
-          </div>
-        </section>
+              </div>
+            );
+          })}
+        </div>
+      </section>
 
-        <section className={styles.creditsCostsCard}>
-          <h3>
-            <Zap size={18} /> Costo Base por Acción
-          </h3>
-          <div className={styles.creditsCostsGrid}>
-            <div className={styles.creditsCostItem}>
-              <BookOpen size={18} />
-              <span>Generar Quiz</span>
-              <span className={styles.creditsCostValue}>
-                Desde {credits.costs.EXAM_GENERATION}
-              </span>
-              <span className={styles.creditsCostDetail}>
-                +0.5 por pregunta · x1.0/x1.3/x1.7 dificultad
-              </span>
+      <section className={ui.section} aria-labelledby="cr-cost-title">
+        <div className={ui.sectionHead}>
+          <h2 className={ui.sectionTitle} id="cr-cost-title">
+            Costos
+          </h2>
+          <p className={ui.sectionHelp}>
+            El costo final se calcula según cantidad, dificultad y longitud
+            del tema.
+          </p>
+        </div>
+        <div className={ui.panel}>
+          {COST_ROWS.map((r) => (
+            <div className={ui.row} key={r.label}>
+              <div className={ui.rowText}>
+                <span className={ui.rowLabel}>{r.label}</span>
+                <span className={ui.rowHelp}>{r.help}</span>
+              </div>
+              <div className={ui.rowControl}>
+                <span className={ui.mono} style={{ fontSize: 13.5 }}>
+                  {r.value(credits)}
+                </span>
+              </div>
             </div>
-            <div className={styles.creditsCostItem}>
-              <FileText size={18} />
-              <span>Generar Notas</span>
-              <span className={styles.creditsCostValue}>
-                Desde {credits.costs.NOTE_GENERATION}
-              </span>
-              <span className={styles.creditsCostDetail}>
-                x1.0 breve · x1.4 medio · x1.9 detallado
-              </span>
-            </div>
-            <div className={styles.creditsCostItem}>
-              <CreditCard size={18} />
-              <span>Generar Flashcards</span>
-              <span className={styles.creditsCostValue}>
-                Desde {credits.costs.FLASHCARD_GENERATION}
-              </span>
-              <span className={styles.creditsCostDetail}>
-                +0.4 por tarjeta
-              </span>
-            </div>
-            <div className={styles.creditsCostItem}>
-              <MessageSquare size={18} />
-              <span>Chat</span>
-              <span className={styles.creditsCostValue}>
-                {credits.costs.CHAT_MESSAGE} crédito
-              </span>
-              <span className={styles.creditsCostDetail}>
-                Por mensaje enviado
-              </span>
-            </div>
-          </div>
-          <div className={styles.creditsCostsFooter}>
-            <Info size={14} />
-            <span>Contenido público tiene 50% de descuento</span>
-          </div>
-        </section>
+          ))}
+        </div>
+      </section>
 
-        <section className={styles.infoCard}>
-          <div className={styles.infoCardItem}>
-            <Clock size={18} />
-            <div>
-              <strong>Renovación diaria</strong>
-              <p>Tus créditos se reinician cada día a medianoche (00:00).</p>
-            </div>
-          </div>
-          <div className={styles.infoCardItem}>
-            <Upload size={18} />
-            <div>
-              <strong>Subida de archivos</strong>
-              <p>Límite de 30 archivos/día en el chat, y 10/día para generar exámenes o flashcards desde archivo.</p>
-            </div>
-          </div>
-        </section>
-      </div>
-    </>
+      <p className={ui.note}>
+        <Info size={15} />
+        El contenido público tiene 50% de descuento. Subir archivos al chat:
+        30/día; generar desde archivo: 10/día.
+      </p>
+    </div>
   );
 }

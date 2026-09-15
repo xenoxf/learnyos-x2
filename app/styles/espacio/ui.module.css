@@ -1,0 +1,529 @@
+/* ============================================================
+   ESPACIO UI — sistema compartido
+   Dirección: consola sobria. Superficies planas, hairlines,
+   un solo acento (primary del tema), color solo semántico.
+   Todo múltiplo de 4. Sin gradientes decorativos, sin emojis,
+   sin rebotes. Respeta los 6 temas vía hsl(var(--*)).
+   ============================================================ */
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  max-width: 760px;
+}
+
+/* ---------- Encabezado de página ---------- */
+.pageHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.pageTitle {
+  margin: 0;
+  font-size: 20px;
+  line-height: 28px;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  color: hsl(var(--foreground));
+  text-wrap: balance;
+}
+
+.pageDesc {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 20px;
+  color: hsl(var(--muted-foreground));
+  text-wrap: pretty;
+}
+
+/* ---------- Sección ---------- */
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.sectionHead {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-bottom: 12px;
+}
+
+.sectionTitle {
+  margin: 0;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 650;
+  color: hsl(var(--foreground));
+}
+
+.sectionHelp {
+  margin: 0;
+  font-size: 13px;
+  line-height: 19px;
+  color: hsl(var(--muted-foreground));
+  text-wrap: pretty;
+}
+
+/* ---------- Panel + filas (estilo Linear/Vercel) ---------- */
+.panel {
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px;
+}
+
+.row + .row {
+  border-top: 1px solid hsl(var(--border));
+}
+
+.rowText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.rowLabel {
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 550;
+  color: hsl(var(--foreground));
+}
+
+.rowHelp {
+  font-size: 13px;
+  line-height: 18px;
+  color: hsl(var(--muted-foreground));
+  text-wrap: pretty;
+}
+
+.rowControl {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Enlace-fila (navegación) */
+.rowLink {
+  composes: row;
+  width: 100%;
+  background: none;
+  border: none;
+  border-radius: 0;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  color: hsl(var(--foreground));
+  transition: background-color 120ms ease-out;
+}
+
+.rowLink + .rowLink,
+.rowLink + .row,
+.row + .rowLink {
+  border-top: 1px solid hsl(var(--border));
+}
+
+.rowLink:hover {
+  background: hsl(var(--muted) / 0.5);
+}
+
+.rowLink:active {
+  background: hsl(var(--muted) / 0.8);
+}
+
+.rowLink:focus-visible {
+  outline: 2px solid hsl(var(--primary));
+  outline-offset: -2px;
+}
+
+.rowChevron {
+  color: hsl(var(--muted-foreground));
+  flex-shrink: 0;
+}
+
+/* ---------- Segmented (selector excluyente) ---------- */
+.segmented {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  background: hsl(var(--muted) / 0.6);
+  border: 1px solid hsl(var(--border));
+  border-radius: 10px;
+  padding: 4px;
+  min-width: 280px;
+}
+
+.segment {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  background: none;
+  font: inherit;
+  cursor: pointer;
+  color: hsl(var(--muted-foreground));
+  transition: background-color 120ms ease-out, color 120ms ease-out, border-color 120ms ease-out;
+}
+
+.segment:hover {
+  color: hsl(var(--foreground));
+}
+
+.segment:focus-visible {
+  outline: 2px solid hsl(var(--primary));
+  outline-offset: 2px;
+}
+
+.segment[aria-pressed="true"] {
+  background: hsl(var(--card));
+  border-color: hsl(var(--border));
+  color: hsl(var(--foreground));
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.06);
+}
+
+.segmentName {
+  font-size: 13.5px;
+  font-weight: 600;
+  line-height: 18px;
+}
+
+.segmentSub {
+  font-size: 12px;
+  line-height: 16px;
+  color: hsl(var(--muted-foreground));
+  font-weight: 400;
+}
+
+/* ---------- Pills de estado (único color semántico) ---------- */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.pillDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.pillOk {
+  background: hsl(142 60% 45% / 0.12);
+  color: hsl(142 60% 32%);
+}
+
+.pillOk .pillDot {
+  background: hsl(142 60% 40%);
+}
+
+.pillWarn {
+  background: hsl(38 90% 50% / 0.14);
+  color: hsl(32 90% 34%);
+}
+
+.pillWarn .pillDot {
+  background: hsl(38 90% 48%);
+}
+
+.pillNeutral {
+  background: hsl(var(--muted));
+  color: hsl(var(--muted-foreground));
+}
+
+.pillNeutral .pillDot {
+  background: hsl(var(--muted-foreground));
+}
+
+/* ---------- Botones ---------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 36px;
+  padding: 0 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 20px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: background-color 120ms ease-out, border-color 120ms ease-out;
+}
+
+.btn:focus-visible {
+  outline: 2px solid hsl(var(--primary));
+  outline-offset: 2px;
+}
+
+.btn:active {
+  transform: scale(0.99);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btnPrimary {
+  composes: btn;
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+}
+
+.btnPrimary:hover:not(:disabled) {
+  background: hsl(var(--primary) / 0.88);
+}
+
+.btnSecondary {
+  composes: btn;
+  background: transparent;
+  border-color: hsl(var(--border));
+  color: hsl(var(--foreground));
+}
+
+.btnSecondary:hover:not(:disabled) {
+  background: hsl(var(--muted) / 0.6);
+}
+
+.btnDanger {
+  composes: btn;
+  background: transparent;
+  border-color: hsl(var(--destructive) / 0.4);
+  color: hsl(var(--destructive));
+}
+
+.btnDanger:hover:not(:disabled) {
+  background: hsl(var(--destructive) / 0.08);
+}
+
+.btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+.btnRow {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* ---------- Nota / aviso ---------- */
+.note {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  font-size: 13px;
+  line-height: 19px;
+  color: hsl(var(--muted-foreground));
+  margin: 0;
+  text-wrap: pretty;
+}
+
+.note svg {
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.noteWarn {
+  composes: note;
+  color: hsl(32 90% 34%);
+}
+
+/* ---------- Stat (número tabular + caption) ---------- */
+.statRow {
+  display: flex;
+  gap: 32px;
+  flex-wrap: wrap;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.statValue {
+  font-size: 28px;
+  line-height: 34px;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+  color: hsl(var(--foreground));
+}
+
+.statLabel {
+  font-size: 12.5px;
+  line-height: 17px;
+  color: hsl(var(--muted-foreground));
+}
+
+/* ---------- Barra de uso (un solo acento) ---------- */
+.meter {
+  height: 6px;
+  border-radius: 3px;
+  background: hsl(var(--muted));
+  overflow: hidden;
+}
+
+.meterFill {
+  height: 100%;
+  border-radius: 3px;
+  background: hsl(var(--primary));
+  transition: width 200ms ease-out;
+}
+
+/* ---------- Estados ---------- */
+.stateBox {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 48px 24px;
+  text-align: center;
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  border-radius: 12px;
+}
+
+.stateBox h3 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 650;
+  color: hsl(var(--foreground));
+}
+
+.stateBox p {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 20px;
+  color: hsl(var(--muted-foreground));
+  max-width: 420px;
+  text-wrap: pretty;
+}
+
+.stateIcon {
+  color: hsl(var(--muted-foreground));
+}
+
+.stateIconDanger {
+  color: hsl(var(--destructive));
+}
+
+.spinner {
+  animation: ui-spin 1s linear infinite;
+  color: hsl(var(--primary));
+}
+
+@keyframes ui-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ---------- Perfil ---------- */
+.profileRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: hsl(var(--primary) / 0.12);
+  color: hsl(var(--primary));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 650;
+  font-size: 15px;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.profileName {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: hsl(var(--foreground));
+}
+
+.profileMail {
+  margin: 0;
+  font-size: 13px;
+  color: hsl(var(--muted-foreground));
+}
+
+.mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 640px) {
+  .page {
+    gap: 24px;
+  }
+
+  .row {
+    padding: 14px 12px;
+  }
+
+  .segmented {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .rowLink .rowText,
+  .row .rowText {
+    min-width: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn,
+  .segment,
+  .rowLink,
+  .meterFill,
+  .spinner {
+    transition: none;
+    animation: none;
+  }
+
+  .btn:active {
+    transform: none;
+  }
+}
