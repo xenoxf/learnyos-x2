@@ -225,7 +225,12 @@ export default function SettingsPage() {
   const loadAiConfig = useCallback(async () => {
     try {
       const data = await aiService.getConfig();
-      setSelectedProvider(data.provider || "groq");
+      // El backend usa 'auto' por defecto (→ groq ahorro); solo mapear valores conocidos
+      if (data.provider === "groq" || data.provider === "gemini") {
+        setSelectedProvider(data.provider);
+      } else {
+        setSelectedProvider("groq");
+      }
       setSelectedMode(data.mode || "ahorro");
     } catch (e) {
       // ignore
@@ -251,7 +256,7 @@ export default function SettingsPage() {
       setTestResult(null);
       const res = await aiService.testConnection({
         provider: selectedProvider,
-        model: selectedProvider === "gemini" ? "gemini-2.5-flash-lite" : "llama-3.1-8b-instant",
+        model: selectedProvider === "gemini" ? "gemini-2.5-flash-lite" : "openai/gpt-oss-20b",
       });
       setTestResult(res);
       if (res.ok) {
@@ -554,6 +559,12 @@ export default function SettingsPage() {
                       <h3 className={styles.creditsMainTitle}>Proveedor de IA</h3>
                     </div>
                     <div className={styles.creditsCostsGrid}>
+                      {providers.length === 0 && (
+                        <p className={styles.creditsCostsNote}>
+                          No se pudieron cargar los proveedores. Verifica que el
+                          backend esté en línea e inténtalo de nuevo.
+                        </p>
+                      )}
                       {providers.map((p: any) => (
                         <div
                           key={p.id}
@@ -572,7 +583,7 @@ export default function SettingsPage() {
                               {p.id === 'groq' ? '🦎 Groq' : '🟢 Gemini'}
                             </span>
                             <span className={styles.creditsCostValue}>
-                              {p.models.map((m: any) => m.label).join(', ')}
+                              {(p.models || []).map((m: any) => m.label).join(', ')}
                             </span>
                           </div>
                         </div>
@@ -589,7 +600,7 @@ export default function SettingsPage() {
                       <h3 className={styles.creditsMainTitle}>Modo de ahorro</h3>
                     </div>
                     <p className={styles.creditsCostsNote}>
-                      Siempre activo. Usa los modelos más rápidos y baratos. Nunca se usa GPT-OSS 120B.
+                      Siempre activo. Usa los modelos más rápidos y baratos (GPT-OSS 20B).
                     </p>
                     <div style={{ marginTop: '1rem' }}>
                       <span style={{ fontSize: '0.9rem', color: '#22c55e' }}>
@@ -640,13 +651,13 @@ export default function SettingsPage() {
                 </>
               )}
             </div>
-          ) : (
+          ) : activeTab === "ia" ? (
             <div className={styles.guestMessage}>
               <AlertTriangle size={32} />
               <h3>Funcionalidad restringida</h3>
               <p>Inicia sesión para configurar tu IA.</p>
             </div>
-          )}
+          ) : null}
 
           {/* CREDITS TAB */}
           {activeTab === "creditos" && !isGuest ? (
@@ -872,7 +883,7 @@ export default function SettingsPage() {
                 </div>
               )}
             </div>
-          ) : (
+          ) : activeTab === "creditos" ? (
             <div className={styles.guestMessage}>
               <AlertTriangle size={32} />
               <h3>Funcionalidad restringida</h3>
@@ -891,7 +902,7 @@ export default function SettingsPage() {
                 <span>Iniciar sesión</span>
               </Button>
             </div>
-          )}
+          ) : null}
 
           {/* TERMS TAB */}
           {activeTab === "terminos" && (
@@ -1210,7 +1221,9 @@ export default function SettingsPage() {
                 </div>
               )}
             </div>
-          ) : (
+          ) : activeTab === "notes" ||
+            activeTab === "flashcards" ||
+            activeTab === "quizzes" ? (
             <div className={styles.guestMessage}>
               <AlertTriangle size={32} />
               <h3>Funcionalidad restringida</h3>
@@ -1226,7 +1239,7 @@ export default function SettingsPage() {
                 <span>Iniciar sesión</span>
               </Button>
             </div>
-          )}
+          ) : null}
         </main>
       </div>
     </div>

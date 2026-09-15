@@ -347,6 +347,7 @@ export default function ChatPage() {
     }
     setCurrentChat(null);
     setMessages([]);
+    setActionCards([]);
     setInputValue("");
     if (isMobile) setIsSidebarOpen(false);
     if (textareaRef.current) textareaRef.current.focus();
@@ -354,9 +355,24 @@ export default function ChatPage() {
 
   const handleSelectChat = async (chat: Chat) => {
     setCurrentChat(chat);
+    setActionCards([]);
     await loadChatMessages(chat.id);
     if (isMobile) setIsSidebarOpen(false);
   };
+
+  // Deep-link desde la búsqueda global: /study/chat?chat=ID
+  useEffect(() => {
+    if (isGuest || chats.length === 0 || typeof window === "undefined") return;
+    const chatId = Number(new URLSearchParams(window.location.search).get("chat"));
+    if (!chatId) return;
+    const target = chats.find((c) => c.id === chatId);
+    if (target && target.id !== currentChat?.id) {
+      setCurrentChat(target);
+      setActionCards([]);
+      loadChatMessages(target.id);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [chats, isGuest]);
 
   const handleDeleteChat = async (chatId: number, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -605,6 +621,14 @@ export default function ChatPage() {
                             ))}
                           </div>
                         )}
+                        {msg.toolCalls && msg.toolCalls.filter((tc) => tc.kind && tc.title).map((tc, i) => (
+                          <AgentActionCard
+                            key={`hist-${i}`}
+                            kind={tc.kind as "exam_created" | "flashcards_created" | "notes_created"}
+                            title={tc.title as string}
+                            id={tc.id}
+                          />
+                        ))}
                         <button
                           className={styles.copyButton}
                           onClick={() => handleCopyMessage(msg.content, msg.id)}
@@ -620,6 +644,11 @@ export default function ChatPage() {
                     </>
                   )}
                 </div>
+              ))}
+
+              {/* Tarjetas de contenido creado por el agente (en vivo) */}
+              {actionCards.map((card, i) => (
+                <AgentActionCard key={`live-${i}`} kind={card.kind as any} title={card.title} id={card.id} />
               ))}
 
               {/* Streaming message */}
@@ -772,9 +801,6 @@ export default function ChatPage() {
           aria-hidden="true"
         />
       )}
-      {actionCards.map((card, i) => (
-        <AgentActionCard key={i} kind={card.kind as any} title={card.title} id={card.id} />
-      ))}
       <GlobalSearchModal />
     </div>
     </>

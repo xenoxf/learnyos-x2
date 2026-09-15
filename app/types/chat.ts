@@ -72,8 +72,12 @@ export interface GetChatMessagesResponse {
 
 export interface ToolCallInfo {
   name: string;
-  args: any;
-  result: any;
+  args?: any;
+  result?: any;
+  status?: "start" | "done" | "error";
+  kind?: "exam_created" | "flashcards_created" | "notes_created";
+  title?: string;
+  id?: number;
 }
 
 export interface UploadImageResponse {

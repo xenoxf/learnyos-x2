@@ -153,7 +153,7 @@ Services         GroqService      AI Responses
              │
              ▼
     ┌──────────────────────────────────┐
-    │   Groq API (llama-3.3-70b)      │
+    │   Groq API (openai/gpt-oss-20b)   │
     └──────────────────────────────────┘
 \`\`\`
 
