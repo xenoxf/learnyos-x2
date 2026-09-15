@@ -205,35 +205,35 @@ export default function SettingsPage() {
   // Cargar IA config y providers cuando se abre la pestaña IA
   useEffect(() => {
     if (activeTab === "ia" && !isGuest) {
-      loadProviders();
-      loadAiConfig();
+      loadAiTab();
     }
   }, [activeTab, isGuest]);
 
-  const loadProviders = useCallback(async () => {
+  const pickUsableProvider = (provs: any[], preferred?: string): string => {
+    const known = preferred === "groq" || preferred === "gemini" ? preferred : "groq";
+    const usable = (id: string) =>
+      provs.length === 0 ||
+      provs.find((p: any) => p.id === id)?.available !== false;
+    if (usable(known)) return known;
+    // El guardado no tiene keys: usar el primero disponible (el backend
+    // igual hace fallback solo, esto es solo para mostrar bien la UI)
+    return provs.find((p: any) => p.available)?.id || known;
+  };
+
+  const loadAiTab = useCallback(async () => {
     try {
       setAiLoading(true);
-      const data = await aiService.getProviders();
-      setProviders(data);
+      const [provs, cfg] = await Promise.all([
+        aiService.getProviders(),
+        aiService.getConfig().catch(() => null),
+      ]);
+      setProviders(provs);
+      setSelectedProvider(pickUsableProvider(provs, cfg?.provider));
+      setSelectedMode(cfg?.mode || "ahorro");
     } catch (e) {
       toast.error("Error", "No se pudieron cargar los proveedores");
     } finally {
       setAiLoading(false);
-    }
-  }, []);
-
-  const loadAiConfig = useCallback(async () => {
-    try {
-      const data = await aiService.getConfig();
-      // El backend usa 'auto' por defecto (→ groq ahorro); solo mapear valores conocidos
-      if (data.provider === "groq" || data.provider === "gemini") {
-        setSelectedProvider(data.provider);
-      } else {
-        setSelectedProvider("groq");
-      }
-      setSelectedMode(data.mode || "ahorro");
-    } catch (e) {
-      // ignore
     }
   }, []);
 
@@ -245,11 +245,10 @@ export default function SettingsPage() {
         fallbackEnabled: true,
       });
       toast.success("Guardado", "Configuración de IA actualizada");
-      loadAiConfig();
     } catch (e) {
       toast.error("Error", "No se pudo guardar la configuración");
     }
-  }, [selectedProvider, selectedMode, loadAiConfig]);
+  }, [selectedProvider, selectedMode]);
 
   const handleTestConnection = useCallback(async () => {
     try {
@@ -539,7 +538,7 @@ export default function SettingsPage() {
                 </div>
                 <h2 className={styles.creditsHeroTitle}>Configuración de IA</h2>
                 <p className={styles.creditsHeroSubtitle}>
-                  Siempre modo ahorro activo. Selecciona tu proveedor y modelo.
+                  Siempre modo ahorro activo. Si un proveedor no tiene key o falla, se usa el otro automáticamente.
                 </p>
               </section>
 
@@ -565,6 +564,12 @@ export default function SettingsPage() {
                           backend esté en línea e inténtalo de nuevo.
                         </p>
                       )}
+                      {providers.length > 0 && providers.every((p: any) => p.available === false) && (
+                        <p className={styles.creditsCostsNote} style={{ color: '#f59e0b' }}>
+                          ⚠️ Ningún proveedor tiene API key en el backend. El chat y el agente
+                          no pueden responder hasta configurarla.
+                        </p>
+                      )}
                       {providers.map((p: any) => (
                         <div
                           key={p.id}
@@ -580,7 +585,16 @@ export default function SettingsPage() {
                         >
                           <div className={styles.creditsCostInfo}>
                             <span className={styles.creditsCostName}>
-                              {p.id === 'groq' ? '🦎 Groq' : '🟢 Gemini'}
+                              {p.id === 'groq' ? '🦎 Groq' : '🟢 Gemini'}{' '}
+                              {p.available === false ? (
+                                <span style={{ fontSize: '0.7rem', color: '#f59e0b' }}>
+                                  (sin API key)
+                                </span>
+                              ) : (
+                                <span style={{ fontSize: '0.7rem', color: '#22c55e' }}>
+                                  (listo)
+                                </span>
+                              )}
                             </span>
                             <span className={styles.creditsCostValue}>
                               {(p.models || []).map((m: any) => m.label).join(', ')}

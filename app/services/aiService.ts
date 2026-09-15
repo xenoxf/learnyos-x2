@@ -9,6 +9,7 @@ export interface AiProviderModel {
 export interface AiProviderInfo {
   id: string;
   label: string;
+  available: boolean;
   models: AiProviderModel[];
   supportsVision: boolean;
   defaultModel: string;
