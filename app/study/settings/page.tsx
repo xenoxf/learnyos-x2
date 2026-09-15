@@ -93,7 +93,24 @@ export default function SettingsPage() {
   const { alert, alertState, handleClose, handleConfirm } = useCustomAlert();
 
   const [activeTab, setActiveTab] = useState<TabType>("general");
-  const [items, setItems] = useState<ManageItem[]>([]);
+
+  // Deep-link: /study/settings?tab=ia (desde el sidebar u otros)
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const tab = new URLSearchParams(window.location.search).get("tab");
+    const valid: TabType[] = [
+      "general",
+      "creditos",
+      "notes",
+      "flashcards",
+      "quizzes",
+      "terminos",
+      "ia",
+    ];
+    if (tab && valid.includes(tab as TabType)) {
+      setActiveTab(tab as TabType);
+    }
+  }, []);  const [items, setItems] = useState<ManageItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [deletingId, setDeletingId] = useState<number | null>(0);
   const [deletingAll, setDeletingAll] = useState(false);
