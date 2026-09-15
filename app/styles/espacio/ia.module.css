@@ -1,0 +1,353 @@
+/* ==================== MI IA - ESPACIO ==================== */
+.espacioPageHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 0.5px solid hsl(var(--border));
+}
+
+.espacioPageTitle {
+  font-size: clamp(1.125rem, 3vw, 1.5rem);
+  font-weight: 600;
+  color: hsl(var(--foreground));
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.tabContent {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+/* Hero */
+.iaHero {
+  background: linear-gradient(135deg, hsl(var(--primary) / 0.1), hsl(var(--accent) / 0.1));
+  border: 1px solid hsl(var(--border));
+  border-radius: 1.5rem;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  text-align: center;
+}
+
+.iaHero svg {
+  color: hsl(var(--primary));
+  width: 32px;
+  height: 32px;
+}
+
+.iaHero h2 {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: hsl(var(--foreground));
+  margin: 0;
+}
+
+.iaHero p {
+  font-size: 0.95rem;
+  color: hsl(var(--muted-foreground));
+  margin: 0;
+  max-width: 560px;
+}
+
+/* Cards */
+.iaCard {
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  border-radius: 1.5rem;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.iaCard h3 {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: hsl(var(--foreground));
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.iaCard h3 svg {
+  color: hsl(var(--primary));
+  width: 20px;
+  height: 20px;
+}
+
+.iaNote {
+  font-size: 0.9rem;
+  color: hsl(var(--muted-foreground));
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Provider grid */
+.iaGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.iaProvider {
+  background: hsl(var(--muted) / 0.3);
+  border: 2px solid hsl(var(--border));
+  border-radius: 1rem;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  text-align: left;
+  color: hsl(var(--foreground));
+  font: inherit;
+}
+
+.iaProvider:hover {
+  border-color: hsl(var(--primary) / 0.5);
+  background: hsl(var(--primary) / 0.05);
+  transform: translateY(-2px);
+}
+
+.iaProviderSelected {
+  border-color: hsl(var(--primary));
+  background: hsl(var(--primary) / 0.08);
+}
+
+.iaProviderName {
+  font-size: 1rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.iaProviderModels {
+  font-size: 0.8rem;
+  color: hsl(var(--muted-foreground));
+}
+
+.iaBadge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.2rem 0.6rem;
+  border-radius: 9999px;
+  width: fit-content;
+}
+
+.iaBadgeOk {
+  background: hsl(142 71% 45% / 0.15);
+  color: #22c55e;
+}
+
+.iaBadgeMissing {
+  background: hsl(38 92% 50% / 0.15);
+  color: #f59e0b;
+}
+
+/* Ahorro pill */
+.iaAhorroPill {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #22c55e;
+  padding: 0.75rem 1rem;
+  background: hsl(142 71% 45% / 0.1);
+  border-radius: 0.75rem;
+  width: fit-content;
+}
+
+/* Actions */
+.iaActions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.iaWarning {
+  font-size: 0.9rem;
+  color: #f59e0b;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Test result */
+.iaResult {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: hsl(var(--foreground));
+  padding: 1rem 1.25rem;
+  border-radius: 0.75rem;
+}
+
+.iaResultOk {
+  background: hsl(142 71% 45% / 0.1);
+}
+
+.iaResultFail {
+  background: hsl(var(--destructive) / 0.08);
+}
+
+.iaResult p {
+  margin: 0;
+}
+
+/* ==================== ESTADOS ==================== */
+.guestMessage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 2.5rem;
+  text-align: center;
+  background: hsl(var(--muted) / 0.3);
+  border: 1px solid hsl(var(--border));
+  border-radius: 1.5rem;
+  color: hsl(var(--foreground));
+}
+
+.guestMessage svg {
+  color: hsl(var(--destructive));
+  width: 32px;
+  height: 32px;
+}
+
+.guestMessage h3 {
+  font-size: 1.25rem;
+  font-weight: 800;
+  margin: 0;
+}
+
+.guestMessage p {
+  font-size: 0.95rem;
+  color: hsl(var(--muted-foreground));
+  margin: 0;
+}
+
+.loadingState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  padding: 3rem 1.5rem;
+  text-align: center;
+  color: hsl(var(--muted-foreground));
+}
+
+.spinner {
+  animation: spin 1s linear infinite;
+  color: hsl(var(--primary));
+  width: 24px;
+  height: 24px;
+}
+
+.errorState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  padding: 2.5rem;
+  text-align: center;
+  background: hsl(var(--destructive) / 0.08);
+  border: 1px solid hsl(var(--destructive) / 0.3);
+  border-radius: 1.5rem;
+  color: hsl(var(--foreground));
+}
+
+.errorState svg {
+  color: hsl(var(--destructive));
+  width: 32px;
+  height: 32px;
+}
+
+.errorState p {
+  font-size: 0.95rem;
+  color: hsl(var(--muted-foreground));
+  margin: 0;
+}
+
+.retryButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  border: none;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.retryButton:hover {
+  background: hsl(var(--primary) / 0.9);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px hsl(var(--primary) / 0.3);
+}
+
+.retryButton:active {
+  transform: translateY(0);
+}
+
+.retryButton svg {
+  width: 16px;
+  height: 16px;
+}
+
+.secondaryButton {
+  background: hsl(var(--secondary));
+  color: hsl(var(--secondary-foreground));
+  border: 1px solid hsl(var(--border));
+}
+
+.secondaryButton:hover {
+  background: hsl(var(--muted));
+  box-shadow: none;
+  transform: translateY(-2px);
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ==================== RESPONSIVE ==================== */
+@media (max-width: 768px) {
+  .iaHero {
+    padding: 1.5rem;
+  }
+
+  .iaHero h2 {
+    font-size: 1.25rem;
+  }
+
+  .iaCard {
+    padding: 1.5rem;
+  }
+
+  .iaGrid {
+    grid-template-columns: 1fr;
+  }
+}

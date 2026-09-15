@@ -51,8 +51,8 @@ export function AiStatusWidget({ collapsed = false }: AiStatusWidgetProps) {
   if (!label) return null;
 
   const isActive =
-    pathname === "/study/settings" ||
-    pathname?.startsWith("/study/settings/");
+    pathname === "/study/espacio/ia" ||
+    pathname?.startsWith("/study/espacio/ia/");
 
   return (
     <div className={styles.navList}>
@@ -62,7 +62,7 @@ export function AiStatusWidget({ collapsed = false }: AiStatusWidgetProps) {
         </div>
       )}
       <Link
-        href="/study/settings?tab=ia"
+        href="/study/espacio/ia"
         className={`
           ${styles.navItem}
           ${isActive ? styles.navItemActive : styles.navItemInactive}
