@@ -13,7 +13,6 @@ import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import styles from "../styles/sidebar.module.css";
 import { ThemeToggleSidebr } from "./ThemeToogleSidebr";
-import { AiStatusWidget } from "./AiStatusWidget";
 
 const menuItems = [
   {
@@ -156,7 +155,6 @@ export function AppSidebar({
             );
             })}
           </div>
-        <AiStatusWidget collapsed={sidebarClosed} />
       </nav>
 
       {/* Footer - User Info & Actions */}

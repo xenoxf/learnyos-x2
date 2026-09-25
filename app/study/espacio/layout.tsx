@@ -9,7 +9,6 @@ import {
   FileText,
   CreditCard,
   Brain,
-  Sparkles,
   TrendingUp,
   ChevronDown,
   Menu,
@@ -36,7 +35,6 @@ interface EspacioNavItem {
 const NAV_ITEMS: EspacioNavItem[] = [
   { id: "general", label: "General", icon: Settings, href: "/study/espacio" },
   { id: "creditos", label: "Mis Créditos", icon: Coins, href: "/study/espacio/creditos" },
-  { id: "ia", label: "Mi IA", icon: Sparkles, href: "/study/espacio/ia" },
   {
     id: "funciones",
     label: "Mis Funciones",

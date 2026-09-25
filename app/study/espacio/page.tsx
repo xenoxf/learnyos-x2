@@ -8,7 +8,6 @@ import {
   ChevronRight,
   Coins,
   TrendingUp,
-  Sparkles,
   Layers,
   BadgeCheck,
 } from "lucide-react";
@@ -23,12 +22,6 @@ const NAV_ROWS = [
     help: "Balance, uso y costos",
     icon: Coins,
     href: "/study/espacio/creditos",
-  },
-  {
-    label: "Mi IA",
-    help: "Proveedor del chat y del agente",
-    icon: Sparkles,
-    href: "/study/espacio/ia",
   },
   {
     label: "Mi rendimiento",
