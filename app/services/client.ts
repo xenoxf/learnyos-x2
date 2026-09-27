@@ -142,9 +142,9 @@ class HttpClient {
         if (response.status === 204) return undefined as T;
         const contentType = response.headers.get("content-type") ?? "";
         if (!contentType.includes("application/json")) return undefined as T;
-        
+
         const data = (await response.json()) as T;
-        
+
         // El backend ya no envía Base64 (ahora usa Schemas nativos), 
         // por lo que desactivamos la decodificación automática para evitar símbolos raros.
         return data;
@@ -232,6 +232,6 @@ class HttpClient {
 }
 
 export const httpClient = new HttpClient(
-  process.env.NEXT_PUBLIC_BACKEND_URL || "",
-  String(process.env.NEXT_PUBLIC_BACKEND_API_KEY),
+  process.env.NEXT_BACKEND_URL || "",
+  String(process.env.NEXT_BACKEND_API_KEY),
 );
